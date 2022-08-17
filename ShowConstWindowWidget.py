@@ -25,10 +25,11 @@ class ConstWidgetWindow(QWidget):
         super().__init__()
 
         self.own_dir = os.getcwd()
-
         resolution = Screenconfig.monitor_info()
         self.monitor_width = resolution[0]
         self.monitor_height = resolution[1]
+
+        self.font14 = QtGui.QFont('Times', 14)
 
         with open('settings.json', 'r') as json_file:
             settings = json.load(json_file)
@@ -41,29 +42,32 @@ class ConstWidgetWindow(QWidget):
         self.layoutoutside.setSpacing(10)
 
         self.layout_type = QGridLayout(self)
-        self.layout_type.setSpacing(5)
-        self.layout_type.setAlignment(Qt.AlignLeft)
+        self.layout_type.setHorizontalSpacing(5)
+        self.layout_type.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
         self.pic.setAlignment(Qt.AlignCenter)
 
-        self.layout_inside_thums = QGridLayout(self)  # создание внутреннего слоя для подвижной области
+        self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
         self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
+        self.groupbox_thumbs.setStyleSheet("border:0;")
 
-        self.groupbox_thumbs.setLayout(self.layout_inside_thums)
+        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
         self.scroll = QScrollArea(self)  # создание подвижной области
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.groupbox_thumbs)
         self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setStyleSheet("border-width: 0px;")
 
         self.layoutoutside.addWidget(self.scroll, 1, 0, 2, 2)  # помещение подвижной области на слой
         self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
         self.scroll.setFixedWidth(200*self.thumb_row)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setMaximumHeight(50)
-        self.groupbox_sort.setMaximumWidth(700)
+        self.groupbox_sort.setFixedHeight(50)
+        # self.groupbox_sort.setMaximumWidth(700)
+        self.groupbox_sort.setStyleSheet("border:0;")
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
         self.fill_sort_groupbox()
@@ -94,11 +98,15 @@ class ConstWidgetWindow(QWidget):
         self.groupbox_btns.setFixedSize(70, 220)
         self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
 
-        self.socnet_group = QGroupBox(self)
-        self.layout_sn = QGridLayout(self)
-        self.layout_sn.setSpacing(10)
-        self.layout_sn.setAlignment(Qt.AlignTop | Qt.AlignLeft)
-        self.socnet_group.setLayout(self.layout_sn)
+        self.socnet_group = QTableWidget(self)
+        self.socnet_group.setColumnCount(2)
+        self.socnet_group.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.horizontalHeader().setVisible(False)
+        self.socnet_group.verticalHeader().setVisible(False)
+        self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
+        self.socnet_group.setFocusPolicy(Qt.NoFocus)
+        self.socnet_group.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
 
         self.photo_show = QGroupBox(self)
         self.photo_show.setAlignment(Qt.AlignCenter)
@@ -106,8 +114,8 @@ class ConstWidgetWindow(QWidget):
         self.layout_show.setAlignment(Qt.AlignCenter)
         self.layout_show.setHorizontalSpacing(10)
         self.photo_show.setLayout(self.layout_show)
+        self.photo_show.setStyleSheet("border:0;")
         self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
-
 
     # Получение годов
     def get_years(self) -> None:
@@ -221,7 +229,8 @@ class ConstWidgetWindow(QWidget):
                     self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
                     self.button.setObjectName(
                         f'{Settings.get_destination_media()}/Media/Photo/const/{year}/{month}/{day}/{thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
@@ -236,7 +245,8 @@ class ConstWidgetWindow(QWidget):
                     self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')
                     self.button.setObjectName(
                         f'{Settings.get_destination_media()}/Media/Photo/const/{year}/{month}/{day}/{thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
                     self.button.clicked.connect(self.showinfo)
 
     # функция отображения кнопок с миниатюрами при сортировке по оборудованию
@@ -282,7 +292,8 @@ class ConstWidgetWindow(QWidget):
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')  # добавление названия фото
                     self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
@@ -296,7 +307,8 @@ class ConstWidgetWindow(QWidget):
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')
                     self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
                     self.button.clicked.connect(self.showinfo)
 
         # фотографии списком выбираются из БД, где есть имя файла и каталог
@@ -356,7 +368,8 @@ class ConstWidgetWindow(QWidget):
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')  # добавление названия фото
                     self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
@@ -370,7 +383,8 @@ class ConstWidgetWindow(QWidget):
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')
                     self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
                     self.button.clicked.connect(self.showinfo)
 
         # фотографии списком выбираются из БД, где есть имя файла и каталог
@@ -384,11 +398,11 @@ class ConstWidgetWindow(QWidget):
         self.metadata_show.clear()
         self.metadata_show.hide()
 
-        for i in reversed(range(self.layout_inside_thums.count())):
-            self.layout_inside_thums.itemAt(i).widget().deleteLater()
+        for i in reversed(range(self.layout_inside_thumbs.count())):
+            self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
 
-        for i in reversed(range(self.layout_sn.count())):
-            self.layout_sn.itemAt(i).widget().deleteLater()
+        self.socnet_group.clear()
+        self.socnet_group.hide()
 
         group_type = self.group_type.currentText()
         if group_type == 'Дата':
@@ -411,8 +425,7 @@ class ConstWidgetWindow(QWidget):
             else:
                 return
 
-        for i in reversed(range(self.layout_sn.count())):
-            self.layout_sn.itemAt(i).widget().deleteLater()
+        self.socnet_group.clear()
 
         self.last_clicked = self.photo_path  # полный путь
 
@@ -456,7 +469,6 @@ class ConstWidgetWindow(QWidget):
             self.metadata_show.setItem(i, 0, QTableWidgetItem(params[i]))
             self.metadata_show.setItem(i, 1, QTableWidgetItem(metadata[params[i]]))
 
-        self.font14 = QtGui.QFont('Times', 14)
         self.metadata_show.setFont(self.font14)
 
         self.metadata_show.horizontalHeader().setVisible(False)
@@ -466,16 +478,16 @@ class ConstWidgetWindow(QWidget):
         self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
 
-        if self.metadata_show.columnWidth(1) > 150:
-            self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
-        else:
-            self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + 160)
+        if self.metadata_show.columnWidth(1) < 164:
+            self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
+            self.metadata_show.setColumnWidth(1, 164)
+
+        self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
         self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.metadata_show.setDisabled(True)
-        self.metadata_show.setStyleSheet('color: black')
 
         if self.photo_rotation == 'gor':
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
@@ -484,24 +496,25 @@ class ConstWidgetWindow(QWidget):
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
-            # self.pic.setAlignment(Qt.AlignLeft)
             self.pic.show()
             self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
+            self.socnet_group.show()
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
             self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
+            self.socnet_group.show()
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
-            # self.pic.setAlignment(Qt.AlignLeft)
             self.pic.show()
 
         self.show_social_networks(self.last_clicked_name, photo_directory)
         # self.photo_show.setMinimumWidth(self.metadata_show.width()+self.socnet_group.width()+50)
         self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
+        self.metadata_show.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black")
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
@@ -510,8 +523,8 @@ class ConstWidgetWindow(QWidget):
         self.pic.hide()
         self.metadata_show.clear()
         self.metadata_show.hide()
-        for i in reversed(range(self.layout_sn.count())):
-            self.layout_sn.itemAt(i).widget().deleteLater()
+        self.socnet_group.clear()
+        self.socnet_group.hide()
 
         if self.group_type.currentText() == 'Дата':
             old_year = self.date_year.currentText()
@@ -580,12 +593,14 @@ class ConstWidgetWindow(QWidget):
         self.del_btn.clicked.connect(self.del_photo_func)
 
         self.explorer_btn = QToolButton(self)
+        # self.explorer_btn.setIcon()
         self.explorer_btn.setText('EXP')
         self.explorer_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.explorer_btn, 2, 0, 1, 1)
         self.explorer_btn.clicked.connect(self.call_explorer)
 
         self.open_file_btn = QToolButton(self)
+        # self.open_file_btn.setIcon()
         self.open_file_btn.setText('OPN')
         self.open_file_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.open_file_btn, 3, 0, 1, 1)
@@ -676,8 +691,8 @@ class ConstWidgetWindow(QWidget):
 
     # при редактировании метаданных могут создаваться новые папки (по датам), а фото будут переноситься - надо обновлять отображение
     def get_date(self, year: str, month: str, day: str) -> None:
-        for i in reversed(range(self.layout_sn.count())):
-            self.layout_sn.itemAt(i).widget().deleteLater()
+        self.socnet_group.clear()
+        self.socnet_group.hide()
         self.group_type.setCurrentText('Дата')
         self.get_years()
         self.get_months()
@@ -696,30 +711,33 @@ class ConstWidgetWindow(QWidget):
 
         def fill_sn_widgets(sn_names: list[str, ...], sn_tags: dict) -> None:
             i = 0
-            max_width = 0
+            self.socnet_group.setRowCount(len(sn_names))
             for name in sn_names:
                 self.sn_lbl = QLabel(self)
                 self.sn_lbl.setFont(self.font14)
+                self.sn_lbl.setStyleSheet("border: 0px; color: black; background-color: #F0F0F0")
+
                 if name[:9] != 'numnumnum':
                     self.sn_lbl.setText(f"{name}")
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
 
-                if self.photo_rotation == 'ver':
-                    self.sn_lbl.setFixedWidth(self.metadata_show.columnWidth(0))
-                else:
-                    self.sn_lbl.setFixedWidth(12*len(self.sn_lbl.text()))
-
-                self.layout_sn.addWidget(self.sn_lbl, i, 0, 1, 1)
+                self.sn_lbl.setFixedWidth(len(name)*15)
+                self.socnet_group.setCellWidget(i, 0, self.sn_lbl)
 
                 self.sn_tag_choose = QComboBox(self)
                 self.sn_tag_choose.setFont(self.font14)
+                self.sn_tag_choose.setStyleSheet("border: 1px; border-style: solid; color: black; color: black; background-color: #F0F0F0")
                 # self.sn_tag_choose.setFixedWidth(self.metadata_show.columnWidth(1))
                 self.sn_tag_choose.setObjectName(name)
                 self.sn_tag_choose.addItem('Не выбрано')
                 self.sn_tag_choose.addItem('Не публиковать')
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
+                if self.photo_rotation == 'gor':
+                    self.sn_tag_choose.setFixedWidth(180)
+                else:
+                    self.sn_tag_choose.setFixedWidth(self.metadata_show.columnWidth(1))
 
                 if sn_tags[f'{name}'] == 'No value':
                     self.sn_tag_choose.setCurrentText('Не выбрано')
@@ -733,13 +751,25 @@ class ConstWidgetWindow(QWidget):
                 self.sn_tag_choose.currentTextChanged.connect(edit_tags)
                 self.sn_tag_choose.currentTextChanged.connect(refresh_thumbs)
 
-                if self.sn_lbl.width() > max_width:
-                    max_width = self.sn_lbl.width()
-
-                self.layout_sn.addWidget(self.sn_tag_choose, i, 1, 1, 1)
+                self.socnet_group.setCellWidget(i, 1, self.sn_tag_choose)
                 i += 1
+
+            self.socnet_group_header = self.socnet_group.horizontalHeader()
+
+            if self.sn_lbl.width() > self.metadata_show.columnWidth(0):
+                self.metadata_show.setColumnWidth(0, self.sn_lbl.width())
+
+
             if self.photo_rotation == 'gor':
-                self.socnet_group.setFixedWidth(self.sn_tag_choose.width() + max_width + 60)
+                self.socnet_group_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+                self.socnet_group_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+            else:
+                self.socnet_group.setColumnWidth(0, self.metadata_show.columnWidth(0))
+                self.socnet_group.setColumnWidth(1, self.metadata_show.columnWidth(1))
+
+            self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1)+2)
+            self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
+
 
         def edit_tags():
             new_status = self.sender().currentText()
@@ -775,8 +805,11 @@ class ConstWidgetWindow(QWidget):
         self.group_type.addItem('Дата')
         self.group_type.addItem('Соцсети')
         self.group_type.addItem('Оборудование')
-        self.group_type.setMaximumWidth(100)
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
+        self.group_type.setFont(self.font14)
+        self.group_type.setFixedWidth(152)
+        self.group_type.setFixedHeight(30)
+        self.group_type.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
 
         self.layoutoutside.addWidget(self.group_type, 0, 0, 1, 1)
 
@@ -784,43 +817,52 @@ class ConstWidgetWindow(QWidget):
     def fill_sort_date(self) -> None:
 
         self.year_lbl = QLabel(self)
-        # self.year_lbl.setMaximumWidth(30)
+        self.year_lbl.setFont(self.font14)
         self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
 
         self.date_year = QComboBox(self)
-        # self.date_year.setMinimumWidth(100)
+        self.date_year.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
+        self.date_year.setFont(self.font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.get_years()
+        self.date_year.setFixedWidth(140)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
         self.month_lbl = QLabel(self)
-        # self.month_lbl.setMaximumWidth(60)
+        self.month_lbl.setFont(self.font14)
         self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
 
         self.date_month = QComboBox(self)
-        # self.date_month.setMaximumWidth(80)
+        self.date_month.setFont(self.font14)
+        self.date_month.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.get_months()
+        self.date_month.setFixedWidth(140)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
         self.day_lbl = QLabel(self)
-        # self.day_lbl.setMaximumWidth(50)
+        self.day_lbl.setFont(self.font14)
         self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
 
         if not self.year_lbl.text():
             self.year_lbl.setText('Год:')
             self.month_lbl.setText('    Месяц:')
-            self.day_lbl.setText('  День:')
+            self.day_lbl.setText('    День:')
 
         self.date_day = QComboBox(self)
-        # self.date_day.setMaximumWidth(80)
+        self.date_day.setFont(self.font14)
+        self.date_day.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.get_days()
+        self.date_day.setFixedWidth(140)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
-        # self.empty1 = QLabel(self)
-        # # self.empty1.setMaximumHeight(50)
-        # self.layout_type.addWidget(self.empty1, 0, 7, 1, 1)
+        self.date_day.setFixedHeight(30)
+        self.date_month.setFixedHeight(30)
+        self.date_year.setFixedHeight(30)
+        self.day_lbl.setFixedHeight(30)
+        self.month_lbl.setFixedHeight(30)
+        self.year_lbl.setFixedHeight(30)
 
         self.date_year.currentTextChanged.connect(self.get_months)
         self.date_month.currentTextChanged.connect(self.get_days)
@@ -828,24 +870,35 @@ class ConstWidgetWindow(QWidget):
 
     # заполнить поле группировки по соцсетям
     def fill_sort_socnets(self) -> None:
-
         self.socnet_choose = QComboBox(self)
+        self.socnet_choose.setFont(self.font14)
+        self.socnet_choose.setFixedHeight(30)
+        self.socnet_choose.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
         self.layout_type.addWidget(self.socnet_choose, 0, 1, 1, 1)
         socnets = PhotoDataDB.get_socialnetworks()
 
         if not socnets:
             self.socnet_choose.addItem('Нет данных')
         else:
+            socnet_max_len = 0
             for net in socnets:
                 self.socnet_choose.addItem(f'{net}')
+                if len(net) > socnet_max_len:
+                    socnet_max_len = len(net)
+
+            self.socnet_choose.setFixedWidth(socnet_max_len*15)
 
             self.socnet_choose.currentTextChanged.connect(self.type_show_thumbnails)
 
             self.sn_status = QComboBox(self)
+            self.sn_status.setFont(self.font14)
+            self.sn_status.setFixedHeight(30)
+            self.sn_status.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
             self.sn_status.addItem('Не выбрано')
             self.sn_status.addItem('Не публиковать')
             self.sn_status.addItem('Опубликовать')
             self.sn_status.addItem('Опубликовано')
+            self.sn_status.setFixedWidth(164)
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
             self.sn_status.currentTextChanged.connect(self.type_show_thumbnails)
@@ -854,16 +907,32 @@ class ConstWidgetWindow(QWidget):
     def fill_sort_equipment(self) -> None:
 
         self.camera_choose = QComboBox(self)
+        self.camera_choose.setFont(self.font14)
+        self.camera_choose.setFixedHeight(30)
+        self.camera_choose.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
         self.lens_choose = QComboBox(self)
+        self.lens_choose.setFont(self.font14)
+        self.lens_choose.setFixedHeight(30)
+        self.lens_choose.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0")
         self.layout_type.addWidget(self.camera_choose, 0, 1, 1, 1)
         self.layout_type.addWidget(self.lens_choose, 0, 2, 1, 1)
 
         cameras, lenses = PhotoDataDB.get_equipment()
+        camera_max_len = 0
+        lens_max_len = 0
+
         for camera in cameras:
             self.camera_choose.addItem(f'{camera}')
+            if len(camera) > camera_max_len:
+                camera_max_len = len(camera)
 
         for lens in lenses:
             self.lens_choose.addItem(f'{lens}')
+            if len(lens) > lens_max_len:
+                lens_max_len = len(lens)
+
+        self.camera_choose.setFixedWidth(camera_max_len*15)
+        self.lens_choose.setFixedWidth(lens_max_len*15)
 
         self.camera_choose.currentTextChanged.connect(self.type_show_thumbnails)
         self.lens_choose.currentTextChanged.connect(self.type_show_thumbnails)

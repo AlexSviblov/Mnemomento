@@ -228,6 +228,15 @@ def get_sn_photo_list(network: str, status: str) -> list[str, ...]:
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 
+    if not photodb_data:
+        try:
+            int(network[1])
+            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status}\''
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
+        except:
+            pass
+
 
     fullpaths = list()
     for photo in photodb_data:
