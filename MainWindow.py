@@ -18,6 +18,15 @@ import ErrorsAndWarnings
 import Settings
 
 
+stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
+stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
+font16 = QtGui.QFont('Times', 16)
+font14 = QtGui.QFont('Times', 14)
+font12 = QtGui.QFont('Times', 12)
+font10 = QtGui.QFont('Times', 10)
+font8 = QtGui.QFont('Times', 8)
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
@@ -34,6 +43,8 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(self.stylesheet)
 
         menubar = QMenuBar(self)
+        menubar.setFont(font8)
+        menubar.setStyleSheet(stylesheet2)
 
         add_menu = menubar.addMenu('Добавить')
 
@@ -243,7 +254,6 @@ class MainWindow(QMainWindow):
         self.window_sn.show()
 
     def resize_sn_window(self):
-        print(self.window_sn.size())
         self.window_sn.resize(self.window_sn.size())
         self.window_sn.adjustSize()
 
@@ -288,56 +298,59 @@ class StartShow(QWidget):
 
         self.layout_outside = QGridLayout(self)
 
-        self.stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
-        self.stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
+        stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
+        stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
+        font16 = QtGui.QFont('Times', 16)
+        font14 = QtGui.QFont('Times', 14)
+        font12 = QtGui.QFont('Times', 12)
+        font10 = QtGui.QFont('Times', 10)
+
 
         self.layout_buttons = QGridLayout(self)
 
         self.empty1 = QLabel()
-        self.empty1.setMinimumSize(200, 200)
+        self.empty1.setMinimumSize(5, 5)
         self.empty1.setMaximumSize(400, 400)
         self.layout_outside.addWidget(self.empty1, 0, 0, 1, 1)
 
         self.empty2 = QLabel()
-        self.empty2.setMinimumSize(200, 200)
+        self.empty2.setMinimumSize(5, 5)
         self.empty2.setMaximumSize(400, 400)
         self.layout_outside.addWidget(self.empty2, 0, 3, 1, 1)
 
         self.empty3 = QLabel()
-        self.empty3.setMinimumSize(200, 200)
+        self.empty3.setMinimumSize(5, 5)
         self.empty3.setMaximumSize(400, 400)
         self.layout_outside.addWidget(self.empty3, 3, 0, 1, 1)
 
         self.empty4 = QLabel()
-        self.empty4.setMinimumSize(200, 200)
+        self.empty4.setMinimumSize(5, 5)
         self.empty4.setMaximumSize(400, 400)
         self.layout_outside.addWidget(self.empty4, 3, 3, 1, 1)
 
         self.btn_const_cat = QPushButton(self)
         self.btn_const_cat.setText('Основной каталог')
-        self.btn_const_cat.setFont(QtGui.QFont('Times', 14))
-        self.btn_const_cat.setMinimumHeight(80)
+        self.btn_const_cat.setFont(font16)
         self.layout_buttons.addWidget(self.btn_const_cat, 0, 0, 1, 2)
 
         self.btn_alone_cat = QPushButton(self)
         self.btn_alone_cat.setText('Дополнительный каталог')
-        self.btn_alone_cat.setFont(QtGui.QFont('Times', 14))
-        self.btn_alone_cat.setMinimumHeight(80)
+        self.btn_alone_cat.setFont(font14)
         self.layout_buttons.addWidget(self.btn_alone_cat, 0, 2, 1, 1)
 
         self.btn_const_add_dir = QPushButton(self)
         self.btn_const_add_dir.setText('Добавить папку')
-        self.btn_const_add_dir.setFont(QtGui.QFont('Times', 10))
+        self.btn_const_add_dir.setFont(font12)
         self.layout_buttons.addWidget(self.btn_const_add_dir, 1, 0, 1, 1)
 
         self.btn_const_add_files = QPushButton(self)
         self.btn_const_add_files.setText('Добавить файлы')
-        self.btn_const_add_files.setFont(QtGui.QFont('Times', 10))
+        self.btn_const_add_files.setFont(font12)
         self.layout_buttons.addWidget(self.btn_const_add_files, 1, 1, 1, 1)
 
         self.btn_alone_add_dir = QPushButton(self)
         self.btn_alone_add_dir.setText('Добавить отдельную папку')
-        self.btn_alone_add_dir.setFont(QtGui.QFont('Times', 10))
+        self.btn_alone_add_dir.setFont(font10)
 
         self.layout_buttons.addWidget(self.btn_alone_add_dir, 1, 2, 1, 1)
 
@@ -354,16 +367,16 @@ class StartShow(QWidget):
         self.group_buttons = QGroupBox(self)
         self.group_buttons.setLayout(self.layout_buttons)
         self.layout_outside.addWidget(self.group_buttons, 1, 1, 1, 1)
-        self.empty1.setStyleSheet(self.stylesheet1)
-        self.empty2.setStyleSheet(self.stylesheet1)
-        self.empty3.setStyleSheet(self.stylesheet1)
-        self.empty4.setStyleSheet(self.stylesheet1)
-        self.group_buttons.setStyleSheet(self.stylesheet1)
-        self.btn_const_cat.setStyleSheet(self.stylesheet2)
-        self.btn_alone_cat.setStyleSheet(self.stylesheet2)
-        self.btn_const_add_dir.setStyleSheet(self.stylesheet2)
-        self.btn_const_add_files.setStyleSheet(self.stylesheet2)
-        self.btn_alone_add_dir.setStyleSheet(self.stylesheet2)
+        self.empty1.setStyleSheet(stylesheet1)
+        self.empty2.setStyleSheet(stylesheet1)
+        self.empty3.setStyleSheet(stylesheet1)
+        self.empty4.setStyleSheet(stylesheet1)
+        self.group_buttons.setStyleSheet(stylesheet1)
+        self.btn_const_cat.setStyleSheet(stylesheet2)
+        self.btn_alone_cat.setStyleSheet(stylesheet2)
+        self.btn_const_add_dir.setStyleSheet(stylesheet2)
+        self.btn_const_add_files.setStyleSheet(stylesheet2)
+        self.btn_alone_add_dir.setStyleSheet(stylesheet2)
 
         self.layout_last = QGridLayout(self)
         with open('last_opened.json', 'r') as json_file:
@@ -377,7 +390,7 @@ class StartShow(QWidget):
             self.layout_last.addWidget(self.last_photo, 1, 0, 1, 1)
             self.last_text = QLabel()
             self.last_text.setText('Последнее просмотренное фото:\n')
-            self.last_text.setFont(QtGui.QFont('Times', 12))
+            self.last_text.setFont(font12)
             self.last_text.setFixedHeight(20)
             self.last_text.setAlignment(QtCore.Qt.AlignTop)
             self.layout_last.addWidget(self.last_text, 0, 0, 1, 1)
@@ -385,11 +398,13 @@ class StartShow(QWidget):
             self.group_last = QGroupBox(self)
             self.group_last.setFixedWidth(430)
             self.group_last.setLayout(self.layout_last)
-            # СКРЫТЬ ГРАНИЦУ GROUPBOX !!!!!!!!!!!!!!
             self.group_last.setStyleSheet("border:0;")
             self.layout_outside.addWidget(self.group_last, 1, 2, 1, 1)
         except FileNotFoundError:
             pass
+
+        self.btn_const_cat.setMinimumSize(400, 80)
+        self.btn_alone_cat.setMinimumSize(300, 80)
 
         self.btn_const_cat.clicked.connect(lambda: self.const_show_signal.emit())
         self.btn_alone_cat.clicked.connect(lambda: self.alone_show_signal.emit())
@@ -414,7 +429,7 @@ class StartShow(QWidget):
         str_to_show += str_numfiles
 
         self.const_stats.setText(str_to_show)
-        self.const_stats.setFont(QtGui.QFont('Times', 10))
+        self.const_stats.setFont(font12)
 
     # Собрать и вывести статистику дополнительного каталога
     def fill_alone_stats(self) -> None:
@@ -437,7 +452,7 @@ class StartShow(QWidget):
         str_numdirs = f'Папок в дополнительном каталоге: {numdir}\n'
         str_to_show += str_numdirs
         self.alone_stats.setText(str_to_show)
-        self.alone_stats.setFont(QtGui.QFont('Times', 10))
+        self.alone_stats.setFont(font10)
 
     # получить данные о занятой памяти, количестве файлов и файлов + подпапок
     def fill_dir_stats(self, path: str) -> tuple[int, int, int]:
@@ -478,6 +493,7 @@ class Social_Network_window(QMainWindow):
         self.setWindowTitle("Соц.сети")
         self.widget_sn = SocialNetworks.SocialNetworks(self)
         self.setCentralWidget(self.widget_sn)
+        self.setStyleSheet(stylesheet1)
 
         self.resize(self.widget_sn.size())
         self.widget_sn.resize_signal.connect(self.self_resize)

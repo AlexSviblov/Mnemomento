@@ -12,14 +12,21 @@ from PyQt5.QtCore import QThread, pyqtSignal
 import PhotoDataDB
 
 
+font14 = QtGui.QFont('Times', 14)
+
+stylesheet1 = "border: 0px; background-color: #F0F0F0; color: black"
+stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black"
+stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
+
+
 # объект окна настроек
 class SettingWin(QMainWindow):
 
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         super().__init__(parent)
         # Создание окна
         self.setWindowTitle('Настройки')
-
+        self.setStyleSheet(stylesheet1)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.resize(800, 800)
 
@@ -43,38 +50,56 @@ class SettingWidget(QWidget):
 
         self.media_space_lbl = QLabel(self)
         self.media_space_lbl.setText('Хранилище фотографий:')
+        self.media_space_lbl.setFont(font14)
+        self.media_space_lbl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.media_space_lbl, 0, 0, 1, 1)
 
         self.media_space_line = QLineEdit(self)
+        self.media_space_line.setFont(font14)
+        self.media_space_line.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.media_space_line, 0, 1, 1, 1)
 
         self.media_space_choose = QPushButton(self)
         self.media_space_choose.setText('Выбрать путь')
+        self.media_space_choose.setFont(font14)
+        self.media_space_choose.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.media_space_choose, 0, 2, 1, 1)
         self.media_space_choose.clicked.connect(self.dir_media_choose)
 
         self.thumbs_space_lbl = QLabel(self)
         self.thumbs_space_lbl.setText('Место хранения миниатюр:')
+        self.thumbs_space_lbl.setFont(font14)
+        self.thumbs_space_lbl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.thumbs_space_lbl, 1, 0, 1, 1)
 
         self.thumbs_space_line = QLineEdit(self)
+        self.thumbs_space_line.setFont(font14)
+        self.thumbs_space_line.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.thumbs_space_line, 1, 1, 1, 1)
 
         self.thumbs_space_choose = QPushButton(self)
         self.thumbs_space_choose.setText('Выбрать путь')
+        self.thumbs_space_choose.setFont(font14)
+        self.thumbs_space_choose.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.thumbs_space_choose, 1, 2, 1, 1)
         self.thumbs_space_choose.clicked.connect(self.dir_thumb_choose)
 
         self.transfer_mode_lbl = QLabel(self)
         self.transfer_mode_lbl.setText('Режим переноса фото:')
+        self.transfer_mode_lbl.setFont(font14)
+        self.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.transfer_mode_lbl, 2, 0, 1, 1)
 
         self.transfer_mode_choose = QComboBox(self)
+        self.transfer_mode_choose.setFont(font14)
+        self.transfer_mode_choose.setStyleSheet(stylesheet4)
         self.transfer_mode_choose.addItem('Copy')
         self.transfer_mode_choose.addItem('Cut')
         self.layout.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
 
         self.num_thumbs_text = QLabel(self)
+        self.num_thumbs_text.setFont(font14)
+        self.num_thumbs_text.setStyleSheet(stylesheet1)
         self.num_thumbs_text.setText('Миниатюр в ряд:')
         self.layout.addWidget(self.num_thumbs_text, 3, 0, 1, 1)
 
@@ -82,10 +107,14 @@ class SettingWidget(QWidget):
         self.num_thumbs_choose.addItem('2')
         self.num_thumbs_choose.addItem('3')
         self.num_thumbs_choose.addItem('4')
+        self.num_thumbs_choose.setFont(font14)
+        self.num_thumbs_choose.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.num_thumbs_choose, 3, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
-        self.btn_ok.setText('SAVE')
+        self.btn_ok.setText('Сохранить')
+        self.btn_ok.setFont(font14)
+        self.btn_ok.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.btn_ok, 10, 0, 1, 1)
         self.btn_ok.clicked.connect(self.check_changes)
 
@@ -162,6 +191,8 @@ class TransferFiles(QDialog):
     def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
         super(TransferFiles, self).__init__(parent)
 
+        self.setStyleSheet(stylesheet1)
+
         self.old_media = old_media
         self.new_media = new_media
         self.old_thumb = old_thumb
@@ -173,6 +204,7 @@ class TransferFiles(QDialog):
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
         self.text_info = QLabel(self)
+        self.text_info.setFont(font14)
 
         match code:
             case 1:
@@ -184,10 +216,14 @@ class TransferFiles(QDialog):
 
         self.accept_btn = QPushButton(self)
         self.accept_btn.setText('Начать')
+        self.accept_btn.setFont(font14)
+        self.accept_btn.setStyleSheet(stylesheet2)
         self.accept_btn.clicked.connect(self.func_accept)
 
         self.reject_btn = QPushButton(self)
         self.reject_btn.setText('Отмена')
+        self.reject_btn.setFont(font14)
+        self.reject_btn.setStyleSheet(stylesheet2)
         self.reject_btn.clicked.connect(self.func_reject)
 
         self.layout.addWidget(self.text_info, 0, 0, 1, 2)
@@ -202,8 +238,10 @@ class TransferFiles(QDialog):
         self.label = QLabel(self)
         self.text = QLabel(self)
         self.text.setText('Загрузка, подождите')
+        self.text.setStyleSheet(stylesheet1)
         self.movie = QMovie("g0R5.gif")
         self.label.setMovie(self.movie)
+        self.label.setStyleSheet(stylesheet1)
         self.movie.start()
 
         self.layout.addWidget(self.label, 0, 0, 1, 1)
@@ -258,12 +296,25 @@ class DoTransfer(QtCore.QThread):
 
 
 # уведомление о сохранении настроек
-class Notification(QMessageBox):
+class Notification(QDialog):
     def __init__(self, parent):
         super(Notification, self).__init__(parent)
         self.setWindowTitle('Сохранено')
-        self.setText('Настройки сохранены')
-        self.setDefaultButton(QMessageBox.Ok)
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText('Настройки сохранены')
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet1)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet2)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)
 
 
 # получить путь хранения медиа - для других модулей

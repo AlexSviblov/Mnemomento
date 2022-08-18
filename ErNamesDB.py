@@ -9,6 +9,13 @@ from PyQt5.QtWidgets import *
 conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
 cur = conn.cursor()
 
+font12 = QtGui.QFont('Times', 12)
+
+stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
+stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;"
+stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;}"
+stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
+
 
 # просмотр базы исправлений
 class ViewBDDialog(QWidget):
@@ -21,52 +28,59 @@ class ViewBDDialog(QWidget):
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
+        self.setStyleSheet(stylesheet1)
+
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
         self.table = QTableWidget(self)
-        self.table.setFont(QtGui.QFont('Times', 12))
+        self.table.setFont(font12)
         self.table.setColumnCount(3)
         self.table.verticalHeader().setVisible(False)
+        self.table.setStyleSheet(stylesheet2)
+        self.table.horizontalHeader().setDisabled(True)
+        self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table.horizontalHeader().setFont(font12)
         self.get_bd_info()
         self.layout.addWidget(self.table, 1, 0, 1, 3, alignment=Qt.AlignCenter)
 
         self.add_btn = QPushButton(self)
         self.add_btn.setText('Добавить')
-        self.add_btn.setFont(QtGui.QFont('Times', 12))
+        self.add_btn.setFont(font12)
+        self.add_btn.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
 
         self.del_btn = QPushButton(self)
         self.del_btn.setText('Удалить')
-        self.del_btn.setFont(QtGui.QFont('Times', 12))
+        self.del_btn.setFont(font12)
+        self.del_btn.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.del_btn, 0, 1, 1, 1)
 
         self.add_btn.clicked.connect(self.call_add)
         self.del_btn.clicked.connect(self.call_del)
 
-        self.chng_btn = QPushButton(self)
-        self.chng_btn.setText('Редактировать')
-        self.chng_btn.setFont(QtGui.QFont('Times', 12))
-        self.layout.addWidget(self.chng_btn, 0, 2, 1, 1)
+        self.edit_btn = QPushButton(self)
+        self.edit_btn.setText('Редактировать')
+        self.edit_btn.setFont(font12)
+        self.edit_btn.setStyleSheet(stylesheet2)
+        self.layout.addWidget(self.edit_btn, 0, 2, 1, 1)
 
         self.edit_mode = QLabel(self)
         self.edit_mode.setText('Режим редактирования')
-        self.edit_mode.setFont(QtGui.QFont('Times', 12))
+        self.edit_mode.setFont(font12)
         self.layout.addWidget(self.edit_mode, 2, 0, 1, 1)
         self.edit_mode.hide()
 
         self.indicator = 0
 
-        self.table.doubleClicked.connect(self.change_func)
+        self.table.doubleClicked.connect(self.edit_func)
         self.table.itemChanged.connect(self.edit_element)
-        self.chng_btn.clicked.connect(self.edit_indicator)
+        self.edit_btn.clicked.connect(self.edit_indicator)
 
         self.my_size()
 
-        # self.table.setDisabled(True)
-
     # при двойном нажатии на ячейку, данные в ней запоминаются
-    def change_func(self) -> None:
+    def edit_func(self) -> None:
         self.old_element = self.table.currentItem().text()
         self.old_element_col = self.table.currentColumn()
 
@@ -87,6 +101,7 @@ class ViewBDDialog(QWidget):
             conn.commit()
 
             self.indicator = 0
+            self.edit_btn.setDisabled(False)
             self.edit_mode.hide()
             self.get_bd_info()
             self.my_size()
@@ -98,7 +113,7 @@ class ViewBDDialog(QWidget):
         self.indicator = 1
         self.edit_mode.setFixedHeight(self.height() - self.table.height() - self.add_btn.height())
         self.edit_mode.show()
-
+        self.edit_btn.setDisabled(True)
 
     # получение информации из БД
     def get_bd_info(self) -> None:
@@ -107,22 +122,25 @@ class ViewBDDialog(QWidget):
         self.row_num = len(all_results)
         self.table.setRowCount(self.row_num)
         self.table.setHorizontalHeaderLabels(['Тип', 'Ошибочное отображение', 'Верное название'])
-        # self.table.horizontalHeaderItem(0).setToolTip('Тип')
-        # self.table.horizontalHeaderItem(1).setToolTip('Неверное написание')
-        # self.table.horizontalHeaderItem(2).setToolTip('Исправленное описание')
         for i in range(0, len(all_results)):
-            self.table.setItem(i, 0, QTableWidgetItem(str(all_results[i][0])))
+            if all_results[i][0] == 'maker':
+                type_str = 'Производитель'
+            elif all_results[i][0] == 'lens':
+                type_str = 'Объектив'
+            elif all_results[i][0] == 'camera':
+                type_str = 'Камера'
+            self.table.setItem(i, 0, QTableWidgetItem(type_str))
             self.table.setItem(i, 1, QTableWidgetItem(str(all_results[i][1])))
             self.table.setItem(i, 2, QTableWidgetItem(str(all_results[i][2])))
 
         self.table.resizeColumnsToContents()
-        self.table.setFixedWidth(self.table.columnWidth(0) + self.table.columnWidth(1) + self.table.columnWidth(2))
+        self.table.setFixedWidth(self.table.columnWidth(0) + self.table.columnWidth(1) + self.table.columnWidth(2)+2)
         height = 0
         for i in range(self.table.rowCount()):
             height += self.table.rowHeight(i)
         height += self.table.horizontalHeader().height()
         self.table.setFixedHeight(height)
-        self.resize(self.table.width(), self.height())
+        self.resize(self.table.width(), self.height()+20)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.verticalScrollBar().setDisabled(True)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -154,7 +172,7 @@ class ViewBDDialog(QWidget):
     def my_size(self) -> None:
         width = self.table.width()
         height = self.table.height() + self.add_btn.height()
-        self.resize(width, height)
+        self.resize(width, height+20)
         self.resized_signal.emit()
 
 
@@ -168,63 +186,76 @@ class AddBDDialog(QDialog):
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.buttonBox1 = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        self.buttonBox1.button(QDialogButtonBox.Ok).setText('Ввод')
-        self.buttonBox1.button(QDialogButtonBox.Cancel).setText('Отмена')
-        self.buttonBox1.setFont(QtGui.QFont('Times', 12))
-        self.buttonBox1.setFixedHeight(30)
+        self.setStyleSheet(stylesheet1)
 
         self.layout = QGridLayout(self)
-        self.layout.addWidget(self.buttonBox1, 3, 1, 1, 1)
 
-        self.buttonBox1.accepted.connect(self.check_empty)
-        self.buttonBox1.rejected.connect(self.reject)
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setText('Ввод')
+        self.btn_ok.setStyleSheet(stylesheet2)
+        self.btn_ok.setFont(font12)
+        self.btn_ok.setFixedHeight(30)
+        self.layout.addWidget(self.btn_ok, 3, 0, 1, 1)
+
+        self.btn_cancel = QPushButton(self)
+        self.btn_cancel.setText('Отмена')
+        self.btn_cancel.setStyleSheet(stylesheet2)
+        self.btn_cancel.setFont(font12)
+        self.btn_cancel.setFixedHeight(30)
+        self.layout.addWidget(self.btn_cancel, 3, 1, 1, 1)
+
+        self.btn_ok.clicked.connect(self.check_empty)
+        self.btn_cancel.clicked.connect(self.reject)
 
         self.type_lbl = QtWidgets.QLabel()
         self.type_lbl.setText('Тип неправильно отображаемого названия:')
-        self.type_lbl.setFont(QtGui.QFont('Times', 12))
+        self.type_lbl.setFont(font12)
         self.layout.addWidget(self.type_lbl, 0, 0, 1, 1)
 
         self.error_label = QtWidgets.QLabel()
         self.error_label.setText('Неправильное название:')
-        self.error_label.setFont(QtGui.QFont('Times', 12))
+        self.error_label.setFont(font12)
         self.layout.addWidget(self.error_label, 1, 0, 1, 1)
 
         self.norm_label = QtWidgets.QLabel()
         self.norm_label.setText('Правильное название:')
-        self.norm_label.setFont(QtGui.QFont('Times', 12))
+        self.norm_label.setFont(font12)
         self.layout.addWidget(self.norm_label, 2, 0, 1, 1)
 
         self.type_combobox = QtWidgets.QComboBox()
         self.type_combobox.addItem('Производитель')
         self.type_combobox.addItem('Камера')
         self.type_combobox.addItem('Объектив')
-        self.type_combobox.setFont(QtGui.QFont('Times', 12))
+        self.type_combobox.setFont(font12)
+        self.type_combobox.setFixedHeight(30)
+        self.type_combobox.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.type_combobox, 0, 1, 1, 1)
 
         self.error_text = QtWidgets.QLineEdit()
-        self.error_text.setFont(QtGui.QFont('Times', 12))
+        self.error_text.setFont(font12)
+        self.error_text.setStyleSheet(stylesheet4)
+        self.error_text.setFixedHeight(30)
         self.layout.addWidget(self.error_text, 1, 1, 1, 1)
 
         self.norm_text = QtWidgets.QLineEdit()
-        self.norm_text.setFont(QtGui.QFont('Times', 12))
+        self.norm_text.setFont(font12)
+        self.norm_text.setFixedHeight(30)
+        self.norm_text.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.norm_text, 2, 1, 1, 1)
 
     # проверка заполнения полей ввода
     def check_empty(self) -> None:
         if self.error_text.text() == '':
-            warning = ErrorsAndWarnings.ErNamesDBWarn(code=1)
+            warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=1)
             warning.show()
-            if warning.exec_():
-                return
+            return
         else:
             pass
 
         if self.norm_text.text() == '':
-            warning = ErrorsAndWarnings.ErNamesDBWarn(code=2)
+            warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=2)
             warning.show()
-            if warning.exec_():
-                return
+            return
         else:
             pass
         self.confirm_window()
@@ -237,7 +268,8 @@ class AddBDDialog(QDialog):
         self.type_index = self.type_combobox.currentIndex()
 
         self.type_lbl.hide()
-        self.buttonBox1.hide()
+        self.btn_ok.hide()
+        self.btn_cancel.hide()
         self.error_label.hide()
         self.norm_label.hide()
         self.type_combobox.hide()
@@ -246,28 +278,40 @@ class AddBDDialog(QDialog):
 
         self.confirm_label = QtWidgets.QLabel()
         self.confirm_label.setText('Правильно ли введены данные?\n')
-        self.layout.addWidget(self.confirm_label, 0, 0, 1, 1)
+        self.confirm_label.setFont(font12)
+        self.layout.addWidget(self.confirm_label, 0, 0, 1, 2)
 
         self.entered_info = QtWidgets.QLabel()
+        self.entered_info.setFont(font12)
         self.entered_info.setText(
             f'Тип: {self.type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n')
-        self.layout.addWidget(self.entered_info, 1, 0, 1, 1)
+        self.layout.addWidget(self.entered_info, 1, 0, 1, 2)
 
-        self.buttonBox2 = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        self.buttonBox2.button(QDialogButtonBox.Ok).setText('Ввод')
-        self.buttonBox2.button(QDialogButtonBox.Cancel).setText('Отмена')
-        self.layout.addWidget(self.buttonBox2, 2, 0, 1, 1)
 
-        self.buttonBox2.accepted.connect(self.confirm_func)
-        self.buttonBox2.rejected.connect(self.not_confirm_func)
+        self.btn_ok_c = QPushButton(self)
+        self.btn_ok_c.setText('Ввод')
+        self.btn_ok_c.setFont(font12)
+        self.btn_ok_c.setStyleSheet(stylesheet2)
+        self.btn_cancel_c = QPushButton(self)
+        self.btn_cancel_c.setText('Отмена')
+        self.btn_cancel_c.setFont(font12)
+        self.btn_cancel_c.setStyleSheet(stylesheet2)
+
+        self.layout.addWidget(self.btn_ok_c, 2, 0, 1, 1)
+        self.layout.addWidget(self.btn_cancel_c, 2, 1, 1, 1)
+
+        self.btn_ok_c.clicked.connect(self.confirm_func)
+        self.btn_cancel_c.clicked.connect(self.not_confirm_func)
 
     # после отмены добавления
     def not_confirm_func(self) -> None:
         self.confirm_label.hide()
         self.entered_info.hide()
-        self.buttonBox2.hide()
+        self.btn_ok_c.hide()
+        self.btn_cancel_c.hide()
 
-        self.buttonBox1.show()
+        self.btn_ok.show()
+        self.btn_cancel.show()
 
         self.type_lbl.show()
         self.error_label.show()
@@ -295,10 +339,9 @@ class AddBDDialog(QDialog):
         try:
             cur.execute(enter_1, enter_2)
         except:
-            warning = ErrorsAndWarnings.ErNamesDBWarn(code=3)
+            warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=3)
             warning.show()
-            if warning.exec_():
-                return
+            return
 
         conn.commit()
 
@@ -327,12 +370,12 @@ class DelBDDialog(QDialog):
         self.obj_lbl = QLabel()
         self.obj_lbl.setText(f'Вы точно хотите удалить {self.del_obj_ername} -> {self.del_obj_normname}?')
         self.layout.addWidget(self.obj_lbl, 0, 0, 1, 1)
-        self.obj_lbl.setFont(QtGui.QFont('Times', 12))
+        self.obj_lbl.setFont(font12)
 
         buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
         buttonBox.button(QDialogButtonBox.Ok).setText('Подтверждение')
         buttonBox.button(QDialogButtonBox.Cancel).setText('Отмена')
-        buttonBox.setFont(QtGui.QFont('Times', 12))
+        buttonBox.setFont(font12)
 
         self.layout.addWidget(buttonBox, 1, 0, 1, 1)
 
