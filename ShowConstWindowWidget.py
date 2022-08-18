@@ -754,11 +754,10 @@ class ConstWidgetWindow(QWidget):
                 self.socnet_group.setCellWidget(i, 1, self.sn_tag_choose)
                 i += 1
 
+                if self.sn_lbl.width() > self.metadata_show.columnWidth(0):
+                    self.metadata_show.setColumnWidth(0, self.sn_lbl.width())
+
             self.socnet_group_header = self.socnet_group.horizontalHeader()
-
-            if self.sn_lbl.width() > self.metadata_show.columnWidth(0):
-                self.metadata_show.setColumnWidth(0, self.sn_lbl.width())
-
 
             if self.photo_rotation == 'gor':
                 self.socnet_group_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
@@ -879,6 +878,7 @@ class ConstWidgetWindow(QWidget):
 
         if not socnets:
             self.socnet_choose.addItem('Нет данных')
+            self.socnet_choose.setFixedWidth(150)
         else:
             socnet_max_len = 0
             for net in socnets:
