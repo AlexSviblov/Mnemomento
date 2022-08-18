@@ -222,6 +222,7 @@ class MainWindow(QMainWindow):
     # Изменение размера окна таблицы при её редактировании
     def resize_db_window(self) -> None:
         self.window_db.resize(self.window_db.size())
+        self.window_db.adjustSize()
 
     # закрытие программы -> удалить созданное для разового просмотра
     def closeEvent(self, event) -> None:
@@ -244,6 +245,7 @@ class MainWindow(QMainWindow):
     def resize_sn_window(self):
         print(self.window_sn.size())
         self.window_sn.resize(self.window_sn.size())
+        self.window_sn.adjustSize()
 
     # настройки
     def settings_func(self) -> None:
