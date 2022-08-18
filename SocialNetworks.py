@@ -2,6 +2,7 @@ import os
 import sys
 from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
 import sqlite3
 
 conn = sqlite3.connect('PhotoDB.db')  # соединение с БД
@@ -9,32 +10,44 @@ cur = conn.cursor()
 
 
 class SocialNetworks(QWidget):
+    resize_signal = QtCore.pyqtSignal(int, int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
 
         # Создание окна
         self.setWindowTitle('Соцсети')
+        self.font14 = QtGui.QFont('Times', 14)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.resize(800, 800)
 
+        self.stylesheet1 = "border: 0px; background-color: #F0F0F0"
+        self.stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
+
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
-
-        self.top_text_lbl = QLabel(self)
-        self.top_text_lbl.setText('Соц.сети')
-        self.layout.addWidget(self.top_text_lbl, 0, 0, 1, 1)
+        self.layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         self.add_btn = QPushButton(self)
         self.add_btn.setText('Добавить')
-        self.layout.addWidget(self.add_btn, 1, 0, 1, 1)
+        self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
         self.add_btn.clicked.connect(self.add_func)
+        self.add_btn.setFont(self.font14)
+        self.add_btn.setFixedWidth(100)
+        self.add_btn.setStyleSheet(self.stylesheet2)
+
+        self.empty1 = QLabel(self)
+        self.layout.addWidget(self.empty1, 0, 1, 1, 1)
+        self.empty1.setStyleSheet(self.stylesheet1)
 
         self.networks_group = QGroupBox(self)
+        self.networks_group.setStyleSheet(self.stylesheet1)
         self.group_layout = QGridLayout(self)
+        self.group_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.group_layout.setSpacing(10)
         self.networks_group.setLayout(self.group_layout)
-        self.layout.addWidget(self.networks_group, 2, 0, 1, 1)
+        self.layout.addWidget(self.networks_group, 1, 0, 1, 2)
 
         self.show_social_networks()
 
@@ -42,28 +55,49 @@ class SocialNetworks(QWidget):
     def show_social_networks(self) -> None:
         for i in reversed(range(self.group_layout.count())):
             self.group_layout.itemAt(i).widget().deleteLater()
+
         networks = self.get_social_networks_list()
+        max_sn_name = 0
         for i in range(0, len(networks)):
             self.soc_net_lbl = QLabel(self)
-            self.soc_net_lbl.setText('')
+            self.soc_net_lbl.setFont(self.font14)
             if networks[i][0:9] != 'numnumnum':
                 self.soc_net_lbl.setText(f'{networks[i]}')
             else:
                 self.soc_net_lbl.setText(f'{networks[i][9:]}')
 
+            if len(self.soc_net_lbl.text()) > max_sn_name:
+                max_sn_name = len(self.soc_net_lbl.text())
+
             self.group_layout.addWidget(self.soc_net_lbl, i, 0, 1, 1)
 
             self.btn_red = QToolButton(self)
+            self.btn_red.setStyleSheet(self.stylesheet2)
+            self.btn_red.setFixedSize(50, 50)
             self.btn_red.setText('RED')
             self.btn_red.setObjectName(networks[i])
             self.btn_red.clicked.connect(self.func_red)
             self.group_layout.addWidget(self.btn_red, i, 1, 1, 1)
 
             self.btn_del = QToolButton(self)
+            self.btn_del.setStyleSheet(self.stylesheet2)
+            self.btn_del.setFixedSize(50, 50)
             self.btn_del.setText('DEL')
             self.btn_del.setObjectName(networks[i])
             self.btn_del.clicked.connect(self.func_del)
             self.group_layout.addWidget(self.btn_del, i, 2, 1, 1)
+
+        self.soc_net_lbl.setFixedWidth(max_sn_name*15)
+        self.networks_group.setFixedWidth(self.soc_net_lbl.width()+self.btn_del.width()+self.btn_red.width()+self.group_layout.spacing())
+        self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
+
+        print(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
+
+        self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
+        self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
+
+
+        # МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
 
     # считать из БД введённые соцсети
     def get_social_networks_list(self) -> list[str, ...]:

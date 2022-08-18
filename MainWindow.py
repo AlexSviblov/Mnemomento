@@ -30,6 +30,9 @@ class MainWindow(QMainWindow):
         # раскрыть на весь экран
         self.showMaximized()
 
+        self.stylesheet = "background-color: #F0F0F0; color: black"
+        self.setStyleSheet(self.stylesheet)
+
         menubar = QMenuBar(self)
 
         add_menu = menubar.addMenu('Добавить')
@@ -234,7 +237,13 @@ class MainWindow(QMainWindow):
     # соцсети
     def social_networks_func(self) -> None:
         self.window_sn = Social_Network_window(self)
+        self.window_sn.resize(self.window_sn.size())
+        self.window_sn.main_resize_signal.connect(self.resize_sn_window)
         self.window_sn.show()
+
+    def resize_sn_window(self):
+        print(self.window_sn.size())
+        self.window_sn.resize(self.window_sn.size())
 
     # настройки
     def settings_func(self) -> None:
@@ -276,6 +285,9 @@ class StartShow(QWidget):
         self.setWindowTitle("TEST")
 
         self.layout_outside = QGridLayout(self)
+
+        self.stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
+        self.stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
 
         self.layout_buttons = QGridLayout(self)
 
@@ -340,12 +352,16 @@ class StartShow(QWidget):
         self.group_buttons = QGroupBox(self)
         self.group_buttons.setLayout(self.layout_buttons)
         self.layout_outside.addWidget(self.group_buttons, 1, 1, 1, 1)
-        self.group_buttons.setStyleSheet("border:0;")
-        self.btn_const_cat.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
-        self.btn_alone_cat.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
-        self.btn_const_add_dir.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
-        self.btn_const_add_files.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
-        self.btn_alone_add_dir.setStyleSheet("border: 1px; border-color: #A9A9A9; border-style: solid")
+        self.empty1.setStyleSheet(self.stylesheet1)
+        self.empty2.setStyleSheet(self.stylesheet1)
+        self.empty3.setStyleSheet(self.stylesheet1)
+        self.empty4.setStyleSheet(self.stylesheet1)
+        self.group_buttons.setStyleSheet(self.stylesheet1)
+        self.btn_const_cat.setStyleSheet(self.stylesheet2)
+        self.btn_alone_cat.setStyleSheet(self.stylesheet2)
+        self.btn_const_add_dir.setStyleSheet(self.stylesheet2)
+        self.btn_const_add_files.setStyleSheet(self.stylesheet2)
+        self.btn_alone_add_dir.setStyleSheet(self.stylesheet2)
 
         self.layout_last = QGridLayout(self)
         with open('last_opened.json', 'r') as json_file:
@@ -441,26 +457,32 @@ class DB_window(QMainWindow):
     def __init__(self, parent=MainWindow):
         super().__init__(parent)
         self.setWindowTitle("База исправлений")
-        self.window_db = ErNamesDB.ViewBDDialog(self)
-        self.setCentralWidget(self.window_db)
-        self.resize(self.window_db.size())
+        self.widget_db = ErNamesDB.ViewBDDialog(self)
+        self.setCentralWidget(self.widget_db)
 
-        self.window_db.resized_signal.connect(self.my_func)
+        self.resize(self.widget_db.size())
+        self.widget_db.resized_signal.connect(self.self_resize)
 
-    def my_func(self) -> None:
-        self.resize(self.window_db.size())
+    def self_resize(self) -> None:
+        self.resize(self.widget_db.size())
         self.main_resize_signal.emit()
 
 
 # просмотр окна соцсетей
 class Social_Network_window(QMainWindow):
-
+    main_resize_signal = QtCore.pyqtSignal()
     def __init__(self, parent=MainWindow):
         super().__init__(parent)
         self.setWindowTitle("Соц.сети")
-        self.window_sn = SocialNetworks.SocialNetworks(self)
-        self.setCentralWidget(self.window_sn)
-        self.resize(self.window_sn.size())
+        self.widget_sn = SocialNetworks.SocialNetworks(self)
+        self.setCentralWidget(self.widget_sn)
+
+        self.resize(self.widget_sn.size())
+        self.widget_sn.resize_signal.connect(self.self_resize)
+
+    def self_resize(self):
+        self.resize(self.widget_sn.size())
+        self.main_resize_signal.emit()
 
 
 # добавление в основной каталог
