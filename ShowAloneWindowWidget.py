@@ -83,10 +83,6 @@ class AloneWidgetWindow(QWidget):
         self.groupbox_directory_choose.setMaximumHeight(50)
         self.layoutoutside.addWidget(self.groupbox_directory_choose, 0, 0, 1, 3)
 
-        self.empty2 = QLabel(self)
-        self.empty2.setMaximumWidth(Screenconfig.monitor_info()[0] - 800)
-        self.layoutoutside.addWidget(self.empty2, 0, 1, 2, 1)
-
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
 
@@ -208,8 +204,6 @@ class AloneWidgetWindow(QWidget):
         if self.photo_filter.checkState() == 2:
             filtered_photo = PhotoDataDB.get_sn_alone_list(self.photo_directory[:-1], self.socnet_choose.currentText(), self.get_current_tag())
 
-
-            print(len(filtered_photo))
             for file in full_thumbnails_list:
                 if file[10:] in filtered_photo:
                     thumbnails_list.append(file)
@@ -217,7 +211,6 @@ class AloneWidgetWindow(QWidget):
                     pass
         else:
             thumbnails_list = full_thumbnails_list
-        print(test_list)
 
         num_of_j = ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
         self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
@@ -394,9 +387,7 @@ class AloneWidgetWindow(QWidget):
             return
 
         open_path = self.photo_file
-        print(open_path)
         path = open_path.replace('/', '\\')
-        print(path)
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
 
