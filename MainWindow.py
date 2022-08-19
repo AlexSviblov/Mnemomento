@@ -20,6 +20,7 @@ import Settings
 
 stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
 stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
+stylesheet3 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
 font16 = QtGui.QFont('Times', 16)
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
@@ -39,8 +40,7 @@ class MainWindow(QMainWindow):
         # раскрыть на весь экран
         self.showMaximized()
 
-        self.stylesheet = "background-color: #F0F0F0; color: black"
-        self.setStyleSheet(self.stylesheet)
+        self.setStyleSheet(stylesheet1)
 
         menubar = QMenuBar(self)
         menubar.setFont(font8)
@@ -206,6 +206,7 @@ class MainWindow(QMainWindow):
     # Виджет показа дополнительного каталога
     def show_main_alone_widget(self) -> None:
         self.widget = ShowAloneWindowWidget.AloneWidgetWindow()
+        self.widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         self.setCentralWidget(self.widget)
 
     # Показ папки вне каталогов
@@ -266,14 +267,41 @@ class MainWindow(QMainWindow):
 class ProgressBar(QWidget):
     def __init__(self):
         super().__init__()
+        self.setStyleSheet(stylesheet1)
+
         self.layout = QGridLayout(self)
+        self.layout.setSpacing(0)
+        self.layout.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignHCenter)
 
         self.title_text = QLabel(self)
         self.title_text.setText('Процесс обработки файлов')
-        self.layout.addWidget(self.title_text, 0, 0, 1, 1)
+        self.title_text.setFont(font16)
+        self.title_text.setFixedWidth(400)
+        self.title_text.setAlignment(QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.title_text, 1, 1, 1, 1)
 
         self.progressbar = QProgressBar()
-        self.layout.addWidget(self.progressbar, 1, 0, 1, 1)
+        self.progressbar.setFixedWidth(400)
+        self.progressbar.setFont(font16)
+        self.progressbar.setStyleSheet(stylesheet3)
+        self.progressbar.setAlignment(QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.progressbar, 2, 1, 1, 1)
+
+        self.empty1 = QLabel(self)
+        self.empty1.setFixedSize(300, 300)
+        self.layout.addWidget(self.empty1, 0, 0, 1, 1)
+
+        self.empty2 = QLabel(self)
+        self.empty2.setFixedSize(300, 300)
+        self.layout.addWidget(self.empty1, 0, 2, 1, 1)
+
+        self.empty3 = QLabel(self)
+        self.empty3.setMinimumSize(200, 200)
+        self.layout.addWidget(self.empty1, 3, 0, 1, 1)
+
+        self.empty4 = QLabel(self)
+        self.empty4.setMinimumSize(200, 200)
+        self.layout.addWidget(self.empty1, 3, 2, 1, 1)
 
     def progressbar_set_max(self, max):
         self.progressbar.setMaximum(max)
@@ -469,10 +497,12 @@ class StartShow(QWidget):
 
 # окно просмотра базы неверных имён
 class DB_window(QMainWindow):
-
     main_resize_signal = QtCore.pyqtSignal()
-    def __init__(self, parent=MainWindow):
+
+    def __init__(self, parent):
         super().__init__(parent)
+
+        self.setStyleSheet(stylesheet1)
         self.setWindowTitle("База исправлений")
         self.widget_db = ErNamesDB.ViewBDDialog(self)
         self.setCentralWidget(self.widget_db)
@@ -488,7 +518,8 @@ class DB_window(QMainWindow):
 # просмотр окна соцсетей
 class Social_Network_window(QMainWindow):
     main_resize_signal = QtCore.pyqtSignal()
-    def __init__(self, parent=MainWindow):
+
+    def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle("Соц.сети")
         self.widget_sn = SocialNetworks.SocialNetworks(self)

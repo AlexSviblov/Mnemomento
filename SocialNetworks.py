@@ -206,7 +206,7 @@ class AddSN(QDialog):
 class RedSN(QDialog):
     def __init__(self, net_oldname):
         super(RedSN, self).__init__()
-        # Создание окна
+
         self.setWindowTitle('Редактирование названия')
         self.resize(600, 90)
         self.setStyleSheet(stylesheet1)
@@ -218,6 +218,8 @@ class RedSN(QDialog):
 
         self.old_name_lbl = QLabel(self)
         self.old_name_lbl.setText('Старое название:')
+        self.old_name_lbl.setFont(font14)
+        self.old_name_lbl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.old_name_lbl, 0, 0, 1, 1)
 
         self.old_name = QLineEdit(self)
@@ -226,23 +228,32 @@ class RedSN(QDialog):
         else:
             self.old_name.setText(net_oldname[9:])
         self.old_name.setDisabled(True)
-        self.old_name.setStyleSheet('color: black')
+        self.old_name.setFont(font14)
+        self.old_name.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
         self.new_name_lbl = QLabel(self)
         self.new_name_lbl.setText('Старое название:')
+        self.new_name_lbl.setFont(font14)
+        self.new_name_lbl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.new_name_lbl, 1, 0, 1, 1)
 
         self.new_name = QLineEdit(self)
+        self.new_name.setFont(font14)
+        self.new_name.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.new_name, 1, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
+        self.btn_ok.setFont(font14)
+        self.btn_ok.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
+        self.btn_cnl.setFont(font14)
+        self.btn_cnl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
@@ -274,9 +285,10 @@ class RedSN(QDialog):
 class DelSN(QDialog):
     def __init__(self, net_name):
         super(DelSN, self).__init__()
-        # Создание окна
+        self.setStyleSheet(stylesheet1)
+
         self.setWindowTitle('Редактирование названия')
-        self.resize(600, 90)
+        self.resize(600, 80)
 
         self.net_name = net_name
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -285,6 +297,8 @@ class DelSN(QDialog):
 
         self.old_name_lbl = QLabel(self)
         self.old_name_lbl.setText('Вы уверены, что хотите удалить:')
+        self.old_name_lbl.setFont(font14)
+        self.old_name_lbl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.old_name_lbl, 0, 0, 1, 1)
 
         self.old_name = QLineEdit(self)
@@ -293,16 +307,21 @@ class DelSN(QDialog):
         else:
             self.old_name.setText(net_name[9:])
         self.old_name.setDisabled(True)
-        self.old_name.setStyleSheet('color: black')
+        self.old_name.setFont(font14)
+        self.old_name.setStyleSheet(stylesheet4)
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
+        self.btn_ok.setFont(font14)
+        self.btn_ok.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.do_func)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
+        self.btn_cnl.setFont(font14)
+        self.btn_cnl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 

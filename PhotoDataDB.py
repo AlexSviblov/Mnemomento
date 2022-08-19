@@ -271,7 +271,7 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
     except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-        sql_str = f'SELECT filename FROM socialnetworks WHERE {network} = \'{status}\' AND catalog = \'{photo_directory}\''
+        sql_str = f'SELECT filename FROM socialnetworks WHERE numnumnum{network} = \'{status}\' AND catalog = \'{photo_directory}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 

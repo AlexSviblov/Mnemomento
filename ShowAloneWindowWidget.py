@@ -16,9 +16,15 @@ import Settings
 import Thumbnail
 
 
-class AloneWidgetWindow(QWidget):
+font14 = QtGui.QFont('Times', 14)
 
+stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0"
+stylesheet2 = "border: 0px; color: black; background-color: #F0F0F0"
+
+
+class AloneWidgetWindow(QWidget):
     resized_signal = QtCore.pyqtSignal()
+    set_minimum_size = QtCore.pyqtSignal(int)
 
     def __init__(self):
 
@@ -30,6 +36,7 @@ class AloneWidgetWindow(QWidget):
         self.showMaximized()
 
         self.layoutoutside = QGridLayout(self)
+        self.layoutoutside.setSpacing(10)
 
         with open('settings.json', 'r') as json_file:
             settings = json.load(json_file)
@@ -37,33 +44,66 @@ class AloneWidgetWindow(QWidget):
 
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
+        self.pic.setAlignment(Qt.AlignCenter)
+
+        self.scroll = QScrollArea(self)  # создание подвижной области
+        self.layoutoutside.addWidget(self.scroll, 1, 0, 2, 2)  # помещение подвижной области на слой
+        self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
+        self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
+        self.groupbox_thumbs.setStyleSheet(stylesheet1)
+        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
+        self.scroll.setWidget(self.groupbox_thumbs)
+        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
+
+        self.scroll.setFixedWidth(200*self.thumb_row)
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setWidget(self.groupbox_thumbs)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll.setStyleSheet(stylesheet2)
 
         self.layout_directory_choose = QGridLayout(self)
+        self.layout_directory_choose.setHorizontalSpacing(5)
+        self.layout_directory_choose.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         self.directory_lbl = QLabel(self)
         self.directory_lbl.setText('Папка для просмотра:')
-        self.directory_lbl.setFixedWidth(115)
+        self.directory_lbl.setFixedWidth(200)
+        self.directory_lbl.setFont(font14)
+        self.directory_lbl.setStyleSheet(stylesheet2)
         self.layout_directory_choose.addWidget(self.directory_lbl, 0, 0, 1, 1)
 
         self.directory_choose = QComboBox(self)
-        self.directory_choose.setMaximumWidth(250)
+        self.directory_choose.setFont(font14)
+        self.directory_choose.setStyleSheet(stylesheet1)
+        self.directory_choose.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.fill_directory_combobox()
+        self.directory_choose.setFixedHeight(30)
+        self.directory_choose.setFixedWidth(self.max_name_len*12)
         self.layout_directory_choose.addWidget(self.directory_choose, 0, 1, 1, 1)
-        
+
         self.directory_delete = QPushButton(self)
         self.directory_delete.setText('Удалить папку')
+        self.directory_delete.setFont(font14)
+        self.directory_delete.setStyleSheet(stylesheet1)
         self.layout_directory_choose.addWidget(self.directory_delete, 0, 2, 1, 1)
         self.directory_delete.clicked.connect(self.del_dir_func)
-        self.directory_delete.setFixedWidth(100)
+        self.directory_delete.setFixedWidth(200)
 
         self.photo_filter = QCheckBox(self)
         self.photo_filter.setText('Фильтр')
+        self.photo_filter.setFont(font14)
+        self.photo_filter.setStyleSheet(stylesheet2)
         self.layout_directory_choose.addWidget(self.photo_filter, 0, 3, 1, 1)
         self.photo_filter.stateChanged.connect(self.filter_on_off)
 
         self.socnet_choose = QComboBox(self)
+        self.socnet_choose.setFont(font14)
+        self.socnet_choose.setStyleSheet(stylesheet1)
         self.layout_directory_choose.addWidget(self.socnet_choose, 0, 4, 1, 1)
+
         self.sn_status = QComboBox(self)
+        self.sn_status.setFont(font14)
+        self.sn_status.setStyleSheet(stylesheet1)
         self.sn_status.addItem('Не выбрано')
         self.sn_status.addItem('Не публиковать')
         self.sn_status.addItem('Опубликовать')
@@ -74,17 +114,24 @@ class AloneWidgetWindow(QWidget):
         self.socnet_choose.hide()
         self.sn_status.hide()
 
-        # self.empty1 = QLabel(self)
-        # self.empty1.setMaximumHeight(50)
-        # self.layout_directory_choose.addWidget(self.empty1, 0, 4, 1, 1)
-
         self.groupbox_directory_choose = QGroupBox(self)
         self.groupbox_directory_choose.setLayout(self.layout_directory_choose)
         self.groupbox_directory_choose.setMaximumHeight(50)
-        self.layoutoutside.addWidget(self.groupbox_directory_choose, 0, 0, 1, 3)
+        self.groupbox_directory_choose.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.groupbox_directory_choose, 0, 0, 1, 4)
 
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
+        self.metadata_show.setFont(font14)
+        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setDisabled(True)
+        self.metadata_show.horizontalHeader().setVisible(False)
+        self.metadata_show.verticalHeader().setVisible(False)
+        self.metadata_header = self.metadata_show.horizontalHeader()
+        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_show.setStyleSheet(stylesheet1)
 
         self.directory_choose.currentTextChanged.connect(self.show_thumbnails)
 
@@ -96,17 +143,33 @@ class AloneWidgetWindow(QWidget):
         self.make_buttons()
         self.groupbox_btns = QGroupBox(self)
         self.groupbox_btns.setLayout(self.layout_btns)
-        self.groupbox_btns.setStyleSheet("border:0;")
+        self.groupbox_btns.setStyleSheet(stylesheet2)
         self.groupbox_btns.setFixedSize(70, 220)
+        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
 
-        self.socnet_group = QGroupBox(self)
-        self.layout_sn = QGridLayout(self)
-        self.socnet_group.setLayout(self.layout_sn)
+        self.socnet_group = QTableWidget(self)
+        self.socnet_group.setColumnCount(2)
+        self.socnet_group.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.horizontalHeader().setVisible(False)
+        self.socnet_group.verticalHeader().setVisible(False)
+        self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
+        self.socnet_group.setFocusPolicy(Qt.NoFocus)
+        self.socnet_group.setStyleSheet(stylesheet1)
 
         self.show_thumbnails()
 
         self.resized_signal.connect(self.resize_func)
         self.oldsize = QtCore.QSize(0, 0)
+
+        self.photo_show = QGroupBox(self)
+        self.photo_show.setAlignment(Qt.AlignCenter)
+        self.layout_show = QGridLayout(self)
+        self.layout_show.setAlignment(Qt.AlignCenter)
+        self.layout_show.setHorizontalSpacing(10)
+        self.photo_show.setLayout(self.layout_show)
+        self.photo_show.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
 
     # показать/скрыть фильтры по соцсетям
     def filter_on_off(self):
@@ -123,8 +186,12 @@ class AloneWidgetWindow(QWidget):
                 self.socnet_choose.addItem('Нет данных')
                 self.sn_status.hide()
             else:
+                net_max_length = 0
                 for net in socnets:
                     self.socnet_choose.addItem(f'{net}')
+                    if len(net) > net_max_length:
+                        net_max_length = len(net)
+                    self.socnet_choose.setFixedWidth(net_max_length*12)
             self.socnet_choose.show()
             self.sn_status.show()
 
@@ -133,9 +200,12 @@ class AloneWidgetWindow(QWidget):
         photo_alone_dir = Settings.get_destination_media() + '/Media/Photo/alone/'
         all_files_and_dirs = os.listdir(photo_alone_dir)
         dir_list = list()
+        self.max_name_len = 0
         for name in all_files_and_dirs:
             if os.path.isdir(photo_alone_dir+name):
                 dir_list.append(name)
+                if len(name) > self.max_name_len:
+                    self.max_name_len = len(name)
 
         dir_list.sort(reverse=True)
         for directory in dir_list:
@@ -155,33 +225,16 @@ class AloneWidgetWindow(QWidget):
 
     # функция отображения кнопок с миниатюрами
     def show_thumbnails(self) -> None:
-        try:
-            for i in reversed(range(self.layout_sn.count())):
-                self.layout_sn.itemAt(i).widget().deleteLater()
-        except AttributeError:
-            pass
-
-        try:
-            for i in reversed(range(self.layout_sn.count())):
-                self.layout_inside_thums.itemAt(i).widget().deleteLater()
-        except AttributeError:
-            pass
-
         self.metadata_show.clear()
         self.metadata_show.hide()
         self.pic.clear()
         self.pic.hide()
+        
+        for i in reversed(range(self.layout_inside_thumbs.count())):
+            self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
 
-        self.layout_inside_thums = QGridLayout(self)  # создание внутреннего слоя для подвижной области
-        self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
-
-        self.groupbox_thumbs.setLayout(self.layout_inside_thums)
-        self.scroll = QScrollArea(self)  # создание подвижной области
-        self.scroll.setWidget(self.groupbox_thumbs)
-
-        self.layoutoutside.addWidget(self.scroll, 1, 0, 2, 1)  # помещение подвижной области на слой
-        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
-        self.scroll.setFixedWidth(200*self.thumb_row)
+        self.socnet_group.clear()
+        self.socnet_group.hide()
 
         self.chosen_directory = self.directory_choose.currentText()
 
@@ -227,7 +280,8 @@ class AloneWidgetWindow(QWidget):
                     self.button.setIcon(iqon)  # помещение картинки на кнопку
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
@@ -240,11 +294,14 @@ class AloneWidgetWindow(QWidget):
                     self.button.setIcon(iqon)
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.layout_inside_thums.addWidget(self.button, j, i, 1, 1)
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
 
     # функция показа большой картинки
     def showinfo(self) -> None:
+        self.photo_show.setFixedWidth(self.width() - self.scroll.width() - self.groupbox_btns.width() - 50)
+
         try:
             self.button_text = self.sender().text()
         except AttributeError:
@@ -254,9 +311,6 @@ class AloneWidgetWindow(QWidget):
                 self.button_text = self.last_clicked
 
         self.last_clicked = self.button_text
-
-        for i in reversed(range(self.layout_sn.count())):
-            self.layout_sn.itemAt(i).widget().deleteLater()
 
         self.metadata_show.clear()
         self.metadata_show.hide()
@@ -269,7 +323,7 @@ class AloneWidgetWindow(QWidget):
         with open('last_opened.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
 
-        pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
+        self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
         metadata = Metadata.filter_exif_beta(Metadata.read_exif(self.button_text, self.photo_directory, self.own_dir), self.button_text, self.photo_directory)
 
@@ -288,50 +342,46 @@ class AloneWidgetWindow(QWidget):
             self.metadata_show.setItem(i, 0, QTableWidgetItem(params[i]))
             self.metadata_show.setItem(i, 1, QTableWidgetItem(metadata[params[i]]))
 
-        f14 = QtGui.QFont('Times', 14)
-        self.metadata_show.setFont(f14)
-
-        self.metadata_show.horizontalHeader().setVisible(False)
-        self.metadata_show.verticalHeader().setVisible(False)
-
-        self.metadata_header = self.metadata_show.horizontalHeader()
-        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        if self.metadata_show.columnWidth(1) < 164:
+            self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
+            self.metadata_show.setColumnWidth(1, 164)
 
         self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
-        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setDisabled(True)
-        self.metadata_show.setStyleSheet('color: black')
 
         if self.photo_rotation == 'gor':
-            self.layoutoutside.addWidget(self.metadata_show, 2, 1, 1, 1)
+            self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
-            self.layoutoutside.addWidget(self.groupbox_btns, 0, 3, 2, 1)
-            self.layoutoutside.addWidget(self.socnet_group, 2, 2, 1, 1)
-            pixmap2 = pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll.width(),
-                                    self.size().height() - self.groupbox_directory_choose.height(),
+            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.layoutoutside.addWidget(self.pic, 1, 1, 1, 2)
-            self.pic.setPixmap(pixmap2)
+            self.pic.setPixmap(self.pixmap2)
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
             self.pic.show()
-
-        else:   # self.photo_rotation == 'ver'
-            self.layoutoutside.addWidget(self.metadata_show, 1, 2, 1, 1)
+            self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
+            self.socnet_group.show()
+        else:  # self.photo_rotation == 'ver'
+            self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
-            self.layoutoutside.addWidget(self.groupbox_btns, 0, 3, 2, 1)
-            self.layoutoutside.addWidget(self.socnet_group, 2, 2, 1, 1)
-            pixmap2 = pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() -
-                                    self.scroll.width(), self.size().height() - self.groupbox_directory_choose.height(),
+            self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
+            self.socnet_group.show()
+            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll.width() - 50, self.size().height() - self.groupbox_directory_choose.height() - 30,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.layoutoutside.addWidget(self.pic, 1, 1, 2, 1)
-            self.pic.setPixmap(pixmap2)
+            self.pic.setPixmap(self.pixmap2)
+            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
             self.pic.show()
 
         self.show_social_networks(self.last_clicked, self.photo_directory)
+        self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
+        self.metadata_show.setStyleSheet(stylesheet1)
+
+        if self.max_name_len*12 > self.metadata_show.columnWidth(0):
+            self.socnet_group.setColumnWidth(0, self.max_name_len*12)
+            self.metadata_show.setColumnWidth(0, self.max_name_len*12)
+
+            self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
+            self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1))
 
     # изменить размер фото при изменении размера окна
     def resizeEvent(self, QResizeEvent):
@@ -339,15 +389,34 @@ class AloneWidgetWindow(QWidget):
 
     # изменить размер фото при изменении размера окна
     def resize_func(self) -> None:
-        raznost = self.oldsize - self.size()
-        if abs(raznost.width())+abs(raznost.height()) < 300:
-            pass
+        self.resize_photo()
+
+    def resize_photo(self):
+        if not self.pic.isVisible():
+            return
+
+        if self.photo_rotation == 'gor':
+            self.pixmap2 = self.pixmap.scaled(
+                self.size().width() - self.groupbox_btns.width() - self.scroll.width() - 40,
+                self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
+                QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+            self.pic.setPixmap(self.pixmap2)
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
+
         else:
-            self.showinfo()
+            self.pixmap2 = self.pixmap.scaled(
+                self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll.width() - 80,
+                self.size().height() - self.groupbox_directory_choose.height() - 30,
+                QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+            self.pic.setPixmap(self.pixmap2)
+            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
+
+        self.photo_show.setFixedWidth(self.width() - self.scroll.width() - self.groupbox_btns.width() - 50)
 
     # Создание кнопок удаления и редактирования
     def make_buttons(self) -> None:
         self.edit_btn = QToolButton(self)
+        self.edit_btn.setStyleSheet(stylesheet1)
         # self.edit_btn.setIcon()
         self.edit_btn.setText('RED')
         self.edit_btn.setFixedSize(50, 50)
@@ -355,6 +424,7 @@ class AloneWidgetWindow(QWidget):
         self.edit_btn.clicked.connect(self.edit_photo_func)
 
         self.del_btn = QToolButton(self)
+        self.del_btn.setStyleSheet(stylesheet1)
         # self.del_btn.setIcon()
         self.del_btn.setText('DEL')
         self.del_btn.setFixedSize(50, 50)
@@ -362,12 +432,14 @@ class AloneWidgetWindow(QWidget):
         self.del_btn.clicked.connect(self.del_photo_func)
 
         self.explorer_btn = QToolButton(self)
+        self.explorer_btn.setStyleSheet(stylesheet1)
         self.explorer_btn.setText('EXP')
         self.explorer_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.explorer_btn, 2, 0, 1, 1)
         self.explorer_btn.clicked.connect(self.call_explorer)
 
         self.open_file_btn = QToolButton(self)
+        self.open_file_btn.setStyleSheet(stylesheet1)
         self.open_file_btn.setText('OPN')
         self.open_file_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.open_file_btn, 3, 0, 1, 1)
@@ -427,9 +499,6 @@ class AloneWidgetWindow(QWidget):
 
     # убрать с экрана фото и метаданные после удаления директории
     def clear_after_dir_del(self) -> None:
-        for i in reversed(range(self.layout_sn.count())):
-            self.layout_sn.itemAt(i).widget().deleteLater()
-
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
@@ -451,20 +520,37 @@ class AloneWidgetWindow(QWidget):
     def show_social_networks(self, photoname: str, photodirectory: str) -> None:
         def fill_sn_widgets(sn_names: list[str, ...], sn_tags: dict) -> None:
             i = 0
+            self.socnet_group.setRowCount(len(sn_names))
+
+            self.max_name_len = 0
             for name in sn_names:
+                if len(name) > self.max_name_len:
+                    self.max_name_len = len(name)
+
                 self.sn_lbl = QLabel(self)
+                self.sn_lbl.setFont(font14)
+                self.sn_lbl.setStyleSheet(stylesheet2)
+
                 if name[:9] != 'numnumnum':
                     self.sn_lbl.setText(f"{name}")
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
-                self.layout_sn.addWidget(self.sn_lbl, i, 0, 1, 1)
+
+                self.socnet_group.setCellWidget(i, 0, self.sn_lbl)
 
                 self.sn_tag_choose = QComboBox(self)
+                self.sn_tag_choose.setFont(font14)
+                self.sn_tag_choose.setStyleSheet(stylesheet1)
                 self.sn_tag_choose.setObjectName(name)
                 self.sn_tag_choose.addItem('Не выбрано')
                 self.sn_tag_choose.addItem('Не публиковать')
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
+
+                if self.photo_rotation == 'gor':
+                    self.sn_tag_choose.setFixedWidth(180)
+                else:
+                    self.sn_tag_choose.setFixedWidth(self.metadata_show.columnWidth(1))
 
                 if sn_tags[f'{name}'] == 'No value':
                     self.sn_tag_choose.setCurrentText('Не выбрано')
@@ -477,8 +563,28 @@ class AloneWidgetWindow(QWidget):
 
                 self.sn_tag_choose.currentTextChanged.connect(edit_tags)
 
-                self.layout_sn.addWidget(self.sn_tag_choose, i, 1, 1, 1)
+                self.socnet_group.setCellWidget(i, 1, self.sn_tag_choose)
                 i += 1
+
+                if self.sn_lbl.width() > self.metadata_show.columnWidth(0):
+                    self.metadata_show.setColumnWidth(0, self.sn_lbl.width())
+
+                if not sn_names:
+                    self.socnet_group.setStyleSheet(stylesheet2)
+                else:
+                    self.socnet_group.setStyleSheet(stylesheet1)
+
+                self.socnet_group_header = self.socnet_group.horizontalHeader()
+
+                if self.photo_rotation == 'gor':
+                    self.socnet_group_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+                    self.socnet_group_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+                else:
+                    self.socnet_group.setColumnWidth(0, self.metadata_show.columnWidth(0))
+                    self.socnet_group.setColumnWidth(1, self.metadata_show.columnWidth(1))
+
+                self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1) + 2)
+                self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
 
         def edit_tags():
             new_status = self.sender().currentText()
@@ -495,7 +601,6 @@ class AloneWidgetWindow(QWidget):
             PhotoDataDB.edit_sn_tags(photoname, photodirectory[:-1], new_status_bd, network)
             if self.photo_filter.checkState() == 2:
                 self.show_thumbnails()
-
 
         sn_names, sn_tags = PhotoDataDB.get_social_tags(photoname, photodirectory[:-1])
 

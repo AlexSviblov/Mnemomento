@@ -56,8 +56,8 @@ class ConstWidgetWindow(QWidget):
         self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
         self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
         self.groupbox_thumbs.setStyleSheet(stylesheet1)
-
         self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
+
         self.scroll = QScrollArea(self)  # создание подвижной области
         self.scroll.setWidgetResizable(True)
         self.scroll.setWidget(self.groupbox_thumbs)
@@ -70,7 +70,6 @@ class ConstWidgetWindow(QWidget):
 
         self.groupbox_sort = QGroupBox(self)
         self.groupbox_sort.setFixedHeight(50)
-        # self.groupbox_sort.setMaximumWidth(700)
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
@@ -515,10 +514,16 @@ class ConstWidgetWindow(QWidget):
             self.pic.show()
 
         self.show_social_networks(self.last_clicked_name, photo_directory)
-        # self.photo_show.setMinimumWidth(self.metadata_show.width()+self.socnet_group.width()+50)
         self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
         self.metadata_show.setStyleSheet(stylesheet1)
+
+        if self.max_name_len*12 > self.metadata_show.columnWidth(0):
+            self.socnet_group.setColumnWidth(0, self.max_name_len*12)
+            self.metadata_show.setColumnWidth(0, self.max_name_len*12)
+
+            self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
+            self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1))
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
@@ -720,7 +725,12 @@ class ConstWidgetWindow(QWidget):
         def fill_sn_widgets(sn_names: list[str, ...], sn_tags: dict) -> None:
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
+
+            self.max_name_len = 0
             for name in sn_names:
+                if len(name) > self.max_name_len:
+                    self.max_name_len = len(name)
+
                 self.sn_lbl = QLabel(self)
                 self.sn_lbl.setFont(font14)
                 self.sn_lbl.setStyleSheet(stylesheet2)
@@ -730,7 +740,7 @@ class ConstWidgetWindow(QWidget):
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
 
-                self.sn_lbl.setFixedWidth(len(name)*15)
+                self.sn_lbl.setFixedWidth(len(name)*12)
                 self.socnet_group.setCellWidget(i, 0, self.sn_lbl)
 
                 self.sn_tag_choose = QComboBox(self)
@@ -782,7 +792,6 @@ class ConstWidgetWindow(QWidget):
             self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1)+2)
             self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
 
-
         def edit_tags():
             new_status = self.sender().currentText()
             if new_status == 'Не выбрано':
@@ -830,6 +839,7 @@ class ConstWidgetWindow(QWidget):
 
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
+        self.year_lbl.setStyleSheet(stylesheet2)
         self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
 
         self.date_year = QComboBox(self)
@@ -842,6 +852,7 @@ class ConstWidgetWindow(QWidget):
 
         self.month_lbl = QLabel(self)
         self.month_lbl.setFont(font14)
+        self.month_lbl.setStyleSheet(stylesheet2)
         self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
 
         self.date_month = QComboBox(self)
@@ -854,6 +865,7 @@ class ConstWidgetWindow(QWidget):
 
         self.day_lbl = QLabel(self)
         self.day_lbl.setFont(font14)
+        self.day_lbl.setStyleSheet(stylesheet2)
         self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
 
         if not self.year_lbl.text():
@@ -899,7 +911,7 @@ class ConstWidgetWindow(QWidget):
                 if len(net) > socnet_max_len:
                     socnet_max_len = len(net)
 
-            self.socnet_choose.setFixedWidth(socnet_max_len*15)
+            self.socnet_choose.setFixedWidth(socnet_max_len*12)
 
             self.socnet_choose.currentTextChanged.connect(self.type_show_thumbnails)
 
@@ -944,8 +956,8 @@ class ConstWidgetWindow(QWidget):
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
 
-        self.camera_choose.setFixedWidth(camera_max_len*15)
-        self.lens_choose.setFixedWidth(lens_max_len*15)
+        self.camera_choose.setFixedWidth(camera_max_len*12)
+        self.lens_choose.setFixedWidth(lens_max_len*12)
 
         self.camera_choose.currentTextChanged.connect(self.type_show_thumbnails)
         self.lens_choose.currentTextChanged.connect(self.type_show_thumbnails)
