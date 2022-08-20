@@ -417,7 +417,6 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict:
     except KeyError:
         useful_data['Камера'] = ''
 
-
     try:
         lens = all_data['Exif.Photo.LensModel']
 
@@ -450,7 +449,7 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict:
         useful_data['Диафрагма'] = ''
 
     try:
-        useful_data['Фокусное расстояние'] = str(EXIF_text_to_float(all_data['Exif.Photo.FocalLength']))
+        useful_data['Фокусное расстояние'] = str(int(EXIF_text_to_float(all_data['Exif.Photo.FocalLength'])))
     except KeyError:
         useful_data['Фокусное расстояние'] = ''
 

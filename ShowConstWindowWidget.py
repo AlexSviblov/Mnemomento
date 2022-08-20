@@ -17,9 +17,12 @@ import SocialNetworks
 
 
 font14 = QtGui.QFont('Times', 14)
+font12 = QtGui.QFont('Times', 12)
 
 stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0"
 stylesheet2 = "border: 0px; color: black; background-color: #F0F0F0"
+stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;}"
+stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
 
 
 class ConstWidgetWindow(QWidget):
@@ -990,6 +993,8 @@ class DelPhotoConfirm(QDialog):
         self.photoname = photoname
         self.photodirectory = photodirectory
 
+        self.setStyleSheet(stylesheet2)
+
         self.setWindowTitle('Подтверждение удаления')
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -999,18 +1004,24 @@ class DelPhotoConfirm(QDialog):
 
         self.lbl = QLabel()
         self.lbl.setText(f'Вы точно хотите удалить {self.photoname}?')
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.lbl, 0, 0, 1, 1)
-        self.lbl.setFont(QtGui.QFont('Times', 12))
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        buttonBox.button(QDialogButtonBox.Ok).setText('Подтверждение')
-        buttonBox.button(QDialogButtonBox.Cancel).setText('Отмена')
-        buttonBox.setFont(QtGui.QFont('Times', 12))
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet1)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet1)
 
-        self.layout.addWidget(buttonBox, 1, 0, 1, 1)
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
 
-        buttonBox.accepted.connect(lambda: self.do_del(photoname, photodirectory))
-        buttonBox.rejected.connect(self.reject)
+        btn_ok.clicked.connect(lambda: self.do_del(photoname, photodirectory))
+        btn_cancel.clicked.connect(self.reject)
 
     # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
@@ -1030,6 +1041,8 @@ class EditExifData(QDialog):
 
     def __init__(self, parent, photoname, photodirectory, chosen_group_type):
         super().__init__(parent)
+        self.setStyleSheet(stylesheet2)
+
         self.setWindowTitle('Редактирование метаданных')
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -1040,8 +1053,17 @@ class EditExifData(QDialog):
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
+
         self.table = QTableWidget(self)
-        self.layout.addWidget(self.table, 0, 0, 1, 1)
+        self.table.setFont(font12)
+        self.table.verticalHeader().setVisible(False)
+        # self.table.horizontalHeader().setVisible(False)
+        self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table.setStyleSheet(stylesheet1)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.layout.addWidget(self.table, 0, 0, 1, 1, alignment=Qt.AlignCenter)
 
         self.indicator = 0
         self.get_metadata(photoname, photodirectory)
@@ -1062,16 +1084,18 @@ class EditExifData(QDialog):
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
         keys = list(data.keys())
-        self.table.setFont(QtGui.QFont('Times', 10))
+        self.table.setFont(font12)
 
         for parameter in range(len(data)):
             self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
             self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
 
-        self.table.setStyleSheet('color: black')
         self.table.resizeColumnsToContents()
-        self.resize(self.table.columnWidth(0) + self.table.columnWidth(1) + 80, 500)
+        self.table.horizontalHeader().setFixedHeight(1)
+        self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
+        self.resize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
+        self.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 50, self.table.rowCount()*self.table.rowHeight(0)+50)
 
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str) -> None:
@@ -1205,14 +1229,20 @@ class EqualNames(QDialog):
 
         self.text_lbl = QLabel(self)
         self.text_lbl.setText('В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?')
+        self.text_lbl.setFont(font12)
+        self.text_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.text_lbl, 0, 0, 1, 4)
 
         self.old_top_lbl = QLabel(self)
         self.old_top_lbl.setText('Фото уже существующее в папке')
+        self.old_top_lbl.setFont(font12)
+        self.old_top_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_top_lbl, 1, 0, 1, 2)
 
         self.new_top_lbl = QLabel(self)
         self.new_top_lbl.setText('Фото перемещаемое из-за изменения даты')
+        self.new_top_lbl.setFont(font12)
+        self.new_top_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.new_top_lbl, 1, 2, 1, 2)
 
         self.pic_old = QLabel(self)

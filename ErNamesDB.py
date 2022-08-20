@@ -369,18 +369,23 @@ class DelBDDialog(QDialog):
 
         self.obj_lbl = QLabel()
         self.obj_lbl.setText(f'Вы точно хотите удалить {self.del_obj_ername} -> {self.del_obj_normname}?')
-        self.layout.addWidget(self.obj_lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.obj_lbl, 0, 0, 1, 2)
         self.obj_lbl.setFont(font12)
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        buttonBox.button(QDialogButtonBox.Ok).setText('Подтверждение')
-        buttonBox.button(QDialogButtonBox.Cancel).setText('Отмена')
-        buttonBox.setFont(font12)
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet2)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet2)
 
-        self.layout.addWidget(buttonBox, 1, 0, 1, 1)
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
 
-        buttonBox.accepted.connect(self.do_del)
-        buttonBox.rejected.connect(self.reject)
+        btn_ok.clicked.connect(self.do_del)
+        btn_cancel.clicked.connect(self.reject)
 
     # произвести удаление записи
     def do_del(self) -> None:
