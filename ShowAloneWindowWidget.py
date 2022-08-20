@@ -17,9 +17,12 @@ import Thumbnail
 
 
 font14 = QtGui.QFont('Times', 14)
+font12 = QtGui.QFont('Times', 12)
 
 stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0"
 stylesheet2 = "border: 0px; color: black; background-color: #F0F0F0"
+stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;}"
+stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
 
 
 class AloneWidgetWindow(QWidget):
@@ -536,6 +539,7 @@ class AloneWidgetWindow(QWidget):
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
 
+                self.sn_lbl.setFixedWidth(len(name) * 12)
                 self.socnet_group.setCellWidget(i, 0, self.sn_lbl)
 
                 self.sn_tag_choose = QComboBox(self)
@@ -617,6 +621,8 @@ class DelPhotoConfirm(QDialog):
         self.photoname = photoname
         self.photodirectory = photodirectory
 
+        self.setStyleSheet(stylesheet2)
+
         self.setWindowTitle('Подтверждение удаления')
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -626,18 +632,25 @@ class DelPhotoConfirm(QDialog):
 
         self.lbl = QLabel()
         self.lbl.setText(f'Вы точно хотите удалить {self.photoname}?')
-        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
-        self.lbl.setFont(QtGui.QFont('Times', 12))
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        buttonBox.button(QDialogButtonBox.Ok).setText('Подтверждение')
-        buttonBox.button(QDialogButtonBox.Cancel).setText('Отмена')
-        buttonBox.setFont(QtGui.QFont('Times', 12))
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet1)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet1)
 
-        self.layout.addWidget(buttonBox, 1, 0, 1, 1)
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
 
-        buttonBox.accepted.connect(lambda: self.do_del(photoname, photodirectory))
-        buttonBox.rejected.connect(self.reject)
+        btn_ok.clicked.connect(lambda: self.do_del(photoname, photodirectory))
+        btn_cancel.clicked.connect(self.reject)
 
     # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
@@ -665,7 +678,15 @@ class EditExifData(QDialog):
         self.setLayout(self.layout)
 
         self.table = QTableWidget(self)
-        self.layout.addWidget(self.table, 0, 0, 1, 1)
+        self.table.setFont(font12)
+        self.table.verticalHeader().setVisible(False)
+        # self.table.horizontalHeader().setVisible(False)
+        self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table.setStyleSheet(stylesheet1)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.layout.addWidget(self.table, 0, 0, 1, 1, alignment=Qt.AlignCenter)
 
         self.indicator = 0
         self.get_metadata(photoname, photodirectory)
@@ -686,16 +707,17 @@ class EditExifData(QDialog):
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
         keys = list(data.keys())
-        self.table.setFont(QtGui.QFont('Times', 10))
 
         for parameter in range(len(data)):
             self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
             self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
 
-        self.table.setStyleSheet('color: black')
         self.table.resizeColumnsToContents()
-        self.resize(self.table.columnWidth(0) + self.table.columnWidth(1) + 80, 500)
+        self.table.horizontalHeader().setFixedHeight(1)
+        self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
+        self.resize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
+        self.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 50, self.table.rowCount()*self.table.rowHeight(0)+50)
 
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str) -> None:
@@ -742,6 +764,8 @@ class DelDirConfirm(QDialog):
 
         self.photodirectory = photodirectory
 
+        self.setStyleSheet(stylesheet2)
+
         self.setWindowTitle('Подтверждение удаления')
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -752,18 +776,25 @@ class DelDirConfirm(QDialog):
         self.lbl = QLabel()
         dir_name = self.photodirectory.split('/')[-1]
         self.lbl.setText(f'Вы точно хотите удалить папку {dir_name}?')
-        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
-        self.lbl.setFont(QtGui.QFont('Times', 12))
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, self)
-        buttonBox.button(QDialogButtonBox.Ok).setText('Подтверждение')
-        buttonBox.button(QDialogButtonBox.Cancel).setText('Отмена')
-        buttonBox.setFont(QtGui.QFont('Times', 12))
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet1)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet1)
 
-        self.layout.addWidget(buttonBox, 1, 0, 1, 1)
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
 
-        buttonBox.accepted.connect(self.do_del)
-        buttonBox.rejected.connect(self.reject)
+        btn_ok.clicked.connect(self.do_del)
+        btn_cancel.clicked.connect(self.reject)
 
     # при подтверждении - удалить всех фото из папки, его миниатюру и записи в БД
     def do_del(self) -> None:

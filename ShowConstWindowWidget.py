@@ -724,7 +724,6 @@ class ConstWidgetWindow(QWidget):
 
     # отображения статуса фото в соцсетях
     def show_social_networks(self, photoname: str, photodirectory: str) -> None:
-
         def fill_sn_widgets(sn_names: list[str, ...], sn_tags: dict) -> None:
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
@@ -749,12 +748,12 @@ class ConstWidgetWindow(QWidget):
                 self.sn_tag_choose = QComboBox(self)
                 self.sn_tag_choose.setFont(font14)
                 self.sn_tag_choose.setStyleSheet(stylesheet1)
-                # self.sn_tag_choose.setFixedWidth(self.metadata_show.columnWidth(1))
                 self.sn_tag_choose.setObjectName(name)
                 self.sn_tag_choose.addItem('Не выбрано')
                 self.sn_tag_choose.addItem('Не публиковать')
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
+
                 if self.photo_rotation == 'gor':
                     self.sn_tag_choose.setFixedWidth(180)
                 else:
@@ -1006,7 +1005,8 @@ class DelPhotoConfirm(QDialog):
         self.lbl.setText(f'Вы точно хотите удалить {self.photoname}?')
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
-        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
         btn_ok.setText('Подтверждение')
@@ -1053,7 +1053,6 @@ class EditExifData(QDialog):
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
-
         self.table = QTableWidget(self)
         self.table.setFont(font12)
         self.table.verticalHeader().setVisible(False)
@@ -1084,7 +1083,6 @@ class EditExifData(QDialog):
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
         keys = list(data.keys())
-        self.table.setFont(font12)
 
         for parameter in range(len(data)):
             self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
@@ -1219,7 +1217,9 @@ class EqualNames(QDialog):
 
         # new - в котором изменили дату
         # old - который уже есть в папке с этой датой
-        self.filesname = filesname
+        self.file_full_name = filesname
+        self.filename = filesname.split('.')[0]
+        self.format = filesname.split('.')[1]
         self.old_date = old_date
         self.new_date = new_date
 
@@ -1229,6 +1229,7 @@ class EqualNames(QDialog):
 
         self.text_lbl = QLabel(self)
         self.text_lbl.setText('В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?')
+        self.text_lbl.setAlignment(Qt.AlignCenter)
         self.text_lbl.setFont(font12)
         self.text_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.text_lbl, 0, 0, 1, 4)
@@ -1246,9 +1247,11 @@ class EqualNames(QDialog):
         self.layout.addWidget(self.new_top_lbl, 1, 2, 1, 2)
 
         self.pic_old = QLabel(self)
+        self.pic_old.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.pic_old, 2, 0, 1, 2)
 
         self.pic_new = QLabel(self)
+        self.pic_new.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.pic_new, 2, 2, 1, 2)
 
         self.old_checkbox = QCheckBox(self)
@@ -1256,7 +1259,9 @@ class EqualNames(QDialog):
         self.layout.addWidget(self.old_checkbox, 3, 0, 1, 1)
 
         self.old_name = QLineEdit(self)
-        self.old_name.setText(filesname)
+        self.old_name.setText(self.filename)
+        self.old_name.setStyleSheet(stylesheet4)
+        self.old_name.setFont(font12)
         self.layout.addWidget(self.old_name, 3, 1, 1, 1)
         self.old_name.setDisabled(True)
 
@@ -1266,7 +1271,9 @@ class EqualNames(QDialog):
         self.new_checkbox.setCheckState(2)
 
         self.new_name = QLineEdit(self)
-        self.new_name.setText(filesname)
+        self.new_name.setText(self.filename)
+        self.new_name.setStyleSheet(stylesheet4)
+        self.new_name.setFont(font12)
         self.layout.addWidget(self.new_name, 3, 3, 1, 1)
 
         self.old_checkbox.stateChanged.connect(self.check_disable)
@@ -1274,13 +1281,16 @@ class EqualNames(QDialog):
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Переименовать')
+        self.btn_ok.setFont(font12)
+        self.btn_ok.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_ok, 4, 0, 1, 2)
         self.btn_ok.clicked.connect(lambda: self.ok_check(self.new_name.text(), self.old_name.text()))
 
-
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Не переносить (отменить изменение даты)')
-        self.layout.addWidget(self.btn_cnl, 4, 3, 1, 2)
+        self.btn_cnl.setFont(font12)
+        self.btn_cnl.setStyleSheet(stylesheet1)
+        self.layout.addWidget(self.btn_cnl, 4, 2, 1, 2)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
         self.show_photos()
@@ -1289,8 +1299,8 @@ class EqualNames(QDialog):
     def show_photos(self) -> None:
         self.old_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/'
         self.new_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/'
-        pixmap_old = QtGui.QPixmap(self.old_photo_dir + self.filesname).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
-        pixmap_new = QtGui.QPixmap(self.new_photo_dir + self.filesname).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
+        pixmap_old = QtGui.QPixmap(self.old_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
+        pixmap_new = QtGui.QPixmap(self.new_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
         self.pic_old.setPixmap(pixmap_old)
         self.pic_new.setPixmap(pixmap_new)
 
@@ -1325,35 +1335,36 @@ class EqualNames(QDialog):
             return
 
         if self.new_checkbox.checkState():  # переименовывается переносимый файл
-            new_new_name = self.new_name.text()
+            new_new_name = self.new_name.text() + '.' + self.format
 
             if os.path.exists(self.old_photo_dir + new_new_name):
                 err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
                 err_win.show()
                 return
 
-            os.rename(self.new_photo_dir + self.filesname, self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg')
+            os.rename(self.new_photo_dir + self.file_full_name, self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg')
             shutil.move(self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg', self.old_photo_dir)
             os.rename(self.old_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg', self.old_photo_dir + new_new_name)
 
-            PhotoDataDB.filename_after_transfer(self.filesname, new_enter_text, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
-            Thumbnail.transfer_equal_date_thumbnail(self.filesname, self.filesname, self.old_date, self.new_date, new_new_name, 'new')
+            PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
+            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
             Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 9, self.full_exif_date, os.getcwd())
             PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 9, self.full_exif_date)
         else:       # переименовывается файл в папке назначения
-            new_old_name = self.old_name.text()
+            new_old_name = self.old_name.text() + '.' + self.format
 
             if os.path.exists(self.old_photo_dir + new_old_name):
                 err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
                 err_win.show()
                 return
 
-            os.rename(self.old_photo_dir + self.filesname, self.old_photo_dir + new_old_name)
-            shutil.move(self.new_photo_dir + self.filesname, self.old_photo_dir)
-            PhotoDataDB.filename_after_transfer(self.filesname, old_enter_text, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
-            Thumbnail.transfer_equal_date_thumbnail(self.filesname, self.filesname, self.old_date, self.new_date, new_old_name, 'old')
-            Metadata.exif_rewrite_edit(self.filesname, self.old_photo_dir, 9, self.full_exif_date, os.getcwd())
-            PhotoDataDB.edit_in_database(self.filesname, self.old_photo_dir[:-1], 9, self.full_exif_date)
+            os.rename(self.old_photo_dir + self.file_full_name, self.old_photo_dir + new_old_name)
+            shutil.move(self.new_photo_dir + self.file_full_name, self.old_photo_dir)
+
+            PhotoDataDB.filename_after_transfer(self.file_full_name, old_enter_text, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
+            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
+            Metadata.exif_rewrite_edit(self.file_full_name, self.old_photo_dir, 9, self.full_exif_date, os.getcwd())
+            PhotoDataDB.edit_in_database(self.file_full_name, self.old_photo_dir[:-1], 9, self.full_exif_date)
         self.file_rename_transfer_signal.emit()
         self.close()
 
