@@ -81,7 +81,7 @@ class AloneWidgetWindow(QWidget):
         self.directory_choose.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.fill_directory_combobox()
         self.directory_choose.setFixedHeight(30)
-        self.directory_choose.setFixedWidth(self.max_name_len*12)
+        self.directory_choose.setFixedWidth(self.max_dir_name_len*12 + 40)
         self.layout_directory_choose.addWidget(self.directory_choose, 0, 1, 1, 1)
 
         self.directory_delete = QPushButton(self)
@@ -203,12 +203,12 @@ class AloneWidgetWindow(QWidget):
         photo_alone_dir = Settings.get_destination_media() + '/Media/Photo/alone/'
         all_files_and_dirs = os.listdir(photo_alone_dir)
         dir_list = list()
-        self.max_name_len = 0
+        self.max_dir_name_len = 0
         for name in all_files_and_dirs:
             if os.path.isdir(photo_alone_dir+name):
                 dir_list.append(name)
-                if len(name) > self.max_name_len:
-                    self.max_name_len = len(name)
+                if len(name) > self.max_dir_name_len:
+                    self.max_dir_name_len = len(name)
 
         dir_list.sort(reverse=True)
         for directory in dir_list:
@@ -379,9 +379,9 @@ class AloneWidgetWindow(QWidget):
         self.oldsize = self.size()
         self.metadata_show.setStyleSheet(stylesheet1)
 
-        if self.max_name_len*12 > self.metadata_show.columnWidth(0):
-            self.socnet_group.setColumnWidth(0, self.max_name_len*12)
-            self.metadata_show.setColumnWidth(0, self.max_name_len*12)
+        if self.max_sn_name_len*12 > self.metadata_show.columnWidth(0):
+            self.socnet_group.setColumnWidth(0, self.max_sn_name_len*12)
+            self.metadata_show.setColumnWidth(0, self.max_sn_name_len*12)
 
             self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
             self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1))
@@ -525,10 +525,10 @@ class AloneWidgetWindow(QWidget):
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
 
-            self.max_name_len = 0
+            self.max_sn_name_len = 0
             for name in sn_names:
-                if len(name) > self.max_name_len:
-                    self.max_name_len = len(name)
+                if len(name) > self.max_sn_name_len:
+                    self.max_sn_name_len = len(name)
 
                 self.sn_lbl = QLabel(self)
                 self.sn_lbl.setFont(font14)
@@ -609,6 +609,16 @@ class AloneWidgetWindow(QWidget):
         sn_names, sn_tags = PhotoDataDB.get_social_tags(photoname, photodirectory[:-1])
 
         fill_sn_widgets(sn_names, sn_tags)
+
+    def after_change_settings(self):
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+        self.thumb_row = int(settings["thumbs_row"])
+
+        self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
+        self.scroll.setFixedWidth(200 * self.thumb_row)
+
+        self.show_thumbnails()
 
 
 # подтвердить удаление фото

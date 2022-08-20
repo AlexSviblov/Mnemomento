@@ -21,6 +21,7 @@ stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; backgrou
 
 # объект окна настроек
 class SettingWin(QMainWindow):
+    update_main_widget = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -28,22 +29,23 @@ class SettingWin(QMainWindow):
         self.setWindowTitle('Настройки')
         self.setStyleSheet(stylesheet1)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        self.resize(800, 800)
 
         settings = SettingWidget()
-
+        settings.update_main_widget.connect(self.update_main_widget.emit)
         self.setCentralWidget(settings)
+        self.resize(settings.size())
 
 
 # сами настройки (виджет)
 class SettingWidget(QWidget):
+    update_main_widget = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Настройки')
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        self.resize(800, 800)
+        # self.resize(800, 800)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -93,8 +95,8 @@ class SettingWidget(QWidget):
         self.transfer_mode_choose = QComboBox(self)
         self.transfer_mode_choose.setFont(font14)
         self.transfer_mode_choose.setStyleSheet(stylesheet4)
-        self.transfer_mode_choose.addItem('Copy')
-        self.transfer_mode_choose.addItem('Cut')
+        self.transfer_mode_choose.addItem('copy')
+        self.transfer_mode_choose.addItem('cut')
         self.layout.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
 
         self.num_thumbs_text = QLabel(self)
@@ -120,6 +122,8 @@ class SettingWidget(QWidget):
 
         self.show_settings()
 
+        self.resize(800, 200)
+
     # выбор папки хранения фото
     def dir_media_choose(self) -> None:
         dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '')
@@ -143,11 +147,11 @@ class SettingWidget(QWidget):
         self.old_media_dir = settings['destination_dir']
         self.old_thumb_dir = settings['thumbs_dir']
         mode = settings['transfer_mode']
-        num_thumbs = settings["thumbs_row"]
+        self.old_num_thumbs = settings["thumbs_row"]
         self.media_space_line.setText(self.old_media_dir)
         self.thumbs_space_line.setText(self.old_thumb_dir)
         self.transfer_mode_choose.setCurrentText(mode)
-        self.num_thumbs_choose.setCurrentText(num_thumbs)
+        self.num_thumbs_choose.setCurrentText(self.old_num_thumbs)
 
     # какие пути изменили, какие нет
     def check_changes(self) -> None:
@@ -179,10 +183,13 @@ class SettingWidget(QWidget):
                        'transfer_mode': transfer_mode, "thumbs_row": num_thumbs}
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
-        self.show_settings()
+
         notice_win = Notification(self)
         notice_win.show()
+        if dir_thumb_chosen != self.old_thumb_dir or dir_media_chosen != self.old_media_dir or num_thumbs != self.old_num_thumbs:
+            self.update_main_widget.emit()
 
+        self.show_settings()
 
 # перенос папок, если изменился путь
 class TransferFiles(QDialog):
@@ -333,6 +340,24 @@ def get_destination_thumb() -> str:
     destination_thumb = settings['thumbs_dir']
 
     return destination_thumb
+
+
+# количество миниатюр в строке
+def get_thumbs_rows():
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
+    thumbs_rows = settings['thumbs_rows']
+
+    return thumbs_rows
+
+
+# режим переноса фото при добавлении
+def get_photo_transfer_mode():
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
+    transfer_mode = settings['transfer_mode']
+
+    return transfer_mode
 
 
 if __name__ == "__main__":

@@ -13,11 +13,15 @@ stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; backgrou
 class PhotoExists(QDialog):
     def __init__(self, parent, photo_list):
         super(PhotoExists, self).__init__(parent)
-
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Обнаружены совпадения')
+        self.setStyleSheet(stylesheet1)
+
+        self.layout = QGridLayout(self)
+        self.setLayout(self.layout)
+        self.layout.setAlignment(QtCore.Qt.AlignCenter)
 
         self.answer = None
-        self.resize(1000, 500)
 
         self.lbl = QLabel(self)
         str_to_show = ''
@@ -28,14 +32,17 @@ class PhotoExists(QDialog):
         str_to_show += '\nЕсли вы хотите их перезаписать - удалите уже добавленные.\n\nУ данных файлов совпала дата ' \
                        'съёмки(при её наличии) и название.'
         self.lbl.setText(str_to_show)
-        self.lbl.setFont(QtGui.QFont('Times', 14))
-        self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.lbl, 0, 0, 1, 1)
 
         self.btn_ok = QPushButton(self)
-        self.btn_ok.setText('ok')
+        self.btn_ok.setText('Ок')
+        self.btn_ok.setStyleSheet(stylesheet2)
+        self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+
+        self.resize(self.lbl.width()+20, self.lbl.height() + self.btn_ok.height() + 20)
 
         self.btn_ok.clicked.connect(lambda: self.close())
 
@@ -44,6 +51,7 @@ class PhotoExists(QDialog):
 class EditExifError(QDialog):
     def __init__(self, parent):
         super(EditExifError, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Ошибка ввода данных')
         layout = QGridLayout(self)
         self.setLayout(layout)
@@ -67,6 +75,7 @@ class EditExifError(QDialog):
 class ExistFileRenameError1(QDialog):
     def __init__(self, parent):
         super(ExistFileRenameError1, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Файл не был переименован')
 
         layout = QGridLayout(self)
@@ -89,6 +98,7 @@ class ExistFileRenameError1(QDialog):
 class ExistFileRenameError2(QDialog):
     def __init__(self, parent):
         super(ExistFileRenameError2, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Файл с таким именем уже существует')
 
         layout = QGridLayout(self)
@@ -111,6 +121,7 @@ class ExistFileRenameError2(QDialog):
 class ErNamesDBWarn(QDialog):
     def __init__(self, parent, code=0):
         super(ErNamesDBWarn, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
         self.answer = None
         self.resize(100, 100)
@@ -127,6 +138,29 @@ class ErNamesDBWarn(QDialog):
         self.setLayout(layout)
         lbl = QLabel(self)
         lbl.setText(text)
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet1)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet2)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)
+
+
+class ExistAloneDir(QDialog):
+    def __init__(self, parent=None):
+        super(ExistAloneDir, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle('Директория уже существует')
+
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText('папка с таким именем уже есть в программе')
         lbl.setFont(font14)
         lbl.setStyleSheet(stylesheet1)
 

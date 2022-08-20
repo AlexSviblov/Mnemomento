@@ -145,7 +145,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress = AloneMaker(photo_directory=self.add_dir_chosen, photo_files_list=photo_files_list)
         self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.add_files_progress.finished.connect(self.finish_thread_add_alone)
+        self.add_files_progress.finished.connect(lambda text: self.finish_thread_add_alone(text))
         self.add_files_progress.start()
 
     # одноразовый просмотр папки
@@ -191,9 +191,15 @@ class MainWindow(QMainWindow):
         self.show_main_const_widget()
 
     # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
-    def finish_thread_add_alone(self, text) -> None:
-        self.show_main_alone_widget()
+    def finish_thread_add_alone(self, text: str) -> None:
+        if text == 'finish':
+            self.show_main_alone_widget()
+        else:
+            self.start_show()
+            er_win = ErrorsAndWarnings.ExistAloneDir(self)
+            er_win.show()
 
+    # По окончании создания миниатюр разового просмотра, запустить виджет показа
     def finish_thread_view_dir(self) -> None:
         self.show_view_dir()
 
@@ -254,16 +260,32 @@ class MainWindow(QMainWindow):
         self.window_sn.main_resize_signal.connect(self.resize_sn_window)
         self.window_sn.show()
 
+    # Изменение размера окна таблицы при её редактировании
     def resize_sn_window(self):
         self.window_sn.resize(self.window_sn.size())
         self.window_sn.adjustSize()
 
     # настройки
     def settings_func(self) -> None:
-        self.window_set = Settings.SettingWin(self)
-        self.window_set.show()
+        window_set = Settings.SettingWin(self)
+        window_set.update_main_widget.connect(self.update_settings_widget)
+        window_set.show()
+
+    # после изменения в настройках надо обновить текущий виджет
+    def update_settings_widget(self):
+        print(type(self.centralWidget()))
+        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:
+            print('Alone')
+            self.centralWidget().after_change_settings()
+        elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:
+            print('Const')
+        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:
+            print('OnlyShow')
+        else:
+            print('Other')
 
 
+# при добавлении папки
 class ProgressBar(QWidget):
     def __init__(self):
         super().__init__()
@@ -563,6 +585,14 @@ class ConstMaker(QtCore.QThread):
             else:
                 pass
 
+        if Settings.get_photo_transfer_mode() == "cut":
+            file_dir = ''
+            file_full = self.files_list[0].split(r'/')
+            for i in range(len(file_full) - 1):
+                file_dir += file_full[i] + '/'
+        if not os.listdir(file_dir):
+            os.rmdir(file_dir)
+
         self.finished.emit(files_exist)
 
 
@@ -586,13 +616,20 @@ class AloneMaker(QtCore.QThread):
         self.preprogress.emit(self.len_file_list)
 
     def run(self):
-        j = 0
-        for file in self.files_list:
-            FilesDirs.transfer_alone_photos(self.photo_directory, file)
-            j += 1
-            self.progress.emit(round(100*(j/self.len_file_list)))
+        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]):
+            os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
 
-        self.finished.emit('finish')
+            j = 0
+            for file in self.files_list:
+                FilesDirs.transfer_alone_photos(self.photo_directory, file)
+                j += 1
+                self.progress.emit(round(100 * (j / self.len_file_list)))
+
+            os.rmdir(self.photo_directory)
+
+            self.finished.emit('finish')
+        else:
+            self.finished.emit('error')
 
 
 # создание временных файлов для разового просмотра
