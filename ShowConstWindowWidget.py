@@ -19,19 +19,14 @@ import SocialNetworks
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
-stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0"
-stylesheet2 = "border: 0px; color: black; background-color: #F0F0F0"
-stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;}"
-stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
-
 
 class ConstWidgetWindow(QWidget):
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
 
     def __init__(self):
-
         super().__init__()
+        self.stylesheet_color()
 
         self.own_dir = os.getcwd()
         resolution = Screenconfig.monitor_info()
@@ -112,7 +107,7 @@ class ConstWidgetWindow(QWidget):
         self.socnet_group.verticalHeader().setVisible(False)
         self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
         self.socnet_group.setFocusPolicy(Qt.NoFocus)
-        self.socnet_group.setStyleSheet(stylesheet1)
+        self.socnet_group.setStyleSheet(stylesheet6)
 
         self.photo_show = QGroupBox(self)
         self.photo_show.setAlignment(Qt.AlignCenter)
@@ -122,6 +117,45 @@ class ConstWidgetWindow(QWidget):
         self.photo_show.setLayout(self.layout_show)
         self.photo_show.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
+
+    # задать стили для всего модуля в зависимости от выбранной темы
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet3
+        global stylesheet6
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
+            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+        else:   #Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #080808"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #080808; color: #D3D3D3;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808; gridline-color: #696969;}"
+
+        try:
+            self.groupbox_thumbs.setStyleSheet(stylesheet1)
+            self.scroll.setStyleSheet(stylesheet2)
+            self.groupbox_sort.setStyleSheet(stylesheet2)
+            self.groupbox_btns.setStyleSheet(stylesheet2)
+            self.socnet_group.setStyleSheet(stylesheet6)
+            self.photo_show.setStyleSheet(stylesheet2)
+            self.metadata_show.setStyleSheet(stylesheet6)
+            self.edit_btn.setStyleSheet(stylesheet1)
+            self.del_btn.setStyleSheet(stylesheet1)
+            self.explorer_btn.setStyleSheet(stylesheet1)
+            self.open_file_btn.setStyleSheet(stylesheet1)
+            self.setStyleSheet(stylesheet2)
+            self.group_type.setStyleSheet(stylesheet1)
+            self.set_sort_layout()
+
+            self.type_show_thumbnails()
+        except AttributeError:
+            pass
+
 
     # Получение годов
     def get_years(self) -> None:
@@ -519,7 +553,7 @@ class ConstWidgetWindow(QWidget):
         self.show_social_networks(self.last_clicked_name, photo_directory)
         self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
-        self.metadata_show.setStyleSheet(stylesheet1)
+        self.metadata_show.setStyleSheet(stylesheet6)
 
         if self.max_name_len*12 > self.metadata_show.columnWidth(0):
             self.socnet_group.setColumnWidth(0, self.max_name_len*12)
@@ -780,7 +814,7 @@ class ConstWidgetWindow(QWidget):
             if not sn_names:
                 self.socnet_group.setStyleSheet(stylesheet2)
             else:
-                self.socnet_group.setStyleSheet(stylesheet1)
+                self.socnet_group.setStyleSheet(stylesheet6)
 
             self.socnet_group_header = self.socnet_group.horizontalHeader()
 
@@ -981,6 +1015,16 @@ class ConstWidgetWindow(QWidget):
 
         self.type_show_thumbnails()
 
+    def after_change_settings(self):
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+        self.thumb_row = int(settings["thumbs_row"])
+
+        self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
+        self.scroll.setFixedWidth(200 * self.thumb_row)
+
+        self.type_show_thumbnails()
+
 
 # подтвердить удаление фото
 class DelPhotoConfirm(QDialog):
@@ -1058,7 +1102,7 @@ class EditExifData(QDialog):
         self.table.verticalHeader().setVisible(False)
         # self.table.horizontalHeader().setVisible(False)
         self.table.horizontalHeader().setStyleSheet(stylesheet3)
-        self.table.setStyleSheet(stylesheet1)
+        self.table.setStyleSheet(stylesheet6)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -1260,7 +1304,7 @@ class EqualNames(QDialog):
 
         self.old_name = QLineEdit(self)
         self.old_name.setText(self.filename)
-        self.old_name.setStyleSheet(stylesheet4)
+        self.old_name.setStyleSheet(stylesheet1)
         self.old_name.setFont(font12)
         self.layout.addWidget(self.old_name, 3, 1, 1, 1)
         self.old_name.setDisabled(True)
@@ -1272,7 +1316,7 @@ class EqualNames(QDialog):
 
         self.new_name = QLineEdit(self)
         self.new_name.setText(self.filename)
-        self.new_name.setStyleSheet(stylesheet4)
+        self.new_name.setStyleSheet(stylesheet1)
         self.new_name.setFont(font12)
         self.layout.addWidget(self.new_name, 3, 3, 1, 1)
 

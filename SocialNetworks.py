@@ -4,15 +4,12 @@ from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 import sqlite3
+import Settings
 
 conn = sqlite3.connect('PhotoDB.db')  # соединение с БД
 cur = conn.cursor()
 
 font14 = QtGui.QFont('Times', 14)
-
-stylesheet1 = "border: 0px; background-color: #F0F0F0; color: black"
-stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black"
-stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
 
 
 class SocialNetworks(QWidget):
@@ -20,6 +17,8 @@ class SocialNetworks(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.stylesheet_color()
+        self.setStyleSheet(stylesheet2)
 
         # Создание окна
         self.setWindowTitle('Соцсети')
@@ -37,14 +36,14 @@ class SocialNetworks(QWidget):
         self.add_btn.clicked.connect(self.add_func)
         self.add_btn.setFont(font14)
         self.add_btn.setFixedWidth(100)
-        self.add_btn.setStyleSheet(stylesheet2)
+        self.add_btn.setStyleSheet(stylesheet1)
 
         self.empty1 = QLabel(self)
         self.layout.addWidget(self.empty1, 0, 1, 1, 1)
-        self.empty1.setStyleSheet(stylesheet1)
+        self.empty1.setStyleSheet(stylesheet2)
 
         self.networks_group = QGroupBox(self)
-        self.networks_group.setStyleSheet(stylesheet1)
+        self.networks_group.setStyleSheet(stylesheet2)
         self.group_layout = QGridLayout(self)
         self.group_layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.group_layout.setSpacing(10)
@@ -52,6 +51,24 @@ class SocialNetworks(QWidget):
         self.layout.addWidget(self.networks_group, 1, 0, 1, 2)
 
         self.show_social_networks()
+
+    # задать стили для всего модуля в зависимости от выбранной темы
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet3
+        global stylesheet6
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
+            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+        else:  # Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #080808"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #080808; color: #D3D3D3;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808; gridline-color: #696969;}"
 
     # отобразить введённые соцсети
     def show_social_networks(self) -> None:
@@ -74,7 +91,7 @@ class SocialNetworks(QWidget):
             self.group_layout.addWidget(self.soc_net_lbl, i, 0, 1, 1)
 
             self.btn_red = QToolButton(self)
-            self.btn_red.setStyleSheet(stylesheet2)
+            self.btn_red.setStyleSheet(stylesheet1)
             self.btn_red.setFixedSize(50, 50)
             self.btn_red.setText('RED')
             self.btn_red.setObjectName(networks[i])
@@ -82,7 +99,7 @@ class SocialNetworks(QWidget):
             self.group_layout.addWidget(self.btn_red, i, 1, 1, 1)
 
             self.btn_del = QToolButton(self)
-            self.btn_del.setStyleSheet(stylesheet2)
+            self.btn_del.setStyleSheet(stylesheet1)
             self.btn_del.setFixedSize(50, 50)
             self.btn_del.setText('DEL')
             self.btn_del.setObjectName(networks[i])
@@ -148,7 +165,7 @@ class AddSN(QDialog):
         # Создание окна
         self.setWindowTitle('Добавить соцсеть')
         self.resize(600, 90)
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.layout = QGridLayout(self)
@@ -157,25 +174,25 @@ class AddSN(QDialog):
         self.text_lbl = QLabel(self)
         self.text_lbl.setText('Введите название соцсети:')
         self.text_lbl.setFont(font14)
-        self.text_lbl.setStyleSheet(stylesheet1)
+        self.text_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.text_lbl, 0, 0, 1, 1)
 
         self.enter_name = QLineEdit(self)
         self.enter_name.setFont(font14)
-        self.enter_name.setStyleSheet(stylesheet4)
+        self.enter_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.enter_name, 0, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet2)
+        self.btn_ok.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
         self.btn_cnl.setFont(font14)
-        self.btn_cnl.setStyleSheet(stylesheet2)
+        self.btn_cnl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_cnl, 1, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
@@ -209,7 +226,7 @@ class RedSN(QDialog):
 
         self.setWindowTitle('Редактирование названия')
         self.resize(600, 90)
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.net_oldname = net_oldname
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -219,7 +236,7 @@ class RedSN(QDialog):
         self.old_name_lbl = QLabel(self)
         self.old_name_lbl.setText('Старое название:')
         self.old_name_lbl.setFont(font14)
-        self.old_name_lbl.setStyleSheet(stylesheet1)
+        self.old_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_name_lbl, 0, 0, 1, 1)
 
         self.old_name = QLineEdit(self)
@@ -229,31 +246,31 @@ class RedSN(QDialog):
             self.old_name.setText(net_oldname[9:])
         self.old_name.setDisabled(True)
         self.old_name.setFont(font14)
-        self.old_name.setStyleSheet(stylesheet4)
+        self.old_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
         self.new_name_lbl = QLabel(self)
         self.new_name_lbl.setText('Старое название:')
         self.new_name_lbl.setFont(font14)
-        self.new_name_lbl.setStyleSheet(stylesheet1)
+        self.new_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.new_name_lbl, 1, 0, 1, 1)
 
         self.new_name = QLineEdit(self)
         self.new_name.setFont(font14)
-        self.new_name.setStyleSheet(stylesheet4)
+        self.new_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.new_name, 1, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet2)
+        self.btn_ok.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
         self.btn_cnl.setFont(font14)
-        self.btn_cnl.setStyleSheet(stylesheet2)
+        self.btn_cnl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
@@ -285,7 +302,7 @@ class RedSN(QDialog):
 class DelSN(QDialog):
     def __init__(self, net_name):
         super(DelSN, self).__init__()
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle('Редактирование названия')
         self.resize(600, 80)
@@ -298,7 +315,7 @@ class DelSN(QDialog):
         self.old_name_lbl = QLabel(self)
         self.old_name_lbl.setText('Вы уверены, что хотите удалить:')
         self.old_name_lbl.setFont(font14)
-        self.old_name_lbl.setStyleSheet(stylesheet1)
+        self.old_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_name_lbl, 0, 0, 1, 1)
 
         self.old_name = QLineEdit(self)
@@ -308,20 +325,20 @@ class DelSN(QDialog):
             self.old_name.setText(net_name[9:])
         self.old_name.setDisabled(True)
         self.old_name.setFont(font14)
-        self.old_name.setStyleSheet(stylesheet4)
+        self.old_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet2)
+        self.btn_ok.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.do_func)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
         self.btn_cnl.setFont(font14)
-        self.btn_cnl.setStyleSheet(stylesheet2)
+        self.btn_cnl.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 

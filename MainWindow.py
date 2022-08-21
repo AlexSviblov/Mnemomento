@@ -18,9 +18,6 @@ import ErrorsAndWarnings
 import Settings
 
 
-stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
-stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
-stylesheet3 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
 font16 = QtGui.QFont('Times', 16)
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
@@ -33,6 +30,7 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
 
         super().__init__(parent)
+        self.stylesheet_color()
 
         self.setWindowTitle("ТЕСТ ПРОГРАММЫ")
         # Меньше невозможно сделать окно
@@ -40,13 +38,13 @@ class MainWindow(QMainWindow):
         # раскрыть на весь экран
         self.showMaximized()
 
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
-        menubar = QMenuBar(self)
-        menubar.setFont(font8)
-        menubar.setStyleSheet(stylesheet2)
+        self.menubar = QMenuBar(self)
+        self.menubar.setFont(font8)
+        self.menubar.setStyleSheet(stylesheet1)
 
-        add_menu = menubar.addMenu('Добавить')
+        add_menu = self.menubar.addMenu('Добавить')
 
         add_const_files_bar = QAction('Добавить файлы в общий каталог', self)
         add_const_files_bar.triggered.connect(self.func_add_const_files)
@@ -61,7 +59,7 @@ class MainWindow(QMainWindow):
         add_menu.addAction(add_const_directory_bar)
         add_menu.addAction(add_const_alone_directory)
 
-        view_menu = menubar.addMenu('Посмотреть')
+        view_menu = self.menubar.addMenu('Посмотреть')
 
         view_dir = QAction('Просмотр папки', self)
         view_dir.triggered.connect(self.func_view_dir)
@@ -81,20 +79,46 @@ class MainWindow(QMainWindow):
         view_menu.addAction(view_alone_dir)
 
         database_ernames_menu = QAction('База исправлений', self)
-        menubar.addAction(database_ernames_menu)
+        self.menubar.addAction(database_ernames_menu)
         database_ernames_menu.triggered.connect(self.db_ernames_view_func)
 
         social_networks_menu = QAction('Соц.сети', self)
-        menubar.addAction(social_networks_menu)
+        self.menubar.addAction(social_networks_menu)
         social_networks_menu.triggered.connect(self.social_networks_func)
 
         settings = QAction('Настройки', self)
-        menubar.addAction(settings)
+        self.menubar.addAction(settings)
         settings.triggered.connect(self.settings_func)
 
-        self.setMenuBar(menubar)
+        self.setMenuBar(self.menubar)
 
         self.start_show()
+        
+    # задать стили для всего модуля в зависимости от выбранной темы
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet3
+        global stylesheet5
+        global stylesheet6
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
+            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
+            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+        else:
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #080808"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #080808; color: #D3D3D3;}"
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808; gridline-color: #696969;}"
+
+        self.setStyleSheet(stylesheet2)
+        try:
+            self.menubar.setStyleSheet(stylesheet1)
+        except AttributeError:
+            pass
 
     # добавить в основной каталог на постоянку файлы
     def func_add_const_files(self) -> None:
@@ -273,14 +297,17 @@ class MainWindow(QMainWindow):
 
     # после изменения в настройках надо обновить текущий виджет
     def update_settings_widget(self):
-        print(type(self.centralWidget()))
-        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:
-            print('Alone')
+        self.stylesheet_color()
+        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
             self.centralWidget().after_change_settings()
-        elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:
-            print('Const')
-        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:
+            self.centralWidget().stylesheet_color()
+        elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow: #Const
+            self.centralWidget().after_change_settings()
+            self.centralWidget().stylesheet_color()
+        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             #OnlyShow
             print('OnlyShow')
+        elif type(self.centralWidget()) == StartShow:
+            self.start_show()
         else:
             print('Other')
 
@@ -289,7 +316,7 @@ class MainWindow(QMainWindow):
 class ProgressBar(QWidget):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.layout = QGridLayout(self)
         self.layout.setSpacing(0)
@@ -305,7 +332,7 @@ class ProgressBar(QWidget):
         self.progressbar = QProgressBar()
         self.progressbar.setFixedWidth(400)
         self.progressbar.setFont(font16)
-        self.progressbar.setStyleSheet(stylesheet3)
+        self.progressbar.setStyleSheet(stylesheet5)
         self.progressbar.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.progressbar, 2, 1, 1, 1)
 
@@ -348,8 +375,6 @@ class StartShow(QWidget):
 
         self.layout_outside = QGridLayout(self)
 
-        stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
-        stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0"
         font16 = QtGui.QFont('Times', 16)
         font14 = QtGui.QFont('Times', 14)
         font12 = QtGui.QFont('Times', 12)
@@ -417,16 +442,16 @@ class StartShow(QWidget):
         self.group_buttons = QGroupBox(self)
         self.group_buttons.setLayout(self.layout_buttons)
         self.layout_outside.addWidget(self.group_buttons, 1, 1, 1, 1)
-        self.empty1.setStyleSheet(stylesheet1)
-        self.empty2.setStyleSheet(stylesheet1)
-        self.empty3.setStyleSheet(stylesheet1)
-        self.empty4.setStyleSheet(stylesheet1)
-        self.group_buttons.setStyleSheet(stylesheet1)
-        self.btn_const_cat.setStyleSheet(stylesheet2)
-        self.btn_alone_cat.setStyleSheet(stylesheet2)
-        self.btn_const_add_dir.setStyleSheet(stylesheet2)
-        self.btn_const_add_files.setStyleSheet(stylesheet2)
-        self.btn_alone_add_dir.setStyleSheet(stylesheet2)
+        self.empty1.setStyleSheet(stylesheet2)
+        self.empty2.setStyleSheet(stylesheet2)
+        self.empty3.setStyleSheet(stylesheet2)
+        self.empty4.setStyleSheet(stylesheet2)
+        self.group_buttons.setStyleSheet(stylesheet2)
+        self.btn_const_cat.setStyleSheet(stylesheet1)
+        self.btn_alone_cat.setStyleSheet(stylesheet1)
+        self.btn_const_add_dir.setStyleSheet(stylesheet1)
+        self.btn_const_add_files.setStyleSheet(stylesheet1)
+        self.btn_alone_add_dir.setStyleSheet(stylesheet1)
 
         self.layout_last = QGridLayout(self)
         with open('last_opened.json', 'r') as json_file:
@@ -524,7 +549,7 @@ class DB_window(QMainWindow):
     def __init__(self, parent):
         super().__init__(parent)
 
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
         self.setWindowTitle("База исправлений")
         self.widget_db = ErNamesDB.ViewBDDialog(self)
         self.setCentralWidget(self.widget_db)
@@ -546,7 +571,7 @@ class Social_Network_window(QMainWindow):
         self.setWindowTitle("Соц.сети")
         self.widget_sn = SocialNetworks.SocialNetworks(self)
         self.setCentralWidget(self.widget_sn)
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.resize(self.widget_sn.size())
         self.widget_sn.resize_signal.connect(self.self_resize)

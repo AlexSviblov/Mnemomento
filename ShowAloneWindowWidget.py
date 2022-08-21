@@ -19,11 +19,6 @@ import Thumbnail
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
-stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: black; background-color: #F0F0F0"
-stylesheet2 = "border: 0px; color: black; background-color: #F0F0F0"
-stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;}"
-stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
-
 
 class AloneWidgetWindow(QWidget):
     resized_signal = QtCore.pyqtSignal()
@@ -33,10 +28,14 @@ class AloneWidgetWindow(QWidget):
 
         super().__init__()
 
+        self.stylesheet_color()
+
         self.own_dir = os.getcwd()
 
         self.setWindowTitle("Тестовое окно")
         self.showMaximized()
+
+        self.setStyleSheet(stylesheet2)
 
         self.layoutoutside = QGridLayout(self)
         self.layoutoutside.setSpacing(10)
@@ -134,7 +133,7 @@ class AloneWidgetWindow(QWidget):
         self.metadata_header = self.metadata_show.horizontalHeader()
         self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
         self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_show.setStyleSheet(stylesheet1)
+        self.metadata_show.setStyleSheet(stylesheet6)
 
         self.directory_choose.currentTextChanged.connect(self.show_thumbnails)
 
@@ -158,7 +157,7 @@ class AloneWidgetWindow(QWidget):
         self.socnet_group.verticalHeader().setVisible(False)
         self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
         self.socnet_group.setFocusPolicy(Qt.NoFocus)
-        self.socnet_group.setStyleSheet(stylesheet1)
+        self.socnet_group.setStyleSheet(stylesheet6)
 
         self.show_thumbnails()
 
@@ -173,6 +172,47 @@ class AloneWidgetWindow(QWidget):
         self.photo_show.setLayout(self.layout_show)
         self.photo_show.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
+
+    # задать стили для всего модуля в зависимости от выбранной темы
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet3
+        global stylesheet6
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
+            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+        else:   #Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #080808"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #080808; color: #D3D3D3;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808; gridline-color: #696969;}"
+
+        try:
+            self.groupbox_thumbs.setStyleSheet(stylesheet1)
+            self.scroll.setStyleSheet(stylesheet2)
+            self.directory_lbl.setStyleSheet(stylesheet2)
+            self.directory_choose.setStyleSheet(stylesheet1)
+            self.directory_delete.setStyleSheet(stylesheet1)
+            self.photo_filter.setStyleSheet(stylesheet2)
+            self.socnet_choose.setStyleSheet(stylesheet1)
+            self.sn_status.setStyleSheet(stylesheet1)
+            self.groupbox_directory_choose.setStyleSheet(stylesheet2)
+            self.metadata_show.setStyleSheet(stylesheet6)
+            self.groupbox_btns.setStyleSheet(stylesheet2)
+            self.socnet_group.setStyleSheet(stylesheet6)
+            self.photo_show.setStyleSheet(stylesheet2)
+            self.show_thumbnails()
+            self.edit_btn.setStyleSheet(stylesheet1)
+            self.del_btn.setStyleSheet(stylesheet1)
+            self.explorer_btn.setStyleSheet(stylesheet1)
+            self.open_file_btn.setStyleSheet(stylesheet1)
+            self.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
 
     # показать/скрыть фильтры по соцсетям
     def filter_on_off(self):
@@ -232,7 +272,7 @@ class AloneWidgetWindow(QWidget):
         self.metadata_show.hide()
         self.pic.clear()
         self.pic.hide()
-        
+
         for i in reversed(range(self.layout_inside_thumbs.count())):
             self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
 
@@ -377,7 +417,6 @@ class AloneWidgetWindow(QWidget):
         self.show_social_networks(self.last_clicked, self.photo_directory)
         self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
-        self.metadata_show.setStyleSheet(stylesheet1)
 
         if self.max_sn_name_len*12 > self.metadata_show.columnWidth(0):
             self.socnet_group.setColumnWidth(0, self.max_sn_name_len*12)
@@ -576,7 +615,7 @@ class AloneWidgetWindow(QWidget):
                 if not sn_names:
                     self.socnet_group.setStyleSheet(stylesheet2)
                 else:
-                    self.socnet_group.setStyleSheet(stylesheet1)
+                    self.socnet_group.setStyleSheet(stylesheet6)
 
                 self.socnet_group_header = self.socnet_group.horizontalHeader()
 
@@ -692,7 +731,7 @@ class EditExifData(QDialog):
         self.table.verticalHeader().setVisible(False)
         # self.table.horizontalHeader().setVisible(False)
         self.table.horizontalHeader().setStyleSheet(stylesheet3)
-        self.table.setStyleSheet(stylesheet1)
+        self.table.setStyleSheet(stylesheet6)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 

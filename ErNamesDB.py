@@ -1,6 +1,7 @@
 import sqlite3
 import sys
 import ErrorsAndWarnings
+import Settings
 
 from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -11,11 +12,6 @@ cur = conn.cursor()
 
 font12 = QtGui.QFont('Times', 12)
 
-stylesheet1 = "border: 0px; color: black; background-color: #F0F0F0"
-stylesheet2 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;"
-stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: black;}"
-stylesheet4 = "border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #FFFFFF; color: black;"
-
 
 # просмотр базы исправлений
 class ViewBDDialog(QWidget):
@@ -23,12 +19,14 @@ class ViewBDDialog(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
+        self.stylesheet_color()
+        
         # Создание окна
         self.setWindowTitle('База исправлений')
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -37,7 +35,7 @@ class ViewBDDialog(QWidget):
         self.table.setFont(font12)
         self.table.setColumnCount(3)
         self.table.verticalHeader().setVisible(False)
-        self.table.setStyleSheet(stylesheet2)
+        self.table.setStyleSheet(stylesheet6)
         self.table.horizontalHeader().setDisabled(True)
         self.table.horizontalHeader().setStyleSheet(stylesheet3)
         self.table.horizontalHeader().setFont(font12)
@@ -47,13 +45,13 @@ class ViewBDDialog(QWidget):
         self.add_btn = QPushButton(self)
         self.add_btn.setText('Добавить')
         self.add_btn.setFont(font12)
-        self.add_btn.setStyleSheet(stylesheet2)
+        self.add_btn.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
 
         self.del_btn = QPushButton(self)
         self.del_btn.setText('Удалить')
         self.del_btn.setFont(font12)
-        self.del_btn.setStyleSheet(stylesheet2)
+        self.del_btn.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.del_btn, 0, 1, 1, 1)
 
         self.add_btn.clicked.connect(self.call_add)
@@ -62,7 +60,7 @@ class ViewBDDialog(QWidget):
         self.edit_btn = QPushButton(self)
         self.edit_btn.setText('Редактировать')
         self.edit_btn.setFont(font12)
-        self.edit_btn.setStyleSheet(stylesheet2)
+        self.edit_btn.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.edit_btn, 0, 2, 1, 1)
 
         self.edit_mode = QLabel(self)
@@ -78,6 +76,35 @@ class ViewBDDialog(QWidget):
         self.edit_btn.clicked.connect(self.edit_indicator)
 
         self.my_size()
+
+    # задать стили для всего модуля в зависимости от выбранной темы
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet3
+        global stylesheet1
+        global stylesheet6
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
+            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+        else:   #Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #080808"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #080808; color: #D3D3D3;}"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808; gridline-color: #696969;}"
+
+        try:
+            self.setStyleSheet(stylesheet2)
+            self.table.setStyleSheet(stylesheet6)
+            self.table.horizontalHeader().setStyleSheet(stylesheet3)
+            self.add_btn.setStyleSheet(stylesheet1)
+            self.del_btn.setStyleSheet(stylesheet1)
+            self.edit_btn.setStyleSheet(stylesheet1)
+        except AttributeError:
+            pass
 
     # при двойном нажатии на ячейку, данные в ней запоминаются
     def edit_func(self) -> None:
@@ -140,7 +167,7 @@ class ViewBDDialog(QWidget):
             height += self.table.rowHeight(i)
         height += self.table.horizontalHeader().height()
         self.table.setFixedHeight(height)
-        self.resize(self.table.width(), self.height()+20)
+        self.resize(self.table.width()+20, self.height()+20)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.verticalScrollBar().setDisabled(True)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -172,7 +199,7 @@ class ViewBDDialog(QWidget):
     def my_size(self) -> None:
         width = self.table.width()
         height = self.table.height() + self.add_btn.height()
-        self.resize(width, height+20)
+        self.resize(width+20, height+20)
         self.resized_signal.emit()
 
 
@@ -186,20 +213,20 @@ class AddBDDialog(QDialog):
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.setStyleSheet(stylesheet1)
+        self.setStyleSheet(stylesheet2)
 
         self.layout = QGridLayout(self)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
-        self.btn_ok.setStyleSheet(stylesheet2)
+        self.btn_ok.setStyleSheet(stylesheet1)
         self.btn_ok.setFont(font12)
         self.btn_ok.setFixedHeight(30)
         self.layout.addWidget(self.btn_ok, 3, 0, 1, 1)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText('Отмена')
-        self.btn_cancel.setStyleSheet(stylesheet2)
+        self.btn_cancel.setStyleSheet(stylesheet1)
         self.btn_cancel.setFont(font12)
         self.btn_cancel.setFixedHeight(30)
         self.layout.addWidget(self.btn_cancel, 3, 1, 1, 1)
@@ -228,19 +255,19 @@ class AddBDDialog(QDialog):
         self.type_combobox.addItem('Объектив')
         self.type_combobox.setFont(font12)
         self.type_combobox.setFixedHeight(30)
-        self.type_combobox.setStyleSheet(stylesheet4)
+        self.type_combobox.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.type_combobox, 0, 1, 1, 1)
 
         self.error_text = QtWidgets.QLineEdit()
         self.error_text.setFont(font12)
-        self.error_text.setStyleSheet(stylesheet4)
+        self.error_text.setStyleSheet(stylesheet1)
         self.error_text.setFixedHeight(30)
         self.layout.addWidget(self.error_text, 1, 1, 1, 1)
 
         self.norm_text = QtWidgets.QLineEdit()
         self.norm_text.setFont(font12)
         self.norm_text.setFixedHeight(30)
-        self.norm_text.setStyleSheet(stylesheet4)
+        self.norm_text.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.norm_text, 2, 1, 1, 1)
 
     # проверка заполнения полей ввода
@@ -291,11 +318,11 @@ class AddBDDialog(QDialog):
         self.btn_ok_c = QPushButton(self)
         self.btn_ok_c.setText('Ввод')
         self.btn_ok_c.setFont(font12)
-        self.btn_ok_c.setStyleSheet(stylesheet2)
+        self.btn_ok_c.setStyleSheet(stylesheet1)
         self.btn_cancel_c = QPushButton(self)
         self.btn_cancel_c.setText('Отмена')
         self.btn_cancel_c.setFont(font12)
-        self.btn_cancel_c.setStyleSheet(stylesheet2)
+        self.btn_cancel_c.setStyleSheet(stylesheet1)
 
         self.layout.addWidget(self.btn_ok_c, 2, 0, 1, 1)
         self.layout.addWidget(self.btn_cancel_c, 2, 1, 1, 1)
@@ -358,6 +385,7 @@ class DelBDDialog(QDialog):
         # Создание окна
         self.setWindowTitle('Исправление неправильного считывания')
         self.resize(400, 100)
+        self.setStyleSheet(stylesheet2)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -371,15 +399,16 @@ class DelBDDialog(QDialog):
         self.obj_lbl.setText(f'Вы точно хотите удалить {self.del_obj_ername} -> {self.del_obj_normname}?')
         self.layout.addWidget(self.obj_lbl, 0, 0, 1, 2)
         self.obj_lbl.setFont(font12)
+        self.obj_lbl.setStyleSheet(stylesheet2)
 
         btn_ok = QPushButton(self)
         btn_ok.setText('Подтверждение')
         btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet2)
+        btn_ok.setStyleSheet(stylesheet1)
         btn_cancel = QPushButton(self)
         btn_cancel.setText('Отмена')
         btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet2)
+        btn_cancel.setStyleSheet(stylesheet1)
 
         self.layout.addWidget(btn_ok, 1, 0, 1, 1)
         self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
