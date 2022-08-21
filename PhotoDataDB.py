@@ -254,7 +254,6 @@ def del_alone_dir(photo_directory: str) -> None:
             photo_list.append(file)
 
     for photo in photo_list:
-        print(photo)
         sql_str = f'DELETE FROM photos WHERE filename = \'{photo}\' AND catalog = \'{photo_directory}\''
         cur.execute(sql_str)
 

@@ -590,8 +590,8 @@ class ConstMaker(QtCore.QThread):
             file_full = self.files_list[0].split(r'/')
             for i in range(len(file_full) - 1):
                 file_dir += file_full[i] + '/'
-        if not os.listdir(file_dir):
-            os.rmdir(file_dir)
+            if not os.listdir(file_dir):
+                os.rmdir(file_dir)
 
         self.finished.emit(files_exist)
 
@@ -625,7 +625,9 @@ class AloneMaker(QtCore.QThread):
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
 
-            os.rmdir(self.photo_directory)
+            if Settings.get_photo_transfer_mode() == "cut":
+                if not os.listdir(self.photo_directory):
+                    os.rmdir(self.photo_directory)
 
             self.finished.emit('finish')
         else:

@@ -352,7 +352,7 @@ def get_thumbs_rows():
 
 
 # режим переноса фото при добавлении
-def get_photo_transfer_mode():
+def get_photo_transfer_mode() -> object:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     transfer_mode = settings['transfer_mode']
