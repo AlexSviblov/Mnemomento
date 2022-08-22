@@ -3,6 +3,7 @@ import os
 import Metadata
 import sqlite3
 
+import Settings
 
 conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
 cur = conn.cursor()
@@ -349,13 +350,15 @@ def get_recovery_data_db():
         path_splitted = path.split('/')
         media_destination_buffer = ''
         if 'const' in path_splitted:
-            for j in range(len(path_splitted)-3):
+            for j in range(len(path_splitted)-6):
                 media_destination_buffer += path_splitted[j] + '/'
             media_destination = media_destination_buffer[:-1]
         elif 'alone' in path_splitted:
-            for j in range(len(path_splitted)-1):
+            for j in range(len(path_splitted)-4):
                 media_destination_buffer += path_splitted[j] + '/'
             media_destination = media_destination_buffer[:-1]
-        print(media_destination)
+
+        if media_destination != Settings.get_destination_media():
+            raise Exception
 
 
