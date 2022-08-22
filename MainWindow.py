@@ -31,14 +31,13 @@ class MainWindow(QMainWindow):
 
         super().__init__(parent)
         self.stylesheet_color()
+        self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle("ТЕСТ ПРОГРАММЫ")
         # Меньше невозможно сделать окно
         self.setMinimumSize(1280, 720)
         # раскрыть на весь экран
         self.showMaximized()
-
-        self.setStyleSheet(stylesheet2)
 
         self.menubar = QMenuBar(self)
         self.menubar.setFont(font8)
@@ -108,11 +107,11 @@ class MainWindow(QMainWindow):
             stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
         else:
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #080808"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #080808; color: #D3D3D3;}"
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #080808; gridline-color: #696969;}"
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
+            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
 
         self.setStyleSheet(stylesheet2)
         try:
