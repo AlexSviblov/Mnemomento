@@ -309,3 +309,30 @@ def transfer_media(new_catalog: str, old_catalog: str):
     cur.execute(sql_str1)
     cur.execute(sql_str2)
     conn.commit()
+
+
+# получить список файлов и директорию хранения медиа
+def get_recovery_data_db():
+    sql_str1 = f'SELECT catalog, filename FROM photos'
+    cur.execute(sql_str1)
+    all_photos = cur.fetchall()
+
+    sql_str2 = f'SELECT catalog, filename FROM socialnetworks'
+    cur.execute(sql_str2)
+    all_socialnetworks = cur.fetchall()
+
+    catalogs_photos = list()
+    files_photos = list()
+    catalogs_socialnetworks = list()
+    files_socialnetworks = list()
+
+    for combo in all_photos:
+        catalogs_photos.append(combo[0])
+        files_photos.append(combo[1])
+
+    for combo in all_socialnetworks:
+        catalogs_socialnetworks.append(combo[0])
+        files_socialnetworks.append(combo[1])
+
+
+

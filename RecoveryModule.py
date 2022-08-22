@@ -12,7 +12,6 @@ import PhotoDataDB
 import Settings
 
 def get_files_exists_list():
-
     media_path = Settings.get_destination_media()
     #we shall store all the file names in this list
     filelist = list()
