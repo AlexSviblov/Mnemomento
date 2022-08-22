@@ -321,6 +321,9 @@ def get_recovery_data_db():
     cur.execute(sql_str2)
     all_socialnetworks = cur.fetchall()
 
+    if len(all_photos) != len(all_socialnetworks):
+        raise Exception
+
     catalogs_photos = list()
     files_photos = list()
     catalogs_socialnetworks = list()
@@ -334,5 +337,25 @@ def get_recovery_data_db():
         catalogs_socialnetworks.append(combo[0])
         files_socialnetworks.append(combo[1])
 
+    for i in range(len(catalogs_photos)):
+        if catalogs_photos[i] != catalogs_socialnetworks[i]:
+            raise Exception
+
+    for i in range(len(files_photos)):
+        if files_photos[i] != files_socialnetworks[i]:
+            raise Exception
+
+    for path in catalogs_photos:
+        path_splitted = path.split('/')
+        media_destination_buffer = ''
+        if 'const' in path_splitted:
+            for j in range(len(path_splitted)-3):
+                media_destination_buffer += path_splitted[j] + '/'
+            media_destination = media_destination_buffer[:-1]
+        elif 'alone' in path_splitted:
+            for j in range(len(path_splitted)-1):
+                media_destination_buffer += path_splitted[j] + '/'
+            media_destination = media_destination_buffer[:-1]
+        print(media_destination)
 
 

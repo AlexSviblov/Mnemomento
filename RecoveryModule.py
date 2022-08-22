@@ -32,5 +32,6 @@ def get_files_exists_list():
     return truenames
 
 def get_files_in_DB():
+
     pass
 #можно учесть вариант, со сравнением имён файлов, но отличием папок
