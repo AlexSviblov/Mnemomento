@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 
-conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
+conn = sqlite3.connect('ErNames.db')  # соединение с БД
 cur = conn.cursor()
 
 font12 = QtGui.QFont('Times', 12)
