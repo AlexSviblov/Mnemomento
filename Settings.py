@@ -328,18 +328,37 @@ class DoTransfer(QtCore.QThread):
     def run(self):
         match self.code:
             case 1:
+                shutil.copytree(self.old_media + r'/Media', self.old_media + r'/Media_reserve')
+                shutil.copy(os.getcwd() + '/PhotoDB.db', os.getcwd() + '/PhotoDB_reserve.db')
+
                 shutil.move(self.old_media + r'/Media', self.new_media)
                 new_catalogs, old_catalogs = PhotoDataDB.transfer_media_ways(self.old_media, self.new_media)
                 for i in range(len(new_catalogs)):
                     PhotoDataDB.transfer_media(new_catalogs[i], old_catalogs[i])
+
+                shutil.rmtree(self.old_media + r'/Media_reserve')
+                os.remove(os.getcwd() + '/PhotoDB_reserve.db')
+
             case 2:
+                shutil.copytree(self.old_thumb + r'/thumbnail', self.old_thumb + r'/thumbnail_reserve')
+
                 shutil.move(self.old_thumb + r'/thumbnail', self.new_thumb)
+
+                shutil.rmtree(self.old_media + r'/thumbnail_reserve')
             case 3:
+                shutil.copytree(self.old_media + r'/Media', self.old_media + r'/Media_reserve')
+                shutil.copy(os.getcwd() + '/PhotoDB.db', os.getcwd() + '/PhotoDB_reserve.db')
+                shutil.copytree(self.old_thumb + r'/thumbnail', self.old_thumb + r'/thumbnail_reserve')
+
                 shutil.move(self.old_media + r'/Media', self.new_media)
                 new_catalogs, old_catalogs = PhotoDataDB.transfer_media_ways(self.old_media, self.new_media)
                 for i in range(len(new_catalogs)):
                     PhotoDataDB.transfer_media(new_catalogs[i], old_catalogs[i])
                 shutil.move(self.old_thumb + r'/thumbnail', self.new_thumb)
+
+                shutil.rmtree(self.old_media + r'/Media_reserve')
+                os.remove(os.getcwd() + '/PhotoDB_reserve.db')
+                shutil.rmtree(self.old_media + r'/thumbnail_reserve')
 
         self.finished.emit()
 

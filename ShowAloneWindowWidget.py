@@ -49,7 +49,7 @@ class AloneWidgetWindow(QWidget):
         self.pic.setAlignment(Qt.AlignCenter)
 
         self.scroll = QScrollArea(self)  # создание подвижной области
-        self.layoutoutside.addWidget(self.scroll, 1, 0, 2, 2)  # помещение подвижной области на слой
+        self.layoutoutside.addWidget(self.scroll, 1, 0, 2, 1)  # помещение подвижной области на слой
         self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
         self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
         self.groupbox_thumbs.setStyleSheet(stylesheet1)
@@ -110,6 +110,7 @@ class AloneWidgetWindow(QWidget):
         self.sn_status.addItem('Не публиковать')
         self.sn_status.addItem('Опубликовать')
         self.sn_status.addItem('Опубликовано')
+        self.sn_status.setFixedWidth(164)
         self.layout_directory_choose.addWidget(self.sn_status, 0, 5, 1, 1)
         self.socnet_choose.currentTextChanged.connect(self.show_thumbnails)
         self.sn_status.currentTextChanged.connect(self.show_thumbnails)
@@ -171,7 +172,7 @@ class AloneWidgetWindow(QWidget):
         self.layout_show.setHorizontalSpacing(10)
         self.photo_show.setLayout(self.layout_show)
         self.photo_show.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
+        self.layoutoutside.addWidget(self.photo_show, 1, 1, 2, 3)
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -221,7 +222,6 @@ class AloneWidgetWindow(QWidget):
             self.socnet_choose.hide()
             self.sn_status.hide()
             # self.empty1.show()
-
         else:   # self.photo_filter.checkState() == 2:
             # self.empty1.hide()
             socnets = PhotoDataDB.get_socialnetworks()
@@ -234,7 +234,7 @@ class AloneWidgetWindow(QWidget):
                     self.socnet_choose.addItem(f'{net}')
                     if len(net) > net_max_length:
                         net_max_length = len(net)
-                    self.socnet_choose.setFixedWidth(net_max_length*12)
+                    self.socnet_choose.setFixedWidth(net_max_length*12+30)
             self.socnet_choose.show()
             self.sn_status.show()
 
@@ -283,8 +283,8 @@ class AloneWidgetWindow(QWidget):
 
         full_thumbnails_list = list()
 
-        self.photo_directory = Settings.get_destination_media() + f'/Media/Photo/alone/{self.chosen_directory}/'
-        self.thumbnail_directory = Settings.get_destination_thumb() + f'/thumbnail/alone/{self.chosen_directory}/'
+        self.photo_directory = Settings.get_destination_media() + f'/Media/Photo/alone/{self.chosen_directory}'
+        self.thumbnail_directory = Settings.get_destination_thumb() + f'/thumbnail/alone/{self.chosen_directory}'
 
         nedostatok_thumbs, izbitok_thumbs = Thumbnail.research_need_thumbnails(self.photo_directory, self.thumbnail_directory)
 
@@ -298,7 +298,7 @@ class AloneWidgetWindow(QWidget):
 
         test_list = list()
         if self.photo_filter.checkState() == 2:
-            filtered_photo = PhotoDataDB.get_sn_alone_list(self.photo_directory[:-1], self.socnet_choose.currentText(), self.get_current_tag())
+            filtered_photo = PhotoDataDB.get_sn_alone_list(self.photo_directory, self.socnet_choose.currentText(), self.get_current_tag())
 
             for file in full_thumbnails_list:
                 if file[10:] in filtered_photo:
@@ -360,7 +360,7 @@ class AloneWidgetWindow(QWidget):
 
         self.pic.clear()  # очистка от того, что показано сейчас
 
-        self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
+        self.photo_file = self.photo_directory + '/' + self.button_text  # получение информации о нажатой кнопке
 
         jsondata_wr = {'last_opened_photo': self.photo_file}
         with open('last_opened.json', 'w') as json_file:
@@ -511,7 +511,7 @@ class AloneWidgetWindow(QWidget):
             return
 
         photoname = self.button_text
-        photodirectory = self.photo_directory[:-1]
+        photodirectory = self.photo_directory
         dialog_del = DelPhotoConfirm(photoname, photodirectory)
         dialog_del.clear_info.connect(self.clear_after_ph_del)
         if dialog_del.exec():
@@ -526,7 +526,7 @@ class AloneWidgetWindow(QWidget):
             return
 
         photoname = self.button_text
-        photodirectory = self.photo_directory[:-1]
+        photodirectory = self.photo_directory
         dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory)
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
@@ -550,7 +550,7 @@ class AloneWidgetWindow(QWidget):
 
     # удаление выбранной директории
     def del_dir_func(self):
-        dir_to_del = self.photo_directory[:-1]
+        dir_to_del = self.photo_directory
         dialog_del = DelDirConfirm(dir_to_del)
         dialog_del.clear_info.connect(self.clear_after_dir_del)
         if dialog_del.exec():
@@ -641,11 +641,11 @@ class AloneWidgetWindow(QWidget):
                 new_status_bd = 'Publicated'
 
             network = self.sender().objectName()
-            PhotoDataDB.edit_sn_tags(photoname, photodirectory[:-1], new_status_bd, network)
+            PhotoDataDB.edit_sn_tags(photoname, photodirectory, new_status_bd, network)
             if self.photo_filter.checkState() == 2:
                 self.show_thumbnails()
 
-        sn_names, sn_tags = PhotoDataDB.get_social_tags(photoname, photodirectory[:-1])
+        sn_names, sn_tags = PhotoDataDB.get_social_tags(photoname, photodirectory)
 
         fill_sn_widgets(sn_names, sn_tags)
 

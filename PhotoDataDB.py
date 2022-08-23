@@ -129,7 +129,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
 
 
 # достать вбитые в БД теги соцсетей
-def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str,...], dict]:
+def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str, ...], dict]:
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
@@ -283,7 +283,7 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
 
 
 # получить пути для БД для перезаписи при переносе
-def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str,...], list[str, ...]]:
+def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str, ...], list[str, ...]]:
     sql_str = f"SELECT catalog from photos"
     cur.execute(sql_str)
 
@@ -310,55 +310,5 @@ def transfer_media(new_catalog: str, old_catalog: str):
     cur.execute(sql_str1)
     cur.execute(sql_str2)
     conn.commit()
-
-
-# получить список файлов и директорию хранения медиа
-def get_recovery_data_db():
-    sql_str1 = f'SELECT catalog, filename FROM photos'
-    cur.execute(sql_str1)
-    all_photos = cur.fetchall()
-
-    sql_str2 = f'SELECT catalog, filename FROM socialnetworks'
-    cur.execute(sql_str2)
-    all_socialnetworks = cur.fetchall()
-
-    if len(all_photos) != len(all_socialnetworks):
-        raise Exception
-
-    catalogs_photos = list()
-    files_photos = list()
-    catalogs_socialnetworks = list()
-    files_socialnetworks = list()
-
-    for combo in all_photos:
-        catalogs_photos.append(combo[0])
-        files_photos.append(combo[1])
-
-    for combo in all_socialnetworks:
-        catalogs_socialnetworks.append(combo[0])
-        files_socialnetworks.append(combo[1])
-
-    for i in range(len(catalogs_photos)):
-        if catalogs_photos[i] != catalogs_socialnetworks[i]:
-            raise Exception
-
-    for i in range(len(files_photos)):
-        if files_photos[i] != files_socialnetworks[i]:
-            raise Exception
-
-    for path in catalogs_photos:
-        path_splitted = path.split('/')
-        media_destination_buffer = ''
-        if 'const' in path_splitted:
-            for j in range(len(path_splitted)-6):
-                media_destination_buffer += path_splitted[j] + '/'
-            media_destination = media_destination_buffer[:-1]
-        elif 'alone' in path_splitted:
-            for j in range(len(path_splitted)-4):
-                media_destination_buffer += path_splitted[j] + '/'
-            media_destination = media_destination_buffer[:-1]
-
-        if media_destination != Settings.get_destination_media():
-            raise Exception
 
 

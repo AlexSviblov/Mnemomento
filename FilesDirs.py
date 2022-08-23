@@ -16,7 +16,6 @@ def make_files_list_from_dir(directory: str) -> list[str, ...]:
     return file_list
 
 
-
 # destination (папку, где хранить фото) и режим копирования/перемещения брать из настроек программы
 # Создание миниатюр для основного каталога
 def transfer_const_photos(file: str) -> str:

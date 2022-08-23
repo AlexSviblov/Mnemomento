@@ -947,7 +947,7 @@ class ConstWidgetWindow(QWidget):
                 if len(net) > socnet_max_len:
                     socnet_max_len = len(net)
 
-            self.socnet_choose.setFixedWidth(socnet_max_len*12)
+            self.socnet_choose.setFixedWidth(socnet_max_len*12+30)
 
             self.socnet_choose.currentTextChanged.connect(self.type_show_thumbnails)
 

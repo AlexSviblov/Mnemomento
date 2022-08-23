@@ -24,7 +24,7 @@ class SocialNetworks(QWidget):
         self.setWindowTitle('Соцсети')
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        self.resize(800, 800)
+        self.setMinimumSize(200, 200)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -106,9 +106,12 @@ class SocialNetworks(QWidget):
             self.btn_del.clicked.connect(self.func_del)
             self.group_layout.addWidget(self.btn_del, i, 2, 1, 1)
 
-        self.soc_net_lbl.setFixedWidth(max_sn_name*15)
-        self.networks_group.setFixedWidth(self.soc_net_lbl.width()+self.btn_del.width()+self.btn_red.width()+self.group_layout.spacing())
-        self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
+        try:
+            self.soc_net_lbl.setFixedWidth(max_sn_name*15)
+            self.networks_group.setFixedWidth(self.soc_net_lbl.width()+self.btn_del.width()+self.btn_red.width()+self.group_layout.spacing()*4 + 10)
+            self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
+        except AttributeError:
+            pass
 
         self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)

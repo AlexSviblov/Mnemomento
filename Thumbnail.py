@@ -46,29 +46,35 @@ def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_las
     image = Image.open(r"{}".format(photofile))
     image.thumbnail((250, 250))
     image.save('thumbnail_%s' % photofile_lastname)
-    os.replace('thumbnail_%s' % photofile_lastname, destination_thumbs +  '/thumbnail/alone/' + directory_lastname + f'/thumbnail_{photofile_lastname}')
+    os.replace('thumbnail_%s' % photofile_lastname, destination_thumbs + '/thumbnail/alone/' + directory_lastname + f'/thumbnail_{photofile_lastname}')
     image.close()
 
 
 # Сравнение, какие миниатюры лишние, каких недостаточно
 def research_need_thumbnails(photo_directory: str, thumbnail_directory: str) -> tuple[list[str], list[str]]:
     thumbnail_directory_splitted = thumbnail_directory.split('/')
-    thumb_year = thumbnail_directory_splitted[-3]
-    thumb_month = thumbnail_directory_splitted[-2]
-    thumb_day = thumbnail_directory_splitted[-1]
-    if not os.path.isdir(thumbnail_directory):
-        if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month):
-            if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + thumb_year):
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year)
+    if '/const/' in thumbnail_directory:
+        thumb_year = thumbnail_directory_splitted[-3]
+        thumb_month = thumbnail_directory_splitted[-2]
+        thumb_day = thumbnail_directory_splitted[-1]
+        if not os.path.isdir(thumbnail_directory):
+            if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month):
+                if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + thumb_year):
+                    os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year)
+                else:
+                    os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month)
             else:
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month)
-        else:
-            os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month + '/' + thumb_day)
+                os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month + '/' + thumb_day)
+
+    elif '/alone/' in thumbnail_directory:
+        alone_dir = thumbnail_directory_splitted[-1]
+        if not os.path.isdir(thumbnail_directory):
+            os.mkdir(destination_thumbs + '/thumbnail/alone/' + alone_dir)
 
     thumbsfull_already = get_images_list(thumbnail_directory)
     thumbs_already = list()
     for thumb in thumbsfull_already:
-                thumbs_already.append(thumb[10:])
+        thumbs_already.append(thumb[10:])
 
     images_list = get_images_list(photo_directory)
     nedostatok_thumbs_result = list(set(images_list) - set(thumbs_already))  # есть фото, но нет миниатюр
@@ -168,3 +174,4 @@ def delete_thumb_dir(photodirectory: str) -> None:
         os.remove(destination_thumbs + f'/thumbnail/alone/{dir_name}/{file}')
 
     os.rmdir(destination_thumbs + f'/thumbnail/alone/{dir_name}')
+
