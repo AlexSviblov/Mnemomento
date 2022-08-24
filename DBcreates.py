@@ -1,7 +1,7 @@
 import sqlite3
 
-conn = sqlite3.connect('PhotoDB.db')   # соединение с БД
-cur = conn.cursor()
+# conn = sqlite3.connect('PhotoDB.db')   # соединение с БД
+# cur = conn.cursor()
 
 # sql_str1 = 'CREATE TABLE photos (filename TEXT, catalog TEXT, camera TEXT, lens TEXT, shootingdate TEXT, shootingdatetime TEXT, additiondate TEXT, GPSdata TEXT)'
 

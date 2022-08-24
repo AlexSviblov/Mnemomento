@@ -51,7 +51,7 @@ def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_las
 
 
 # Сравнение, какие миниатюры лишние, каких недостаточно
-def research_need_thumbnails(photo_directory: str, thumbnail_directory: str) -> tuple[list[str], list[str]]:
+def research_flaw_thumbnails(photo_directory: str, thumbnail_directory: str) -> tuple[list[str], list[str]]:
     thumbnail_directory_splitted = thumbnail_directory.split('/')
     if '/const/' in thumbnail_directory:
         thumb_year = thumbnail_directory_splitted[-3]
@@ -78,22 +78,22 @@ def research_need_thumbnails(photo_directory: str, thumbnail_directory: str) -> 
 
     images_list = get_images_list(photo_directory)
     nedostatok_thumbs_result = list(set(images_list) - set(thumbs_already))  # есть фото, но нет миниатюр
-    izbitok_thumbs_result = list(set(thumbs_already) - set(images_list))  # есть миниатюра, а фото нет
-    return nedostatok_thumbs_result, izbitok_thumbs_result
+    excess_thumbs_result = list(set(thumbs_already) - set(images_list))  # есть миниатюра, а фото нет
+    return nedostatok_thumbs_result, excess_thumbs_result
 
 
 # Создание недостающих миниатюр и удаление лишних
-def make_or_del_thumbnails(need_thumbnails: list, izbitok_thumbs: list, photo_directory: str, thumbnail_directory: str) -> None:
-    if need_thumbnails:
-        for file in need_thumbnails:
+def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_directory: str, thumbnail_directory: str) -> None:
+    if flaw_thumbnails:
+        for file in flaw_thumbnails:
             image = Image.open(r"{}".format(photo_directory + '/' + file))
             image.thumbnail((250, 250))
             image.save('thumbnail_%s' % file)
             os.replace('thumbnail_%s' % file, thumbnail_directory + f'/thumbnail_{file}')
             image.close()
 
-    if izbitok_thumbs:
-        for file in izbitok_thumbs:
+    if excess_thumbs:
+        for file in excess_thumbs:
             os.remove(thumbnail_directory + '/thumbnail_' + file)
 
 

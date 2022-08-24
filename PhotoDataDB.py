@@ -9,7 +9,7 @@ conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
 cur = conn.cursor()
 
 
-# Добавление записи в БД при добавлении фото в основной каталог
+# Добавление записи в БД при добавлении фото в каталог
 def add_to_database(photoname: str, photodirectory: str) -> None:
 
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
