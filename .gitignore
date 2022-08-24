@@ -1,4 +1,3 @@
-/settings.json
 /test5.py
 /test4.py
 /test3.py
@@ -15,3 +14,4 @@
 /venv/
 /test/
 /ErrorNames.db
+/settings.json
