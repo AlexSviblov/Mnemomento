@@ -43,6 +43,7 @@ def check_exists_from_db(all_photos_db, all_socnets_db):
     for i in range(0, len(all_photos_db)):
         if os.path.exists(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}"):
             print("exists")
+            # ТУТ ПРОВЕРКА НА ТО, ЧТО ФАЙЛ В ПАПКЕ ХРАНЕНИЯ, И ЛИБО СТЕРЕТЬ ЗАПИСЬ В БД, ЛИБО ПЕРЕНЕСТИ ЕГО В МЕДИА-ДИРЕКТОРИЮ
             pass
         else:
             print('delete')
@@ -52,6 +53,7 @@ def check_exists_from_db(all_photos_db, all_socnets_db):
     for i in range(0, len(all_socnets_db)):
         if os.path.exists(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}"):
             print("exists")
+            # ТУТ ТОЖЕ ПЕРЕНОС, ВЕДЬ УЖЕ ПЕРЕНЕСЁННЫЕ СЮДА БЫ НЕ ПОПАЛИ (ПРИ РАССИНХРОНИЗАЦИИ ТАБЛИЦ ТОЛЬКО СРАБОТАЕТ)
             pass
         else:
             print('delete')
