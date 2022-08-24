@@ -286,7 +286,7 @@ class AloneWidgetWindow(QWidget):
         self.photo_directory = Settings.get_destination_media() + f'/Media/Photo/alone/{self.chosen_directory}'
         self.thumbnail_directory = Settings.get_destination_thumb() + f'/thumbnail/alone/{self.chosen_directory}'
 
-        flaw_thumbs, excess_thumbs = Thumbnail.research_need_thumbnails(self.photo_directory, self.thumbnail_directory)
+        flaw_thumbs, excess_thumbs = Thumbnail.research_flaw_thumbnails(self.photo_directory, self.thumbnail_directory)
 
         Thumbnail.make_or_del_thumbnails(flaw_thumbs, excess_thumbs, self.photo_directory, self.thumbnail_directory)
 

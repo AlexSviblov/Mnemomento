@@ -16,7 +16,6 @@ def make_files_list_from_dir(directory: str) -> list[str, ...]:
     return file_list
 
 
-# destination (папку, где хранить фото) и режим копирования/перемещения брать из настроек программы
 # Создание миниатюр для основного каталога
 def transfer_const_photos(file: str) -> str:
     destination = Settings.get_destination_media() + '/Media/Photo/const/'
@@ -105,7 +104,6 @@ def transfer_const_photos(file: str) -> str:
     return fileexist
 
 
-# transfer_photos('C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/IMG_3783.jpg')
 # Создание миниатюр для дополнительного каталога
 def transfer_alone_photos(photo_directory: str, photofile: str) -> None:
     destination = Settings.get_destination_media() + '/Media/Photo/alone/'

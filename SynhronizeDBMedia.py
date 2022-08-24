@@ -2,6 +2,8 @@ import os
 import shutil
 import sqlite3
 import datetime
+
+import FilesDirs
 import Metadata
 
 import PhotoDataDB
@@ -9,18 +11,6 @@ import Settings
 
 conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
 cur = conn.cursor()
-
-
-# TODO: Если файл есть, но он не в папке хранения медиа - уведомление, что его надо добавить вручную заново.
-#  И дать пользователю выбор: стереть запись из БД, либо не стирать, а перенести, изменив в БД только каталог
-#  (тогда перезапись сразу в двух таблицах).
-#  При этом элемент из второго списка на exist получит False, отдаст команду стереть, но ничего не сотрётся,
-#  ведь путь уже будет перезаписан (если файл переместили).
-#  Т.е. 1) стёрка из БД и всё
-#  2) перенос файла в директорию медиа, перезапись каталога в БД (оставляя остальные поля). Тогда для socnets
-#  он будет уже не существовать, но ничего не удалится, т.к. catalog будет к тому времени сменён на новый
-
-
 
 
 # получить все каталоги+файлы из ФотоДБ (таблицы фото и соцсети)
@@ -39,24 +29,34 @@ def get_all_db_ways() -> tuple[list[list[str, str], ...], list[list[str, str], .
 
 
 # проверить существуют ли файлы из БД на диске
-def check_exists_from_db(all_photos_db, all_socnets_db):
+def check_exists_from_db(all_photos_db: list[list[str, str], ...], all_socnets_db: list[list[str, str], ...]):
     for i in range(0, len(all_photos_db)):
         if os.path.exists(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}"):
-            print("exists")
-            # ТУТ ПРОВЕРКА НА ТО, ЧТО ФАЙЛ В ПАПКЕ ХРАНЕНИЯ, И ЛИБО СТЕРЕТЬ ЗАПИСЬ В БД, ЛИБО ПЕРЕНЕСТИ ЕГО В МЕДИА-ДИРЕКТОРИЮ
-            pass
+            if Settings.get_destination_media() not in all_photos_db[i][0]:
+                sql_str1 = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
+                cur.execute(sql_str1)
+                sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
+                cur.execute(sql_str2)
+                if '/alone/' in all_photos_db[i][0]:
+                    FilesDirs.transfer_const_photos(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}")
+                elif '/const/' in all_photos_db[i][0]:
+                    FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}")
         else:
-            print('delete')
-            sql_str = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
-            cur.execute(sql_str)
+            sql_str_del = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
+            cur.execute(sql_str_del)
 
     for i in range(0, len(all_socnets_db)):
         if os.path.exists(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}"):
-            print("exists")
-            # ТУТ ТОЖЕ ПЕРЕНОС, ВЕДЬ УЖЕ ПЕРЕНЕСЁННЫЕ СЮДА БЫ НЕ ПОПАЛИ (ПРИ РАССИНХРОНИЗАЦИИ ТАБЛИЦ ТОЛЬКО СРАБОТАЕТ)
-            pass
+            if Settings.get_destination_media() not in all_socnets_db[i][0]:
+                sql_str1 = f"DELETE FROM photos WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
+                cur.execute(sql_str1)
+                sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
+                cur.execute(sql_str2)
+                if '/alone/' in all_socnets_db[i][0]:
+                    FilesDirs.transfer_const_photos(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}")
+                elif '/const/' in all_socnets_db[i][0]:
+                    FilesDirs.transfer_alone_photos(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}")
         else:
-            print('delete')
             sql_str = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
             cur.execute(sql_str)
     conn.commit()
@@ -78,10 +78,10 @@ def research_all_media_photos():
 # Если фото есть в директории хранения, но нет в БД - записать
 def add_flaw_to_db(filelist):
     for combo in filelist:
-        photoname = combo[0]
-        photodirectory = combo[1]
-        sql_str1 = f"SELECT * FROM photos WHERE catalog = \'{photoname}\' and \'{photodirectory}\'"
-        sql_str2 = f"SELECT * FROM socialnetworks WHERE catalog = \'{photoname}\' and \'{photodirectory}\'"
+        photoname = combo[1]
+        photodirectory = combo[0]
+        sql_str1 = f"SELECT * FROM photos WHERE catalog = \'{photodirectory}\' AND filename =\'{photoname}\'"
+        sql_str2 = f"SELECT * FROM socialnetworks WHERE catalog = \'{photodirectory}\' AND filename =\'{photoname}\'"
 
         cur.execute(sql_str1)
         answer_photo = cur.fetchone()
@@ -121,4 +121,25 @@ def add_flaw_to_db(filelist):
     conn.commit()
 
 
+def check_destination_corr_db():
+    all_photos_db, all_socnets_db = get_all_db_ways()
+    media_destination = Settings.get_destination_media()
+    photo_conflicts = 0
+    socnet_conflicts = 0
 
+    for combo in all_photos_db:
+        if media_destination in combo[0]:
+            pass
+        else:
+            photo_conflicts += 1
+    for combo in all_socnets_db:
+        if media_destination in combo[0]:
+            pass
+        else:
+            socnet_conflicts += 1
+    return photo_conflicts, socnet_conflicts
+
+
+# работает лучше, чем ожидалось
+# check_exists_from_db(get_all_db_ways()[0], get_all_db_ways()[1])
+# add_flaw_to_db(research_all_media_photos())

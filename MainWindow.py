@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import ErrorsAndWarnings
 import Settings
+import RecoveryModule
 
 
 font16 = QtGui.QFont('Times', 16)
@@ -88,6 +89,10 @@ class MainWindow(QMainWindow):
         settings = QAction('Настройки', self)
         self.menubar.addAction(settings)
         settings.triggered.connect(self.settings_func)
+
+        recovery = QAction('Восстановление', self)
+        self.menubar.addAction(recovery)
+        recovery.triggered.connect(self.recovery_func)
 
         self.setMenuBar(self.menubar)
 
@@ -293,6 +298,10 @@ class MainWindow(QMainWindow):
         window_set = Settings.SettingWin(self)
         window_set.update_main_widget.connect(self.update_settings_widget)
         window_set.show()
+
+    def recovery_func(self):
+        recovery_win = RecoveryModule.RecoveryWin(self)
+        recovery_win.show()
 
     # после изменения в настройках надо обновить текущий виджет
     def update_settings_widget(self):

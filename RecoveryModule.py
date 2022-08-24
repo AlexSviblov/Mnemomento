@@ -24,7 +24,7 @@ class RecoveryWin(QMainWindow):
         self.stylesheet_color()
 
         # Создание окна
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle('Восстановление')
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -42,30 +42,97 @@ class RecoveryWin(QMainWindow):
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
-            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
-            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
 
 
 class RecoveryWidget(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.setStyleSheet(stylesheet2)
         self.setWindowTitle('Восстановление')
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        # self.resize(800, 800)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
+        self.lbl_len_photos = QLabel(self)
+        self.lbl_len_photos.setText("Записей в таблице данных о фотографиях:")
+        self.lbl_len_photos.setFont(font14)
+        self.lbl_len_photos.setStyleSheet(stylesheet2)
+
+        self.lbl_len_socnets = QLabel(self)
+        self.lbl_len_socnets.setText("Записей в таблице о социальных сетях:")
+        self.lbl_len_socnets.setFont(font14)
+        self.lbl_len_socnets.setStyleSheet(stylesheet2)
+
+        self.lbl_err_photos = QLabel(self)
+        self.lbl_err_photos.setText("      Обнаружено ошибок в таблице данных о фотографиях:")
+        self.lbl_err_photos.setFont(font14)
+        self.lbl_err_photos.setStyleSheet(stylesheet2)
+
+        self.lbl_err_socnets = QLabel(self)
+        self.lbl_err_socnets.setText("      Обнаружено ошибок в таблице о социальных сетях:")
+        self.lbl_err_socnets.setFont(font14)
+        self.lbl_err_socnets.setStyleSheet(stylesheet2)
+
+        self.lbl_len_exists = QLabel(self)
+        self.lbl_len_exists.setText("Фотографий в папке хранения:")
+        self.lbl_len_exists.setFont(font14)
+        self.lbl_len_exists.setStyleSheet(stylesheet2)
+
+        self.len_photos_value = QLineEdit(self)
+        self.len_photos_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[0])))
+        self.len_photos_value.setDisabled(True)
+        self.len_photos_value.setFont(font14)
+        self.len_photos_value.setStyleSheet(stylesheet1)
+
+        self.len_socnets_value = QLineEdit(self)
+        self.len_socnets_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[1])))
+        self.len_socnets_value.setDisabled(True)
+        self.len_socnets_value.setFont(font14)
+        self.len_socnets_value.setStyleSheet(stylesheet1)
+
+        self.err_photos_value = QLineEdit(self)
+        self.err_photos_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[0]))
+        self.err_photos_value.setDisabled(True)
+        self.err_photos_value.setFont(font14)
+        self.err_photos_value.setStyleSheet(stylesheet1)
+
+        self.err_socnets_value = QLineEdit(self)
+        self.err_socnets_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[1]))
+        self.err_socnets_value.setDisabled(True)
+        self.err_socnets_value.setFont(font14)
+        self.err_socnets_value.setStyleSheet(stylesheet1)
+
+        self.len_exists_value = QLineEdit(self)
+        self.len_exists_value.setText(str(len(SynhronizeDBMedia.research_all_media_photos())))
+        self.len_exists_value.setDisabled(True)
+        self.len_exists_value.setFont(font14)
+        self.len_exists_value.setStyleSheet(stylesheet1)
+
+        self.layout.addWidget(self.lbl_len_photos, 0, 0, 1, 1)
+        self.layout.addWidget(self.len_photos_value, 0, 1, 1, 1)
+        self.layout.addWidget(self.lbl_len_socnets, 1, 0, 1, 1)
+        self.layout.addWidget(self.len_socnets_value, 1, 1, 1, 1)
+        self.layout.addWidget(self.lbl_err_photos, 0, 2, 1, 1)
+        self.layout.addWidget(self.err_photos_value, 0, 3, 1, 1)
+        self.layout.addWidget(self.lbl_err_socnets, 1, 2, 1, 1)
+        self.layout.addWidget(self.err_socnets_value, 1, 3, 1, 1)
+        self.layout.addWidget(self.lbl_len_exists, 2, 0, 1, 1)
+        self.layout.addWidget(self.len_exists_value, 2, 1, 1, 1)
 
 
 
         self.resize(800, 220)
 
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    win = RecoveryWin()
+    win.show()
+    sys.exit(app.exec_())
 
