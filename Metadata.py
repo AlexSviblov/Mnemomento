@@ -195,7 +195,7 @@ def EXIF_text_to_float(exif_dannye: str) -> float:  # EXIF ебанутый, м�
 
 
 # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
-def filter_exif_beta(data: dict, photofile: str, photo_directory: str) -> dict[str, ...]:
+def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, ...]:
 
     metadata = dict()
 

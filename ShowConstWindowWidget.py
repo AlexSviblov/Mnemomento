@@ -124,17 +124,25 @@ class ConstWidgetWindow(QWidget):
         global stylesheet2
         global stylesheet3
         global stylesheet6
+        global stylesheet7
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
             stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
+                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -2px; background-color: #C0C0C0; color: #000000;}"
+
         else:   #Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
             stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
+                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -2px; background-color: #1F1F1F; color: #D3D3D3}"
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
@@ -155,7 +163,6 @@ class ConstWidgetWindow(QWidget):
             self.type_show_thumbnails()
         except AttributeError:
             pass
-
 
     # Получение годов
     def get_years(self) -> None:
@@ -491,7 +498,7 @@ class ConstWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif_beta(Metadata.read_exif(self.last_clicked_name, photo_directory, self.own_dir),
+        metadata = Metadata.filter_exif(Metadata.read_exif(self.last_clicked_name, photo_directory, self.own_dir),
                                              self.last_clicked_name, photo_directory)
 
         self.photo_rotation = metadata['Rotation']
@@ -727,7 +734,9 @@ class ConstWidgetWindow(QWidget):
                     self.lens_choose.setCurrentText(old_lens)
                     self.eqip_show_thumbnails()
 
-        dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
+        # dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
+        #                            chosen_group_type=self.group_type.currentText())
+        dialog_edit = NewEditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
                                    chosen_group_type=self.group_type.currentText())
         dialog_edit.show()
 
@@ -1432,24 +1441,66 @@ class NewEditExifData(QDialog):
         self.chosen_group_type = chosen_group_type
 
         self.layout = QGridLayout(self)
+        self.layout.setSpacing(20)
         self.setLayout(self.layout)
 
         self.table = QTableWidget(self)
         self.table.setFont(font12)
+        self.table.setDisabled(True)
         self.table.verticalHeader().setVisible(False)
-        # self.table.horizontalHeader().setVisible(False)
         self.table.horizontalHeader().setStyleSheet(stylesheet3)
         self.table.setStyleSheet(stylesheet6)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.layout.addWidget(self.table, 0, 0, 1, 1, alignment=Qt.AlignCenter)
+        self.layout.addWidget(self.table, 0, 1, 1, 1)
+
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setText("Записать")
+        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setFont(font14)
+        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+
+        self.btn_cancel = QPushButton(self)
+        self.btn_cancel.setText("Отмена")
+        self.btn_cancel.setStyleSheet(stylesheet1)
+        self.btn_cancel.setFont(font14)
+        self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+
+        self.tabs = QTabWidget(self)
+        self.tabs.setStyleSheet(stylesheet7)
+        self.tab_date = QWidget(self)
+        self.tab_technic_settings = QWidget(self)
+        self.tab_GPS = QWidget(self)
+
+        self.tabs.addTab(self.tab_date, 'Дата')
+        self.tabs.addTab(self.tab_technic_settings, 'Оборудование и настройки')
+        self.tabs.addTab(self.tab_GPS, 'GPS')
+
+        self.tabs.setFont(font12)
+
+        self.tab_date_layout = QGridLayout(self)
+        self.date_lbl = QLabel(self)
+        self.date_lbl.setStyleSheet(stylesheet2)
+        self.date_lbl.setText("Дата съёмки:")
+        self.date_lbl.setFont(font14)
+        self.date_lbl.setStyleSheet(stylesheet2)
+        self.tab_date_layout.addWidget(self.date_lbl, 0, 0, 1, 1)
+
+        self.date_choose = QDateTimeEdit(self)
+        self.date_choose.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
+        self.date_choose.setFont(font14)
+        self.date_choose.setStyleSheet(stylesheet1)
+        self.tab_date_layout.addWidget(self.date_choose, 0, 1, 1, 1)
+
+        self.tab_date.setLayout(self.tab_date_layout)
+
+
+        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
         self.indicator = 0
         self.get_metadata(photoname, photodirectory)
 
-        self.table.itemDoubleClicked.connect(self.pre_edit)
-        self.table.itemChanged.connect(lambda: self.write_changes(photoname, photodirectory))
 
     # редактировать только после двойного нажатия (иначе обновление данных вызовет вечную рекурсию)
     def pre_edit(self) -> None:
@@ -1457,9 +1508,10 @@ class NewEditExifData(QDialog):
 
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname, photodirectory) -> None:
-
         own_dir = os.getcwd()
         data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
+
+        print(data['Время съёмки'])
 
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
@@ -1470,11 +1522,18 @@ class NewEditExifData(QDialog):
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
             self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
 
+        date_show = QtCore.QDateTime(2011, 4, 22, 16, 33, 15)
+        # self.date_choose.setDate()
+
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setFixedHeight(1)
         self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
-        self.resize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
-        self.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 50, self.table.rowCount()*self.table.rowHeight(0)+50)
+        self.tabs.setFixedHeight(self.table.height())
+
+        self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
+                          self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
+
+
 
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str) -> None:
@@ -1581,6 +1640,7 @@ class NewEditExifData(QDialog):
                 self.edited_signal_no_move.emit()
 
             self.indicator = 0
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
