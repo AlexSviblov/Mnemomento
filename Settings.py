@@ -30,6 +30,9 @@ class SettingWin(QMainWindow):
 
         settings = SettingWidget()
         settings.update_main_widget.connect(self.update_main_widget.emit)
+        settings.update_main_widget.connect(self.stylesheet_color)
+        settings.update_main_widget.connect(lambda: self.setStyleSheet(stylesheet2))
+        settings.update_main_widget.connect(settings.update_stylesheet)
         settings.cancel_signal.connect(self.close)
         self.setCentralWidget(settings)
         self.resize(settings.size())
@@ -231,6 +234,23 @@ class SettingWidget(QWidget):
             self.update_main_widget.emit()
 
         self.show_settings()
+
+    def update_stylesheet(self):
+        self.setStyleSheet(stylesheet2)
+        self.media_space_lbl.setStyleSheet(stylesheet2)
+        self.media_space_line.setStyleSheet(stylesheet1)
+        self.media_space_choose.setStyleSheet(stylesheet1)
+        self.thumbs_space_lbl.setStyleSheet(stylesheet2)
+        self.thumbs_space_line.setStyleSheet(stylesheet1)
+        self.thumbs_space_choose.setStyleSheet(stylesheet1)
+        self.transfer_mode_choose.setStyleSheet(stylesheet1)
+        self.num_thumbs_text.setStyleSheet(stylesheet2)
+        self.num_thumbs_choose.setStyleSheet(stylesheet1)
+        self.theme_lbl.setStyleSheet(stylesheet2)
+        self.theme_choose.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_cancel.setStyleSheet(stylesheet1)
+
 
 
 # перенос папок, если изменился путь

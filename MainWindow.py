@@ -137,6 +137,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress = ConstMaker(file_list=self.file_list)
         self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda h: self.finish_thread_add_const(h))
         self.add_files_progress.start()
 
@@ -155,10 +156,11 @@ class MainWindow(QMainWindow):
         self.add_dir_progress = ConstMaker(file_list=self.file_list)
         self.add_dir_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.add_dir_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        self.add_dir_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
         self.add_dir_progress.finished.connect(self.finish_thread_add_const)
         self.add_dir_progress.start()
 
-    # добавить в особый каталог папку на постоянку
+    # добавить в дополнительный каталог папку на постоянку
     def func_add_alone_dir(self) -> None:
         self.add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
 
@@ -173,6 +175,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress = AloneMaker(photo_directory=self.add_dir_chosen, photo_files_list=photo_files_list)
         self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda text: self.finish_thread_add_alone(text))
         self.add_files_progress.start()
 
@@ -333,38 +336,30 @@ class ProgressBar(QWidget):
         self.title_text = QLabel(self)
         self.title_text.setText('Процесс обработки файлов')
         self.title_text.setFont(font16)
-        self.title_text.setFixedWidth(400)
         self.title_text.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.title_text, 1, 1, 1, 1)
 
         self.progressbar = QProgressBar()
-        self.progressbar.setFixedWidth(400)
+        self.progressbar.setFixedWidth(int(self.width()/2))
         self.progressbar.setFont(font16)
         self.progressbar.setStyleSheet(stylesheet5)
         self.progressbar.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.progressbar, 2, 1, 1, 1)
 
-        self.empty1 = QLabel(self)
-        self.empty1.setFixedSize(300, 300)
-        self.layout.addWidget(self.empty1, 0, 0, 1, 1)
+        self.transfer_info = QLabel(self)
+        self.transfer_info.setFont(font10)
+        self.transfer_info.setAlignment(QtCore.Qt.AlignCenter)
+        self.layout.addWidget(self.transfer_info, 3, 0, 1, 3)
 
-        self.empty2 = QLabel(self)
-        self.empty2.setFixedSize(300, 300)
-        self.layout.addWidget(self.empty1, 0, 2, 1, 1)
-
-        self.empty3 = QLabel(self)
-        self.empty3.setMinimumSize(200, 200)
-        self.layout.addWidget(self.empty1, 3, 0, 1, 1)
-
-        self.empty4 = QLabel(self)
-        self.empty4.setMinimumSize(200, 200)
-        self.layout.addWidget(self.empty1, 3, 2, 1, 1)
 
     def progressbar_set_max(self, max):
         self.progressbar.setMaximum(max)
 
     def progressbar_set_value(self, value):
         self.progressbar.setValue(value)
+
+    def info_set_text(self, text):
+        self.transfer_info.setText(f"{text}")
 
 
 # стартовое окно, при запуске программы
@@ -591,7 +586,7 @@ class Social_Network_window(QMainWindow):
 
 # добавление в основной каталог
 class ConstMaker(QtCore.QThread):
-
+    info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
     finished = pyqtSignal(list)
@@ -610,28 +605,35 @@ class ConstMaker(QtCore.QThread):
         j = 0
         files_exist = list()
         for file in self.files_list:
+            self.info_text.emit(f"Идёт обработка файла {file}")
             fileexists = FilesDirs.transfer_const_photos(file)
             j += 1
             self.progress.emit(round(100*(j/self.len_file_list)))
+            self.info_text.emit(f"Обработка файла {file} завершена")
             if fileexists:
                 files_exist.append(fileexists)
+                self.info_text.emit(f"Файл {file} уже существует")
             else:
                 pass
 
         if Settings.get_photo_transfer_mode() == "cut":
+            self.info_text.emit(f"Определение статуса папки")
             file_dir = ''
             file_full = self.files_list[0].split(r'/')
             for i in range(len(file_full) - 1):
                 file_dir += file_full[i] + '/'
             if not os.listdir(file_dir):
                 os.rmdir(file_dir)
+                self.info_text.emit(f"Опустевшая папка {file_dir} удалена")
+            else:
+                self.info_text.emit(f"Папка {file_dir} не была удалена, так как не опустела")
 
         self.finished.emit(files_exist)
 
 
 # добавление в дополнительный каталог
 class AloneMaker(QtCore.QThread):
-
+    info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
     finished = pyqtSignal(str)
@@ -650,17 +652,24 @@ class AloneMaker(QtCore.QThread):
 
     def run(self):
         if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]):
+            self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
             os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
 
             j = 0
             for file in self.files_list:
+                self.info_text.emit(f"Идёт обработка файла {file}")
                 FilesDirs.transfer_alone_photos(self.photo_directory, file)
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
+                self.info_text.emit(f"Обработка файла {file} завершена")
 
             if Settings.get_photo_transfer_mode() == "cut":
+                self.info_text.emit(f"Определение статуса папки")
                 if not os.listdir(self.photo_directory):
+                    self.info_text.emit(f"Опустевшая папка {self.photo_directory} удалена")
                     os.rmdir(self.photo_directory)
+                else:
+                    self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
 
             self.finished.emit('finish')
         else:

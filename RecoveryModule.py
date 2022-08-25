@@ -28,7 +28,7 @@ class RecoveryWin(QMainWindow):
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        recovery = RecoveryWidget()
+        recovery = RecoveryWidget(self)
         self.setCentralWidget(recovery)
         self.resize(recovery.size())
 
@@ -48,9 +48,8 @@ class RecoveryWin(QMainWindow):
 
 
 class RecoveryWidget(QWidget):
-
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent)
         self.setStyleSheet(stylesheet2)
         self.setWindowTitle('Восстановление')
 
@@ -125,9 +124,78 @@ class RecoveryWidget(QWidget):
         self.layout.addWidget(self.lbl_len_exists, 2, 0, 1, 1)
         self.layout.addWidget(self.len_exists_value, 2, 1, 1, 1)
 
-
+        self.btn_recovery = QPushButton(self)
+        self.btn_recovery.setText("Запустить восстановление")
+        self.btn_recovery.setFont(font14)
+        self.btn_recovery.setStyleSheet(stylesheet1)
+        self.btn_recovery.clicked.connect(self.do_recovery_func)
+        self.layout.addWidget(self.btn_recovery, 10, 0, 1, 1)
 
         self.resize(800, 220)
+
+    def do_recovery_func(self) -> None:
+        loading_win = RecoveryLoadingWin(self)
+        process = DoRecovery()
+        process.finished.connect(loading_win.close)
+        process.loading_text_show.connect(lambda t: loading_win.set_process_lbl(t))
+        process.finished.connect(self.update_values)
+        loading_win.show()
+        process.start()
+
+    def update_values(self) -> None:
+        self.len_photos_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[0])))
+        self.len_socnets_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[1])))
+        self.err_photos_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[0]))
+        self.err_socnets_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[1]))
+        self.len_exists_value.setText(str(len(SynhronizeDBMedia.research_all_media_photos())))
+
+
+class RecoveryLoadingWin(QDialog):
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.layout = QGridLayout(self)
+        self.setLayout(self.layout)
+
+        self.label = QLabel(self)
+        self.text = QLabel(self)
+        self.text.setText('Загрузка, подождите')
+        self.text.setStyleSheet(stylesheet2)
+        self.movie = QMovie("g0R5.gif")
+        self.label.setMovie(self.movie)
+        self.label.setStyleSheet(stylesheet2)
+        self.movie.start()
+
+        self.process_lbl = QLabel(self)
+        self.layout.addWidget(self.process_lbl, 1, 0, 1, 2)
+
+        self.layout.addWidget(self.text, 0, 0, 1, 1)
+        self.layout.addWidget(self.label, 0, 1, 1, 1)
+
+        self.resize(300, 100)
+
+    def set_process_lbl(self, text):
+        self.process_lbl.setText(f"{text}")
+
+
+class DoRecovery(QtCore.QThread):
+    loading_text_show = pyqtSignal(str)
+    finished = QtCore.pyqtSignal()
+
+    def __init__(self):
+        QThread.__init__(self)
+
+        self._init = False
+
+    def run(self):
+        self.loading_text_show.emit("Получение информации из базы данных")
+        all_photos_db, all_socnets_db = SynhronizeDBMedia.get_all_db_ways()
+        self.loading_text_show.emit("Проверка существования файлов, записанных в базе данных")
+        SynhronizeDBMedia.check_exists_from_db(all_photos_db, all_socnets_db)
+        self.loading_text_show.emit("Получение списка файлов из директории хранения")
+        filelist_exist = SynhronizeDBMedia.research_all_media_photos()
+        self.loading_text_show.emit("Добавление в базу данных недостающих записей")
+        SynhronizeDBMedia.add_flaw_to_db(filelist_exist)
+        self.finished.emit()
 
 
 if __name__ == "__main__":
