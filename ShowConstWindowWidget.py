@@ -1480,6 +1480,7 @@ class NewEditExifData(QDialog):
         self.tabs.setFont(font12)
 
         self.tab_date_layout = QGridLayout(self)
+
         self.date_lbl = QLabel(self)
         self.date_lbl.setStyleSheet(stylesheet2)
         self.date_lbl.setText("Дата съёмки:")
@@ -1491,10 +1492,41 @@ class NewEditExifData(QDialog):
         self.date_choose.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
         self.date_choose.setFont(font14)
         self.date_choose.setStyleSheet(stylesheet1)
-        self.tab_date_layout.addWidget(self.date_choose, 0, 1, 1, 1)
+        self.tab_date_layout.addWidget(self.date_choose, 0, 1, 1, 2)
+
+        self.timezone_lbl = QLabel(self)
+        self.timezone_lbl.setStyleSheet(stylesheet2)
+        self.timezone_lbl.setText("Часовой пояс:")
+        self.timezone_lbl.setFont(font14)
+        self.timezone_lbl.setStyleSheet(stylesheet2)
+        self.tab_date_layout.addWidget(self.timezone_lbl, 1, 0, 1, 1)
+
+        self.timezone_pm_choose = QComboBox(self)
+        self.timezone_pm_choose.setFont(font14)
+        self.timezone_pm_choose.setStyleSheet(stylesheet1)
+        self.timezone_pm_choose.addItem("+")
+        self.timezone_pm_choose.addItem("-")
+        self.timezone_pm_choose.setFixedWidth(50)
+        self.tab_date_layout.addWidget(self.timezone_pm_choose, 1, 1, 1, 1)
+
+        self.timezone_num_choose = QTimeEdit(self)
+        self.timezone_num_choose.setFont(font14)
+        self.timezone_num_choose.setStyleSheet(stylesheet1)
+        self.timezone_num_choose.setDisplayFormat("HH:mm")
+        self.tab_date_layout.addWidget(self.timezone_num_choose, 1, 2, 1, 1)
 
         self.tab_date.setLayout(self.tab_date_layout)
 
+        # self.maker_lbl = QLabel(self)
+        # self.lens_lbl = QLabel(self)
+        # self.time_lbl = QLabel(self)
+        # self.iso_lbl = QLabel(self)
+        # self.fnumber = QLabel(self)
+        # self.flength = QLabel(self)
+        # self.cammode = QLabel(self)
+        # self.flashmode = QLabel(self)
+        # self.serialbode = QLabel(self)
+        # self.seriallens = QLabel(self)
 
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
@@ -1502,16 +1534,21 @@ class NewEditExifData(QDialog):
         self.get_metadata(photoname, photodirectory)
 
 
-    # редактировать только после двойного нажатия (иначе обновление данных вызовет вечную рекурсию)
-    def pre_edit(self) -> None:
-        self.indicator = 1
-
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname, photodirectory) -> None:
         own_dir = os.getcwd()
         data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
 
-        print(data['Время съёмки'])
+        def date_convert(data):
+            date_part = data['Время съёмки'].split(' ')[0]
+            time_part = data['Время съёмки'].split(' ')[1]
+            year = int(date_part.split(":")[0])
+            month = int(date_part.split(":")[1])
+            day = int(date_part.split(":")[2])
+            hour = int(time_part.split(":")[0])
+            minute = int(time_part.split(":")[1])
+            second = int(time_part.split(":")[2])
+            return year, month, day, hour, minute, second
 
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
@@ -1522,8 +1559,9 @@ class NewEditExifData(QDialog):
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
             self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
 
-        date_show = QtCore.QDateTime(2011, 4, 22, 16, 33, 15)
-        # self.date_choose.setDate()
+        year, month, day, hour, minute, second = date_convert(data)
+        date_show = QtCore.QDateTime(year, month, day, hour, minute, second)
+        self.date_choose.setDateTime(date_show)
 
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setFixedHeight(1)
