@@ -1517,16 +1517,307 @@ class NewEditExifData(QDialog):
 
         self.tab_date.setLayout(self.tab_date_layout)
 
-        # self.maker_lbl = QLabel(self)
-        # self.lens_lbl = QLabel(self)
-        # self.time_lbl = QLabel(self)
-        # self.iso_lbl = QLabel(self)
-        # self.fnumber = QLabel(self)
-        # self.flength = QLabel(self)
-        # self.cammode = QLabel(self)
-        # self.flashmode = QLabel(self)
-        # self.serialbode = QLabel(self)
-        # self.seriallens = QLabel(self)
+        self.tab_tt_layout = QGridLayout(self)
+
+        self.maker_lbl = QLabel(self)
+        self.maker_lbl.setText("Производитель:")
+
+        self.camera_lbl = QLabel(self)
+        self.camera_lbl.setText("Камера:")
+
+        self.lens_lbl = QLabel(self)
+        self.lens_lbl.setText("Объектив:")
+
+        self.time_lbl = QLabel(self)
+        self.time_lbl.setText("Выдержка:")
+
+        self.iso_lbl = QLabel(self)
+        self.iso_lbl.setText("ISO:")
+
+        self.fnumber_lbl = QLabel(self)
+        self.fnumber_lbl.setText("Диафрагма:")
+
+        self.flength_lbl = QLabel(self)
+        self.flength_lbl.setText("Фокусное расстояние:")
+
+        self.cammode_lbl = QLabel(self)
+        self.cammode_lbl.setText("Режим съёмки:")
+
+        self.flashmode_lbl = QLabel(self)
+        self.flashmode_lbl.setText("Режим вспышки:")
+
+        self.serialbode_lbl = QLabel(self)
+        self.serialbode_lbl.setText("Серийный номер камеры:")
+
+        self.seriallens_lbl = QLabel(self)
+        self.seriallens_lbl.setText("Серийный номер объектива:")
+
+        self.maker_lbl.setStyleSheet(stylesheet2)
+        self.maker_lbl.setFont(font12)
+
+        self.camera_lbl.setStyleSheet(stylesheet2)
+        self.camera_lbl.setFont(font12)
+
+        self.lens_lbl.setStyleSheet(stylesheet2)
+        self.lens_lbl.setFont(font12)
+
+        self.time_lbl.setStyleSheet(stylesheet2)
+        self.time_lbl.setFont(font12)
+
+        self.iso_lbl.setStyleSheet(stylesheet2)
+        self.iso_lbl.setFont(font12)
+
+        self.fnumber_lbl.setStyleSheet(stylesheet2)
+        self.fnumber_lbl.setFont(font12)
+
+        self.flength_lbl.setStyleSheet(stylesheet2)
+        self.flength_lbl.setFont(font12)
+
+        self.cammode_lbl.setStyleSheet(stylesheet2)
+        self.cammode_lbl.setFont(font12)
+
+        self.flashmode_lbl.setStyleSheet(stylesheet2)
+        self.flashmode_lbl.setFont(font12)
+
+        self.serialbode_lbl.setStyleSheet(stylesheet2)
+        self.serialbode_lbl.setFont(font12)
+
+        self.seriallens_lbl.setStyleSheet(stylesheet2)
+        self.seriallens_lbl.setFont(font12)
+
+        self.tab_tt_layout.addWidget(self.maker_lbl, 0, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.camera_lbl, 1, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.lens_lbl, 2, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.time_lbl, 3, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.iso_lbl, 4, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.fnumber_lbl, 5, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.flength_lbl, 6, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.cammode_lbl, 7, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.flashmode_lbl, 8, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.serialbode_lbl, 9, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
+
+        self.maker_line = QLineEdit(self)
+
+        self.camera_line = QLineEdit(self)
+
+        self.lens_line = QLineEdit(self)
+
+        self.time_line = QLineEdit(self)
+
+        self.iso_line = QLineEdit(self)
+
+        self.fnumber_line = QLineEdit(self)
+
+        self.flength_line = QLineEdit(self)
+
+        self.cammode_line = QLineEdit(self)
+
+        self.flashmode_line = QLineEdit(self)
+
+        self.serialbode_line = QLineEdit(self)
+
+        self.seriallens_line = QLineEdit(self)
+
+        self.maker_line.setStyleSheet(stylesheet1)
+        self.maker_line.setFont(font12)
+
+        self.camera_line.setStyleSheet(stylesheet1)
+        self.camera_line.setFont(font12)
+
+        self.lens_line.setStyleSheet(stylesheet1)
+        self.lens_line.setFont(font12)
+
+        self.time_line.setStyleSheet(stylesheet1)
+        self.time_line.setFont(font12)
+
+        self.iso_line.setStyleSheet(stylesheet1)
+        self.iso_line.setFont(font12)
+
+        self.fnumber_line.setStyleSheet(stylesheet1)
+        self.fnumber_line.setFont(font12)
+
+        self.flength_line.setStyleSheet(stylesheet1)
+        self.flength_line.setFont(font12)
+
+        self.cammode_line.setStyleSheet(stylesheet1)
+        self.cammode_line.setFont(font12)
+
+        self.flashmode_line.setStyleSheet(stylesheet1)
+        self.flashmode_line.setFont(font12)
+
+        self.serialbode_line.setStyleSheet(stylesheet1)
+        self.serialbode_line.setFont(font12)
+
+        self.seriallens_line.setStyleSheet(stylesheet1)
+        self.seriallens_line.setFont(font12)
+
+        self.tab_tt_layout.addWidget(self.maker_line, 0, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.camera_line, 1, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.lens_line, 2, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.time_line, 3, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.iso_line, 4, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.fnumber_line, 5, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.flength_line, 6, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.cammode_line, 7, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.flashmode_line, 8, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.serialbode_line, 9, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.seriallens_line, 10, 1, 1, 1)
+
+        self.tab_technic_settings.setLayout(self.tab_tt_layout)
+
+        self.tab_layout_gps = QGridLayout(self)
+
+        self.mode_check_dmc = QCheckBox(self)
+        self.mode_check_dmc.setText("ШД Г.м.с")
+        self.mode_check_dmc.setFont(font12)
+        self.mode_check_dmc.setStyleSheet(stylesheet2)
+
+        self.mode_check_fn = QCheckBox(self)
+        self.mode_check_fn.setText("Числом")
+        self.mode_check_fn.setFont(font12)
+        self.mode_check_dmc.setStyleSheet(stylesheet2)
+
+        self.latitude_fn_lbl = QLabel(self)     # широта
+        self.latitude_fn_lbl.setText("Широта:")
+
+        self.longitude_fn_lbl = QLabel(self)    # долгота
+        self.longitude_fn_lbl.setText("Долгота:")
+
+        self.latitude_fn_line = QLineEdit(self)     # широта
+        self.longitude_fn_line = QLineEdit(self)    # долгота
+
+        self.latitude_fn_lbl.setFont(font12)
+        self.longitude_fn_lbl.setFont(font12)
+        self.latitude_fn_line.setFont(font12)
+        self.longitude_fn_line.setFont(font12)
+
+        self.latitude_fn_lbl.setStyleSheet(stylesheet2)
+        self.longitude_fn_lbl.setStyleSheet(stylesheet2)
+        self.latitude_fn_line.setStyleSheet(stylesheet1)
+        self.longitude_fn_line.setStyleSheet(stylesheet1)
+
+        self.tab_layout_gps.addWidget(self.mode_check_fn, 0, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_fn_lbl, 1, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_fn_line, 1, 1, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_fn_lbl, 2, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_fn_line, 2, 1, 1, 1)
+
+        self.latitude_dmc_lbl = QLabel(self)     # широта
+        self.latitude_dmc_lbl.setText("Широта:")
+
+        self.longitude_dmc_lbl = QLabel(self)    # долгота
+        self.longitude_dmc_lbl.setText("Долгота:")
+
+        self.latitude_dmc_choose = QComboBox(self)
+        self.latitude_dmc_choose.addItem("Север")
+        self.latitude_dmc_choose.addItem("Юг")
+        self.longitude_dmc_choose = QComboBox(self)
+        self.longitude_dmc_choose.addItem("Восток")
+        self.longitude_dmc_choose.addItem("Запад")
+
+        self.latitude_dmc_deg_lbl = QLabel(self)  # широта
+        self.latitude_dmc_deg_lbl.setText("Градусы:")
+
+        self.longitude_dmc_min_lbl = QLabel(self)  # долгота
+        self.longitude_dmc_min_lbl.setText("Минуты:")
+
+        self.latitude_dmc_sec_lbl = QLabel(self)  # широта
+        self.latitude_dmc_sec_lbl.setText("Секунды:")
+
+        self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
+        self.longitude_dmc_deg_lbl.setText("Градусы:")
+
+        self.latitude_dmc_min_lbl = QLabel(self)  # широта
+        self.latitude_dmc_min_lbl.setText("Минуты:")
+
+        self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
+        self.longitude_dmc_sec_lbl.setText("Секунды:")
+
+        self.latitude_dmc_deg_line = QLineEdit(self)  # широта
+
+        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+
+        self.latitude_dmc_sec_line = QLineEdit(self)  # широта
+
+        self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
+
+        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+
+        self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+
+        self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_choose, 4, 1, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_deg_lbl, 4, 2, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_deg_line, 4, 3, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_min_lbl, 4, 4, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_min_line, 4, 5, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_sec_lbl, 4, 6, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_dmc_sec_line, 4, 7, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_lbl, 5, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_choose, 5, 1, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_deg_lbl, 5, 2, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_deg_line, 5, 3, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_min_lbl, 5, 4, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_min_line, 5, 5, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_sec_lbl, 5, 6, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_dmc_sec_line, 5, 7, 1, 1)
+
+        self.mode_check_dmc.
+        self.mode_check_dmc.
+
+        self.latitude_dmc_lbl.
+        self.latitude_dmc_lbl.
+
+        self.latitude_dmc_choose.
+        self.latitude_dmc_choose.
+
+        self.latitude_dmc_deg_lbl.
+        self.latitude_dmc_deg_lbl.
+
+        self.latitude_dmc_deg_line.
+        self.latitude_dmc_deg_line.
+
+        self.latitude_dmc_min_lbl.
+        self.latitude_dmc_min_lbl.
+
+        self.latitude_dmc_min_line.
+        self.latitude_dmc_min_line.
+
+        self.latitude_dmc_sec_lbl.
+        self.latitude_dmc_sec_lbl.
+
+        self.latitude_dmc_sec_line.
+        self.latitude_dmc_sec_line.
+
+        self.longitude_dmc_lbl.
+        self.longitude_dmc_lbl.
+
+        self.longitude_dmc_choose.
+        self.longitude_dmc_choose.
+
+        self.longitude_dmc_deg_lbl.
+        self.longitude_dmc_deg_lbl.
+
+        self.longitude_dmc_deg_line.
+        self.longitude_dmc_deg_line.
+
+        self.longitude_dmc_min_lbl.
+        self.longitude_dmc_min_lbl.
+
+        self.longitude_dmc_min_line.
+        self.longitude_dmc_min_line.
+
+        self.longitude_dmc_sec_lbl.
+        self.longitude_dmc_sec_lbl.
+
+        self.longitude_dmc_sec_line.
+        self.longitude_dmc_sec_line.
+
+
+        self.tab_GPS.setLayout(self.tab_layout_gps)
+
 
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
@@ -1540,15 +1831,29 @@ class NewEditExifData(QDialog):
         data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
 
         def date_convert(data):
-            date_part = data['Время съёмки'].split(' ')[0]
-            time_part = data['Время съёмки'].split(' ')[1]
+            try:
+                date_part = data['Время съёмки'].split(' ')[0]
+                time_part = data['Время съёмки'].split(' ')[1]
+            except IndexError:
+                date_part = "0000:00:00"
+                time_part = "00:00:00"
             year = int(date_part.split(":")[0])
             month = int(date_part.split(":")[1])
             day = int(date_part.split(":")[2])
             hour = int(time_part.split(":")[0])
             minute = int(time_part.split(":")[1])
             second = int(time_part.split(":")[2])
-            return year, month, day, hour, minute, second
+
+            try:
+                zone_pm = data['Часовой пояс'][0]
+                zone_hour = int(data['Часовой пояс'][1:].split(':')[0])
+                zone_min = int(data['Часовой пояс'][1:].split(':')[1])
+            except IndexError:
+                zone_pm = "+"
+                zone_hour = "00"
+                zone_min = "00"
+
+            return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
 
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
@@ -1559,9 +1864,15 @@ class NewEditExifData(QDialog):
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
             self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
 
-        year, month, day, hour, minute, second = date_convert(data)
+        year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min = date_convert(data)
+
         date_show = QtCore.QDateTime(year, month, day, hour, minute, second)
         self.date_choose.setDateTime(date_show)
+
+        time_zone_show = QtCore.QTime(zone_hour, zone_min)
+
+        self.timezone_pm_choose.setCurrentText(zone_pm)
+        self.timezone_num_choose.setTime(time_zone_show)
 
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setFixedHeight(1)
