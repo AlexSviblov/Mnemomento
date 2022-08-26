@@ -432,7 +432,7 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict:
 
     try:
         if EXIF_text_to_float(all_data['Exif.Photo.ExposureTime']) < 0.5:
-            useful_data['Выдержка'] = all_data['Exif.Photo.ExposureTime']
+            useful_data['Выдержка'] = str(all_data['Exif.Photo.ExposureTime'])
         else:
             useful_data['Выдержка'] = str(EXIF_text_to_float(all_data['Exif.Photo.ExposureTime']))
     except KeyError:

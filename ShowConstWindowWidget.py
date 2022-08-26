@@ -1467,6 +1467,15 @@ class NewEditExifData(QDialog):
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
 
+        self.make_tabs_gui()
+
+        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
+
+        self.indicator = 0
+        self.get_metadata(photoname, photodirectory)
+
+
+    def make_tabs_gui(self):
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tab_date = QWidget(self)
@@ -1672,11 +1681,13 @@ class NewEditExifData(QDialog):
         self.mode_check_dmc.setText("ШД Г.м.с")
         self.mode_check_dmc.setFont(font12)
         self.mode_check_dmc.setStyleSheet(stylesheet2)
+        self.mode_check_dmc.stateChanged.connect(self.block_check_gps)
 
         self.mode_check_fn = QCheckBox(self)
         self.mode_check_fn.setText("Числом")
         self.mode_check_fn.setFont(font12)
-        self.mode_check_dmc.setStyleSheet(stylesheet2)
+        self.mode_check_fn.setStyleSheet(stylesheet2)
+        self.mode_check_fn.stateChanged.connect(self.block_check_gps)
 
         self.latitude_fn_lbl = QLabel(self)     # широта
         self.latitude_fn_lbl.setText("Широта:")
@@ -1699,9 +1710,9 @@ class NewEditExifData(QDialog):
 
         self.tab_layout_gps.addWidget(self.mode_check_fn, 0, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.longitude_fn_lbl, 1, 0, 1, 1)
-        self.tab_layout_gps.addWidget(self.longitude_fn_line, 1, 1, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_fn_line, 1, 1, 1, 7)
         self.tab_layout_gps.addWidget(self.latitude_fn_lbl, 2, 0, 1, 1)
-        self.tab_layout_gps.addWidget(self.latitude_fn_line, 2, 1, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_fn_line, 2, 1, 1, 7)
 
         self.latitude_dmc_lbl = QLabel(self)     # широта
         self.latitude_dmc_lbl.setText("Широта:")
@@ -1712,9 +1723,12 @@ class NewEditExifData(QDialog):
         self.latitude_dmc_choose = QComboBox(self)
         self.latitude_dmc_choose.addItem("Север")
         self.latitude_dmc_choose.addItem("Юг")
+        self.latitude_dmc_choose.setFixedWidth(80)
+
         self.longitude_dmc_choose = QComboBox(self)
         self.longitude_dmc_choose.addItem("Восток")
         self.longitude_dmc_choose.addItem("Запад")
+        self.longitude_dmc_choose.setFixedWidth(80)
 
         self.latitude_dmc_deg_lbl = QLabel(self)  # широта
         self.latitude_dmc_deg_lbl.setText("Градусы:")
@@ -1764,66 +1778,60 @@ class NewEditExifData(QDialog):
         self.tab_layout_gps.addWidget(self.longitude_dmc_sec_lbl, 5, 6, 1, 1)
         self.tab_layout_gps.addWidget(self.longitude_dmc_sec_line, 5, 7, 1, 1)
 
-        self.mode_check_dmc.
-        self.mode_check_dmc.
+        self.mode_check_dmc.setFont(font12)
+        self.mode_check_dmc.setStyleSheet(stylesheet2)
 
-        self.latitude_dmc_lbl.
-        self.latitude_dmc_lbl.
+        self.latitude_dmc_lbl.setFont(font12)
+        self.latitude_dmc_lbl.setStyleSheet(stylesheet2)
 
-        self.latitude_dmc_choose.
-        self.latitude_dmc_choose.
+        self.latitude_dmc_choose.setFont(font12)
+        self.latitude_dmc_choose.setStyleSheet(stylesheet1)
 
-        self.latitude_dmc_deg_lbl.
-        self.latitude_dmc_deg_lbl.
+        self.latitude_dmc_deg_lbl.setFont(font12)
+        self.latitude_dmc_deg_lbl.setStyleSheet(stylesheet2)
 
-        self.latitude_dmc_deg_line.
-        self.latitude_dmc_deg_line.
+        self.latitude_dmc_deg_line.setFont(font12)
+        self.latitude_dmc_deg_line.setStyleSheet(stylesheet1)
 
-        self.latitude_dmc_min_lbl.
-        self.latitude_dmc_min_lbl.
+        self.latitude_dmc_min_lbl.setFont(font12)
+        self.latitude_dmc_min_lbl.setStyleSheet(stylesheet2)
 
-        self.latitude_dmc_min_line.
-        self.latitude_dmc_min_line.
+        self.latitude_dmc_min_line.setFont(font12)
+        self.latitude_dmc_min_line.setStyleSheet(stylesheet1)
 
-        self.latitude_dmc_sec_lbl.
-        self.latitude_dmc_sec_lbl.
+        self.latitude_dmc_sec_lbl.setFont(font12)
+        self.latitude_dmc_sec_lbl.setStyleSheet(stylesheet2)
 
-        self.latitude_dmc_sec_line.
-        self.latitude_dmc_sec_line.
+        self.latitude_dmc_sec_line.setFont(font12)
+        self.latitude_dmc_sec_line.setStyleSheet(stylesheet1)
 
-        self.longitude_dmc_lbl.
-        self.longitude_dmc_lbl.
+        self.longitude_dmc_lbl.setFont(font12)
+        self.longitude_dmc_lbl.setStyleSheet(stylesheet2)
 
-        self.longitude_dmc_choose.
-        self.longitude_dmc_choose.
+        self.longitude_dmc_choose.setFont(font12)
+        self.longitude_dmc_choose.setStyleSheet(stylesheet1)
 
-        self.longitude_dmc_deg_lbl.
-        self.longitude_dmc_deg_lbl.
+        self.longitude_dmc_deg_lbl.setFont(font12)
+        self.longitude_dmc_deg_lbl.setStyleSheet(stylesheet2)
 
-        self.longitude_dmc_deg_line.
-        self.longitude_dmc_deg_line.
+        self.longitude_dmc_deg_line.setFont(font12)
+        self.longitude_dmc_deg_line.setStyleSheet(stylesheet1)
 
-        self.longitude_dmc_min_lbl.
-        self.longitude_dmc_min_lbl.
+        self.longitude_dmc_min_lbl.setFont(font12)
+        self.longitude_dmc_min_lbl.setStyleSheet(stylesheet2)
 
-        self.longitude_dmc_min_line.
-        self.longitude_dmc_min_line.
+        self.longitude_dmc_min_line.setFont(font12)
+        self.longitude_dmc_min_line.setStyleSheet(stylesheet1)
 
-        self.longitude_dmc_sec_lbl.
-        self.longitude_dmc_sec_lbl.
+        self.longitude_dmc_sec_lbl.setFont(font12)
+        self.longitude_dmc_sec_lbl.setStyleSheet(stylesheet2)
 
-        self.longitude_dmc_sec_line.
-        self.longitude_dmc_sec_line.
-
+        self.longitude_dmc_sec_line.setFont(font12)
+        self.longitude_dmc_sec_line.setStyleSheet(stylesheet1)
 
         self.tab_GPS.setLayout(self.tab_layout_gps)
 
-
-        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
-
-        self.indicator = 0
-        self.get_metadata(photoname, photodirectory)
-
+        self.mode_check_fn.setCheckState(2)
 
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname, photodirectory) -> None:
@@ -1855,6 +1863,53 @@ class NewEditExifData(QDialog):
 
             return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
 
+        def func_resize():
+            self.table.resizeColumnsToContents()
+            self.table.horizontalHeader().setFixedHeight(1)
+            self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2,
+                                    self.table.rowCount() * self.table.rowHeight(0))
+            self.tabs.setFixedHeight(self.table.height())
+
+            self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
+                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
+
+        def fill_equip_set():
+            self.maker_line.setText(data['Производитель'])
+            self.camera_line.setText(data['Камера'])
+            self.lens_line.setText(data['Объектив'])
+            self.time_line.setText(data['Выдержка'])
+            self.iso_line.setText(data['ISO'])
+            self.fnumber_line.setText(data['Диафрагма'])
+            self.flength_line.setText(data['Фокусное расстояние'])
+            self.cammode_line.setText(data['Режим съёмки'])
+            self.flashmode_line.setText(data['Режим вспышки'])
+            self.serialbode_line.setText(data['Серийный номер камеры'])
+            self.seriallens_line.setText(data['Серийный номер объектива'])
+
+        def fill_gps():
+            coords_all = data['Координаты']
+            latitude_part = float(coords_all.split(',')[0])
+            longitude_part = float(coords_all.split(',')[1])
+
+            self.latitude_fn_line.setText(str(latitude_part))
+            self.longitude_fn_line.setText(str(longitude_part))
+
+            print(coords_all)
+            print(latitude_part)
+            print(longitude_part)
+
+            if latitude_part < 0:
+                self.latitude_dmc_choose.setCurrentText("Юг")
+            else:
+                self.latitude_dmc_choose.setCurrentText("Север")
+
+            if longitude_part < 0:
+                self.longitude_dmc_choose.setCurrentText("Запад")
+            else:
+                self.longitude_dmc_choose.setCurrentText("Восток")
+
+
+
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
         keys = list(data.keys())
@@ -1874,14 +1929,10 @@ class NewEditExifData(QDialog):
         self.timezone_pm_choose.setCurrentText(zone_pm)
         self.timezone_num_choose.setTime(time_zone_show)
 
-        self.table.resizeColumnsToContents()
-        self.table.horizontalHeader().setFixedHeight(1)
-        self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
-        self.tabs.setFixedHeight(self.table.height())
+        fill_equip_set()
+        fill_gps()
 
-        self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
-                          self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
-
+        func_resize()
 
 
     # записать новые метаданные
@@ -1990,6 +2041,41 @@ class NewEditExifData(QDialog):
 
             self.indicator = 0
 
+    def block_check_gps(self):
+        if self.sender().text() == "ШД Г.м.с":
+            if self.mode_check_dmc.checkState() == 2:
+                self.mode_check_fn.setCheckState(0)
+            else:
+                self.mode_check_fn.setCheckState(2)
+
+        elif self.sender().text() == "Числом":
+            if self.mode_check_fn.checkState() == 2:
+                self.mode_check_dmc.setCheckState(0)
+            else:
+                self.mode_check_dmc.setCheckState(2)
+
+        if self.mode_check_fn.checkState() == 2:
+            self.longitude_fn_line.setDisabled(False)
+            self.latitude_fn_line.setDisabled(False)
+            self.latitude_dmc_choose.setDisabled(True)
+            self.longitude_dmc_choose.setDisabled(True)
+            self.latitude_dmc_deg_line.setDisabled(True)
+            self.latitude_dmc_min_line.setDisabled(True)
+            self.latitude_dmc_sec_line.setDisabled(True)
+            self.longitude_dmc_deg_line.setDisabled(True)
+            self.longitude_dmc_min_line.setDisabled(True)
+            self.longitude_dmc_sec_line.setDisabled(True)
+        elif self.mode_check_dmc.checkState() == 2:
+            self.longitude_fn_line.setDisabled(True)
+            self.latitude_fn_line.setDisabled(True)
+            self.latitude_dmc_choose.setDisabled(False)
+            self.longitude_dmc_choose.setDisabled(False)
+            self.latitude_dmc_deg_line.setDisabled(False)
+            self.latitude_dmc_min_line.setDisabled(False)
+            self.latitude_dmc_sec_line.setDisabled(False)
+            self.longitude_dmc_deg_line.setDisabled(False)
+            self.longitude_dmc_min_line.setDisabled(False)
+            self.longitude_dmc_sec_line.setDisabled(False)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
