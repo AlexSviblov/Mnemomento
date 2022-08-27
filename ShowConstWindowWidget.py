@@ -1461,6 +1461,7 @@ class NewEditExifData(QDialog):
         self.btn_ok.setStyleSheet(stylesheet1)
         self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+        self.btn_ok.clicked.connect(self.read_enter)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText("Отмена")
@@ -1556,8 +1557,8 @@ class NewEditExifData(QDialog):
         self.flashmode_lbl = QLabel(self)
         self.flashmode_lbl.setText("Режим вспышки:")
 
-        self.serialbode_lbl = QLabel(self)
-        self.serialbode_lbl.setText("Серийный номер камеры:")
+        self.serialbody_lbl = QLabel(self)
+        self.serialbody_lbl.setText("Серийный номер камеры:")
 
         self.seriallens_lbl = QLabel(self)
         self.seriallens_lbl.setText("Серийный номер объектива:")
@@ -1589,8 +1590,8 @@ class NewEditExifData(QDialog):
         self.flashmode_lbl.setStyleSheet(stylesheet2)
         self.flashmode_lbl.setFont(font12)
 
-        self.serialbode_lbl.setStyleSheet(stylesheet2)
-        self.serialbode_lbl.setFont(font12)
+        self.serialbody_lbl.setStyleSheet(stylesheet2)
+        self.serialbody_lbl.setFont(font12)
 
         self.seriallens_lbl.setStyleSheet(stylesheet2)
         self.seriallens_lbl.setFont(font12)
@@ -1604,7 +1605,7 @@ class NewEditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.flength_lbl, 6, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.cammode_lbl, 7, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.flashmode_lbl, 8, 0, 1, 1)
-        self.tab_tt_layout.addWidget(self.serialbode_lbl, 9, 0, 1, 1)
+        self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
         self.maker_line = QLineEdit(self)
@@ -1625,7 +1626,7 @@ class NewEditExifData(QDialog):
 
         self.flashmode_line = QLineEdit(self)
 
-        self.serialbode_line = QLineEdit(self)
+        self.serialbody_line = QLineEdit(self)
 
         self.seriallens_line = QLineEdit(self)
 
@@ -1656,8 +1657,8 @@ class NewEditExifData(QDialog):
         self.flashmode_line.setStyleSheet(stylesheet1)
         self.flashmode_line.setFont(font12)
 
-        self.serialbode_line.setStyleSheet(stylesheet1)
-        self.serialbode_line.setFont(font12)
+        self.serialbody_line.setStyleSheet(stylesheet1)
+        self.serialbody_line.setFont(font12)
 
         self.seriallens_line.setStyleSheet(stylesheet1)
         self.seriallens_line.setFont(font12)
@@ -1671,7 +1672,7 @@ class NewEditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.flength_line, 6, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.cammode_line, 7, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.flashmode_line, 8, 1, 1, 1)
-        self.tab_tt_layout.addWidget(self.serialbode_line, 9, 1, 1, 1)
+        self.tab_tt_layout.addWidget(self.serialbody_line, 9, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_line, 10, 1, 1, 1)
 
         self.tab_technic_settings.setLayout(self.tab_tt_layout)
@@ -1896,7 +1897,7 @@ class NewEditExifData(QDialog):
             self.flength_line.setText(data['Фокусное расстояние'])
             self.cammode_line.setText(data['Режим съёмки'])
             self.flashmode_line.setText(data['Режим вспышки'])
-            self.serialbode_line.setText(data['Серийный номер камеры'])
+            self.serialbody_line.setText(data['Серийный номер камеры'])
             self.seriallens_line.setText(data['Серийный номер объектива'])
 
         def fill_gps():
@@ -2128,6 +2129,25 @@ class NewEditExifData(QDialog):
                 self.edited_signal_no_move.emit()
 
             self.indicator = 0
+
+    def read_enter(self):
+        maker = self.maker_line.text()
+        camera = self.camera_line.text()
+        lens = self.lens_line.text()
+        iso = self.iso_line.text()
+        fnumber = self.fnumber_line.text()
+        flenght = self.flength_line.text()
+        cammode = self.cammode_line.text()
+        flashmode = self.flashmode_line.text()
+        serialbody = self.serialbody_line.text()
+        seriallens = self.seriallens_line.text()
+
+        timezone = self.timezone_pm_choose.currentText() + self.timezone_num_choose.text()
+        datetime = self.date_choose.text().replace(".", ":")
+
+        gps = self.latitude_fn_line.text() + ", " + self.longitude_fn_line.text()
+
+        pass
 
     def block_check_gps(self):
         if self.sender().text() == "ШД Г.м.с":
