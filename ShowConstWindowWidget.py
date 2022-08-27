@@ -14,6 +14,7 @@ import Metadata
 import Settings
 import Thumbnail
 import SocialNetworks
+import math
 
 
 font14 = QtGui.QFont('Times', 14)
@@ -1714,6 +1715,9 @@ class NewEditExifData(QDialog):
         self.tab_layout_gps.addWidget(self.latitude_fn_lbl, 2, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.latitude_fn_line, 2, 1, 1, 7)
 
+        self.longitude_fn_line.textChanged.connect(self.updating_other_gps)
+        self.latitude_fn_line.textChanged.connect(self.updating_other_gps)
+
         self.latitude_dmc_lbl = QLabel(self)     # широта
         self.latitude_dmc_lbl.setText("Широта:")
 
@@ -1750,13 +1754,13 @@ class NewEditExifData(QDialog):
 
         self.latitude_dmc_deg_line = QLineEdit(self)  # широта
 
-        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.latitude_dmc_min_line = QLineEdit(self)  # долгота
 
         self.latitude_dmc_sec_line = QLineEdit(self)  # широта
 
         self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
 
-        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+        self.longitude_dmc_min_line = QLineEdit(self)  # широта
 
         self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
 
@@ -1828,6 +1832,15 @@ class NewEditExifData(QDialog):
 
         self.longitude_dmc_sec_line.setFont(font12)
         self.longitude_dmc_sec_line.setStyleSheet(stylesheet1)
+
+        self.latitude_dmc_choose.currentTextChanged.connect(self.updating_other_gps)
+        self.longitude_dmc_choose.currentTextChanged.connect(self.updating_other_gps)
+        self.latitude_dmc_deg_line.textChanged.connect(self.updating_other_gps)
+        self.latitude_dmc_min_line.textChanged.connect(self.updating_other_gps)
+        self.latitude_dmc_sec_line.textChanged.connect(self.updating_other_gps)
+        self.longitude_dmc_deg_line.textChanged.connect(self.updating_other_gps)
+        self.longitude_dmc_min_line.textChanged.connect(self.updating_other_gps)
+        self.longitude_dmc_sec_line.textChanged.connect(self.updating_other_gps)
 
         self.tab_GPS.setLayout(self.tab_layout_gps)
 
@@ -1908,7 +1921,21 @@ class NewEditExifData(QDialog):
             else:
                 self.longitude_dmc_choose.setCurrentText("Восток")
 
+            latitude_deg = math.trunc(abs(latitude_part))
+            longitude_deg = math.trunc(abs(longitude_part))
 
+            latitude_min = math.trunc((abs(latitude_part) - latitude_deg)*60)
+            longitude_min = math.trunc((abs(longitude_part) - longitude_deg)*60)
+
+            latitude_sec = round((((abs(latitude_part) - latitude_deg)*60) - latitude_min) * 60, 3)
+            longitude_sec = round((((abs(longitude_part) - longitude_deg)*60) - longitude_min) * 60, 3)
+
+            self.latitude_dmc_deg_line.setText(str(latitude_deg))
+            self.latitude_dmc_min_line.setText(str(latitude_min))
+            self.latitude_dmc_sec_line.setText(str(latitude_sec))
+            self.longitude_dmc_deg_line.setText(str(longitude_deg))
+            self.longitude_dmc_min_line.setText(str(longitude_min))
+            self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data))
@@ -1934,6 +1961,67 @@ class NewEditExifData(QDialog):
 
         func_resize()
 
+
+    def updating_other_gps(self):
+        if self.mode_check_dmc.checkState() == 2:
+            latitude_ref = self.latitude_dmc_choose.currentText()
+            longitude_ref = self.longitude_dmc_choose.currentText()
+            latitude_deg = float(self.latitude_dmc_deg_line.text())
+            longitude_deg = float(self.longitude_dmc_deg_line.text())
+            latitude_min = float(self.latitude_dmc_min_line.text())
+            longitude_min = float(self.longitude_dmc_min_line.text())
+            latitude_sec = float(self.latitude_dmc_sec_line.text())
+            longitude_sec = float(self.longitude_dmc_sec_line.text())
+
+            if latitude_ref == "Юг":
+                latitude_pm_coe = -1
+            else: # latitude_ref == "Север"
+                latitude_pm_coe = 1
+
+            if longitude_ref == "Восток":
+                longitude_pm_coe = 1
+            else: # latitude_ref == "Запад"
+                longitude_pm_coe = -1
+
+            latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 6)
+            longitude = round(longitude_pm_coe*(longitude_deg + longitude_min/60 + longitude_sec/3600), 6)
+
+            self.latitude_fn_line.setText(str(latitude))
+            self.longitude_fn_line.setText(str(longitude))
+
+        else: #self.mode_check_fn.checkState() == 2
+            try:
+                latitude = float(self.latitude_fn_line.text())
+                longitude = float(self.longitude_fn_line.text())
+            except ValueError:
+                latitude = 0
+                longitude = 0
+
+            if latitude > 0:
+                self.latitude_dmc_choose.setCurrentText("Север")
+            else:
+                self.latitude_dmc_choose.setCurrentText("Юг")
+
+            if longitude > 0:
+                self.longitude_dmc_choose.setCurrentText("Восток")
+            else:
+                self.longitude_dmc_choose.setCurrentText("Запад")
+
+            latitude_deg = math.trunc(abs(latitude))
+            longitude_deg = math.trunc(abs(longitude))
+
+            latitude_min = math.trunc((abs(latitude) - latitude_deg) * 60)
+            longitude_min = math.trunc((abs(longitude) - longitude_deg) * 60)
+
+            latitude_sec = round((((abs(latitude) - latitude_deg) * 60) - latitude_min) * 60, 3)
+            longitude_sec = round((((abs(longitude) - longitude_deg) * 60) - longitude_min) * 60, 3)
+
+            self.latitude_dmc_deg_line.setText(str(latitude_deg))
+            self.latitude_dmc_min_line.setText(str(latitude_min))
+            self.latitude_dmc_sec_line.setText(str(latitude_sec))
+            self.longitude_dmc_deg_line.setText(str(longitude_deg))
+            self.longitude_dmc_min_line.setText(str(longitude_min))
+            self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str) -> None:
