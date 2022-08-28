@@ -174,6 +174,8 @@ class ViewBDDialog(QWidget):
 
     # вызов окна добавления записи
     def call_add(self) -> None:
+        self.indicator = 0
+        self.edit_mode.hide()
         dialog_add = AddBDDialog()
         if dialog_add.exec():
             pass
@@ -184,6 +186,8 @@ class ViewBDDialog(QWidget):
 
     # вызов окна удаления записи
     def call_del(self) -> None:
+        self.indicator = 0
+        self.edit_mode.hide()
         cur_row = self.table.currentRow()  # считывание выбранной перед нажатием строки
         ername_to_del = self.table.item(cur_row, 1).text()  # неправильное имя удаляемого объекта
         normname_to_del = self.table.item(cur_row, 2).text()  # правильное имя удаляемого объекта

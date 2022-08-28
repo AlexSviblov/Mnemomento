@@ -316,7 +316,8 @@ class MainWindow(QMainWindow):
             self.centralWidget().after_change_settings()
             self.centralWidget().stylesheet_color()
         elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             #OnlyShow
-            print('OnlyShow')
+            self.centralWidget().after_change_settings()
+            self.centralWidget().stylesheet_color()
         elif type(self.centralWidget()) == StartShow:
             self.start_show()
         else:

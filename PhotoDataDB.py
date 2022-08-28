@@ -67,7 +67,7 @@ def edit_in_database(photoname: str, photodirectory: str, editing_type: int, new
         cur.execute(sql_str)
         conn.commit()
 
-    elif editing_type == 9:     # дата съёмки
+    elif editing_type == 13:     # дата съёмки
         shootingdate = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10]
         shootingdatetime = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10] + new_text[10:]
         sql_str1 = f'UPDATE photos SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
@@ -79,7 +79,7 @@ def edit_in_database(photoname: str, photodirectory: str, editing_type: int, new
         cur.execute(sql_str3)
         conn.commit()
 
-    elif editing_type == 13:    # GPS
+    elif editing_type == 9:    # GPS
         sql_str = f'UPDATE photos SET GPSdata = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
         cur.execute(sql_str)
         conn.commit()

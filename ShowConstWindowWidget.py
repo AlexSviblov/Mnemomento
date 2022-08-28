@@ -2,7 +2,6 @@ import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from math import ceil
 from PyQt5.QtCore import Qt
 from pathlib import Path
 import shutil
@@ -39,7 +38,6 @@ class ConstWidgetWindow(QWidget):
         self.thumb_row = int(settings["thumbs_row"])
 
         self.setWindowTitle("Тестовое окно")
-        self.showMaximized()
 
         self.layoutoutside = QGridLayout(self)
         self.layoutoutside.setSpacing(10)
@@ -76,14 +74,23 @@ class ConstWidgetWindow(QWidget):
         self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
 
-        self.empty2 = QLabel(self)
-        self.empty2.setMaximumWidth(self.monitor_width - self.thumb_row*200)
-        self.layoutoutside.addWidget(self.empty2, 1, 2, 2, 1)
-
         self.date_show_thumbnails()
 
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
+        self.metadata_show.setFont(font14)
+
+        self.metadata_show.horizontalHeader().setVisible(False)
+        self.metadata_show.verticalHeader().setVisible(False)
+
+        self.metadata_header = self.metadata_show.horizontalHeader()
+        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+
+        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setDisabled(True)
+        self.metadata_show.hide()
 
         self.last_clicked = ''
 
@@ -109,6 +116,7 @@ class ConstWidgetWindow(QWidget):
         self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
         self.socnet_group.setFocusPolicy(Qt.NoFocus)
         self.socnet_group.setStyleSheet(stylesheet6)
+        self.socnet_group.hide()
 
         self.photo_show = QGroupBox(self)
         self.photo_show.setAlignment(Qt.AlignCenter)
@@ -126,6 +134,7 @@ class ConstWidgetWindow(QWidget):
         global stylesheet3
         global stylesheet6
         global stylesheet7
+        global stylesheet8
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
@@ -135,6 +144,9 @@ class ConstWidgetWindow(QWidget):
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
                           "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
                           "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -2px; background-color: #C0C0C0; color: #000000;}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QPushButton::pressed{background-color: #D0D0D0; margin-top: -2px}"
+
 
         else:   #Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
@@ -144,6 +156,8 @@ class ConstWidgetWindow(QWidget):
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
                           "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
                           "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -2px; background-color: #1F1F1F; color: #D3D3D3}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QPushButton::pressed{background-color: #1D1D1D; margin-top: -2px}"
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
@@ -259,7 +273,7 @@ class ConstWidgetWindow(QWidget):
             if file.endswith(".jpg") or file.endswith(".JPG"):
                 thumbnails_list.append(file)
 
-        num_of_j = ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
+        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
         self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
 
         for j in range(0, num_of_j):  # создание кнопок
@@ -324,7 +338,7 @@ class ConstWidgetWindow(QWidget):
                                                  thumb_dir[:-1])
                 thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
 
-        num_of_j = ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
+        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
         self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
 
         for j in range(0, num_of_j):  # создание кнопок
@@ -400,7 +414,7 @@ class ConstWidgetWindow(QWidget):
                                                  thumb_dir[:-1])
                 thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
 
-        num_of_j = ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
+        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
         self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
 
         for j in range(0, num_of_j):  # создание кнопок
@@ -464,7 +478,6 @@ class ConstWidgetWindow(QWidget):
     def showinfo(self) -> None:
         self.photo_show.setFixedWidth(self.width() - self.scroll.width() - self.groupbox_btns.width() - 50)
 
-        self.empty2.hide()
         self.photo_path = self.sender().objectName()
 
         if not self.photo_path:
@@ -517,14 +530,6 @@ class ConstWidgetWindow(QWidget):
             self.metadata_show.setItem(i, 0, QTableWidgetItem(params[i]))
             self.metadata_show.setItem(i, 1, QTableWidgetItem(metadata[params[i]]))
 
-        self.metadata_show.setFont(font14)
-
-        self.metadata_show.horizontalHeader().setVisible(False)
-        self.metadata_show.verticalHeader().setVisible(False)
-
-        self.metadata_header = self.metadata_show.horizontalHeader()
-        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
 
         if self.metadata_show.columnWidth(1) < 164:
             self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
@@ -533,9 +538,6 @@ class ConstWidgetWindow(QWidget):
         self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
-        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setDisabled(True)
 
         if self.photo_rotation == 'gor':
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
@@ -737,7 +739,7 @@ class ConstWidgetWindow(QWidget):
 
         # dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
         #                            chosen_group_type=self.group_type.currentText())
-        dialog_edit = NewEditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
+        dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
                                    chosen_group_type=self.group_type.currentText())
         dialog_edit.show()
 
@@ -1086,176 +1088,6 @@ class DelPhotoConfirm(QDialog):
         self.accept()
 
 
-# редактирование exif
-class EditExifData(QDialog):
-
-    edited_signal = QtCore.pyqtSignal()
-    edited_signal_no_move = QtCore.pyqtSignal()
-    movement_signal = QtCore.pyqtSignal(str, str, str)
-
-    def __init__(self, parent, photoname, photodirectory, chosen_group_type):
-        super().__init__(parent)
-        self.setStyleSheet(stylesheet2)
-
-        self.setWindowTitle('Редактирование метаданных')
-        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-
-        self.photoname = photoname
-        self.photodirectory = photodirectory
-        self.chosen_group_type = chosen_group_type
-
-        self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
-
-        self.table = QTableWidget(self)
-        self.table.setFont(font12)
-        self.table.verticalHeader().setVisible(False)
-        # self.table.horizontalHeader().setVisible(False)
-        self.table.horizontalHeader().setStyleSheet(stylesheet3)
-        self.table.setStyleSheet(stylesheet6)
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        self.layout.addWidget(self.table, 0, 0, 1, 1, alignment=Qt.AlignCenter)
-
-        self.indicator = 0
-        self.get_metadata(photoname, photodirectory)
-
-        self.table.itemDoubleClicked.connect(self.pre_edit)
-        self.table.itemChanged.connect(lambda: self.write_changes(photoname, photodirectory))
-
-    # редактировать только после двойного нажатия (иначе обновление данных вызовет вечную рекурсию)
-    def pre_edit(self) -> None:
-        self.indicator = 1
-
-    # считать и отобразить актуальные метаданные
-    def get_metadata(self, photoname, photodirectory) -> None:
-
-        own_dir = os.getcwd()
-        data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
-
-        self.table.setColumnCount(2)
-        self.table.setRowCount(len(data))
-        keys = list(data.keys())
-
-        for parameter in range(len(data)):
-            self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
-            self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
-            self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
-
-        self.table.resizeColumnsToContents()
-        self.table.horizontalHeader().setFixedHeight(1)
-        self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
-        self.resize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2, self.table.rowCount()*self.table.rowHeight(0))
-        self.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 50, self.table.rowCount()*self.table.rowHeight(0)+50)
-
-    # записать новые метаданные
-    def write_changes(self, photoname: str, photodirectory: str) -> None:
-        # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text, own_dir)
-            PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
-
-        # проверка введённых пользователем метаданных
-        def check_enter(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_check_edit(photoname, photodirectory, editing_type, new_text, own_dir)
-
-        # Если изменение метаданных в таблице - дело рук программы, а не пользователя (не было предшествующего двойного нажатия)
-        if self.indicator == 0:
-            pass
-        else:
-            own_dir = os.getcwd()
-            editing_type = self.table.currentRow()
-            new_text = self.table.currentItem().text()
-
-            # проверка введённых пользователем метаданных
-            try:
-                check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
-            except Metadata.EditExifError:
-                win_err = ErrorsAndWarnings.EditExifError(self)
-                win_err.show()
-                # self.get_metadata(photoname, photodirectory)
-                return
-
-            # Если меняется дата -> проверка на перенос файла в новую папку
-            if editing_type == 9:
-                if photodirectory[-12:] == 'No_Date_Info':
-                    new_date = photodirectory[-38:]
-                else:
-                    new_date = photodirectory[-10:]
-                old_date = new_text[:10]
-                new_date_splitted = new_date.split('/')
-                old_date_splitted = old_date.split(':')
-                if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
-                    rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                    self.indicator = 0
-                    self.get_metadata(photoname, photodirectory)
-                    self.edited_signal_no_move.emit()
-                else:   # другая дата, требуется перенос файла
-                    destination = Settings.get_destination_media() + '/Media/Photo/const'
-                    year_new = new_date_splitted[0]
-                    month_new = new_date_splitted[1]
-                    day_new = new_date_splitted[2]
-
-                    year_old = old_date_splitted[0]
-                    month_old = old_date_splitted[1]
-                    day_old = old_date_splitted[2]
-                    old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
-                    old_file_fullname = old_file_dir + '/' + photoname
-                    new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
-                    if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
-                        if not os.path.isdir(destination + '/' + str(year_old)):
-                            os.mkdir(destination + '/' + str(year_old))
-                        if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
-                            os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
-                        os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                        rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                        shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                        PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
-                                                           destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
-                        Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
-                        if self.chosen_group_type == 'Дата':
-                            self.movement_signal.emit(year_old, month_old, day_old)
-                        else:
-                            pass
-                            # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
-                            # заново присвоить ему objectName, чтобы снять с его метаданные
-                        self.close()
-                    else:
-                        if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
-                            rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                            shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                            PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
-                                                               destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
-                            Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
-                            if self.chosen_group_type == 'Дата':
-                                self.movement_signal.emit(year_old, month_old, day_old)
-                            else:
-                                pass
-                                # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
-                                # заново присвоить ему objectName, чтобы снять с его метаданные
-                            self.close()
-
-                        else:
-                            window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, new_text)
-                            window_equal.show()
-                            if self.chosen_group_type == 'Дата':
-                                window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit(year_old, month_old, day_old))
-                            else:
-                                pass
-
-                            window_equal.file_rename_transfer_signal.connect(lambda: self.close())
-
-            elif editing_type == 1 or editing_type ==2:
-                rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                self.edited_signal.emit()
-            else:
-                rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                self.edited_signal_no_move.emit()
-
-            self.indicator = 0
-
-
 # совпали имена файлов при переносе по новой дате в exif
 class EqualNames(QDialog):
 
@@ -1402,8 +1234,8 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
-            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 9, self.full_exif_date, os.getcwd())
-            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 9, self.full_exif_date)
+            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 13, self.full_exif_date, os.getcwd())
+            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
         else:       # переименовывается файл в папке назначения
             new_old_name = self.old_name.text() + '.' + self.format
 
@@ -1417,14 +1249,14 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, old_enter_text, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
-            Metadata.exif_rewrite_edit(self.file_full_name, self.old_photo_dir, 9, self.full_exif_date, os.getcwd())
-            PhotoDataDB.edit_in_database(self.file_full_name, self.old_photo_dir[:-1], 9, self.full_exif_date)
+            Metadata.exif_rewrite_edit(self.file_full_name, self.old_photo_dir, 13, self.full_exif_date, os.getcwd())
+            PhotoDataDB.edit_in_database(self.file_full_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
         self.file_rename_transfer_signal.emit()
         self.close()
 
 
 # редактирование exif
-class NewEditExifData(QDialog):
+class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()
     edited_signal_no_move = QtCore.pyqtSignal()
@@ -1458,14 +1290,14 @@ class NewEditExifData(QDialog):
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Записать")
-        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
-        self.btn_ok.clicked.connect(self.read_enter)
+        self.btn_ok.clicked.connect(self.pre_write_changes)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText("Отмена")
-        self.btn_cancel.setStyleSheet(stylesheet1)
+        self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
 
@@ -1473,9 +1305,8 @@ class NewEditExifData(QDialog):
 
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
-        self.indicator = 0
         self.get_metadata(photoname, photodirectory)
-
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def make_tabs_gui(self):
         self.tabs = QTabWidget(self)
@@ -1711,10 +1542,10 @@ class NewEditExifData(QDialog):
         self.longitude_fn_line.setStyleSheet(stylesheet1)
 
         self.tab_layout_gps.addWidget(self.mode_check_fn, 0, 0, 1, 1)
-        self.tab_layout_gps.addWidget(self.longitude_fn_lbl, 1, 0, 1, 1)
-        self.tab_layout_gps.addWidget(self.longitude_fn_line, 1, 1, 1, 7)
-        self.tab_layout_gps.addWidget(self.latitude_fn_lbl, 2, 0, 1, 1)
-        self.tab_layout_gps.addWidget(self.latitude_fn_line, 2, 1, 1, 7)
+        self.tab_layout_gps.addWidget(self.latitude_fn_lbl, 1, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.latitude_fn_line, 1, 1, 1, 7)
+        self.tab_layout_gps.addWidget(self.longitude_fn_lbl, 2, 0, 1, 1)
+        self.tab_layout_gps.addWidget(self.longitude_fn_line, 2, 1, 1, 7)
 
         self.longitude_fn_line.textChanged.connect(self.updating_other_gps)
         self.latitude_fn_line.textChanged.connect(self.updating_other_gps)
@@ -1847,6 +1678,30 @@ class NewEditExifData(QDialog):
 
         self.mode_check_fn.setCheckState(2)
 
+        self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(13))
+        self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(10))
+        self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(10))
+        self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+        self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+
+        self.maker_line.textChanged.connect(lambda: self.changes_to_indicator(0))
+        self.camera_line.textChanged.connect(lambda: self.changes_to_indicator(1))
+        self.lens_line.textChanged.connect(lambda: self.changes_to_indicator(2))
+        self.time_line.textChanged.connect(lambda: self.changes_to_indicator(3))
+        self.iso_line.textChanged.connect(lambda: self.changes_to_indicator(4))
+        self.fnumber_line.textChanged.connect(lambda: self.changes_to_indicator(5))
+        self.flength_line.textChanged.connect(lambda: self.changes_to_indicator(6))
+        self.cammode_line.textChanged.connect(lambda: self.changes_to_indicator(7))
+        self.flashmode_line.textChanged.connect(lambda: self.changes_to_indicator(8))
+        self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(11))
+        self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(12))
+
+    def changes_to_indicator(self, index):
+        try:
+            self.indicator[index] = 1
+        except (IndexError, AttributeError):
+            pass
+
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname, photodirectory) -> None:
         own_dir = os.getcwd()
@@ -1859,6 +1714,7 @@ class NewEditExifData(QDialog):
             except IndexError:
                 date_part = "0000:00:00"
                 time_part = "00:00:00"
+
             year = int(date_part.split(":")[0])
             month = int(date_part.split(":")[1])
             day = int(date_part.split(":")[2])
@@ -1872,8 +1728,8 @@ class NewEditExifData(QDialog):
                 zone_min = int(data['Часовой пояс'][1:].split(':')[1])
             except IndexError:
                 zone_pm = "+"
-                zone_hour = "00"
-                zone_min = "00"
+                zone_hour = int("00")
+                zone_min = int("00")
 
             return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
 
@@ -1902,15 +1758,15 @@ class NewEditExifData(QDialog):
 
         def fill_gps():
             coords_all = data['Координаты']
-            latitude_part = float(coords_all.split(',')[0])
-            longitude_part = float(coords_all.split(',')[1])
+            try:
+                latitude_part = float(coords_all.split(',')[0])
+                longitude_part = float(coords_all.split(',')[1])
+            except ValueError:
+                latitude_part = 0
+                longitude_part = 0
 
             self.latitude_fn_line.setText(str(latitude_part))
             self.longitude_fn_line.setText(str(longitude_part))
-
-            print(coords_all)
-            print(latitude_part)
-            print(longitude_part)
 
             if latitude_part < 0:
                 self.latitude_dmc_choose.setCurrentText("Юг")
@@ -1961,7 +1817,6 @@ class NewEditExifData(QDialog):
         fill_gps()
 
         func_resize()
-
 
     def updating_other_gps(self):
         if self.mode_check_dmc.checkState() == 2:
@@ -2024,116 +1879,11 @@ class NewEditExifData(QDialog):
             self.longitude_dmc_min_line.setText(str(longitude_min))
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
-    # записать новые метаданные
-    def write_changes(self, photoname: str, photodirectory: str) -> None:
-        # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text, own_dir)
-            PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
-
-        # проверка введённых пользователем метаданных
-        def check_enter(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_check_edit(photoname, photodirectory, editing_type, new_text, own_dir)
-
-        # Если изменение метаданных в таблице - дело рук программы, а не пользователя (не было предшествующего двойного нажатия)
-        if self.indicator == 0:
-            pass
-        else:
-            own_dir = os.getcwd()
-            editing_type = self.table.currentRow()
-            new_text = self.table.currentItem().text()
-
-            # проверка введённых пользователем метаданных
-            try:
-                check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
-            except Metadata.EditExifError:
-                win_err = ErrorsAndWarnings.EditExifError(self)
-                win_err.show()
-                # self.get_metadata(photoname, photodirectory)
-                return
-
-            # Если меняется дата -> проверка на перенос файла в новую папку
-            if editing_type == 9:
-                if photodirectory[-12:] == 'No_Date_Info':
-                    new_date = photodirectory[-38:]
-                else:
-                    new_date = photodirectory[-10:]
-                old_date = new_text[:10]
-                new_date_splitted = new_date.split('/')
-                old_date_splitted = old_date.split(':')
-                if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
-                    rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                    self.indicator = 0
-                    self.get_metadata(photoname, photodirectory)
-                    self.edited_signal_no_move.emit()
-                else:   # другая дата, требуется перенос файла
-                    destination = Settings.get_destination_media() + '/Media/Photo/const'
-                    year_new = new_date_splitted[0]
-                    month_new = new_date_splitted[1]
-                    day_new = new_date_splitted[2]
-
-                    year_old = old_date_splitted[0]
-                    month_old = old_date_splitted[1]
-                    day_old = old_date_splitted[2]
-                    old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
-                    old_file_fullname = old_file_dir + '/' + photoname
-                    new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
-                    if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
-                        if not os.path.isdir(destination + '/' + str(year_old)):
-                            os.mkdir(destination + '/' + str(year_old))
-                        if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
-                            os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
-                        os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                        rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                        shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                        PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
-                                                           destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
-                        Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
-                        if self.chosen_group_type == 'Дата':
-                            self.movement_signal.emit(year_old, month_old, day_old)
-                        else:
-                            pass
-                            # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
-                            # заново присвоить ему objectName, чтобы снять с его метаданные
-                        self.close()
-                    else:
-                        if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
-                            rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                            shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                            PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
-                                                               destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
-                            Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
-                            if self.chosen_group_type == 'Дата':
-                                self.movement_signal.emit(year_old, month_old, day_old)
-                            else:
-                                pass
-                                # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
-                                # заново присвоить ему objectName, чтобы снять с его метаданные
-                            self.close()
-
-                        else:
-                            window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, new_text)
-                            window_equal.show()
-                            if self.chosen_group_type == 'Дата':
-                                window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit(year_old, month_old, day_old))
-                            else:
-                                pass
-
-                            window_equal.file_rename_transfer_signal.connect(lambda: self.close())
-
-            elif editing_type == 1 or editing_type ==2:
-                rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                self.edited_signal.emit()
-            else:
-                rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-                self.edited_signal_no_move.emit()
-
-            self.indicator = 0
-
     def read_enter(self):
         maker = self.maker_line.text()
         camera = self.camera_line.text()
         lens = self.lens_line.text()
+        time = self.time_line.text()
         iso = self.iso_line.text()
         fnumber = self.fnumber_line.text()
         flenght = self.flength_line.text()
@@ -2147,7 +1897,10 @@ class NewEditExifData(QDialog):
 
         gps = self.latitude_fn_line.text() + ", " + self.longitude_fn_line.text()
 
-        pass
+        all_meta_entered = [maker, camera, lens, time, iso, fnumber, flenght, cammode, flashmode, gps, timezone,
+                            serialbody, seriallens, datetime]
+
+        return all_meta_entered
 
     def block_check_gps(self):
         if self.sender().text() == "ШД Г.м.с":
@@ -2184,6 +1937,122 @@ class NewEditExifData(QDialog):
             self.longitude_dmc_deg_line.setDisabled(False)
             self.longitude_dmc_min_line.setDisabled(False)
             self.longitude_dmc_sec_line.setDisabled(False)
+
+    def pre_write_changes(self):
+        all_new_data = self.read_enter()
+        for i in range(len(all_new_data)):
+            print(i)
+            print(len(self.indicator))
+            if self.indicator[i] == 1:
+                self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
+            else:
+                pass
+
+        if self.indicator[-1] == 0:
+            self.get_metadata(self.photoname, self.photodirectory)
+        else:
+            self.close()
+
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    # записать новые метаданные
+    def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
+        # Перезаписать в exif и БД новые метаданные
+        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
+            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text, own_dir)
+            PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
+
+        # проверка введённых пользователем метаданных
+        def check_enter(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
+            Metadata.exif_check_edit(photoname, photodirectory, editing_type, new_text, own_dir)
+
+        # Если изменение метаданных в таблице - дело рук программы, а не пользователя (не было предшествующего двойного нажатия)
+        own_dir = os.getcwd()
+
+        # проверка введённых пользователем метаданных
+        try:
+            check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
+        except Metadata.EditExifError:
+            win_err = ErrorsAndWarnings.EditExifError(self)
+            win_err.show()
+            return
+
+        # Если меняется дата -> проверка на перенос файла в новую папку
+        if editing_type == 13:
+            if photodirectory[-12:] == 'No_Date_Info':
+                new_date = photodirectory[-38:]
+            else:
+                new_date = photodirectory[-10:]
+            old_date = new_text[:10]
+            new_date_splitted = new_date.split('/')
+            old_date_splitted = old_date.split(':')
+            if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
+                rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+                self.edited_signal_no_move.emit()
+            else:   # другая дата, требуется перенос файла
+                destination = Settings.get_destination_media() + '/Media/Photo/const'
+                year_new = new_date_splitted[0]
+                month_new = new_date_splitted[1]
+                day_new = new_date_splitted[2]
+
+                year_old = old_date_splitted[0]
+                month_old = old_date_splitted[1]
+                day_old = old_date_splitted[2]
+                old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
+                old_file_fullname = old_file_dir + '/' + photoname
+                new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
+                if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
+                    if not os.path.isdir(destination + '/' + str(year_old)):
+                        os.mkdir(destination + '/' + str(year_old))
+                    if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
+                        os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
+                    os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                    rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+                    shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                    PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
+                                                       destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
+                    Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
+                    if self.chosen_group_type == 'Дата':
+                        self.movement_signal.emit(year_old, month_old, day_old)
+                    else:
+                        pass
+                        # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
+                        # заново присвоить ему objectName, чтобы снять с его метаданные
+                    self.close()
+                else:
+                    if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
+                        rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+                        shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                        PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
+                                                           destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
+                        Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
+                        if self.chosen_group_type == 'Дата':
+                            self.movement_signal.emit(year_old, month_old, day_old)
+                        else:
+                            pass
+                            # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
+                            # заново присвоить ему objectName, чтобы снять с его метаданные
+                        self.close()
+
+                    else:
+                        window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, new_text)
+                        window_equal.show()
+                        if self.chosen_group_type == 'Дата':
+                            window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit(year_old, month_old, day_old))
+                        else:
+                            pass
+
+                        window_equal.file_rename_transfer_signal.connect(lambda: self.close())
+
+        elif editing_type == 1 or editing_type == 2:
+            rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+            self.edited_signal.emit()
+        else:
+            rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+            self.edited_signal_no_move.emit()
+
+
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

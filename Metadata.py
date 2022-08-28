@@ -53,147 +53,6 @@ def EXIF_text_to_float(exif_dannye: str) -> float:  # EXIF ебанутый, м�
     return s5
 
 
-# # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
-# def filter_exif(data: dict, photofile: str, photo_directory: str) -> tuple[str, str]:
-#
-#     metadata_text = str()
-#
-#     try:
-#         width = data['Exif.Image.ImageWidth']
-#         height = data['Exif.Image.ImageLength']
-#         metadata_text += 'Разрешение: ' + width + 'x' + height + '\n'
-#     except KeyError:
-#         im = Image.open(photo_directory + '/' + photofile)
-#         width, height = im.size
-#         metadata_text += 'Разрешение: ' + str(width) + 'x' + str(height) + '\n'
-#
-#     if width > height:  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
-#         photo_rotation = 'gor'
-#     else:
-#         photo_rotation = 'ver'
-#
-#     try:
-#         date = data['Exif.Photo.DateTimeOriginal']  # делаем дату русской, а не пиндосской
-#         date_show = date[11:] + ' ' + date[8:10] + '.' + date[5:7] + '.' + date[0:4]
-#         metadata_text += 'Время съёмки: ' + date_show + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         maker = data['Exif.Image.Make']
-#         sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
-#         cur.execute(sql_str)
-#         try:
-#             maker = cur.fetchone()[0]
-#         except TypeError:
-#             pass
-#
-#         metadata_text += 'Производитель: ' + maker + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         camera = data['Exif.Image.Model']
-#
-#         sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
-#         cur.execute(sql_str)
-#         try:
-#             camera = cur.fetchone()[0]
-#         except TypeError:
-#             pass
-#
-#         metadata_text += 'Камера: ' + camera + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         lens = data['Exif.Photo.LensModel']
-#
-#         sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
-#         cur.execute(sql_str)
-#         try:
-#             lens = cur.fetchone()[0]
-#         except TypeError:
-#             pass
-#
-#         metadata_text += 'Объектив: ' + lens + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         FocalLength_float = EXIF_text_to_float(data['Exif.Photo.FocalLength'])
-#         FocalLength_str = str(FocalLength_float)
-#         metadata_text += 'Фокусное расстояние: ' + FocalLength_str + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         FNumber_float = EXIF_text_to_float(data['Exif.Photo.FNumber'])
-#         Number_str = str(FNumber_float)
-#         metadata_text += 'Диафрагма: ' + Number_str + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         expo_time_fraction = data['Exif.Photo.ExposureTime']
-#         expo_time_float = EXIF_text_to_float(data['Exif.Photo.ExposureTime'])
-#         if expo_time_float >= 0.1:
-#             expo_time_str = str(expo_time_float)
-#             metadata_text += 'Выдержка: ' + expo_time_str + '\n'
-#         else:
-#             metadata_text += 'Выдержка: ' + expo_time_fraction + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         iso = data['Exif.Photo.ISOSpeedRatings']
-#         metadata_text += 'ISO: ' + iso + '\n'
-#     except KeyError:
-#         pass
-#
-#     try:
-#         GPSLatitudeRef = data['Exif.GPSInfo.GPSLatitudeRef']  # Считывание GPS из метаданных
-#         GPSLatitude = data['Exif.GPSInfo.GPSLatitude']
-#         GPSLongitudeRef = data['Exif.GPSInfo.GPSLongitudeRef']
-#         GPSLongitude = data['Exif.GPSInfo.GPSLongitude']
-#
-#         if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
-#
-#             GPSLatitude_splitted = GPSLatitude.split(' ')  # Приведение координат к десятичным числам, как на Я.Картах
-#             GPSLongitude_splitted = GPSLongitude.split(' ')
-#
-#             GPSLongitude_float = list()
-#             GPSLatitude_float = list()
-#
-#             for i in range(0, 3):
-#                 GPSLongitude_float.append(EXIF_text_to_float(GPSLongitude_splitted[i]))
-#                 GPSLatitude_float.append((EXIF_text_to_float(GPSLatitude_splitted[i])))
-#
-#             GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
-#             GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600
-#
-#             GPSLongitude_value = round(GPSLongitude_value, 6)
-#             GPSLatitude_value = round(GPSLatitude_value, 6)
-#
-#             if GPSLongitudeRef == 'E':
-#                 pass
-#             else:
-#                 GPSLongitude_value = GPSLongitude_value * (-1)
-#
-#             if GPSLatitudeRef == 'N':
-#                 pass
-#             else:
-#                 GPSLatitude_value = GPSLatitude_value * (-1)
-#
-#             metadata_text += 'GPS: ' + str(GPSLatitude_value) + ' ' + str(GPSLongitude_value)
-#         else:
-#             pass
-#     except KeyError:
-#         pass
-#
-#     return metadata_text, photo_rotation
-
-
 # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
 def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, ...]:
 
@@ -602,7 +461,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     elif editing_type == 8:
         modify_dict = {'Exif.Photo.Flash': str(new_value)}
 
-    elif editing_type == 9:
+    elif editing_type == 13:
         modify_dict = {'Exif.Photo.DateTimeOriginal': str(new_value)}
 
     elif editing_type == 10:
@@ -614,7 +473,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     elif editing_type == 12:
         modify_dict = {'Exif.Photo.LensSerialNumber': str(new_value)}
 
-    elif editing_type == 13:
+    elif editing_type == 9:
         new_value_splitted = new_value.split(', ')
         float_value_lat = float(new_value_splitted[0])
         float_value_long = float(new_value_splitted[1])
@@ -765,7 +624,7 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except ValueError:
             make_error()
 
-    elif editing_type == 9:
+    elif editing_type == 13:
         try:
             int(new_value[0:4])
 
@@ -817,7 +676,7 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except (ValueError, IndexError):
             make_error()
 
-    elif editing_type == 13:
+    elif editing_type == 9:
         new_value_splitted = new_value.split(', ')
 
         try:
