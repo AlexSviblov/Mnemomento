@@ -21,6 +21,7 @@ font12 = QtGui.QFont('Times', 12)
 
 
 class AloneWidgetWindow(QWidget):
+    add_photo_signal = QtCore.pyqtSignal()
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
 
@@ -171,6 +172,13 @@ class AloneWidgetWindow(QWidget):
         self.photo_show.setLayout(self.layout_show)
         self.photo_show.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.photo_show, 1, 1, 2, 3)
+
+        self.btn_add_photos = QPushButton(self)
+        self.btn_add_photos.setText("Добавить файлы")
+        self.btn_add_photos.setFont(font12)
+        self.btn_add_photos.setStyleSheet(stylesheet1)
+        self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
+        self.btn_add_photos.clicked.connect(self.add_photo_func)
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -665,6 +673,9 @@ class AloneWidgetWindow(QWidget):
         self.scroll.setFixedWidth(200 * self.thumb_row)
 
         self.show_thumbnails()
+
+    def add_photo_func(self):
+        self.add_photo_signal.emit()
 
 
 # подтвердить удаление фото
