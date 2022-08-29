@@ -312,3 +312,19 @@ def transfer_media(new_catalog: str, old_catalog: str):
     conn.commit()
 
 
+def clear_metadata(photo_name, photo_directory):
+    sql_str1 = f"UPDATE photos SET camera = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str2 = f"UPDATE photos SET lens = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str3 = f"UPDATE photos SET shootingdate = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str4 = f"UPDATE photos SET shootingdatetime = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str5 = f"UPDATE photos SET GPSdata = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str6 = f"UPDATE socialnetworks SET shootingdate = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+
+    cur.execute(sql_str1)
+    cur.execute(sql_str2)
+    cur.execute(sql_str3)
+    cur.execute(sql_str4)
+    cur.execute(sql_str5)
+    cur.execute(sql_str6)
+
+    conn.commit()

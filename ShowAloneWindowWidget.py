@@ -21,7 +21,7 @@ font12 = QtGui.QFont('Times', 12)
 
 
 class AloneWidgetWindow(QWidget):
-    add_photo_signal = QtCore.pyqtSignal()
+    add_photo_signal = QtCore.pyqtSignal(str)
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
 
@@ -175,10 +175,10 @@ class AloneWidgetWindow(QWidget):
 
         self.btn_add_photos = QPushButton(self)
         self.btn_add_photos.setText("Добавить файлы")
-        self.btn_add_photos.setFont(font12)
+        self.btn_add_photos.setFont(font14)
         self.btn_add_photos.setStyleSheet(stylesheet1)
         self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
-        self.btn_add_photos.clicked.connect(self.add_photo_func)
+        self.btn_add_photos.clicked.connect(lambda: self.add_photo_signal.emit(self.directory_choose.currentText()))
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -227,7 +227,6 @@ class AloneWidgetWindow(QWidget):
             self.setStyleSheet(stylesheet2)
             self.group_type.setStyleSheet(stylesheet1)
             self.set_sort_layout()
-
             self.type_show_thumbnails()
         except AttributeError:
             pass
@@ -674,9 +673,6 @@ class AloneWidgetWindow(QWidget):
 
         self.show_thumbnails()
 
-    def add_photo_func(self):
-        self.add_photo_signal.emit()
-
 
 # подтвердить удаление фото
 class DelPhotoConfirm(QDialog):
@@ -756,7 +752,7 @@ class EditExifData(QDialog):
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.layout.addWidget(self.table, 0, 1, 1, 1)
+        self.layout.addWidget(self.table, 0, 1, 1, 2)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Записать")
@@ -770,6 +766,13 @@ class EditExifData(QDialog):
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+
+        self.btn_clear = QPushButton(self)
+        self.btn_clear.setText("Очистить")
+        self.btn_clear.setStyleSheet(stylesheet8)
+        self.btn_clear.setFont(font14)
+        self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
+        self.btn_clear.clicked.connect(self.clear_exif_func)
 
         self.make_tabs_gui()
 
@@ -1411,8 +1414,6 @@ class EditExifData(QDialog):
     def pre_write_changes(self):
         all_new_data = self.read_enter()
         for i in range(len(all_new_data)):
-            print(i)
-            print(len(self.indicator))
             if self.indicator[i] == 1:
                 self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
             else:
@@ -1448,6 +1449,21 @@ class EditExifData(QDialog):
 
         rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
         self.edited_signal.emit()
+
+    def clear_exif_func(self):
+        def accepted():
+            Metadata.clear_exif(self.photoname, self.photodirectory, os.getcwd())
+            PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
+            self.get_metadata(self.photoname, self.photodirectory)
+            self.edited_signal.emit()
+
+        def rejected():
+            win.close()
+
+        win = ConfirmClear(self.parent())
+        win.show()
+        win.accept_signal.connect(accepted)
+        win.reject_signal.connect(rejected)
 
 
 # подтвердить удаление выбранной папки
@@ -1500,6 +1516,44 @@ class DelDirConfirm(QDialog):
 
         self.clear_info.emit()
         self.accept()
+
+
+class ConfirmClear(QDialog):
+    accept_signal = QtCore.pyqtSignal()
+    reject_signal = QtCore.pyqtSignal()
+    def __init__(self, parent):
+        super(ConfirmClear, self).__init__(parent)
+
+        self.setStyleSheet(stylesheet2)
+
+        self.setWindowTitle('Подтверждение очистки')
+        self.resize(400, 100)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+
+        self.layout = QGridLayout()
+        self.setLayout(self.layout)
+
+        self.lbl = QLabel()
+        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
+
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet1)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet1)
+
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
+
+        btn_ok.clicked.connect(self.accept_signal.emit)
+        btn_cancel.clicked.connect(self.reject_signal.emit)
 
 
 if __name__ == "__main__":

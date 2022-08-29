@@ -1286,7 +1286,7 @@ class EditExifData(QDialog):
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.layout.addWidget(self.table, 0, 1, 1, 1)
+        self.layout.addWidget(self.table, 0, 1, 1, 2)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Записать")
@@ -1300,6 +1300,13 @@ class EditExifData(QDialog):
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+
+        self.btn_clear = QPushButton(self)
+        self.btn_clear.setText("Очистить")
+        self.btn_clear.setStyleSheet(stylesheet8)
+        self.btn_clear.setFont(font14)
+        self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
+        self.btn_clear.clicked.connect(self.clear_exif_func)
 
         self.make_tabs_gui()
 
@@ -1941,8 +1948,7 @@ class EditExifData(QDialog):
     def pre_write_changes(self):
         all_new_data = self.read_enter()
         for i in range(len(all_new_data)):
-            print(i)
-            print(len(self.indicator))
+
             if self.indicator[i] == 1:
                 self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
             else:
@@ -2052,6 +2058,61 @@ class EditExifData(QDialog):
             self.edited_signal_no_move.emit()
 
 
+    # TODO: ЕБАТЬ ХУЙНИ НАХУЕВЕРТИТЬ НАДО, Я РОТ ЕБАЛ С ПЕРЕНОСОМ В НОУ_ДЭЙТ_ИНФО
+    def clear_exif_func(self):
+        def accepted():
+            if os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname.split("/")[-1]):
+                pass
+
+            Metadata.clear_exif(self.photoname, self.photodirectory, os.getcwd())
+            self.get_metadata(self.photoname, self.photodirectory)
+            self.edited_signal.emit()
+
+        def rejected():
+            win.close()
+
+        win = ConfirmClear(self.parent())
+        win.show()
+        win.accept_signal.connect(accepted)
+        win.reject_signal.connect(rejected)
+
+
+class ConfirmClear(QDialog):
+    accept_signal = QtCore.pyqtSignal()
+    reject_signal = QtCore.pyqtSignal()
+    def __init__(self, parent):
+        super(ConfirmClear, self).__init__(parent)
+
+        self.setStyleSheet(stylesheet2)
+
+        self.setWindowTitle('Подтверждение очистки')
+        self.resize(400, 100)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+
+        self.layout = QGridLayout()
+        self.setLayout(self.layout)
+
+        self.lbl = QLabel()
+        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
+
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet1)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet1)
+
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
+
+        btn_ok.clicked.connect(self.accept_signal.emit)
+        btn_cancel.clicked.connect(self.reject_signal.emit)
 
 
 if __name__ == "__main__":

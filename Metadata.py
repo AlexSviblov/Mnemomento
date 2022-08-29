@@ -721,6 +721,30 @@ def equip_name_check_reverse(normname: str, type: str) -> str:
     return exifname
 
 
+def clear_exif(photoname: str, photodirectory: str, own_dir: str):
+    os.chdir(photodirectory)
+
+    try:
+        img = pyexiv2.Image(photoname)
+        renaming = 0
+    except RuntimeError:  # Если в названии файла есть русские буквы, модуль его не считает, нужно переименовать, а потом обратно
+        photofile_old = photoname
+        os.rename(photoname, '123456789012345678901234567890.jpg')
+        photofile = '123456789012345678901234567890.jpg'
+        img = pyexiv2.Image(photofile)
+        renaming = 1
+
+    img.clear_exif()
+
+    img.close()
+
+    if renaming != 1:
+        pass
+    else:
+        os.rename('123456789012345678901234567890.jpg', photofile_old)
+    os.chdir(own_dir)
+
+
 # при любой ошибки в процессе modify_exif вызывается ошибка
 class EditExifError(Exception):
     pass

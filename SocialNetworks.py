@@ -70,6 +70,16 @@ class SocialNetworks(QWidget):
             stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
 
+        try:
+            self.setStyleSheet(stylesheet2)
+            self.add_btn.setStyleSheet(stylesheet1)
+            self.empty1.setStyleSheet(stylesheet2)
+            self.networks_group.setStyleSheet(stylesheet2)
+            self.show_social_networks()
+        except AttributeError:
+            pass
+
+
     # отобразить введённые соцсети
     def show_social_networks(self) -> None:
         for i in reversed(range(self.group_layout.count())):

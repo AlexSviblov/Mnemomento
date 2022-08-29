@@ -105,11 +105,14 @@ def transfer_const_photos(file: str) -> str:
 
 
 # Создание миниатюр для дополнительного каталога
-def transfer_alone_photos(photo_directory: str, photofile: str) -> None:
+def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:
     destination = Settings.get_destination_media() + '/Media/Photo/alone/'
     mode = Settings.get_photo_transfer_mode()
 
-    photo_directory_lastname = photo_directory.split('/')[-1]
+    if type_add != 'files':
+        photo_directory_lastname = photo_directory.split('/')[-1]
+    else:
+        photo_directory_lastname = exists_dir_name
 
     photofile_lastname = photofile.split('/')[-1]
 

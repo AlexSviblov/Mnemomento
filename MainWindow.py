@@ -172,11 +172,33 @@ class MainWindow(QMainWindow):
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.add_files_progress = AloneMaker(photo_directory=self.add_dir_chosen, photo_files_list=photo_files_list)
+        self.add_files_progress = AloneMaker(photo_directory=self.add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
         self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
         self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda text: self.finish_thread_add_alone(text))
+        self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
+        self.add_files_progress.start()
+
+    # добавить в основной каталог на постоянку файлы
+    def func_add_alone_files(self, dir_to_add) -> None:
+        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        self.file_list = self.add_files_chosen[0]
+        if not self.file_list:
+            return
+        path_splitted = self.file_list[0].split("/")
+        photo_directory_buf =''
+        for i in range(len(path_splitted) - 1):
+            photo_directory_buf += path_splitted[i] + '/'
+        photo_directory = photo_directory_buf[:-1]
+
+        progressbar = ProgressBar()
+        self.setCentralWidget(progressbar)
+
+        self.add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=self.file_list, mode="files", exists_dir=dir_to_add)
+        self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
         self.add_files_progress.start()
 
     # одноразовый просмотр папки
@@ -217,18 +239,22 @@ class MainWindow(QMainWindow):
     def finish_thread_add_const(self, files: list) -> None:
         # win = PhotoExistsWarning(self, files)
         if files:
-            win = ErrorsAndWarnings.PhotoExists(self, files)
+            win = ErrorsAndWarnings.PhotoExists(self, files, "const")
             win.show()
         self.show_main_const_widget()
 
     # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
-    def finish_thread_add_alone(self, text: str) -> None:
-        if text == 'finish':
+    def finish_thread_add_alone(self, files: str) -> None:
+        if files[0] == 'finish':
             self.show_main_alone_widget()
-        else:
+        elif files[0] == "error":
+            win = ErrorsAndWarnings.ExistAloneDir(self)
+            win.show()
             self.start_show()
-            er_win = ErrorsAndWarnings.ExistAloneDir(self)
-            er_win.show()
+        else:
+            win = ErrorsAndWarnings.PhotoExists(self, files, "alone")
+            win.show()
+            self.show_main_alone_widget()
 
     # По окончании создания миниатюр разового просмотра, запустить виджет показа
     def finish_thread_view_dir(self) -> None:
@@ -244,6 +270,7 @@ class MainWindow(QMainWindow):
     def show_main_alone_widget(self) -> None:
         self.widget = ShowAloneWindowWidget.AloneWidgetWindow()
         self.widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
+        self.widget.add_photo_signal.connect(lambda t_dir: self.func_add_alone_files(t_dir))
         self.setCentralWidget(self.widget)
 
     # Показ папки вне каталогов
@@ -303,8 +330,8 @@ class MainWindow(QMainWindow):
         window_set.show()
 
     def recovery_func(self):
-        recovery_win = RecoveryModule.RecoveryWin(self)
-        recovery_win.show()
+        self.recovery_win = RecoveryModule.RecoveryWin(self)
+        self.recovery_win.show()
 
     # после изменения в настройках надо обновить текущий виджет
     def update_settings_widget(self):
@@ -322,6 +349,21 @@ class MainWindow(QMainWindow):
             self.start_show()
         else:
             print('Other')
+
+        try:
+            self.window_sn.setStyleSheet(stylesheet2)
+            self.window_sn.centralWidget().stylesheet_color()
+        except AttributeError:
+            pass
+        try:
+            self.window_db.setStyleSheet(stylesheet2)
+            self.window_db.centralWidget().stylesheet_color()
+        except AttributeError:
+            pass
+        try:
+            self.recovery_win.stylesheet_color()
+        except AttributeError:
+            pass
 
 
 # при добавлении папки
@@ -637,9 +679,9 @@ class AloneMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
-    finished = pyqtSignal(str)
+    finished = pyqtSignal(list)
 
-    def __init__(self, photo_directory, photo_files_list):
+    def __init__(self, photo_directory, photo_files_list, mode, exists_dir):
         QThread.__init__(self)
 
         self._init = False
@@ -648,11 +690,14 @@ class AloneMaker(QtCore.QThread):
 
         self.files_list = photo_files_list
 
+        self.mode = mode
+        self.exists_dir = exists_dir
+
         self.len_file_list = len(photo_files_list)
         self.preprogress.emit(self.len_file_list)
 
     def run(self):
-        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]):
+        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
             self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
             os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
 
@@ -672,9 +717,28 @@ class AloneMaker(QtCore.QThread):
                 else:
                     self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
 
-            self.finished.emit('finish')
-        else:
-            self.finished.emit('error')
+            self.finished.emit(['finish'])
+
+        elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
+            self.finished.emit(['error'])
+        else: # self.mode == "files"
+            j = 0
+            file_exists = []
+            for file in self.files_list:
+                self.info_text.emit(f"Идёт обработка файла {file}")
+                desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]
+                file_name = file.split('/')[-1]
+                if os.path.exists(desination_dir + '/' + file_name):
+                    file_exists.append(file)
+                else:
+                    FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir, mode='files')
+                j += 1
+                self.progress.emit(round(100 * (j / self.len_file_list)))
+                self.info_text.emit(f"Обработка файла {file} завершена")
+            if file_exists:
+                self.finished.emit(file_exists)
+            else:
+                self.finished.emit(['finish'])
 
 
 # создание временных файлов для разового просмотра

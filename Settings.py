@@ -228,6 +228,8 @@ class SettingWidget(QWidget):
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
 
+        self.parent().stylesheet_color()
+
         notice_win = Notification(self)
         notice_win.show()
         if dir_thumb_chosen != self.old_thumb_dir or dir_media_chosen != self.old_media_dir or num_thumbs != self.old_num_thumbs or theme_color != self.old_theme_color:
@@ -250,7 +252,6 @@ class SettingWidget(QWidget):
         self.theme_choose.setStyleSheet(stylesheet1)
         self.btn_ok.setStyleSheet(stylesheet1)
         self.btn_cancel.setStyleSheet(stylesheet1)
-
 
 
 # перенос папок, если изменился путь
