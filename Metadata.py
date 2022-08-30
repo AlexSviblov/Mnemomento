@@ -3,8 +3,13 @@ import pyexiv2
 from PIL import Image
 import sqlite3
 
+import ErrorsAndWarnings
 
-conn = sqlite3.connect('ErrorNames.db')
+try:
+    conn = sqlite3.connect('ErrorNames.db')
+except:
+    # TODO
+    raise ErrorsAndWarnings.ErnamesDBConnectionError()
 cur = conn.cursor()
 
 
@@ -547,7 +552,7 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         else:
             os.rename('123456789012345678901234567890.jpg', photofile_old)
         os.chdir(own_dir)
-        raise EditExifError
+        raise ErrorsAndWarnings.EditExifError()
 
     os.chdir(photodirectory)
 
@@ -744,7 +749,3 @@ def clear_exif(photoname: str, photodirectory: str, own_dir: str):
         os.rename('123456789012345678901234567890.jpg', photofile_old)
     os.chdir(own_dir)
 
-
-# при любой ошибки в процессе modify_exif вызывается ошибка
-class EditExifError(Exception):
-    pass

@@ -121,6 +121,7 @@ def add_flaw_to_db(filelist: list[str, ...]) -> None:
     conn.commit()
 
 
+# Проверка, что в путях в БД содержится путь хранения медиа, т.е. Бд ведёт к папке хранения, а не куда-то в небытие
 def check_destination_corr_db() -> tuple[int, int]:
     all_photos_db, all_socnets_db = get_all_db_ways()
     media_destination = Settings.get_destination_media()
@@ -140,6 +141,3 @@ def check_destination_corr_db() -> tuple[int, int]:
     return photo_conflicts, socnet_conflicts
 
 
-# работает лучше, чем ожидалось
-# check_exists_from_db(get_all_db_ways()[0], get_all_db_ways()[1])
-# add_flaw_to_db(research_all_media_photos())

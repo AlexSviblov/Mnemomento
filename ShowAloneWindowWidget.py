@@ -181,36 +181,50 @@ class AloneWidgetWindow(QWidget):
         self.btn_add_photos.clicked.connect(lambda: self.add_photo_signal.emit(self.directory_choose.currentText()))
 
     # задать стили для всего модуля в зависимости от выбранной темы
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
         global stylesheet3
+        global stylesheet4
+        global stylesheet5
         global stylesheet6
         global stylesheet7
         global stylesheet8
+        global stylesheet9
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
                           "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -2px; background-color: #C0C0C0; color: #000000;}"
+                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
             stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{background-color: #D0D0D0; margin-top: -2px}"
+                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
 
-
-        else:   #Settings.get_theme_color() == 'dark'
+        else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
                           "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -2px; background-color: #1F1F1F; color: #D3D3D3}"
+                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
             stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{background-color: #1D1D1D; margin-top: -2px}"
+                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
@@ -232,7 +246,7 @@ class AloneWidgetWindow(QWidget):
             pass
 
     # показать/скрыть фильтры по соцсетям
-    def filter_on_off(self):
+    def filter_on_off(self) -> None:
         self.socnet_choose.clear()
         if self.photo_filter.checkState() == 0:
             self.socnet_choose.hide()
@@ -270,7 +284,7 @@ class AloneWidgetWindow(QWidget):
             self.directory_choose.addItem(str(directory))
 
     # преобразование тега соцсети в формат БД
-    def get_current_tag(self):
+    def get_current_tag(self) -> str:
         status = self.sn_status.currentText()
         if status == 'Не выбрано':
             return 'No value'
@@ -447,7 +461,7 @@ class AloneWidgetWindow(QWidget):
     def resize_func(self) -> None:
         self.resize_photo()
 
-    def resize_photo(self):
+    def resize_photo(self) -> None:
         if not self.pic.isVisible():
             return
 
@@ -502,7 +516,7 @@ class AloneWidgetWindow(QWidget):
         self.open_file_btn.clicked.connect(self.open_file_func)
 
     # открыть фотографию в приложении просмотра
-    def open_file_func(self):
+    def open_file_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -510,7 +524,7 @@ class AloneWidgetWindow(QWidget):
         os.startfile(path)
 
     # показать фото в проводнике
-    def call_explorer(self):
+    def call_explorer(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -520,7 +534,7 @@ class AloneWidgetWindow(QWidget):
         os.system(exp_str)
 
     # удаление фото по нажатию кнопки
-    def del_photo_func(self):
+    def del_photo_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -535,7 +549,7 @@ class AloneWidgetWindow(QWidget):
             return
 
     # редактирование exif
-    def edit_photo_func(self):
+    def edit_photo_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -563,7 +577,7 @@ class AloneWidgetWindow(QWidget):
         self.fill_directory_combobox()
 
     # удаление выбранной директории
-    def del_dir_func(self):
+    def del_dir_func(self) -> None:
         dir_to_del = self.photo_directory
         dialog_del = DelDirConfirm(dir_to_del)
         dialog_del.clear_info.connect(self.clear_after_dir_del)
@@ -663,7 +677,8 @@ class AloneWidgetWindow(QWidget):
 
         fill_sn_widgets(sn_names, sn_tags)
 
-    def after_change_settings(self):
+    # обновить дизайн при изменении настроек
+    def after_change_settings(self) -> None:
         with open('settings.json', 'r') as json_file:
             settings = json.load(json_file)
         self.thumb_row = int(settings["thumbs_row"])
@@ -719,7 +734,7 @@ class DelPhotoConfirm(QDialog):
     def do_del(self, photoname: str, photodirectory: str) -> None:
         os.remove(photodirectory + '/' + photoname)
         Thumbnail.delete_thumbnail_alone(photoname, photodirectory)
-        PhotoDataDB.del_from_databese(photoname, photodirectory)
+        PhotoDataDB.del_from_database(photoname, photodirectory)
         self.clear_info.emit()
         self.accept()
 
@@ -781,7 +796,8 @@ class EditExifData(QDialog):
         self.get_metadata(photoname, photodirectory)
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    def make_tabs_gui(self):
+    # создание всего GUI в разделе, где можно редактировать метаданные
+    def make_tabs_gui(self) -> None:
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tab_date = QWidget(self)
@@ -1169,14 +1185,15 @@ class EditExifData(QDialog):
         self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(11))
         self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(12))
 
-    def changes_to_indicator(self, index):
+    # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
+    def changes_to_indicator(self, index: int) -> None:
         try:
             self.indicator[index] = 1
         except (IndexError, AttributeError):
             pass
 
     # считать и отобразить актуальные метаданные
-    def get_metadata(self, photoname, photodirectory) -> None:
+    def get_metadata(self, photoname: str, photodirectory: str) -> None:
         own_dir = os.getcwd()
         data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
 
@@ -1291,7 +1308,8 @@ class EditExifData(QDialog):
 
         func_resize()
 
-    def updating_other_gps(self):
+    # при изменении координат GPS в одном из вариантов ввода, поменять в соответствие и другую
+    def updating_other_gps(self) -> None:
         if self.mode_check_dmc.checkState() == 2:
             latitude_ref = self.latitude_dmc_choose.currentText()
             longitude_ref = self.longitude_dmc_choose.currentText()
@@ -1352,7 +1370,8 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setText(str(longitude_min))
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
-    def read_enter(self):
+    # считать все поля ввода
+    def read_enter(self) -> None:
         maker = self.maker_line.text()
         camera = self.camera_line.text()
         lens = self.lens_line.text()
@@ -1375,7 +1394,8 @@ class EditExifData(QDialog):
 
         return all_meta_entered
 
-    def block_check_gps(self):
+    # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
+    def block_check_gps(self) -> None:
         if self.sender().text() == "ШД Г.м.с":
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(0)
@@ -1411,7 +1431,8 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setDisabled(False)
             self.longitude_dmc_sec_line.setDisabled(False)
 
-    def pre_write_changes(self):
+    # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
+    def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
         for i in range(len(all_new_data)):
             if self.indicator[i] == 1:
@@ -1442,15 +1463,16 @@ class EditExifData(QDialog):
         # проверка введённых пользователем метаданных
         try:
             check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
-        except Metadata.EditExifError:
-            win_err = ErrorsAndWarnings.EditExifError(self)
+        except ErrorsAndWarnings.EditExifError:
+            win_err = ErrorsAndWarnings.EditExifError_win(self)
             win_err.show()
             return
 
         rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
         self.edited_signal.emit()
 
-    def clear_exif_func(self):
+    # записать новые метаданные
+    def clear_exif_func(self) -> None:
         def accepted():
             Metadata.clear_exif(self.photoname, self.photodirectory, os.getcwd())
             PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
@@ -1517,7 +1539,7 @@ class DelDirConfirm(QDialog):
         self.clear_info.emit()
         self.accept()
 
-
+# Окошко подтверждения желания очистить метаданные
 class ConfirmClear(QDialog):
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()

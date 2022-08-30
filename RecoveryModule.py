@@ -33,20 +33,53 @@ class RecoveryWin(QMainWindow):
         self.resize(recovery.size())
 
     # задать стили для всего модуля в зависимости от выбранной темы
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
         global stylesheet3
+        global stylesheet4
+        global stylesheet5
         global stylesheet6
+        global stylesheet7
+        global stylesheet8
+        global stylesheet9
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
+            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
+                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
+            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
+                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
 
 
+# сам виджет со всем GUI
 class RecoveryWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -133,6 +166,7 @@ class RecoveryWidget(QWidget):
 
         self.resize(800, 220)
 
+    # выполнение восстановления
     def do_recovery_func(self) -> None:
         loading_win = RecoveryLoadingWin(self)
         process = DoRecovery()
@@ -142,6 +176,7 @@ class RecoveryWidget(QWidget):
         loading_win.show()
         process.start()
 
+    # обновить GUI по завершении восстановления
     def update_values(self) -> None:
         self.len_photos_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[0])))
         self.len_socnets_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[1])))
@@ -150,6 +185,7 @@ class RecoveryWidget(QWidget):
         self.len_exists_value.setText(str(len(SynhronizeDBMedia.research_all_media_photos())))
 
 
+# тупа анимация загрузки с надписью
 class RecoveryLoadingWin(QDialog):
     def __init__(self, parent):
         super().__init__(parent)
@@ -177,6 +213,7 @@ class RecoveryLoadingWin(QDialog):
         self.process_lbl.setText(f"{text}")
 
 
+# непосредственно восстановление
 class DoRecovery(QtCore.QThread):
     loading_text_show = pyqtSignal(str)
     finished = QtCore.pyqtSignal()

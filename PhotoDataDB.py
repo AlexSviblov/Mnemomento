@@ -1,11 +1,18 @@
 import datetime
 import os
+
+import ErrorsAndWarnings
 import Metadata
 import sqlite3
 
 import Settings
 
-conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
+try:
+    conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
+except:
+    # TODO
+    raise ErrorsAndWarnings.PhotoDBConnectionError()
+
 cur = conn.cursor()
 
 
@@ -44,7 +51,7 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
 
 
 # Удаление записи из БД при удалении фото из основного каталога
-def del_from_databese(photoname: str, photodirectory: str) -> None:
+def del_from_database(photoname: str, photodirectory: str) -> None:
 
     sql_str = f'DELETE FROM photos WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
     cur.execute(sql_str)
@@ -115,7 +122,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
         sql_str6 = f"UPDATE socialnetworks SET catalog = \'{oldcatalog}\' WHERE filename = \'{rename}\' AND catalog = \'temp\'"
         cur.execute(sql_str6)
 
-    else: # code == 1  переименовывается файл уже находящийся в папке назначения
+    else: # code == 1 - переименовывается файл уже находящийся в папке назначения
         sql_str1 = f"UPDATE photos SET filename = \'{rename}\' WHERE filename = \'{prewname}\' AND catalog = \'{oldcatalog}\'"
         cur.execute(sql_str1)
         sql_str2 = f"UPDATE photos SET catalog = \'{oldcatalog}\' WHERE filename = \'{prewname}\' AND catalog = \'{newcatalog}\'"
@@ -304,7 +311,7 @@ def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str, ...], lis
 
 
 # перезаписать пути в БД, если при изменении настроек программы, был перенос файлов
-def transfer_media(new_catalog: str, old_catalog: str):
+def transfer_media(new_catalog: str, old_catalog: str) -> None:
     sql_str1 = f'UPDATE photos SET catalog = \'{new_catalog}\' WHERE catalog = \'{old_catalog}\''
     sql_str2 = f'UPDATE socialnetworks SET catalog = \'{new_catalog}\' WHERE catalog = \'{old_catalog}\''
     cur.execute(sql_str1)
@@ -312,7 +319,8 @@ def transfer_media(new_catalog: str, old_catalog: str):
     conn.commit()
 
 
-def clear_metadata(photo_name, photo_directory):
+# при очистке метаданных - обнулить значения в 'No data' в БД
+def clear_metadata(photo_name: str, photo_directory: str) -> None:
     sql_str1 = f"UPDATE photos SET camera = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
     sql_str2 = f"UPDATE photos SET lens = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
     sql_str3 = f"UPDATE photos SET shootingdate = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"

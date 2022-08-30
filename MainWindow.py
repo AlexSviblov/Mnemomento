@@ -17,6 +17,7 @@ from pathlib import Path
 import ErrorsAndWarnings
 import Settings
 import RecoveryModule
+import logging
 
 
 font16 = QtGui.QFont('Times', 16)
@@ -24,6 +25,8 @@ font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
+
+logging.basicConfig(filename="logs.txt", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 
 class MainWindow(QMainWindow):
@@ -42,7 +45,7 @@ class MainWindow(QMainWindow):
 
         self.menubar = QMenuBar(self)
         self.menubar.setFont(font8)
-        self.menubar.setStyleSheet(stylesheet1)
+        self.menubar.setStyleSheet(stylesheet4)
 
         add_menu = self.menubar.addMenu('Добавить')
 
@@ -103,24 +106,53 @@ class MainWindow(QMainWindow):
         global stylesheet1
         global stylesheet2
         global stylesheet3
+        global stylesheet4
         global stylesheet5
         global stylesheet6
+        global stylesheet7
+        global stylesheet8
+        global stylesheet9
+        global stylesheet10
+
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
+
             stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
-        else:
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
+                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            stylesheet10 = "QDateTime {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                           "QDateTime"
+
+        else:  # Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
+
             stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
+                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
 
         self.setStyleSheet(stylesheet2)
         try:
-            self.menubar.setStyleSheet(stylesheet1)
+            self.menubar.setStyleSheet(stylesheet4)
         except AttributeError:
             pass
 
@@ -143,7 +175,6 @@ class MainWindow(QMainWindow):
 
     # добавить в основной каталог на постоянку папку
     def func_add_const_dir(self) -> None:
-
         self.add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
         try:
             self.file_list = FilesDirs.make_files_list_from_dir(self.add_dir_chosen)
@@ -216,6 +247,7 @@ class MainWindow(QMainWindow):
         self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list)
         self.view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        self.view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
         self.view_files_progress.finished.connect(self.finish_thread_view_dir)
         self.view_files_progress.start()
 
@@ -223,6 +255,7 @@ class MainWindow(QMainWindow):
     def func_view_files(self) -> None:
         self.view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
         self.photo_files_list = self.view_files_chosen[0]
+
         if not self.photo_files_list:
             return
 
@@ -232,6 +265,7 @@ class MainWindow(QMainWindow):
         self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list)
         self.view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
         self.view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        self.view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
         self.view_files_progress.finished.connect(self.finish_thread_view_dir)
         self.view_files_progress.start()
 
@@ -308,6 +342,7 @@ class MainWindow(QMainWindow):
     def clear_view_close(self) -> None:
         try:
             Thumbnail.delete_exists()
+            FilesDirs.clear_empty_dirs()
         except FileNotFoundError:
             pass
 
@@ -394,7 +429,6 @@ class ProgressBar(QWidget):
         self.transfer_info.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.transfer_info, 3, 0, 1, 3)
 
-
     def progressbar_set_max(self, max):
         self.progressbar.setMaximum(max)
 
@@ -425,7 +459,6 @@ class StartShow(QWidget):
         font14 = QtGui.QFont('Times', 14)
         font12 = QtGui.QFont('Times', 12)
         font10 = QtGui.QFont('Times', 10)
-
 
         self.layout_buttons = QGridLayout(self)
 
@@ -493,36 +526,37 @@ class StartShow(QWidget):
         self.empty3.setStyleSheet(stylesheet2)
         self.empty4.setStyleSheet(stylesheet2)
         self.group_buttons.setStyleSheet(stylesheet2)
-        self.btn_const_cat.setStyleSheet(stylesheet1)
-        self.btn_alone_cat.setStyleSheet(stylesheet1)
-        self.btn_const_add_dir.setStyleSheet(stylesheet1)
-        self.btn_const_add_files.setStyleSheet(stylesheet1)
-        self.btn_alone_add_dir.setStyleSheet(stylesheet1)
+        self.btn_const_cat.setStyleSheet(stylesheet8)
+        self.btn_alone_cat.setStyleSheet(stylesheet8)
+        self.btn_const_add_dir.setStyleSheet(stylesheet8)
+        self.btn_const_add_files.setStyleSheet(stylesheet8)
+        self.btn_alone_add_dir.setStyleSheet(stylesheet8)
 
         self.layout_last = QGridLayout(self)
-        with open('last_opened.json', 'r') as json_file:
-            photofile = json.load(json_file)['last_opened_photo']
+        self.last_photo = QLabel()
+        self.last_photo.setAlignment(QtCore.Qt.AlignTop)
+        self.layout_last.addWidget(self.last_photo, 1, 0, 1, 1)
+        self.last_text = QLabel()
+        self.last_text.setText('Последнее просмотренное фото:\n')
+        self.last_text.setFont(font12)
+        self.last_text.setFixedHeight(20)
+        self.last_text.setAlignment(QtCore.Qt.AlignTop)
+        self.layout_last.addWidget(self.last_text, 0, 0, 1, 1)
+
+        self.group_last = QGroupBox(self)
+        self.group_last.setFixedWidth(430)
+        self.group_last.setLayout(self.layout_last)
+        self.group_last.setStyleSheet(stylesheet2)
+        self.layout_outside.addWidget(self.group_last, 1, 2, 1, 1)
+
         try:
-            self.last_photo = QLabel()
+            with open('last_opened.json', 'r') as json_file:
+                photofile = json.load(json_file)['last_opened_photo']
             pixmap = QtGui.QPixmap(photofile)
             pixmap2 = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
             self.last_photo.setPixmap(pixmap2)
-            self.last_photo.setAlignment(QtCore.Qt.AlignTop)
-            self.layout_last.addWidget(self.last_photo, 1, 0, 1, 1)
-            self.last_text = QLabel()
-            self.last_text.setText('Последнее просмотренное фото:\n')
-            self.last_text.setFont(font12)
-            self.last_text.setFixedHeight(20)
-            self.last_text.setAlignment(QtCore.Qt.AlignTop)
-            self.layout_last.addWidget(self.last_text, 0, 0, 1, 1)
-
-            self.group_last = QGroupBox(self)
-            self.group_last.setFixedWidth(430)
-            self.group_last.setLayout(self.layout_last)
-            self.group_last.setStyleSheet("border:0;")
-            self.layout_outside.addWidget(self.group_last, 1, 2, 1, 1)
         except FileNotFoundError:
-            pass
+            self.last_photo.setText("Фото было перемещено или удалено")
 
         self.btn_const_cat.setMinimumSize(400, 80)
         self.btn_alone_cat.setMinimumSize(300, 80)
@@ -743,7 +777,7 @@ class AloneMaker(QtCore.QThread):
 
 # создание временных файлов для разового просмотра
 class TimeMaker(QtCore.QThread):
-
+    info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
     finished = pyqtSignal(str)
@@ -762,7 +796,10 @@ class TimeMaker(QtCore.QThread):
         Thumbnail.delete_exists()
         j = 0
         for file in self.files_list:
+            self.info_text.emit(f"Идёт обработка файла {file}")
             Thumbnail.make_thumbnails_view(file)
+            logging.info(f"{file} обработан для разового просмотра")
+            self.info_text.emit(f"Обработка файла {file} завершена")
             j += 1
             self.progress.emit(round(100 * (j / self.len_file_list)))
 
@@ -771,6 +808,12 @@ class TimeMaker(QtCore.QThread):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    win = MainWindow()
-    win.show()
+
+    try:
+        win = MainWindow()
+        win.show()
+    except Exception as e:
+        print(e.__class__.__name__)
+        print(e)
+
     sys.exit(app.exec_())

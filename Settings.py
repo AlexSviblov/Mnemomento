@@ -183,8 +183,12 @@ class SettingWidget(QWidget):
 
     # показать записанный сейчас настройки
     def show_settings(self) -> None:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
+        try:
+            with open('settings.json', 'r') as json_file:
+                settings = json.load(json_file)
+        except FileNotFoundError:
+            # TODO
+            pass
         self.old_media_dir = settings['destination_dir']
         self.old_thumb_dir = settings['thumbs_dir']
         mode = settings['transfer_mode']
@@ -225,8 +229,13 @@ class SettingWidget(QWidget):
 
         jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
                        'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color}
-        with open('settings.json', 'w') as json_file:
-            json.dump(jsondata_wr, json_file)
+
+        try:
+            with open('settings.json', 'w') as json_file:
+                json.dump(jsondata_wr, json_file)
+        except FileNotFoundError:
+            # TODO
+            pass
 
         self.parent().stylesheet_color()
 
@@ -237,6 +246,7 @@ class SettingWidget(QWidget):
 
         self.show_settings()
 
+    # обновить собственный вид при изменении настроек вида
     def update_stylesheet(self):
         self.setStyleSheet(stylesheet2)
         self.media_space_lbl.setStyleSheet(stylesheet2)
@@ -408,8 +418,13 @@ class Notification(QDialog):
 
 # получить путь хранения медиа - для других модулей
 def get_destination_media() -> str:
-    with open('settings.json', 'r') as json_file:
-        settings = json.load(json_file)
+    try:
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+    except FileNotFoundError:
+        # TODO
+        pass
+
     destination_media = settings['destination_dir']
 
     return destination_media
@@ -417,8 +432,13 @@ def get_destination_media() -> str:
 
 # получить путь хранения миниатюр - для других модулей
 def get_destination_thumb() -> str:
-    with open('settings.json', 'r') as json_file:
-        settings = json.load(json_file)
+    try:
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+    except FileNotFoundError:
+        # TODO
+        pass
+
     destination_thumb = settings['thumbs_dir']
 
     return destination_thumb
@@ -426,8 +446,13 @@ def get_destination_thumb() -> str:
 
 # количество миниатюр в строке
 def get_thumbs_rows() -> str:
-    with open('settings.json', 'r') as json_file:
-        settings = json.load(json_file)
+    try:
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+    except FileNotFoundError:
+        # TODO
+        pass
+
     thumbs_rows = settings['thumbs_rows']
 
     return thumbs_rows
@@ -435,8 +460,13 @@ def get_thumbs_rows() -> str:
 
 # режим переноса фото при добавлении
 def get_photo_transfer_mode() -> str:
-    with open('settings.json', 'r') as json_file:
-        settings = json.load(json_file)
+    try:
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+    except FileNotFoundError:
+        # TODO
+        pass
+
     transfer_mode = settings['transfer_mode']
 
     return transfer_mode
@@ -444,8 +474,13 @@ def get_photo_transfer_mode() -> str:
 
 # выбранная визуальная тема
 def get_theme_color() -> str:
-    with open('settings.json', 'r') as json_file:
-        settings = json.load(json_file)
+    try:
+        with open('settings.json', 'r') as json_file:
+            settings = json.load(json_file)
+    except FileNotFoundError:
+        # TODO
+        pass
+
     theme_color = settings['color_theme']
 
     return theme_color

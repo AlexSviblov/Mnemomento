@@ -133,3 +133,13 @@ def del_alone_dir(photo_directory: str) -> None:
         os.remove(photo_directory + '/' + file)
 
     os.rmdir(photo_directory)
+
+
+# очистка пустых папок при закрытии
+def clear_empty_dirs(path=Settings.get_destination_media() + "/Media/Photo/const/") -> None:
+    for d in os.listdir(path):
+        a = os.path.join(path, d)
+        if os.path.isdir(a):
+            clear_empty_dirs(a)
+            if not os.listdir(a):
+                os.rmdir(a)

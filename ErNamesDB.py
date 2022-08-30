@@ -7,7 +7,12 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 
-conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
+try:
+    conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
+except:
+    # TODO
+    raise ErrorsAndWarnings.ErnamesDBConnectionError()
+
 cur = conn.cursor()
 
 font12 = QtGui.QFont('Times', 12)
@@ -45,13 +50,13 @@ class ViewBDDialog(QWidget):
         self.add_btn = QPushButton(self)
         self.add_btn.setText('Добавить')
         self.add_btn.setFont(font12)
-        self.add_btn.setStyleSheet(stylesheet1)
+        self.add_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
 
         self.del_btn = QPushButton(self)
         self.del_btn.setText('Удалить')
         self.del_btn.setFont(font12)
-        self.del_btn.setStyleSheet(stylesheet1)
+        self.del_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.del_btn, 0, 1, 1, 1)
 
         self.add_btn.clicked.connect(self.call_add)
@@ -60,7 +65,7 @@ class ViewBDDialog(QWidget):
         self.edit_btn = QPushButton(self)
         self.edit_btn.setText('Редактировать')
         self.edit_btn.setFont(font12)
-        self.edit_btn.setStyleSheet(stylesheet1)
+        self.edit_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.edit_btn, 0, 2, 1, 1)
 
         self.edit_mode = QLabel(self)
@@ -82,27 +87,54 @@ class ViewBDDialog(QWidget):
         global stylesheet1
         global stylesheet2
         global stylesheet3
-        global stylesheet1
+        global stylesheet4
+        global stylesheet5
         global stylesheet6
+        global stylesheet7
+        global stylesheet8
+        global stylesheet9
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
-        else:   #Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
+                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+
+        else:  # Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
+                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
 
         try:
             self.setStyleSheet(stylesheet2)
             self.table.setStyleSheet(stylesheet6)
             self.table.horizontalHeader().setStyleSheet(stylesheet3)
-            self.add_btn.setStyleSheet(stylesheet1)
-            self.del_btn.setStyleSheet(stylesheet1)
-            self.edit_btn.setStyleSheet(stylesheet1)
+            self.add_btn.setStyleSheet(stylesheet8)
+            self.del_btn.setStyleSheet(stylesheet8)
+            self.edit_btn.setStyleSheet(stylesheet8)
         except AttributeError:
             pass
 
@@ -223,14 +255,14 @@ class AddBDDialog(QDialog):
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
-        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font12)
         self.btn_ok.setFixedHeight(30)
         self.layout.addWidget(self.btn_ok, 3, 0, 1, 1)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText('Отмена')
-        self.btn_cancel.setStyleSheet(stylesheet1)
+        self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font12)
         self.btn_cancel.setFixedHeight(30)
         self.layout.addWidget(self.btn_cancel, 3, 1, 1, 1)
@@ -259,7 +291,7 @@ class AddBDDialog(QDialog):
         self.type_combobox.addItem('Объектив')
         self.type_combobox.setFont(font12)
         self.type_combobox.setFixedHeight(30)
-        self.type_combobox.setStyleSheet(stylesheet1)
+        self.type_combobox.setStyleSheet(stylesheet9)
         self.layout.addWidget(self.type_combobox, 0, 1, 1, 1)
 
         self.error_text = QtWidgets.QLineEdit()
@@ -322,11 +354,11 @@ class AddBDDialog(QDialog):
         self.btn_ok_c = QPushButton(self)
         self.btn_ok_c.setText('Ввод')
         self.btn_ok_c.setFont(font12)
-        self.btn_ok_c.setStyleSheet(stylesheet1)
+        self.btn_ok_c.setStyleSheet(stylesheet8)
         self.btn_cancel_c = QPushButton(self)
         self.btn_cancel_c.setText('Отмена')
         self.btn_cancel_c.setFont(font12)
-        self.btn_cancel_c.setStyleSheet(stylesheet1)
+        self.btn_cancel_c.setStyleSheet(stylesheet8)
 
         self.layout.addWidget(self.btn_ok_c, 2, 0, 1, 1)
         self.layout.addWidget(self.btn_cancel_c, 2, 1, 1, 1)
@@ -408,11 +440,11 @@ class DelBDDialog(QDialog):
         btn_ok = QPushButton(self)
         btn_ok.setText('Подтверждение')
         btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet1)
+        btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
         btn_cancel.setText('Отмена')
         btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet1)
+        btn_cancel.setStyleSheet(stylesheet8)
 
         self.layout.addWidget(btn_ok, 1, 0, 1, 1)
         self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
@@ -428,6 +460,7 @@ class DelBDDialog(QDialog):
         self.accept()
 
 
+# "Изменения сохранены"
 class SuccessWindowClass(QMessageBox):
     def __init__(self, code=0):
         super(SuccessWindowClass, self).__init__()
