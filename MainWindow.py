@@ -20,6 +20,17 @@ import RecoveryModule
 import logging
 
 
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 font16 = QtGui.QFont('Times', 16)
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
@@ -112,7 +123,6 @@ class MainWindow(QMainWindow):
         global stylesheet7
         global stylesheet8
         global stylesheet9
-        global stylesheet10
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
@@ -130,8 +140,6 @@ class MainWindow(QMainWindow):
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
-            stylesheet10 = "QDateTime {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                           "QDateTime"
 
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
@@ -158,65 +166,65 @@ class MainWindow(QMainWindow):
 
     # добавить в основной каталог на постоянку файлы
     def func_add_const_files(self) -> None:
-        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        self.file_list = self.add_files_chosen[0]
-        if not self.file_list:
+        add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        file_list = add_files_chosen[0]
+        if not file_list:
             return
 
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.add_files_progress = ConstMaker(file_list=self.file_list)
-        self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda h: self.finish_thread_add_const(h))
-        self.add_files_progress.start()
+        add_files_progress = ConstMaker(file_list=file_list)
+        add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        add_files_progress.finished.connect(lambda h: self.finish_thread_add_const(h))
+        add_files_progress.start()
 
     # добавить в основной каталог на постоянку папку
     def func_add_const_dir(self) -> None:
-        self.add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
         try:
-            self.file_list = FilesDirs.make_files_list_from_dir(self.add_dir_chosen)
+            file_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
         except FileNotFoundError:
             return
 
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.add_dir_progress = ConstMaker(file_list=self.file_list)
-        self.add_dir_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        self.add_dir_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.add_dir_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.add_dir_progress.finished.connect(self.finish_thread_add_const)
-        self.add_dir_progress.start()
+        add_dir_progress = ConstMaker(file_list=file_list)
+        add_dir_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        add_dir_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        add_dir_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        add_dir_progress.finished.connect(self.finish_thread_add_const)
+        add_dir_progress.start()
 
     # добавить в дополнительный каталог папку на постоянку
     def func_add_alone_dir(self) -> None:
-        self.add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
 
         try:
-            photo_files_list = FilesDirs.make_files_list_from_dir(self.add_dir_chosen)
+            photo_files_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
         except FileNotFoundError:
             return
 
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.add_files_progress = AloneMaker(photo_directory=self.add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
-        self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
-        self.add_files_progress.start()
+        add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
+        add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
+        add_files_progress.start()
 
     # добавить в основной каталог на постоянку файлы
     def func_add_alone_files(self, dir_to_add) -> None:
-        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        self.file_list = self.add_files_chosen[0]
-        if not self.file_list:
+        add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        file_list = add_files_chosen[0]
+        if not file_list:
             return
-        path_splitted = self.file_list[0].split("/")
+        path_splitted = file_list[0].split("/")
         photo_directory_buf =''
         for i in range(len(path_splitted) - 1):
             photo_directory_buf += path_splitted[i] + '/'
@@ -225,49 +233,49 @@ class MainWindow(QMainWindow):
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=self.file_list, mode="files", exists_dir=dir_to_add)
-        self.add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        self.add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
-        self.add_files_progress.start()
+        add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=file_list, mode="files", exists_dir=dir_to_add)
+        add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
+        add_files_progress.start()
 
     # одноразовый просмотр папки
     def func_view_dir(self) -> None:
-        self.view_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        view_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
 
         try:
-            self.photo_files_list = FilesDirs.make_files_list_from_dir(self.view_dir_chosen)
+            self.photo_files_list_view = FilesDirs.make_files_list_from_dir(view_dir_chosen)
         except FileNotFoundError:
             return
 
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list)
-        self.view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        self.view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.view_files_progress.finished.connect(self.finish_thread_view_dir)
-        self.view_files_progress.start()
+        view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
+        view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        view_files_progress.finished.connect(self.finish_thread_view_dir)
+        view_files_progress.start()
 
     # одноразовый просмотр файлов
     def func_view_files(self) -> None:
-        self.view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        self.photo_files_list = self.view_files_chosen[0]
+        view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        photo_files_list = view_files_chosen[0]
 
-        if not self.photo_files_list:
+        if not self.photo_files_list_view:
             return
 
         progressbar = ProgressBar()
         self.setCentralWidget(progressbar)
 
-        self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list)
-        self.view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        self.view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        self.view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        self.view_files_progress.finished.connect(self.finish_thread_view_dir)
-        self.view_files_progress.start()
+        view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
+        view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
+        view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
+        view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
+        view_files_progress.finished.connect(self.finish_thread_view_dir)
+        view_files_progress.start()
 
     # По окончании добавления файлов в основной каталог, запустить виджет его показа
     def finish_thread_add_const(self, files: list) -> None:
@@ -296,31 +304,31 @@ class MainWindow(QMainWindow):
 
     # Виджет показа основного каталога
     def show_main_const_widget(self) -> None:
-        self.widget = ShowConstWindowWidget.ConstWidgetWindow()
-        self.widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
-        self.setCentralWidget(self.widget)
+        widget = ShowConstWindowWidget.ConstWidgetWindow()
+        widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
+        self.setCentralWidget(widget)
 
     # Виджет показа дополнительного каталога
     def show_main_alone_widget(self) -> None:
-        self.widget = ShowAloneWindowWidget.AloneWidgetWindow()
-        self.widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
-        self.widget.add_photo_signal.connect(lambda t_dir: self.func_add_alone_files(t_dir))
-        self.setCentralWidget(self.widget)
+        widget = ShowAloneWindowWidget.AloneWidgetWindow()
+        widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
+        widget.add_photo_signal.connect(lambda t_dir: self.func_add_alone_files(t_dir))
+        self.setCentralWidget(widget)
 
     # Показ папки вне каталогов
     def show_view_dir(self) -> None:
-        self.widget = OnlyShowWidget.WidgetWindow(self.photo_files_list)
-        self.setCentralWidget(self.widget)
+        widget = OnlyShowWidget.WidgetWindow(self.photo_files_list_view)
+        self.setCentralWidget(widget)
 
     # Начальный вид
     def start_show(self) -> None:
-        self.widget = StartShow()
-        self.setCentralWidget(self.widget)
-        self.widget.const_show_signal.connect(self.show_main_const_widget)
-        self.widget.alone_show_signal.connect(self.show_main_alone_widget)
-        self.widget.alone_add_dir_signal.connect(self.func_add_alone_dir)
-        self.widget.const_add_files_signal.connect(self.func_add_const_files)
-        self.widget.const_add_dir_signal.connect(self.func_add_const_dir)
+        widget = StartShow()
+        self.setCentralWidget(widget)
+        widget.const_show_signal.connect(self.show_main_const_widget)
+        widget.alone_show_signal.connect(self.show_main_alone_widget)
+        widget.alone_add_dir_signal.connect(self.func_add_alone_dir)
+        widget.const_add_files_signal.connect(self.func_add_const_files)
+        widget.const_add_dir_signal.connect(self.func_add_const_dir)
 
     # Таблица с изменёнными именами
     def db_ernames_view_func(self) -> None:

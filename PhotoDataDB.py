@@ -136,7 +136,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
 
 
 # достать вбитые в БД теги соцсетей
-def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str, ...], dict]:
+def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dict]:
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
@@ -168,7 +168,7 @@ def edit_sn_tags(photoname: str, photodirectory: str, new_status: str, network: 
 
 
 # список соцсетей в БД
-def get_socialnetworks() -> list[str, ...]:
+def get_socialnetworks() -> list[str]:
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
@@ -182,7 +182,7 @@ def get_socialnetworks() -> list[str, ...]:
 
 
 # список камер и объективов из БД
-def get_equipment() -> tuple[list[str, ...], list[str, ...]]:
+def get_equipment() -> tuple[list[str], list[str]]:
     sql_str_get_camera = 'SELECT camera FROM photos'
     cur.execute(sql_str_get_camera)
     camera_all_data = cur.fetchall()
@@ -211,7 +211,7 @@ def get_equipment() -> tuple[list[str, ...], list[str, ...]]:
 
 
 # получить полный путь ко всем фото, у которых указаны выбранные камера и объектив
-def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str) -> list[str, ...]:
+def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str) -> list[str]:
     sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
     cur.execute(sql_str)
 
@@ -226,7 +226,7 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
 
 
 # получить полный путь всех фото, у которых в выбранной соцсети указан выбранный статус
-def get_sn_photo_list(network: str, status: str) -> list[str, ...]:
+def get_sn_photo_list(network: str, status: str) -> list[str]:
     try:
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status}\''
         cur.execute(sql_str)
@@ -272,7 +272,7 @@ def del_alone_dir(photo_directory: str) -> None:
 
 
 # выдать список фоток в папке доп.каталога с выбранными статусами в соцсетях
-def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[str, ...]:
+def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[str]:
     try:
         sql_str = f'SELECT filename FROM socialnetworks WHERE {network} = \'{status}\' AND catalog = \'{photo_directory}\''
         cur.execute(sql_str)
@@ -290,7 +290,7 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
 
 
 # получить пути для БД для перезаписи при переносе
-def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str, ...], list[str, ...]]:
+def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str], list[str]]:
     sql_str = f"SELECT catalog from photos"
     cur.execute(sql_str)
 

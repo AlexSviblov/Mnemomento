@@ -13,6 +13,17 @@ import Settings
 import SynhronizeDBMedia
 
 
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 font14 = QtGui.QFont('Times', 14)
 
 
@@ -160,7 +171,7 @@ class RecoveryWidget(QWidget):
         self.btn_recovery = QPushButton(self)
         self.btn_recovery.setText("Запустить восстановление")
         self.btn_recovery.setFont(font14)
-        self.btn_recovery.setStyleSheet(stylesheet1)
+        self.btn_recovery.setStyleSheet(stylesheet8)
         self.btn_recovery.clicked.connect(self.do_recovery_func)
         self.layout.addWidget(self.btn_recovery, 10, 0, 1, 1)
 

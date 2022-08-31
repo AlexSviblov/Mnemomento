@@ -7,7 +7,7 @@ destination_thumbs = Settings.get_destination_thumb()
 
 
 # получение списка файлов формата jpg из папки
-def get_images_list(directory: str) -> list[str, ...]:
+def get_images_list(directory: str) -> list[str]:
     file_list = list()
     for file in os.listdir(directory):
         if file.endswith(".jpg") or file.endswith(".JPG"):
@@ -124,7 +124,7 @@ def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
 
 
 # перенос миниатюры при изменении даты в метаданных снимка
-def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[str, str, str], new_date: list[str, str, str], rename_name: str, chosen: str) -> None:
+def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[str], new_date: list[str], rename_name: str, chosen: str) -> None:
     if chosen == 'old':    # переименовывают файл уже находящийся в папке
         os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
                   destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
@@ -139,7 +139,7 @@ def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[s
 
 
 # удалить миниатюру после переноса файла
-def transfer_diff_date_thumbnail(photoname: str, new_date: list[str, str, str], old_date: list[str, str, str]) -> None:
+def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: list[str]) -> None:
     new_dir = destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + '/thumbnail_'
     old_dir = destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/'
     if not os.path.isdir(old_dir):

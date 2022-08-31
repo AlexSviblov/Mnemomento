@@ -6,6 +6,18 @@ from PyQt5.QtCore import Qt
 import sqlite3
 import Settings
 
+
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 conn = sqlite3.connect('PhotoDB.db')  # соединение с БД
 cur = conn.cursor()
 
@@ -36,7 +48,7 @@ class SocialNetworks(QWidget):
         self.add_btn.clicked.connect(self.add_func)
         self.add_btn.setFont(font14)
         self.add_btn.setFixedWidth(100)
-        self.add_btn.setStyleSheet(stylesheet1)
+        self.add_btn.setStyleSheet(stylesheet8)
 
         self.empty1 = QLabel(self)
         self.layout.addWidget(self.empty1, 0, 1, 1, 1)
@@ -100,7 +112,7 @@ class SocialNetworks(QWidget):
 
         try:
             self.setStyleSheet(stylesheet2)
-            self.add_btn.setStyleSheet(stylesheet1)
+            self.add_btn.setStyleSheet(stylesheet8)
             self.empty1.setStyleSheet(stylesheet2)
             self.networks_group.setStyleSheet(stylesheet2)
             self.show_social_networks()
@@ -157,7 +169,7 @@ class SocialNetworks(QWidget):
         # МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
 
     # считать из БД введённые соцсети
-    def get_social_networks_list(self) -> list[str, ...]:
+    def get_social_networks_list(self) -> list[str]:
         networks = list()
         sql_str = 'PRAGMA table_info(socialnetworks)'
         cur.execute(sql_str)
@@ -172,8 +184,6 @@ class SocialNetworks(QWidget):
         dialog_add = AddSN()
         if dialog_add.exec():
             pass
-        elif dialog_add.reject():
-            return
 
         self.show_social_networks()
 
@@ -183,8 +193,7 @@ class SocialNetworks(QWidget):
         red_dialog = RedSN(net_oldname=net_name)
         if red_dialog.exec():
             pass
-        elif red_dialog.reject():
-            return
+
         self.show_social_networks()
 
     # удаление соцсети
@@ -193,8 +202,7 @@ class SocialNetworks(QWidget):
         del_dialog = DelSN(net_name=net_name)
         if del_dialog.exec():
             pass
-        elif del_dialog.reject():
-            return
+
         self.show_social_networks()
 
 
@@ -225,14 +233,14 @@ class AddSN(QDialog):
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
         self.btn_cnl.setFont(font14)
-        self.btn_cnl.setStyleSheet(stylesheet1)
+        self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 1, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
@@ -303,14 +311,14 @@ class RedSN(QDialog):
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
         self.btn_cnl.setFont(font14)
-        self.btn_cnl.setStyleSheet(stylesheet1)
+        self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
@@ -371,14 +379,14 @@ class DelSN(QDialog):
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.do_func)
 
         self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText('Отмена')
         self.btn_cnl.setFont(font14)
-        self.btn_cnl.setStyleSheet(stylesheet1)
+        self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 

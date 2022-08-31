@@ -16,6 +16,17 @@ import Settings
 import Thumbnail
 
 
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
@@ -47,20 +58,20 @@ class AloneWidgetWindow(QWidget):
         self.pic.hide()
         self.pic.setAlignment(Qt.AlignCenter)
 
-        self.scroll = QScrollArea(self)  # создание подвижной области
-        self.layoutoutside.addWidget(self.scroll, 1, 0, 2, 1)  # помещение подвижной области на слой
+        self.scroll_area = QScrollArea(self)  # создание подвижной области
+        self.layoutoutside.addWidget(self.scroll_area, 1, 0, 2, 1)  # помещение подвижной области на слой
         self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
         self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
         self.groupbox_thumbs.setStyleSheet(stylesheet1)
         self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
-        self.scroll.setWidget(self.groupbox_thumbs)
+        self.scroll_area.setWidget(self.groupbox_thumbs)
         self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
 
-        self.scroll.setFixedWidth(200*self.thumb_row)
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setWidget(self.groupbox_thumbs)
-        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll.setStyleSheet(stylesheet2)
+        self.scroll_area.setFixedWidth(200*self.thumb_row)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setWidget(self.groupbox_thumbs)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setStyleSheet(stylesheet2)
 
         self.layout_directory_choose = QGridLayout(self)
         self.layout_directory_choose.setHorizontalSpacing(5)
@@ -75,7 +86,7 @@ class AloneWidgetWindow(QWidget):
 
         self.directory_choose = QComboBox(self)
         self.directory_choose.setFont(font14)
-        self.directory_choose.setStyleSheet(stylesheet1)
+        self.directory_choose.setStyleSheet(stylesheet9)
         self.directory_choose.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.fill_directory_combobox()
         self.directory_choose.setFixedHeight(30)
@@ -85,7 +96,7 @@ class AloneWidgetWindow(QWidget):
         self.directory_delete = QPushButton(self)
         self.directory_delete.setText('Удалить папку')
         self.directory_delete.setFont(font14)
-        self.directory_delete.setStyleSheet(stylesheet1)
+        self.directory_delete.setStyleSheet(stylesheet8)
         self.layout_directory_choose.addWidget(self.directory_delete, 0, 2, 1, 1)
         self.directory_delete.clicked.connect(self.del_dir_func)
         self.directory_delete.setFixedWidth(200)
@@ -99,12 +110,12 @@ class AloneWidgetWindow(QWidget):
 
         self.socnet_choose = QComboBox(self)
         self.socnet_choose.setFont(font14)
-        self.socnet_choose.setStyleSheet(stylesheet1)
+        self.socnet_choose.setStyleSheet(stylesheet9)
         self.layout_directory_choose.addWidget(self.socnet_choose, 0, 4, 1, 1)
 
         self.sn_status = QComboBox(self)
         self.sn_status.setFont(font14)
-        self.sn_status.setStyleSheet(stylesheet1)
+        self.sn_status.setStyleSheet(stylesheet9)
         self.sn_status.addItem('Не выбрано')
         self.sn_status.addItem('Не публиковать')
         self.sn_status.addItem('Опубликовать')
@@ -176,7 +187,7 @@ class AloneWidgetWindow(QWidget):
         self.btn_add_photos = QPushButton(self)
         self.btn_add_photos.setText("Добавить файлы")
         self.btn_add_photos.setFont(font14)
-        self.btn_add_photos.setStyleSheet(stylesheet1)
+        self.btn_add_photos.setStyleSheet(stylesheet8)
         self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
         self.btn_add_photos.clicked.connect(lambda: self.add_photo_signal.emit(self.directory_choose.currentText()))
 
@@ -228,18 +239,15 @@ class AloneWidgetWindow(QWidget):
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
-            self.scroll.setStyleSheet(stylesheet2)
+            self.scroll_area.setStyleSheet(stylesheet2)
             self.groupbox_sort.setStyleSheet(stylesheet2)
             self.groupbox_btns.setStyleSheet(stylesheet2)
             self.socnet_group.setStyleSheet(stylesheet6)
             self.photo_show.setStyleSheet(stylesheet2)
             self.metadata_show.setStyleSheet(stylesheet6)
-            self.edit_btn.setStyleSheet(stylesheet1)
-            self.del_btn.setStyleSheet(stylesheet1)
-            self.explorer_btn.setStyleSheet(stylesheet1)
-            self.open_file_btn.setStyleSheet(stylesheet1)
             self.setStyleSheet(stylesheet2)
             self.group_type.setStyleSheet(stylesheet1)
+            self.make_buttons()
             self.set_sort_layout()
             self.type_show_thumbnails()
         except AttributeError:
@@ -286,14 +294,16 @@ class AloneWidgetWindow(QWidget):
     # преобразование тега соцсети в формат БД
     def get_current_tag(self) -> str:
         status = self.sn_status.currentText()
-        if status == 'Не выбрано':
-            return 'No value'
-        elif status == 'Не публиковать':
-            return 'No publicate'
-        elif status == 'Опубликовать':
-            return 'Will publicate'
-        elif status == 'Опубликовано':
-            return 'Publicated'
+        match status:
+            case 'Не выбрано':
+                return_status = 'No value'
+            case 'Не публиковать':
+                return_status = 'No publicate'
+            case 'Опубликовать':
+                return_status = 'Will publicate'
+            case 'Опубликовано':
+                return_status = 'Publicated'
+        return return_status
 
     # функция отображения кнопок с миниатюрами
     def show_thumbnails(self) -> None:
@@ -371,7 +381,7 @@ class AloneWidgetWindow(QWidget):
 
     # функция показа большой картинки
     def showinfo(self) -> None:
-        self.photo_show.setFixedWidth(self.width() - self.scroll.width() - self.groupbox_btns.width() - 50)
+        self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
         try:
             self.button_text = self.sender().text()
@@ -424,7 +434,7 @@ class AloneWidgetWindow(QWidget):
         if self.photo_rotation == 'gor':
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
-            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
+            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
@@ -436,14 +446,14 @@ class AloneWidgetWindow(QWidget):
             self.metadata_show.show()
             self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
             self.socnet_group.show()
-            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll.width() - 50, self.size().height() - self.groupbox_directory_choose.height() - 30,
+            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_directory_choose.height() - 30,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
             self.pic.show()
 
         self.show_social_networks(self.last_clicked, self.photo_directory)
-        self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
+        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
 
         if self.max_sn_name_len*12 > self.metadata_show.columnWidth(0):
@@ -467,7 +477,7 @@ class AloneWidgetWindow(QWidget):
 
         if self.photo_rotation == 'gor':
             self.pixmap2 = self.pixmap.scaled(
-                self.size().width() - self.groupbox_btns.width() - self.scroll.width() - 40,
+                self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40,
                 self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
@@ -475,13 +485,13 @@ class AloneWidgetWindow(QWidget):
 
         else:
             self.pixmap2 = self.pixmap.scaled(
-                self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll.width() - 80,
+                self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 80,
                 self.size().height() - self.groupbox_directory_choose.height() - 30,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
 
-        self.photo_show.setFixedWidth(self.width() - self.scroll.width() - self.groupbox_btns.width() - 50)
+        self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
     # Создание кнопок удаления и редактирования
     def make_buttons(self) -> None:
@@ -545,8 +555,6 @@ class AloneWidgetWindow(QWidget):
         if dialog_del.exec():
             pass
             self.last_clicked = ''
-        elif dialog_del.reject():
-            return
 
     # редактирование exif
     def edit_photo_func(self) -> None:
@@ -583,12 +591,10 @@ class AloneWidgetWindow(QWidget):
         dialog_del.clear_info.connect(self.clear_after_dir_del)
         if dialog_del.exec():
             pass
-        elif dialog_del.reject():
-            return
 
     # отображения статуса фото в соцсетях
     def show_social_networks(self, photoname: str, photodirectory: str) -> None:
-        def fill_sn_widgets(sn_names: list[str, ...], sn_tags: dict) -> None:
+        def fill_sn_widgets(sn_names: list[str], sn_tags: dict) -> None:
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
 
@@ -611,7 +617,7 @@ class AloneWidgetWindow(QWidget):
 
                 self.sn_tag_choose = QComboBox(self)
                 self.sn_tag_choose.setFont(font14)
-                self.sn_tag_choose.setStyleSheet(stylesheet1)
+                self.sn_tag_choose.setStyleSheet(stylesheet9)
                 self.sn_tag_choose.setObjectName(name)
                 self.sn_tag_choose.addItem('Не выбрано')
                 self.sn_tag_choose.addItem('Не публиковать')
@@ -684,7 +690,7 @@ class AloneWidgetWindow(QWidget):
         self.thumb_row = int(settings["thumbs_row"])
 
         self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
-        self.scroll.setFixedWidth(200 * self.thumb_row)
+        self.scroll_area.setFixedWidth(200 * self.thumb_row)
 
         self.show_thumbnails()
 
@@ -718,11 +724,11 @@ class DelPhotoConfirm(QDialog):
         btn_ok = QPushButton(self)
         btn_ok.setText('Подтверждение')
         btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet1)
+        btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
         btn_cancel.setText('Отмена')
         btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet1)
+        btn_cancel.setStyleSheet(stylesheet8)
 
         self.layout.addWidget(btn_ok, 1, 0, 1, 1)
         self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
@@ -834,7 +840,7 @@ class EditExifData(QDialog):
 
         self.timezone_pm_choose = QComboBox(self)
         self.timezone_pm_choose.setFont(font14)
-        self.timezone_pm_choose.setStyleSheet(stylesheet1)
+        self.timezone_pm_choose.setStyleSheet(stylesheet9)
         self.timezone_pm_choose.addItem("+")
         self.timezone_pm_choose.addItem("-")
         self.timezone_pm_choose.setFixedWidth(50)
@@ -1110,7 +1116,7 @@ class EditExifData(QDialog):
         self.latitude_dmc_lbl.setStyleSheet(stylesheet2)
 
         self.latitude_dmc_choose.setFont(font12)
-        self.latitude_dmc_choose.setStyleSheet(stylesheet1)
+        self.latitude_dmc_choose.setStyleSheet(stylesheet9)
 
         self.latitude_dmc_deg_lbl.setFont(font12)
         self.latitude_dmc_deg_lbl.setStyleSheet(stylesheet2)
@@ -1134,7 +1140,7 @@ class EditExifData(QDialog):
         self.longitude_dmc_lbl.setStyleSheet(stylesheet2)
 
         self.longitude_dmc_choose.setFont(font12)
-        self.longitude_dmc_choose.setStyleSheet(stylesheet1)
+        self.longitude_dmc_choose.setStyleSheet(stylesheet9)
 
         self.longitude_dmc_deg_lbl.setFont(font12)
         self.longitude_dmc_deg_lbl.setStyleSheet(stylesheet2)
@@ -1165,7 +1171,7 @@ class EditExifData(QDialog):
 
         self.tab_GPS.setLayout(self.tab_layout_gps)
 
-        self.mode_check_fn.setCheckState(2)
+        self.mode_check_fn.setCheckState(Qt.Checked)
 
         self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(13))
         self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(10))
@@ -1371,7 +1377,7 @@ class EditExifData(QDialog):
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
     # считать все поля ввода
-    def read_enter(self) -> None:
+    def read_enter(self) -> list[str]:
         maker = self.maker_line.text()
         camera = self.camera_line.text()
         lens = self.lens_line.text()
@@ -1398,15 +1404,15 @@ class EditExifData(QDialog):
     def block_check_gps(self) -> None:
         if self.sender().text() == "ШД Г.м.с":
             if self.mode_check_dmc.checkState() == 2:
-                self.mode_check_fn.setCheckState(0)
+                self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
-                self.mode_check_fn.setCheckState(2)
+                self.mode_check_fn.setCheckState(Qt.Checked)
 
         elif self.sender().text() == "Числом":
             if self.mode_check_fn.checkState() == 2:
-                self.mode_check_dmc.setCheckState(0)
+                self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
-                self.mode_check_dmc.setCheckState(2)
+                self.mode_check_dmc.setCheckState(Qt.Checked)
 
         if self.mode_check_fn.checkState() == 2:
             self.longitude_fn_line.setDisabled(False)
@@ -1518,11 +1524,11 @@ class DelDirConfirm(QDialog):
         btn_ok = QPushButton(self)
         btn_ok.setText('Подтверждение')
         btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet1)
+        btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
         btn_cancel.setText('Отмена')
         btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet1)
+        btn_cancel.setStyleSheet(stylesheet8)
 
         self.layout.addWidget(btn_ok, 1, 0, 1, 1)
         self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
@@ -1565,11 +1571,11 @@ class ConfirmClear(QDialog):
         btn_ok = QPushButton(self)
         btn_ok.setText('Подтверждение')
         btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet1)
+        btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
         btn_cancel.setText('Отмена')
         btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet1)
+        btn_cancel.setStyleSheet(stylesheet8)
 
         self.layout.addWidget(btn_ok, 1, 0, 1, 1)
         self.layout.addWidget(btn_cancel, 1, 1, 1, 1)

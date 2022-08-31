@@ -3,6 +3,17 @@ from PyQt5.QtWidgets import *
 import Settings
 
 
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 font14 = QtGui.QFont('Times', 14)
 
 

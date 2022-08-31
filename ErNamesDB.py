@@ -7,6 +7,18 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtWidgets import *
 
+
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 try:
     conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
 except:
@@ -211,8 +223,6 @@ class ViewBDDialog(QWidget):
         dialog_add = AddBDDialog()
         if dialog_add.exec():
             pass
-        elif dialog_add.reject():
-            return
         self.get_bd_info()
         self.my_size()
 
@@ -227,8 +237,6 @@ class ViewBDDialog(QWidget):
         dialog_del = DelBDDialog(del_object_ername=ername_to_del, del_object_normname=normname_to_del)
         if dialog_del.exec():
             pass
-        elif dialog_del.reject():
-            return
         self.get_bd_info()
         self.my_size()
 
@@ -251,21 +259,21 @@ class AddBDDialog(QDialog):
 
         self.setStyleSheet(stylesheet2)
 
-        self.layout = QGridLayout(self)
+        self.layout_win = QGridLayout(self)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ввод')
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font12)
         self.btn_ok.setFixedHeight(30)
-        self.layout.addWidget(self.btn_ok, 3, 0, 1, 1)
+        self.layout_win.addWidget(self.btn_ok, 3, 0, 1, 1)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText('Отмена')
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font12)
         self.btn_cancel.setFixedHeight(30)
-        self.layout.addWidget(self.btn_cancel, 3, 1, 1, 1)
+        self.layout_win.addWidget(self.btn_cancel, 3, 1, 1, 1)
 
         self.btn_ok.clicked.connect(self.check_empty)
         self.btn_cancel.clicked.connect(self.reject)
@@ -273,17 +281,17 @@ class AddBDDialog(QDialog):
         self.type_lbl = QtWidgets.QLabel()
         self.type_lbl.setText('Тип неправильно отображаемого названия:')
         self.type_lbl.setFont(font12)
-        self.layout.addWidget(self.type_lbl, 0, 0, 1, 1)
+        self.layout_win.addWidget(self.type_lbl, 0, 0, 1, 1)
 
         self.error_label = QtWidgets.QLabel()
         self.error_label.setText('Неправильное название:')
         self.error_label.setFont(font12)
-        self.layout.addWidget(self.error_label, 1, 0, 1, 1)
+        self.layout_win.addWidget(self.error_label, 1, 0, 1, 1)
 
         self.norm_label = QtWidgets.QLabel()
         self.norm_label.setText('Правильное название:')
         self.norm_label.setFont(font12)
-        self.layout.addWidget(self.norm_label, 2, 0, 1, 1)
+        self.layout_win.addWidget(self.norm_label, 2, 0, 1, 1)
 
         self.type_combobox = QtWidgets.QComboBox()
         self.type_combobox.addItem('Производитель')
@@ -292,19 +300,19 @@ class AddBDDialog(QDialog):
         self.type_combobox.setFont(font12)
         self.type_combobox.setFixedHeight(30)
         self.type_combobox.setStyleSheet(stylesheet9)
-        self.layout.addWidget(self.type_combobox, 0, 1, 1, 1)
+        self.layout_win.addWidget(self.type_combobox, 0, 1, 1, 1)
 
         self.error_text = QtWidgets.QLineEdit()
         self.error_text.setFont(font12)
         self.error_text.setStyleSheet(stylesheet1)
         self.error_text.setFixedHeight(30)
-        self.layout.addWidget(self.error_text, 1, 1, 1, 1)
+        self.layout_win.addWidget(self.error_text, 1, 1, 1, 1)
 
         self.norm_text = QtWidgets.QLineEdit()
         self.norm_text.setFont(font12)
         self.norm_text.setFixedHeight(30)
         self.norm_text.setStyleSheet(stylesheet1)
-        self.layout.addWidget(self.norm_text, 2, 1, 1, 1)
+        self.layout_win.addWidget(self.norm_text, 2, 1, 1, 1)
 
     # проверка заполнения полей ввода
     def check_empty(self) -> None:
@@ -342,13 +350,13 @@ class AddBDDialog(QDialog):
         self.confirm_label = QtWidgets.QLabel()
         self.confirm_label.setText('Правильно ли введены данные?\n')
         self.confirm_label.setFont(font12)
-        self.layout.addWidget(self.confirm_label, 0, 0, 1, 2)
+        self.layout_win.addWidget(self.confirm_label, 0, 0, 1, 2)
 
         self.entered_info = QtWidgets.QLabel()
         self.entered_info.setFont(font12)
         self.entered_info.setText(
             f'Тип: {self.type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n')
-        self.layout.addWidget(self.entered_info, 1, 0, 1, 2)
+        self.layout_win.addWidget(self.entered_info, 1, 0, 1, 2)
 
 
         self.btn_ok_c = QPushButton(self)
@@ -360,8 +368,8 @@ class AddBDDialog(QDialog):
         self.btn_cancel_c.setFont(font12)
         self.btn_cancel_c.setStyleSheet(stylesheet8)
 
-        self.layout.addWidget(self.btn_ok_c, 2, 0, 1, 1)
-        self.layout.addWidget(self.btn_cancel_c, 2, 1, 1, 1)
+        self.layout_win.addWidget(self.btn_ok_c, 2, 0, 1, 1)
+        self.layout_win.addWidget(self.btn_cancel_c, 2, 1, 1, 1)
 
         self.btn_ok_c.clicked.connect(self.confirm_func)
         self.btn_cancel_c.clicked.connect(self.not_confirm_func)
@@ -425,15 +433,15 @@ class DelBDDialog(QDialog):
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.layout = QGridLayout()
-        self.setLayout(self.layout)
+        self.layout_win = QGridLayout()
+        self.setLayout(self.layout_win)
 
         self.del_obj_ername = del_object_ername
         self.del_obj_normname = del_object_normname
 
         self.obj_lbl = QLabel()
         self.obj_lbl.setText(f'Вы точно хотите удалить {self.del_obj_ername} -> {self.del_obj_normname}?')
-        self.layout.addWidget(self.obj_lbl, 0, 0, 1, 2)
+        self.layout_win.addWidget(self.obj_lbl, 0, 0, 1, 2)
         self.obj_lbl.setFont(font12)
         self.obj_lbl.setStyleSheet(stylesheet2)
 
@@ -446,8 +454,8 @@ class DelBDDialog(QDialog):
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 
-        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
-        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
+        self.layout_win.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout_win.addWidget(btn_cancel, 1, 1, 1, 1)
 
         btn_ok.clicked.connect(self.do_del)
         btn_cancel.clicked.connect(self.reject)

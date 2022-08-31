@@ -15,6 +15,17 @@ import PhotoDataDB
 font14 = QtGui.QFont('Times', 14)
 
 
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 # объект окна настроек
 class SettingWin(QMainWindow):
     update_main_widget = pyqtSignal()
@@ -42,18 +53,46 @@ class SettingWin(QMainWindow):
         global stylesheet1
         global stylesheet2
         global stylesheet3
+        global stylesheet4
+        global stylesheet5
         global stylesheet6
+        global stylesheet7
+        global stylesheet8
+        global stylesheet9
 
         if get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
+                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1c1c1c"
-            stylesheet3 = r"QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1c1c1c; color: #D3D3D3;}"
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
+            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
+
+            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
+            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
+                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
+                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
 
 
 # сами настройки (виджет)
@@ -85,7 +124,7 @@ class SettingWidget(QWidget):
         self.media_space_choose = QPushButton(self)
         self.media_space_choose.setText('Выбрать путь')
         self.media_space_choose.setFont(font14)
-        self.media_space_choose.setStyleSheet(stylesheet1)
+        self.media_space_choose.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.media_space_choose, 0, 2, 1, 1)
         self.media_space_choose.clicked.connect(self.dir_media_choose)
 
@@ -103,7 +142,7 @@ class SettingWidget(QWidget):
         self.thumbs_space_choose = QPushButton(self)
         self.thumbs_space_choose.setText('Выбрать путь')
         self.thumbs_space_choose.setFont(font14)
-        self.thumbs_space_choose.setStyleSheet(stylesheet1)
+        self.thumbs_space_choose.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.thumbs_space_choose, 1, 2, 1, 1)
         self.thumbs_space_choose.clicked.connect(self.dir_thumb_choose)
 
@@ -115,7 +154,7 @@ class SettingWidget(QWidget):
 
         self.transfer_mode_choose = QComboBox(self)
         self.transfer_mode_choose.setFont(font14)
-        self.transfer_mode_choose.setStyleSheet(stylesheet1)
+        self.transfer_mode_choose.setStyleSheet(stylesheet9)
         self.transfer_mode_choose.addItem('copy')
         self.transfer_mode_choose.addItem('cut')
         self.layout.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
@@ -142,7 +181,7 @@ class SettingWidget(QWidget):
 
         self.theme_choose = QComboBox(self)
         self.theme_choose.setFont(font14)
-        self.theme_choose.setStyleSheet(stylesheet1)
+        self.theme_choose.setStyleSheet(stylesheet9)
         self.theme_choose.addItem('light')
         self.theme_choose.addItem('dark')
         self.layout.addWidget(self.theme_choose, 4, 1, 1, 1)
@@ -150,14 +189,14 @@ class SettingWidget(QWidget):
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Сохранить')
         self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet1)
+        self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 10, 0, 1, 1)
         self.btn_ok.clicked.connect(self.check_changes)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText('Отмена')
         self.btn_cancel.setFont(font14)
-        self.btn_cancel.setStyleSheet(stylesheet1)
+        self.btn_cancel.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cancel, 10, 2, 1, 1)
         self.btn_cancel.clicked.connect(self.cancel_signal.emit)
 
@@ -251,22 +290,23 @@ class SettingWidget(QWidget):
         self.setStyleSheet(stylesheet2)
         self.media_space_lbl.setStyleSheet(stylesheet2)
         self.media_space_line.setStyleSheet(stylesheet1)
-        self.media_space_choose.setStyleSheet(stylesheet1)
+        self.media_space_choose.setStyleSheet(stylesheet8)
         self.thumbs_space_lbl.setStyleSheet(stylesheet2)
         self.thumbs_space_line.setStyleSheet(stylesheet1)
-        self.thumbs_space_choose.setStyleSheet(stylesheet1)
-        self.transfer_mode_choose.setStyleSheet(stylesheet1)
+        self.thumbs_space_choose.setStyleSheet(stylesheet8)
+        self.transfer_mode_choose.setStyleSheet(stylesheet9)
         self.num_thumbs_text.setStyleSheet(stylesheet2)
         self.num_thumbs_choose.setStyleSheet(stylesheet1)
         self.theme_lbl.setStyleSheet(stylesheet2)
-        self.theme_choose.setStyleSheet(stylesheet1)
-        self.btn_ok.setStyleSheet(stylesheet1)
-        self.btn_cancel.setStyleSheet(stylesheet1)
+        self.theme_choose.setStyleSheet(stylesheet9)
+        self.btn_ok.setStyleSheet(stylesheet8)
+        self.btn_cancel.setStyleSheet(stylesheet8)
 
 
 # перенос папок, если изменился путь
 class TransferFiles(QDialog):
     photo_transfered = QtCore.pyqtSignal()
+
 
     def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
         super(TransferFiles, self).__init__(parent)
@@ -297,13 +337,13 @@ class TransferFiles(QDialog):
         self.accept_btn = QPushButton(self)
         self.accept_btn.setText('Начать')
         self.accept_btn.setFont(font14)
-        self.accept_btn.setStyleSheet(stylesheet1)
+        self.accept_btn.setStyleSheet(stylesheet8)
         self.accept_btn.clicked.connect(self.func_accept)
 
         self.reject_btn = QPushButton(self)
         self.reject_btn.setText('Отмена')
         self.reject_btn.setFont(font14)
-        self.reject_btn.setStyleSheet(stylesheet1)
+        self.reject_btn.setStyleSheet(stylesheet8)
         self.reject_btn.clicked.connect(self.func_reject)
 
         self.layout.addWidget(self.text_info, 0, 0, 1, 2)
@@ -328,11 +368,11 @@ class TransferFiles(QDialog):
         self.layout.addWidget(self.text, 0, 1, 1, 1)
 
         proccess = DoTransfer(self.code, self.old_media, self.new_media, self.old_thumb, self.new_thumb)
-        proccess.finished.connect(self.finished)
+        proccess.finished.connect(self.func_finished)
 
         proccess.start()
 
-    def finished(self) -> None:
+    def func_finished(self) -> None:
         self.photo_transfered.emit()
         self.close()
 
@@ -409,7 +449,7 @@ class Notification(QDialog):
         btn = QPushButton(self)
         btn.setText('Ок')
         btn.setFont(font14)
-        btn.setStyleSheet(stylesheet1)
+        btn.setStyleSheet(stylesheet8)
         btn.clicked.connect(lambda: self.close())
 
         layout.addWidget(lbl, 0, 0, 1, 1)

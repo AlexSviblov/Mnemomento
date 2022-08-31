@@ -14,15 +14,27 @@ import ErrorsAndWarnings
 import json
 
 
+stylesheet1 = str()
+stylesheet2 = str()
+stylesheet3 = str()
+stylesheet4 = str()
+stylesheet5 = str()
+stylesheet6 = str()
+stylesheet7 = str()
+stylesheet8 = str()
+stylesheet9 = str()
+
+
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
 
+# noinspection PyUnresolvedReferences,PyArgumentList
 class WidgetWindow(QWidget):
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
 
-    def __init__(self, photo_list: list[str, ...]):
+    def __init__(self, photo_list: list[str]):
         super().__init__()
         self.stylesheet_color()
         self.setStyleSheet(stylesheet2)
@@ -42,20 +54,20 @@ class WidgetWindow(QWidget):
         self.pic.hide()
         self.pic.setAlignment(Qt.AlignCenter)
 
-        self.scroll = QScrollArea(self)  # создание подвижной области
-        self.layoutoutside.addWidget(self.scroll, 0, 0, 2, 1)  # помещение подвижной области на слой
+        self.scroll_area_widget = QScrollArea(self)  # создание подвижной области
+        self.layoutoutside.addWidget(self.scroll_area_widget, 0, 0, 2, 1)  # помещение подвижной области на слой
         self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
         self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
         self.groupbox_thumbs.setStyleSheet(stylesheet1)
         self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
-        self.scroll.setWidget(self.groupbox_thumbs)
+        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
         self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
 
-        self.scroll.setFixedWidth(200*self.thumb_row)
-        self.scroll.setWidgetResizable(True)
-        self.scroll.setWidget(self.groupbox_thumbs)
-        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll.setStyleSheet(stylesheet2)
+        self.scroll_area_widget.setFixedWidth(200*self.thumb_row)
+        self.scroll_area_widget.setWidgetResizable(True)
+        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
+        self.scroll_area_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area_widget.setStyleSheet(stylesheet2)
 
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
@@ -145,7 +157,7 @@ class WidgetWindow(QWidget):
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
-            self.scroll.setStyleSheet(stylesheet2)
+            self.scroll_area_widget.setStyleSheet(stylesheet2)
             self.groupbox_btns.setStyleSheet(stylesheet2)
             self.photo_show.setStyleSheet(stylesheet2)
             self.metadata_show.setStyleSheet(stylesheet6)
@@ -244,7 +256,7 @@ class WidgetWindow(QWidget):
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
 
-            pixmap2 = pixmap.scaled(self.size().width() - self.scroll.width() - self.groupbox_btns.width(),
+            pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
                                     self.size().height() - self.metadata_show.height(),
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(pixmap2)
@@ -253,18 +265,18 @@ class WidgetWindow(QWidget):
         else: # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
-            pixmap2 = pixmap.scaled(self.size().width() - - self.scroll.width() - self.groupbox_btns.width() -
+            pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
                                     self.metadata_show.width(), self.size().height() - 50,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
 
-        self.set_minimum_size.emit(self.scroll.width() + self.metadata_show.width() + self.groupbox_btns.width() + 120)
+        self.set_minimum_size.emit(self.scroll_area_widget.width() + self.metadata_show.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
 
     # в класс передаётся список файлов, надо получить их директорию
-    def make_photo_dir(self, photo_list: list[str, ...]) -> str:
+    def make_photo_dir(self, photo_list: list[str]) -> str:
         photo_splitted = photo_list[0].split('/')
         photo_dir = ''
         for i in range(0, len(photo_splitted)-1):
@@ -311,12 +323,13 @@ class WidgetWindow(QWidget):
         self.thumb_row = int(settings["thumbs_row"])
 
         self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
-        self.scroll.setFixedWidth(200 * self.thumb_row)
+        self.scroll_area_widget.setFixedWidth(200 * self.thumb_row)
 
         self.show_thumbnails()
 
 
 # редактирование exif
+# noinspection PyArgumentList
 class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()
@@ -374,6 +387,7 @@ class EditExifData(QDialog):
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # создание всего GUI в разделе, где можно редактировать метаданные
+    # noinspection PyUnresolvedReferences
     def make_tabs_gui(self) -> None:
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
@@ -742,7 +756,7 @@ class EditExifData(QDialog):
 
         self.tab_GPS.setLayout(self.tab_layout_gps)
 
-        self.mode_check_fn.setCheckState(2)
+        self.mode_check_fn.setCheckState(Qt.Checked)
 
         self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(13))
         self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(10))
@@ -775,7 +789,7 @@ class EditExifData(QDialog):
         data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
 
         # Дата и время съёмки из формата exif в формат QDateTime
-        def date_convert(data: str) -> tuple[int, int, int, int, int, int, str, int, int]:
+        def date_convert(data: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
             try:
                 date_part = data['Время съёмки'].split(' ')[0]
                 time_part = data['Время съёмки'].split(' ')[1]
@@ -951,7 +965,7 @@ class EditExifData(QDialog):
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
     # считать все поля ввода
-    def read_enter(self) -> list[str, ...]:
+    def read_enter(self) -> list[str]:
         maker = self.maker_line.text()
         camera = self.camera_line.text()
         lens = self.lens_line.text()
@@ -978,15 +992,15 @@ class EditExifData(QDialog):
     def block_check_gps(self) -> None:
         if self.sender().text() == "ШД Г.м.с":
             if self.mode_check_dmc.checkState() == 2:
-                self.mode_check_fn.setCheckState(0)
+                self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
-                self.mode_check_fn.setCheckState(2)
+                self.mode_check_fn.setCheckState(Qt.Checked)
 
         elif self.sender().text() == "Числом":
             if self.mode_check_fn.checkState() == 2:
-                self.mode_check_dmc.setCheckState(0)
+                self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
-                self.mode_check_dmc.setCheckState(2)
+                self.mode_check_dmc.setCheckState(Qt.Checked)
 
         if self.mode_check_fn.checkState() == 2:
             self.longitude_fn_line.setDisabled(False)

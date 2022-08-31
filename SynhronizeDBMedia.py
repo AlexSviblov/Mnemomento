@@ -14,7 +14,7 @@ cur = conn.cursor()
 
 
 # получить все каталоги+файлы из ФотоДБ (таблицы фото и соцсети)
-def get_all_db_ways() -> tuple[list[list[str, str], ...], list[list[str, str], ...]]:
+def get_all_db_ways() -> tuple[list[list[str]], list[list[str]]]:
 
     sql_str1 = "SELECT catalog, filename FROM photos"
     sql_str2 = "SELECT catalog, filename FROM socialnetworks"
@@ -29,7 +29,7 @@ def get_all_db_ways() -> tuple[list[list[str, str], ...], list[list[str, str], .
 
 
 # проверить существуют ли файлы из БД на диске
-def check_exists_from_db(all_photos_db: list[list[str, str], ...], all_socnets_db: list[list[str, str], ...]) -> None:
+def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[list[str]]) -> None:
     for i in range(0, len(all_photos_db)):
         if os.path.exists(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}"):
             if Settings.get_destination_media() not in all_photos_db[i][0]:
@@ -63,7 +63,7 @@ def check_exists_from_db(all_photos_db: list[list[str, str], ...], all_socnets_d
 
 
 # найти все фото в директории хранения медиа
-def research_all_media_photos() -> list[str, ...]:
+def research_all_media_photos() -> list[list[str]]:
     filelist = []
     path = Settings.get_destination_media()
     for root, dirs, files in os.walk(path):
@@ -76,7 +76,7 @@ def research_all_media_photos() -> list[str, ...]:
 
 
 # Если фото есть в директории хранения, но нет в БД - записать
-def add_flaw_to_db(filelist: list[str, ...]) -> None:
+def add_flaw_to_db(filelist: list[list[str]]) -> None:
     for combo in filelist:
         photoname = combo[1]
         photodirectory = combo[0]

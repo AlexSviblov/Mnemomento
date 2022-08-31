@@ -59,7 +59,7 @@ def EXIF_text_to_float(exif_dannye: str) -> float:  # EXIF ебанутый, м�
 
 
 # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
-def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, ...]:
+def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
 
     metadata = dict()
 
@@ -253,7 +253,7 @@ def exif_for_db(photoname: str, photodirectory: str, own_dir: str) -> tuple[str,
 
 
 # exif для показа в режиме редактирования
-def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict:
+def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict[str, str]:
     all_data = read_exif(photoname, photodirectory, own_dir)
     useful_data = dict()
 
@@ -700,7 +700,7 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
 
 
 # Замена неправильного названия для выбора группировки на правильное
-def equip_name_check(equip_list: list[str, ...], type: str) -> list[str,...]:
+def equip_name_check(equip_list: list[str], type: str) -> list[str]:
     for i in range(len(equip_list)):
         sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{equip_list[i]}\''
         cur.execute(sql_str)
