@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 import shutil
@@ -17,11 +18,6 @@ font14 = QtGui.QFont('Times', 14)
 
 stylesheet1 = str()
 stylesheet2 = str()
-stylesheet3 = str()
-stylesheet4 = str()
-stylesheet5 = str()
-stylesheet6 = str()
-stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 
@@ -52,26 +48,12 @@ class SettingWin(QMainWindow):
     def stylesheet_color(self):
         global stylesheet1
         global stylesheet2
-        global stylesheet3
-        global stylesheet4
-        global stylesheet5
-        global stylesheet6
-        global stylesheet7
         global stylesheet8
         global stylesheet9
 
         if get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
-                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
             stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
@@ -80,15 +62,6 @@ class SettingWin(QMainWindow):
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
-                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
             stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
                           "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
@@ -242,6 +215,7 @@ class SettingWidget(QWidget):
     # какие пути изменили, какие нет
     def check_changes(self) -> None:
         code = 0
+
         if self.old_media_dir != self.media_space_line.text() and not self.old_thumb_dir != self.thumbs_space_line.text():
             code = 1
         elif not self.old_media_dir != self.media_space_line.text() and self.old_thumb_dir != self.thumbs_space_line.text():
@@ -269,17 +243,16 @@ class SettingWidget(QWidget):
         jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
                        'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color}
 
-        try:
-            with open('settings.json', 'w') as json_file:
-                json.dump(jsondata_wr, json_file)
-        except FileNotFoundError:
-            # TODO
-            pass
 
-        self.parent().stylesheet_color()
+        with open('settings.json', 'w') as json_file:
+            json.dump(jsondata_wr, json_file)
+
+
+        self.parent().stylesheet_color()    # type: ignore[attr-defined]
 
         notice_win = Notification(self)
         notice_win.show()
+
         if dir_thumb_chosen != self.old_thumb_dir or dir_media_chosen != self.old_media_dir or num_thumbs != self.old_num_thumbs or theme_color != self.old_theme_color:
             self.update_main_widget.emit()
 
@@ -321,8 +294,8 @@ class TransferFiles(QDialog):
         self.code = code
 
         self.setWindowTitle("Необходим перенос файлов")
-        self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
+        self.layout_win = QGridLayout(self)
+        self.setLayout(self.layout_win)
         self.text_info = QLabel(self)
         self.text_info.setFont(font14)
 
@@ -346,9 +319,9 @@ class TransferFiles(QDialog):
         self.reject_btn.setStyleSheet(stylesheet8)
         self.reject_btn.clicked.connect(self.func_reject)
 
-        self.layout.addWidget(self.text_info, 0, 0, 1, 2)
-        self.layout.addWidget(self.accept_btn, 1, 0, 1, 1)
-        self.layout.addWidget(self.reject_btn, 1, 1, 1, 1)
+        self.layout_win.addWidget(self.text_info, 0, 0, 1, 2)
+        self.layout_win.addWidget(self.accept_btn, 1, 0, 1, 1)
+        self.layout_win.addWidget(self.reject_btn, 1, 1, 1, 1)
 
     def func_accept(self) -> None:
         self.text_info.hide()
@@ -364,8 +337,8 @@ class TransferFiles(QDialog):
         self.label.setStyleSheet(stylesheet2)
         self.movie.start()
 
-        self.layout.addWidget(self.label, 0, 0, 1, 1)
-        self.layout.addWidget(self.text, 0, 1, 1, 1)
+        self.layout_win.addWidget(self.label, 0, 0, 1, 1)
+        self.layout_win.addWidget(self.text, 0, 1, 1, 1)
 
         proccess = DoTransfer(self.code, self.old_media, self.new_media, self.old_thumb, self.new_thumb)
         proccess.finished.connect(self.func_finished)
@@ -458,12 +431,9 @@ class Notification(QDialog):
 
 # получить путь хранения медиа - для других модулей
 def get_destination_media() -> str:
-    try:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-    except FileNotFoundError:
-        # TODO
-        pass
+
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
 
     destination_media = settings['destination_dir']
 
@@ -472,12 +442,9 @@ def get_destination_media() -> str:
 
 # получить путь хранения миниатюр - для других модулей
 def get_destination_thumb() -> str:
-    try:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-    except FileNotFoundError:
-        # TODO
-        pass
+
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
 
     destination_thumb = settings['thumbs_dir']
 
@@ -486,12 +453,10 @@ def get_destination_thumb() -> str:
 
 # количество миниатюр в строке
 def get_thumbs_rows() -> str:
-    try:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-    except FileNotFoundError:
-        # TODO
-        pass
+
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
+
 
     thumbs_rows = settings['thumbs_rows']
 
@@ -500,12 +465,9 @@ def get_thumbs_rows() -> str:
 
 # режим переноса фото при добавлении
 def get_photo_transfer_mode() -> str:
-    try:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-    except FileNotFoundError:
-        # TODO
-        pass
+
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
 
     transfer_mode = settings['transfer_mode']
 
@@ -514,12 +476,9 @@ def get_photo_transfer_mode() -> str:
 
 # выбранная визуальная тема
 def get_theme_color() -> str:
-    try:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-    except FileNotFoundError:
-        # TODO
-        pass
+
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
 
     theme_color = settings['color_theme']
 

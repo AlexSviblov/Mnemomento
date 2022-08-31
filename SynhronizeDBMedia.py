@@ -40,7 +40,7 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
                 if '/alone/' in all_photos_db[i][0]:
                     FilesDirs.transfer_const_photos(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}")
                 elif '/const/' in all_photos_db[i][0]:
-                    FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}")
+                    FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}", f"{all_photos_db[i][1]}")
         else:
             sql_str_del = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
             cur.execute(sql_str_del)
@@ -55,7 +55,7 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
                 if '/alone/' in all_socnets_db[i][0]:
                     FilesDirs.transfer_const_photos(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}")
                 elif '/const/' in all_socnets_db[i][0]:
-                    FilesDirs.transfer_alone_photos(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}")
+                    FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}", f"{all_socnets_db[i][1]}")
         else:
             sql_str = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
             cur.execute(sql_str)

@@ -1,15 +1,15 @@
+import logging
 import os
-import pyexiv2
-from PIL import Image
+import pyexiv2          # type: ignore[import]
+from PIL import Image   # type: ignore[import]
 import sqlite3
 
 import ErrorsAndWarnings
 
-try:
-    conn = sqlite3.connect('ErrorNames.db')
-except:
-    # TODO
-    raise ErrorsAndWarnings.ErnamesDBConnectionError()
+
+conn = sqlite3.connect('ErrorNames.db')
+
+
 cur = conn.cursor()
 
 

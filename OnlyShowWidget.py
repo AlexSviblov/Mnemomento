@@ -4,8 +4,8 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
-import pyexiv2
-from PIL import Image
+import pyexiv2          # type: ignore[import]
+from PIL import Image   # type: ignore[import]
 import Screenconfig
 import Metadata
 import Settings
@@ -17,8 +17,6 @@ import json
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
-stylesheet4 = str()
-stylesheet5 = str()
 stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
@@ -114,8 +112,6 @@ class WidgetWindow(QWidget):
         global stylesheet1
         global stylesheet2
         global stylesheet3
-        global stylesheet4
-        global stylesheet5
         global stylesheet6
         global stylesheet7
         global stylesheet8
@@ -125,10 +121,6 @@ class WidgetWindow(QWidget):
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
             stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
                           "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
@@ -141,11 +133,6 @@ class WidgetWindow(QWidget):
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
                           "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
@@ -212,7 +199,7 @@ class WidgetWindow(QWidget):
     # функция показа большой картинки
     def showinfo(self) -> None:
         try:
-            self.button_text = self.sender().text()
+            self.button_text = self.sender().text() # type: ignore[attr-defined]
         except AttributeError:
             if self.last_clicked == '':
                 return
@@ -242,10 +229,21 @@ class WidgetWindow(QWidget):
 
         self.metadata_show.setRowCount(rows)
 
-        for i in range(rows):
-            self.metadata_show.setItem(i, 0, QTableWidgetItem(params[i]))
-            self.metadata_show.setItem(i, 1, QTableWidgetItem(metadata[params[i]]))
+        r = 0
+        max_len = 0
+        for i in range(len(params)):
+            if metadata[params[i]]:
+                self.metadata_show.setItem(r, 0, QTableWidgetItem(params[i]))
+                self.metadata_show.setItem(r, 1, QTableWidgetItem(metadata[params[i]]))
+                r += 1
+                if len(metadata[params[i]]) > max_len:
+                    max_len = len(metadata[params[i]])
 
+        self.metadata_show.setColumnWidth(1, max_len*12)
+
+        if self.metadata_show.columnWidth(1) < 164:
+            self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
+            self.metadata_show.setColumnWidth(1, 164)
 
         self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
 
@@ -990,13 +988,13 @@ class EditExifData(QDialog):
 
     # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
     def block_check_gps(self) -> None:
-        if self.sender().text() == "ШД Г.м.с":
+        if self.sender().text() == "ШД Г.м.с":  # type: ignore[attr-defined]
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
                 self.mode_check_fn.setCheckState(Qt.Checked)
 
-        elif self.sender().text() == "Числом":
+        elif self.sender().text() == "Числом":  # type: ignore[attr-defined]
             if self.mode_check_fn.checkState() == 2:
                 self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
@@ -1116,12 +1114,6 @@ class ConfirmClear(QDialog):
         self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
 
         btn_ok.clicked.connect(self.accept_signal.emit)
+        btn_ok.clicked.connect(self.close)
         btn_cancel.clicked.connect(self.reject_signal.emit)
-
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    form = WidgetWindow()
-    form.show()
-    app.exec_()
+        btn_cancel.clicked.connect(self.close)

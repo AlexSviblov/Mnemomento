@@ -1,0 +1,12 @@
+31-Aug-22 22:19:04 - ERROR - Error in <class '__main__.MainWindow'> - Cannot open ErrorNames.db
+Traceback (most recent call last):
+  File "C:\Users\Public\AppData\TestForPhotoPr\MainWindow.py", line 319, in db_ernames_view_func
+    self.window_db = DB_window(self)
+  File "C:\Users\Public\AppData\TestForPhotoPr\MainWindow.py", line 632, in __init__
+    self.widget_db = ErNamesDB.ViewBDDialog(self)
+  File "C:\Users\Public\AppData\TestForPhotoPr\ErNamesDB.py", line 62, in __init__
+    self.get_bd_info()
+  File "C:\Users\Public\AppData\TestForPhotoPr\ErNamesDB.py", line 194, in get_bd_info
+    cur.execute("SELECT * FROM ernames")
+sqlite3.OperationalError: no such table: ernames
+31-Aug-22 23:07:30 - ERROR - Попытка неверной записи метаданных IMG_3790.jpg, C:/Users/Public/AppData/TestForPhotoPr/Media/Photo/alone/25Настя, 4, ytrff

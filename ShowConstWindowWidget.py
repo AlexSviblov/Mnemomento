@@ -19,8 +19,6 @@ import math
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
-stylesheet4 = str()
-stylesheet5 = str()
 stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
@@ -143,8 +141,6 @@ class ConstWidgetWindow(QWidget):
         global stylesheet1
         global stylesheet2
         global stylesheet3
-        global stylesheet4
-        global stylesheet5
         global stylesheet6
         global stylesheet7
         global stylesheet8
@@ -154,10 +150,6 @@ class ConstWidgetWindow(QWidget):
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
             stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
                           "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
@@ -171,10 +163,6 @@ class ConstWidgetWindow(QWidget):
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
             stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
             stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
                           "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
@@ -548,10 +536,17 @@ class ConstWidgetWindow(QWidget):
 
         self.metadata_show.setRowCount(rows)
 
-        for i in range(rows):
-            self.metadata_show.setItem(i, 0, QTableWidgetItem(params[i]))
-            self.metadata_show.setItem(i, 1, QTableWidgetItem(metadata[params[i]]))
+        r = 0
+        max_len = 0
+        for i in range(len(params)):
+            if metadata[params[i]]:
+                self.metadata_show.setItem(r, 0, QTableWidgetItem(params[i]))
+                self.metadata_show.setItem(r, 1, QTableWidgetItem(metadata[params[i]]))
+                r += 1
+                if len(metadata[params[i]]) > max_len:
+                    max_len = len(metadata[params[i]])
 
+        self.metadata_show.setColumnWidth(1, max_len*12)
 
         if self.metadata_show.columnWidth(1) < 164:
             self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
@@ -717,8 +712,6 @@ class ConstWidgetWindow(QWidget):
         dialog_del.clear_info.connect(self.clear_after_del)
         if dialog_del.exec():
             self.last_clicked = ''
-        elif dialog_del.reject():
-            return
 
     # редактирование exif
     def edit_exif_func(self) -> None:
@@ -1246,7 +1239,7 @@ class EqualNames(QDialog):
             new_new_name = self.new_name.text() + '.' + self.format
 
             if os.path.exists(self.old_photo_dir + new_new_name):
-                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
+                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)     # type: ignore[assignment]
                 err_win.show()
                 return
 
@@ -1262,7 +1255,7 @@ class EqualNames(QDialog):
             new_old_name = self.old_name.text() + '.' + self.format
 
             if os.path.exists(self.old_photo_dir + new_old_name):
-                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
+                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)     # type: ignore[assignment]
                 err_win.show()
                 return
 
@@ -1938,13 +1931,13 @@ class EditExifData(QDialog):
 
     # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
     def block_check_gps(self) -> None:
-        if self.sender().text() == "ШД Г.м.с":
+        if self.sender().text() == "ШД Г.м.с":    # type: ignore[attr-defined]
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
                 self.mode_check_fn.setCheckState(Qt.Checked)
 
-        elif self.sender().text() == "Числом":
+        elif self.sender().text() == "Числом":  # type: ignore[attr-defined]
             if self.mode_check_fn.checkState() == 2:
                 self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
@@ -2173,9 +2166,3 @@ class ConfirmClear(QDialog):
         btn_cancel.clicked.connect(self.reject_signal.emit)
         btn_cancel.clicked.connect(self.close)
 
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    form = ConstWidgetWindow()
-    form.show()
-    app.exec_()

@@ -7,11 +7,7 @@ import sqlite3
 
 import Settings
 
-try:
-    conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
-except:
-    # TODO
-    raise ErrorsAndWarnings.PhotoDBConnectionError()
+conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
 
 cur = conn.cursor()
 

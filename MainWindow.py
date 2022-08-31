@@ -22,13 +22,10 @@ import logging
 
 stylesheet1 = str()
 stylesheet2 = str()
-stylesheet3 = str()
 stylesheet4 = str()
 stylesheet5 = str()
-stylesheet6 = str()
-stylesheet7 = str()
 stylesheet8 = str()
-stylesheet9 = str()
+stylesheet10 = str()
 
 
 font16 = QtGui.QFont('Times', 16)
@@ -37,7 +34,7 @@ font12 = QtGui.QFont('Times', 12)
 font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 
-logging.basicConfig(filename="logs.txt", level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
 
 
 class MainWindow(QMainWindow):
@@ -59,6 +56,7 @@ class MainWindow(QMainWindow):
         self.menubar.setStyleSheet(stylesheet4)
 
         add_menu = self.menubar.addMenu('Добавить')
+        add_menu.setStyleSheet(stylesheet10)
 
         add_const_files_bar = QAction('Добавить файлы в общий каталог', self)
         add_const_files_bar.triggered.connect(self.func_add_const_files)
@@ -74,6 +72,7 @@ class MainWindow(QMainWindow):
         add_menu.addAction(add_const_alone_directory)
 
         view_menu = self.menubar.addMenu('Посмотреть')
+        view_menu.setStyleSheet(stylesheet10)
 
         view_dir = QAction('Просмотр папки', self)
         view_dir.triggered.connect(self.func_view_dir)
@@ -116,47 +115,31 @@ class MainWindow(QMainWindow):
     def stylesheet_color(self):
         global stylesheet1
         global stylesheet2
-        global stylesheet3
         global stylesheet4
         global stylesheet5
-        global stylesheet6
-        global stylesheet7
         global stylesheet8
-        global stylesheet9
+        global stylesheet10
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
             stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
                           "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
-
             stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
-                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
             stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
-
+            stylesheet10 = "QMenu{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                           "QMenu::item::selected{border: 2px; background-color: #C0C0C0;}"
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
             stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
                           "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
-
             stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
-                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
             stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
                           "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            stylesheet10 = "QMenu{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                           "QMenu::item::selected{border: 2px; background-color: #2F2F2F;}"
 
         self.setStyleSheet(stylesheet2)
         try:
@@ -262,7 +245,7 @@ class MainWindow(QMainWindow):
     # одноразовый просмотр файлов
     def func_view_files(self) -> None:
         view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        photo_files_list = view_files_chosen[0]
+        self.photo_files_list_view = view_files_chosen[0]
 
         if not self.photo_files_list_view:
             return
@@ -294,7 +277,7 @@ class MainWindow(QMainWindow):
             win.show()
             self.start_show()
         else:
-            win = ErrorsAndWarnings.PhotoExists(self, files, "alone")
+            win = ErrorsAndWarnings.PhotoExists(self, files, "alone")   # type: ignore[assignment]
             win.show()
             self.show_main_alone_widget()
 
@@ -332,7 +315,14 @@ class MainWindow(QMainWindow):
 
     # Таблица с изменёнными именами
     def db_ernames_view_func(self) -> None:
-        self.window_db = DB_window(self)
+        try:
+            self.window_db = DB_window(self)
+        except Exception:
+            logging.exception(f"Error in {type(self)} - Cannot open ErrorNames.db")
+            er_win = ErrorsAndWarnings.ErNamesDBErrorWin(self)
+            er_win.show()
+            return
+
         self.window_db.resize(self.window_db.size())
         self.window_db.main_resize_signal.connect(self.resize_db_window)
         self.window_db.show()
@@ -372,6 +362,7 @@ class MainWindow(QMainWindow):
         window_set.update_main_widget.connect(self.update_settings_widget)
         window_set.show()
 
+    # восстановление
     def recovery_func(self):
         self.recovery_win = RecoveryModule.RecoveryWin(self)
         self.recovery_win.show()
@@ -578,7 +569,12 @@ class StartShow(QWidget):
     # Собрать и вывести статистику основного каталога
     def fill_const_stats(self) -> None:
         str_to_show = ''
-        size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/const/')
+        try:
+            size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/const/')
+        except:
+            self.const_stats.setText(str_to_show)
+            return
+
         if size < 1024:
             str_size = f'Объём основного каталога: {round(size, 3)} байт\n'
         elif size < 1024**2:
@@ -597,7 +593,11 @@ class StartShow(QWidget):
     # Собрать и вывести статистику дополнительного каталога
     def fill_alone_stats(self) -> None:
         str_to_show = ''
-        size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/alone/')
+        try:
+            size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/alone/')
+        except:
+            self.alone_stats.setText(str_to_show)
+            return
         numdir = fullnum - numfiles
         if size < 1024:
             str_size = f'Объём дополнительного каталога: {round(size, 3)} байт\n'
@@ -806,7 +806,6 @@ class TimeMaker(QtCore.QThread):
         for file in self.files_list:
             self.info_text.emit(f"Идёт обработка файла {file}")
             Thumbnail.make_thumbnails_view(file)
-            logging.info(f"{file} обработан для разового просмотра")
             self.info_text.emit(f"Обработка файла {file} завершена")
             j += 1
             self.progress.emit(round(100 * (j / self.len_file_list)))
@@ -821,7 +820,6 @@ if __name__ == "__main__":
         win = MainWindow()
         win.show()
     except Exception as e:
-        print(e.__class__.__name__)
-        print(e)
+        logging.exception(f"ALL PROGRAM ERROR - Error {e} - __name__ == \"__main__\" - ")
 
     sys.exit(app.exec_())

@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import sys
 import ErrorsAndWarnings
@@ -19,11 +20,8 @@ stylesheet8 = str()
 stylesheet9 = str()
 
 
-try:
-    conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
-except:
-    # TODO
-    raise ErrorsAndWarnings.ErnamesDBConnectionError()
+conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
+
 
 cur = conn.cursor()
 
