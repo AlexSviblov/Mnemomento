@@ -523,8 +523,7 @@ class ConstWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif(Metadata.read_exif(self.last_clicked_name, photo_directory, self.own_dir),
-                                             self.last_clicked_name, photo_directory)
+        metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name, photo_directory)
 
         self.photo_rotation = metadata['Rotation']
         params = list(metadata.keys())
@@ -542,10 +541,10 @@ class ConstWidgetWindow(QWidget):
         for i in range(len(params)):
             if metadata[params[i]]:
                 self.metadata_show.setItem(r, 0, QTableWidgetItem(params[i]))
-                self.metadata_show.setItem(r, 1, QTableWidgetItem(metadata[params[i]]))
+                self.metadata_show.setItem(r, 1, QTableWidgetItem(str(metadata[params[i]])))
                 r += 1
-                if len(metadata[params[i]]) > max_len:
-                    max_len = len(metadata[params[i]])
+                if len(str(metadata[params[i]])) > max_len:
+                    max_len = len(str(metadata[params[i]]))
 
         self.metadata_show.setColumnWidth(1, max_len*12)
 
@@ -1730,8 +1729,7 @@ class EditExifData(QDialog):
 
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
-        own_dir = os.getcwd()
-        data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
+        data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
         def date_convert(data):
             try:
@@ -1770,17 +1768,17 @@ class EditExifData(QDialog):
                                 self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
 
         def fill_equip_set():
-            self.maker_line.setText(data['Производитель'])
-            self.camera_line.setText(data['Камера'])
-            self.lens_line.setText(data['Объектив'])
-            self.time_line.setText(data['Выдержка'])
-            self.iso_line.setText(data['ISO'])
-            self.fnumber_line.setText(data['Диафрагма'])
-            self.flength_line.setText(data['Фокусное расстояние'])
-            self.cammode_line.setText(data['Режим съёмки'])
-            self.flashmode_line.setText(data['Режим вспышки'])
-            self.serialbody_line.setText(data['Серийный номер камеры'])
-            self.seriallens_line.setText(data['Серийный номер объектива'])
+            self.maker_line.setText(str(data['Производитель']))
+            self.camera_line.setText(str(data['Камера']))
+            self.lens_line.setText(str(data['Объектив']))
+            self.time_line.setText(str(data['Выдержка']))
+            self.iso_line.setText(str(data['ISO']))
+            self.fnumber_line.setText(str(data['Диафрагма']))
+            self.flength_line.setText(str(data['Фокусное расстояние']))
+            self.cammode_line.setText(str(data['Режим съёмки']))
+            self.flashmode_line.setText(str(data['Режим вспышки']))
+            self.serialbody_line.setText(str(data['Серийный номер камеры']))
+            self.seriallens_line.setText(str(data['Серийный номер объектива']))
 
         def fill_gps():
             coords_all = data['Координаты']
@@ -1827,7 +1825,7 @@ class EditExifData(QDialog):
         for parameter in range(len(data)):
             self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
-            self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
+            self.table.setItem(parameter, 1, QTableWidgetItem(str(data[keys[parameter]])))
 
         year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min = date_convert(data)
 
@@ -2099,7 +2097,7 @@ class EditExifData(QDialog):
             # self.photodirectory = 'C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30'
             # self.photoname = 'IMG_0866.jpg'
             if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname):
-                Metadata.clear_exif(self.photoname, self.photodirectory, os.getcwd())
+                Metadata.clear_exif(self.photoname, self.photodirectory)
                 PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
                 shutil.move(self.photodirectory + '/' + self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname)
                 PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info', self.photodirectory)
@@ -2167,4 +2165,3 @@ class ConfirmClear(QDialog):
         btn_ok.clicked.connect(self.close)
         btn_cancel.clicked.connect(self.reject_signal.emit)
         btn_cancel.clicked.connect(self.close)
-

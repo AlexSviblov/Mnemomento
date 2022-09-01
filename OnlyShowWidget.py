@@ -1,12 +1,12 @@
 import logging
 import math
-import sys, os
+import sys
+import os
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
-import pyexiv2          # type: ignore[import]
-from PIL import Image   # type: ignore[import]
+from PIL import Image
 import Screenconfig
 import Metadata
 import Settings
@@ -217,7 +217,7 @@ class WidgetWindow(QWidget):
 
         pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif(Metadata.read_exif(self.button_text, self.photo_directory, self.own_dir),
+        metadata = Metadata.filter_exif(Metadata.read_exif(self.button_text),
                                              self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
@@ -1101,7 +1101,7 @@ class EditExifData(QDialog):
     # очистка exif
     def clear_exif_func(self) -> None:
         def accepted():
-            Metadata.clear_exif(self.photoname, self.photodirectory, os.getcwd())
+            Metadata.clear_exif(self.photoname, self.photodirectory)
             self.get_metadata(self.photoname, self.photodirectory)
             self.edited_signal.emit()
 

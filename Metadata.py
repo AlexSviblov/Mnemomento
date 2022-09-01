@@ -1,11 +1,10 @@
 import logging
 import os
-import pyexiv2          # type: ignore[import]
-from PIL import Image   # type: ignore[import]
+import exif
+from PIL import Image
 import sqlite3
 
 import ErrorsAndWarnings
-
 
 conn = sqlite3.connect('ErrorNames.db')
 
@@ -14,20 +13,11 @@ cur = conn.cursor()
 
 
 # считать весь exif из фотографии
-def read_exif(photofile: str, photo_directory: str, own_dir: str) -> dict:  # функция чтения всех метаданных из файла
-    os.chdir(photo_directory)  # pyexiv2.Image умеет работать только с английским языком, поэтому меняем директорию, тогда можно будет указывать только название самого файла, а его легко переименовать
-    try:
-        img = pyexiv2.Image(photofile)
-        data = img.read_exif()
-    except RuntimeError:    # Если в названии файла есть русские буквы, модуль его не считает, нужно переименовать, а потом обратно
-        photofile_old = photofile
-        os.rename(photofile, '123456789012345678901234567890.jpg')
-        photofile = '123456789012345678901234567890.jpg'
-        img = pyexiv2.Image(photofile)
-        data = img.read_exif()
-        os.rename('123456789012345678901234567890.jpg', photofile_old)
-    img.close()
-    os.chdir(own_dir)
+def read_exif(photofile: str) -> dict:  # функция чтения всех метаданных из файла
+    with open(photofile, 'rb') as img:
+        img = exif.Image(photofile)
+        data = img.get_all()
+
     return data
 
 
@@ -48,27 +38,17 @@ def date_from_exif(file_dir: str, own_dir: str, file: str) -> tuple[int,str,str,
     return error, day, month, year
 
 
-# преобразование ебанутых дробей в exif в нормальные числа
-def EXIF_text_to_float(exif_dannye: str) -> float:  # EXIF ебанутый, меняем дробные значения на float для показа
-    s1 = exif_dannye
-    s2 = s1.split('/')
-    s3 = float(s2[0])
-    s4 = float(s2[1])
-    s5 = float(s3 / s4)
-    return s5
-
-
 # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
 def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
 
     metadata = dict()
 
     try:
-        width = data['Exif.Image.ImageWidth']
-        height = data['Exif.Image.ImageLength']
+        width = data['image_width']
+        height = data['image_height']
         metadata['Разрешение'] = width + 'x' + height
     except KeyError:
-        im = Image.open(photo_directory + '/' + photofile)
+        im = Image.open(photo_directory + photofile)
         width, height = im.size
         metadata['Разрешение'] = str(width) + 'x' + str(height)
 
@@ -78,14 +58,14 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Rotation'] = 'ver'
 
     try:
-        date = data['Exif.Photo.DateTimeOriginal']  # делаем дату русской, а не пиндосской
+        date = data['datetime_original']  # делаем дату русской, а не пиндосской
         date_show = date[11:] + ' ' + date[8:10] + '.' + date[5:7] + '.' + date[0:4]
         metadata['Дата съёмки'] = date_show
     except KeyError:
         metadata['Дата съёмки'] = ''
 
     try:
-        maker = data['Exif.Image.Make']
+        maker = data['make']
         sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
         cur.execute(sql_str)
         try:
@@ -98,7 +78,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Производитель'] = ''
 
     try:
-        camera = data['Exif.Image.Model']
+        camera = data['model']
 
         sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
         cur.execute(sql_str)
@@ -112,7 +92,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Камера'] = ''
 
     try:
-        lens = data['Exif.Photo.LensModel']
+        lens = data['lens_model']
 
         sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
         cur.execute(sql_str)
@@ -126,20 +106,20 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Объектив'] = ''
 
     try:
-        FocalLength_float = EXIF_text_to_float(data['Exif.Photo.FocalLength'])
+        FocalLength_float = data['focal_length']
         metadata['Фокусное расстояние'] = str(int(FocalLength_float))
     except KeyError:
         metadata['Фокусное расстояние'] = ''
 
     try:
-        FNumber_float = EXIF_text_to_float(data['Exif.Photo.FNumber'])
+        FNumber_float = data['f_number']
         metadata['Диафрагма'] = str(FNumber_float)
     except KeyError:
         metadata['Диафрагма'] = ''
 
     try:
-        expo_time_fraction = data['Exif.Photo.ExposureTime']
-        expo_time_float = EXIF_text_to_float(data['Exif.Photo.ExposureTime'])
+        expo_time_fraction = data['exposure_time']
+        expo_time_float = data['exposure_time']
         if expo_time_float >= 0.1:
             expo_time_str = str(expo_time_float)
             metadata['Выдержка'] = expo_time_str
@@ -149,28 +129,28 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Выдержка'] = ''
 
     try:
-        iso = data['Exif.Photo.ISOSpeedRatings']
+        iso = data['photographic_sensitivity']
         metadata['ISO'] = iso
     except KeyError:
         metadata['ISO'] = ''
 
     try:
-        GPSLatitudeRef = data['Exif.GPSInfo.GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = data['Exif.GPSInfo.GPSLatitude']
-        GPSLongitudeRef = data['Exif.GPSInfo.GPSLongitudeRef']
-        GPSLongitude = data['Exif.GPSInfo.GPSLongitude']
+        GPSLatitudeRef = data['gps_latitude_ref']  # Считывание GPS из метаданных
+        GPSLatitude = data['gps_latitude']
+        GPSLongitudeRef = data['gps_longitude_ref']
+        GPSLongitude = data['gps_longitude']
 
         if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
 
-            GPSLatitude_splitted = GPSLatitude.split(' ')  # Приведение координат к десятичным числам, как на Я.Картах
-            GPSLongitude_splitted = GPSLongitude.split(' ')
+            GPSLatitude_splitted = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+            GPSLongitude_splitted = list(GPSLongitude)
 
             GPSLongitude_float = list()
             GPSLatitude_float = list()
 
             for i in range(0, 3):
-                GPSLongitude_float.append(EXIF_text_to_float(GPSLongitude_splitted[i]))
-                GPSLatitude_float.append((EXIF_text_to_float(GPSLatitude_splitted[i])))
+                GPSLongitude_float.append(GPSLongitude_splitted[i])
+                GPSLatitude_float.append((GPSLatitude_splitted[i]))
 
             GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
             GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600
@@ -198,40 +178,40 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 
 # данные для вноса в БД photos
-def exif_for_db(photoname: str, photodirectory: str, own_dir: str) -> tuple[str, str, str, str]:
-    data = read_exif(photoname, photodirectory, own_dir)
+def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str]:
+    data = read_exif(photodirectory + photoname)
 
     try:
-        camera = data['Exif.Image.Model']
+        camera = data['model']
     except KeyError:
         camera = "No data"
 
     try:
-        lens = data['Exif.Photo.LensModel']
+        lens = data['lens_model']
     except KeyError:
         lens = "No data"
 
     try:
-        date = data['Exif.Photo.DateTimeOriginal']  # делаем дату русской, а не пиндосской
+        date = data['datetime_original']  # делаем дату русской, а не пиндосской
         date = date[0:4] + '.' + date[5:7] + '.' + date[8:10] + ' ' + date[11:]
     except KeyError:
         date = "No data"
 
     try:
-        GPSLatitudeRef = data['Exif.GPSInfo.GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = data['Exif.GPSInfo.GPSLatitude']
-        GPSLongitudeRef = data['Exif.GPSInfo.GPSLongitudeRef']
-        GPSLongitude = data['Exif.GPSInfo.GPSLongitude']
+        GPSLatitudeRef = data['gps_latitude_ref']  # Считывание GPS из метаданных
+        GPSLatitude = data['gps_latitude']
+        GPSLongitudeRef = data['gps_longitude_ref']
+        GPSLongitude = data['gps_longitude']
 
-        GPSLatitude_splitted = GPSLatitude.split(' ')  # Приведение координат к десятичным числам, как на Я.Картах
-        GPSLongitude_splitted = GPSLongitude.split(' ')
+        GPSLatitude_splitted = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+        GPSLongitude_splitted = list(GPSLongitude)
 
         GPSLongitude_float = list()
         GPSLatitude_float = list()
 
         for i in range(0, 3):
-            GPSLongitude_float.append(EXIF_text_to_float(GPSLongitude_splitted[i]))
-            GPSLatitude_float.append((EXIF_text_to_float(GPSLatitude_splitted[i])))
+            GPSLongitude_float.append(GPSLongitude_splitted[i])
+            GPSLatitude_float.append((GPSLatitude_splitted[i]))
 
         GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
         GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
@@ -253,12 +233,15 @@ def exif_for_db(photoname: str, photodirectory: str, own_dir: str) -> tuple[str,
 
 
 # exif для показа в режиме редактирования
-def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict[str, str]:
-    all_data = read_exif(photoname, photodirectory, own_dir)
+def exif_show_edit(photoname: str) -> dict[str, str]:
+    with open(photoname, 'rb') as img:
+        img = exif.Image(photoname)
+        all_data = img.get_all()
+
     useful_data = dict()
 
     try:
-        maker = all_data['Exif.Image.Make']
+        maker = all_data['make']
         sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
         cur.execute(sql_str)
         try:
@@ -270,7 +253,7 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict[st
         useful_data['Производитель'] = ''
 
     try:
-        camera = all_data['Exif.Image.Model']
+        camera = all_data['model']
         sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
         cur.execute(sql_str)
         try:
@@ -282,7 +265,7 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict[st
         useful_data['Камера'] = ''
 
     try:
-        lens = all_data['Exif.Photo.LensModel']
+        lens = all_data['lens_model']
 
         sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
         cur.execute(sql_str)
@@ -295,75 +278,75 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict[st
         useful_data['Объектив'] = ''
 
     try:
-        if EXIF_text_to_float(all_data['Exif.Photo.ExposureTime']) < 0.5:
-            useful_data['Выдержка'] = str(all_data['Exif.Photo.ExposureTime'])
+        if all_data['exposure_time'] < 0.5:
+            useful_data['Выдержка'] = str(all_data['exposure_time'])
         else:
-            useful_data['Выдержка'] = str(EXIF_text_to_float(all_data['Exif.Photo.ExposureTime']))
+            useful_data['Выдержка'] = str(all_data['exposure_time'])
     except KeyError:
         useful_data['Выдержка'] = ''
 
     try:
-        useful_data['ISO'] = all_data['Exif.Photo.ISOSpeedRatings']
+        useful_data['ISO'] = all_data['photographic_sensitivity']
     except KeyError:
         useful_data['ISO'] = ''
 
     try:
-        useful_data['Диафрагма'] = str(EXIF_text_to_float(all_data['Exif.Photo.FNumber']))
+        useful_data['Диафрагма'] = str(all_data['f_number'])
     except KeyError:
         useful_data['Диафрагма'] = ''
 
     try:
-        useful_data['Фокусное расстояние'] = str(int(EXIF_text_to_float(all_data['Exif.Photo.FocalLength'])))
+        useful_data['Фокусное расстояние'] = str(int(all_data['focal_length']))
     except KeyError:
         useful_data['Фокусное расстояние'] = ''
 
     try:
-        useful_data['Режим съёмки'] = all_data['Exif.Photo.ExposureProgram']
+        useful_data['Режим съёмки'] = all_data['exposure_program']
     except KeyError:
         useful_data['Режим съёмки'] = ''
 
     try:
-        useful_data['Режим вспышки'] = all_data['Exif.Photo.Flash']
+        useful_data['Режим вспышки'] = all_data['flash']
     except KeyError:
         useful_data['Режим вспышки'] = ''
 
     try:
-        useful_data['Время съёмки'] = all_data['Exif.Photo.DateTimeOriginal']
+        useful_data['Время съёмки'] = all_data['datetime_original']
     except KeyError:
         useful_data['Время съёмки'] = ''
 
     try:
-        useful_data['Часовой пояс'] = all_data['Exif.Photo.OffsetTime']
+        useful_data['Часовой пояс'] = all_data['offset_time']
     except KeyError:
         useful_data['Часовой пояс'] = ''
 
     try:
-        useful_data['Серийный номер камеры'] = all_data['Exif.Photo.BodySerialNumber']
+        useful_data['Серийный номер камеры'] = all_data['body_serial_number']
     except KeyError:
         useful_data['Серийный номер камеры'] = ''
 
     try:
-        useful_data['Серийный номер объектива'] = all_data['Exif.Photo.LensSerialNumber']
+        useful_data['Серийный номер объектива'] = all_data['lens_serial_number']
     except KeyError:
         useful_data['Серийный номер объектива'] = ''
 
     try:
-        GPSLatitudeRef = all_data['Exif.GPSInfo.GPSLatitudeRef']
-        GPSLatitude = all_data['Exif.GPSInfo.GPSLatitude']
-        GPSLongitudeRef = all_data['Exif.GPSInfo.GPSLongitudeRef']
-        GPSLongitude = all_data['Exif.GPSInfo.GPSLongitude']
+        GPSLatitudeRef = all_data['gps_latitude_ref']  # Считывание GPS из метаданных
+        GPSLatitude = all_data['gps_latitude']
+        GPSLongitudeRef = all_data['gps_longitude_ref']
+        GPSLongitude = all_data['gps_longitude']
 
-        GPSLatitude_splitted = GPSLatitude.split(' ')
-        GPSLongitude_splitted = GPSLongitude.split(' ')
+        GPSLatitude_splitted = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+        GPSLongitude_splitted = list(GPSLongitude)
 
         GPSLongitude_float = list()
         GPSLatitude_float = list()
 
         for i in range(0, len(GPSLongitude_splitted)):
-            GPSLongitude_float.append(EXIF_text_to_float(GPSLongitude_splitted[i]))
+            GPSLongitude_float.append(GPSLongitude_splitted[i])
 
         for i in range(0, len(GPSLatitude_splitted)):
-            GPSLatitude_float.append((EXIF_text_to_float(GPSLatitude_splitted[i])))
+            GPSLatitude_float.append((GPSLatitude_splitted[i]))
 
         if len(GPSLongitude_float) == 3:
             GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
@@ -402,8 +385,7 @@ def exif_show_edit(photoname: str, photodirectory: str, own_dir: str) -> dict[st
 
 # modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
 def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, new_value: str, own_dir: str) -> None:
-
-    os.chdir(photodirectory)
+    photofile = photodirectory + '/' + photoname
 
     modify_dict = dict()
     modify_dict1 = dict()
@@ -411,42 +393,36 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     modify_dict3 = dict()
     modify_dict4 = dict()
 
-    try:
-        img = pyexiv2.Image(photoname)
-        renaming = 0
-    except RuntimeError:    # Если в названии файла есть русские буквы, модуль его не считает, нужно переименовать, а потом обратно
-        photofile_old = photoname
-        os.rename(photoname, '123456789012345678901234567890.jpg')
-        photofile = '123456789012345678901234567890.jpg'
-        img = pyexiv2.Image(photofile)
-        renaming = 1
+    with open(photofile, 'rb') as img:
+        img = exif.Image(photofile)
+
 
     if editing_type == 0:
-        modify_dict = {'Exif.Image.Make': str(new_value)}
+        modify_dict = {'make': str(new_value)}
 
     elif editing_type == 1:
-        modify_dict = {'Exif.Image.Model': str(new_value)}
+        modify_dict = {'model': str(new_value)}
 
     elif editing_type == 2:
-        modify_dict = {'Exif.Photo.LensModel': str(new_value)}
+        modify_dict = {'lens_model': str(new_value)}
 
     elif editing_type == 3:
 
         if '/' in new_value:
-            modify_dict = {'Exif.Photo.ExposureTime': str(new_value)}
+            modify_dict = {'exposure_time': str(new_value)}
         elif '.' in new_value:
             float_value = float(new_value)
             after = len(str(float_value).split('.')[1])
             int_value = int(float_value * (10 ** after))
             str_value = str(int_value) + '/' + str(10 ** after)
 
-            modify_dict = {'Exif.Photo.ExposureTime': str(str_value)}
+            modify_dict = {'exposure_time': str(str_value)}
         else:
             str_value = str(new_value) + '/1'
-            modify_dict = {'Exif.Photo.ExposureTime': str(str_value)}
+            modify_dict = {'exposure_time': str(str_value)}
 
     elif editing_type == 4:
-        modify_dict = {'Exif.Photo.ISOSpeedRatings': str(new_value)}
+        modify_dict = {'exposure_time': str(new_value)}
 
     elif editing_type == 5:
         float_value = float(new_value)
@@ -454,29 +430,29 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         int_value = int(float_value * (10 ** after))
         str_value = str(int_value) + '/' + str(10 ** after)
 
-        modify_dict = {'Exif.Photo.FNumber': str(str_value)}
+        modify_dict = {'f_number': str(str_value)}
 
     elif editing_type == 6:
         str_value = str(new_value) + '/1'
-        modify_dict = {'Exif.Photo.FocalLength': str(str_value)}
+        modify_dict = {'focal_length': str(str_value)}
 
     elif editing_type == 7:
-        modify_dict = {'Exif.Photo.ExposureProgram': str(new_value)}
+        modify_dict = {'exposure_program': str(new_value)}
 
     elif editing_type == 8:
-        modify_dict = {'Exif.Photo.Flash': str(new_value)}
+        modify_dict = {'flash': str(new_value)}
 
     elif editing_type == 13:
-        modify_dict = {'Exif.Photo.DateTimeOriginal': str(new_value)}
+        modify_dict = {'datetime_original': str(new_value)}
 
     elif editing_type == 10:
-        modify_dict = {'Exif.Photo.OffsetTime': str(new_value)}
+        modify_dict = {'offset_time': str(new_value)}
 
     elif editing_type == 11:
-        modify_dict = {'Exif.Photo.BodySerialNumber': str(new_value)}
+        modify_dict = {'body_serial_number': str(new_value)}
 
     elif editing_type == 12:
-        modify_dict = {'Exif.Photo.LensSerialNumber': str(new_value)}
+        modify_dict = {'lens_serial_number': str(new_value)}
 
     elif editing_type == 9:
         new_value_splitted = new_value.split(', ')
@@ -517,28 +493,27 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
 
         GPSLongitude = grad_long_str + ' ' + minut_long_str + ' ' + secund_long_str
 
-        modify_dict1 = {'Exif.GPSInfo.GPSLatitudeRef': GPSLatitudeRef}
-        modify_dict2 = {'Exif.GPSInfo.GPSLatitude': GPSLatitude}
-        modify_dict3 = {'Exif.GPSInfo.GPSLongitudeRef': GPSLongitudeRef}
-        modify_dict4 = {'Exif.GPSInfo.GPSLongitude': GPSLongitude}
+        modify_dict1 = {'gps_latitude_ref': GPSLatitudeRef}
+        modify_dict2 = {'gps_latitude': GPSLatitude}
+        modify_dict3 = {'gps_longitude_ref': GPSLongitudeRef}
+        modify_dict4 = {'gps_longitude': GPSLongitude}
 
     # Сделать сам модифай
     if modify_dict:
-        img.modify_exif(modify_dict)
+        print(list(modify_dict.keys())[0])
+        print(modify_dict[f"{list(modify_dict.keys())[0]}"])
+        img.set(list(modify_dict.keys())[0], modify_dict[f"{list(modify_dict.keys())[0]}"])
 
     if modify_dict1:
-        img.modify_exif(modify_dict1)
-        img.modify_exif(modify_dict2)
-        img.modify_exif(modify_dict3)
-        img.modify_exif(modify_dict4)
+        img.set(list(modify_dict1.keys())[0], modify_dict1[f"{list(modify_dict1.keys())[0]}"])
+        img.set(list(modify_dict2.keys())[0], modify_dict2[f"{list(modify_dict2.keys())[0]}"])
+        img.set(list(modify_dict3.keys())[0], modify_dict3[f"{list(modify_dict3.keys())[0]}"])
+        img.set(list(modify_dict4.keys())[0], modify_dict4[f"{list(modify_dict4.keys())[0]}"])
 
-    img.close()
+    with open(f"{photoname}1", 'wb') as new_file:
+        new_file.write(img.get_file())
 
-    if renaming != 1:
-        pass
-    else:
-        os.rename('123456789012345678901234567890.jpg', photofile_old)
-    os.chdir(own_dir)
+
 
 
 # проверка ввода при редактировании exif
@@ -546,25 +521,7 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
 
     # Ошибка ввода вызывает ошибку для except в объекте окна, который уже там делает return
     def make_error():
-        # Если имело место переименование, надо переименовать обратно, иначе фото, по сути будет потеряно
-        if renaming != 1:
-            pass
-        else:
-            os.rename('123456789012345678901234567890.jpg', photofile_old)
-        os.chdir(own_dir)
         raise ErrorsAndWarnings.EditExifError()
-
-    os.chdir(photodirectory)
-
-    try:
-        img = pyexiv2.Image(photoname)
-        renaming = 0
-    except RuntimeError:    # Если в названии файла есть русские буквы, модуль его не считает, нужно переименовать, а потом обратно
-        photofile_old = photoname
-        os.rename(photoname, '123456789012345678901234567890.jpg')
-        photofile = '123456789012345678901234567890.jpg'
-        img = pyexiv2.Image(photofile)
-        renaming = 1
 
     if editing_type == 3:
         if '/' in new_value:
@@ -690,13 +647,6 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except (ValueError, IndexError):
             make_error()
 
-    img.close()
-
-    if renaming != 1:
-        pass
-    else:
-        os.rename('123456789012345678901234567890.jpg', photofile_old)
-    os.chdir(own_dir)
 
 
 # Замена неправильного названия для выбора группировки на правильное
@@ -726,26 +676,9 @@ def equip_name_check_reverse(normname: str, type: str) -> str:
     return exifname
 
 
-def clear_exif(photoname: str, photodirectory: str, own_dir: str):
-    os.chdir(photodirectory)
-
-    try:
-        img = pyexiv2.Image(photoname)
-        renaming = 0
-    except RuntimeError:  # Если в названии файла есть русские буквы, модуль его не считает, нужно переименовать, а потом обратно
-        photofile_old = photoname
-        os.rename(photoname, '123456789012345678901234567890.jpg')
-        photofile = '123456789012345678901234567890.jpg'
-        img = pyexiv2.Image(photofile)
-        renaming = 1
-
-    img.clear_exif()
-
-    img.close()
-
-    if renaming != 1:
-        pass
-    else:
-        os.rename('123456789012345678901234567890.jpg', photofile_old)
-    os.chdir(own_dir)
+def clear_exif(photoname: str, photodirectory: str):
+    photofile = photodirectory + '/' + photoname
+    with open(photofile, 'wb') as img:
+        img = exif.Image(photofile)
+        img.delete_all()
 

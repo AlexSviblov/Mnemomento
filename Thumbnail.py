@@ -1,4 +1,4 @@
-from PIL import Image   # type: ignore[import]
+from PIL import Image
 import os
 import shutil
 import Settings
