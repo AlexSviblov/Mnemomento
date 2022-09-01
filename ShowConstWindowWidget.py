@@ -1,3 +1,4 @@
+import logging
 import sys
 import os
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -2004,6 +2005,7 @@ class EditExifData(QDialog):
         try:
             check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
         except ErrorsAndWarnings.EditExifError:
+            logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
             win_err = ErrorsAndWarnings.EditExifError_win(self)
             win_err.show()
             return

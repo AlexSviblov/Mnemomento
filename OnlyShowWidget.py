@@ -1,3 +1,4 @@
+import logging
 import math
 import sys, os
 from PyQt5 import QtWidgets, QtGui, QtCore
@@ -85,7 +86,7 @@ class WidgetWindow(QWidget):
         self.layout_btns = QGridLayout(self)
         self.layout_btns.setSpacing(0)
 
-        self.make_edit_btn()
+        self.make_buttons()
 
         self.groupbox_btns = QGroupBox(self)
         self.groupbox_btns.setLayout(self.layout_btns)
@@ -210,6 +211,7 @@ class WidgetWindow(QWidget):
 
         self.pic.clear()  # очистка от того, что показано сейчас
 
+        # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
 
@@ -218,7 +220,7 @@ class WidgetWindow(QWidget):
         metadata = Metadata.filter_exif(Metadata.read_exif(self.button_text, self.photo_directory, self.own_dir),
                                              self.button_text, self.photo_directory)
 
-        self.photo_rotation = metadata['Rotation']
+        self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
         params = list(metadata.keys())
         params.remove('Rotation')
 
@@ -294,7 +296,7 @@ class WidgetWindow(QWidget):
             self.showinfo()
 
     # создание кнопки редактирования
-    def make_edit_btn(self) -> None:
+    def make_buttons(self) -> None:
         self.edit_btn = QToolButton(self)
         # self.edit_btn.setIcon()
         self.edit_btn.setText('RED')
@@ -302,6 +304,20 @@ class WidgetWindow(QWidget):
         self.edit_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.edit_btn, 0, 0, 1, 1)
         self.edit_btn.clicked.connect(self.edit_photo_func)
+
+        self.explorer_btn = QToolButton(self)
+        self.explorer_btn.setStyleSheet(stylesheet1)
+        self.explorer_btn.setText('EXP')
+        self.explorer_btn.setFixedSize(50, 50)
+        self.layout_btns.addWidget(self.explorer_btn, 1, 0, 1, 1)
+        self.explorer_btn.clicked.connect(self.call_explorer)
+
+        self.open_file_btn = QToolButton(self)
+        self.open_file_btn.setStyleSheet(stylesheet1)
+        self.open_file_btn.setText('OPN')
+        self.open_file_btn.setFixedSize(50, 50)
+        self.layout_btns.addWidget(self.open_file_btn, 2, 0, 1, 1)
+        self.open_file_btn.clicked.connect(self.open_file_func)
 
     # функция редактирования
     def edit_photo_func(self) -> None:
@@ -313,6 +329,25 @@ class WidgetWindow(QWidget):
         dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory)
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
+
+
+    # открыть фотографию в приложении просмотра
+    def open_file_func(self) -> None:
+        if not self.pic.isVisible() or not self.last_clicked:
+            return
+
+        path = self.photo_file  # 'C:/Users/user/Pictures/IMG_0454.jpg'
+        os.startfile(path)
+
+    # показать фото в проводнике
+    def call_explorer(self) -> None:
+        if not self.pic.isVisible() or not self.last_clicked:
+            return
+
+        open_path = self.photo_file # 'C:/Users/user/Pictures/IMG_0454.jpg'
+        path = open_path.replace('/', '\\')
+        exp_str = f'explorer /select,\"{path}\"'
+        os.system(exp_str)
 
     # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:
@@ -1055,6 +1090,7 @@ class EditExifData(QDialog):
         try:
             check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
         except ErrorsAndWarnings.EditExifError:
+            logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
             win_err = ErrorsAndWarnings.EditExifError_win(self)
             win_err.show()
             return

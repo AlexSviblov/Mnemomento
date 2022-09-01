@@ -55,8 +55,8 @@ class MainWindow(QMainWindow):
         self.menubar.setFont(font8)
         self.menubar.setStyleSheet(stylesheet4)
 
-        add_menu = self.menubar.addMenu('Добавить')
-        add_menu.setStyleSheet(stylesheet10)
+        self.add_menu = self.menubar.addMenu('Добавить')
+        self.add_menu.setStyleSheet(stylesheet10)
 
         add_const_files_bar = QAction('Добавить файлы в общий каталог', self)
         add_const_files_bar.triggered.connect(self.func_add_const_files)
@@ -67,12 +67,12 @@ class MainWindow(QMainWindow):
         add_const_alone_directory = QAction('Добавить папку в дополнительный каталог', self)
         add_const_alone_directory.triggered.connect(self.func_add_alone_dir) 
 
-        add_menu.addAction(add_const_files_bar)
-        add_menu.addAction(add_const_directory_bar)
-        add_menu.addAction(add_const_alone_directory)
+        self.add_menu.addAction(add_const_files_bar)
+        self.add_menu.addAction(add_const_directory_bar)
+        self.add_menu.addAction(add_const_alone_directory)
 
-        view_menu = self.menubar.addMenu('Посмотреть')
-        view_menu.setStyleSheet(stylesheet10)
+        self.view_menu = self.menubar.addMenu('Посмотреть')
+        self.view_menu.setStyleSheet(stylesheet10)
 
         view_dir = QAction('Просмотр папки', self)
         view_dir.triggered.connect(self.func_view_dir)
@@ -86,10 +86,10 @@ class MainWindow(QMainWindow):
         view_alone_dir = QAction('Просмотр дополнительного каталога', self)
         view_alone_dir.triggered.connect(self.show_main_alone_widget)
 
-        view_menu.addAction(view_dir)
-        view_menu.addAction(view_files)
-        view_menu.addAction(view_const_dir)
-        view_menu.addAction(view_alone_dir)
+        self.view_menu.addAction(view_dir)
+        self.view_menu.addAction(view_files)
+        self.view_menu.addAction(view_const_dir)
+        self.view_menu.addAction(view_alone_dir)
 
         database_ernames_menu = QAction('База исправлений', self)
         self.menubar.addAction(database_ernames_menu)
@@ -144,6 +144,8 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(stylesheet2)
         try:
             self.menubar.setStyleSheet(stylesheet4)
+            self.view_menu.setStyleSheet(stylesheet10)
+            self.add_menu.setStyleSheet(stylesheet10)
         except AttributeError:
             pass
 

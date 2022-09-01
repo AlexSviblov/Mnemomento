@@ -17,7 +17,7 @@ def make_files_list_from_dir(directory: str) -> list[str]:
 
 
 # Создание миниатюр для основного каталога
-def transfer_const_photos(file: str) -> str:
+def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/1.jpg'
     destination = Settings.get_destination_media() + '/Media/Photo/const/'
     mode = Settings.get_photo_transfer_mode()
 
@@ -105,7 +105,7 @@ def transfer_const_photos(file: str) -> str:
 
 
 # Создание миниатюр для дополнительного каталога
-def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:
+def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:    # photo_directory = 'C:/Users/user/Pictures/СНГ'    # photofile = 'C:/Users/user/Pictures/СНГ/20191231133253_IMG_2339.jpg'
     destination = Settings.get_destination_media() + '/Media/Photo/alone/'
     mode = Settings.get_photo_transfer_mode()
 

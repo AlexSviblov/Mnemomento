@@ -188,7 +188,8 @@ class AloneWidgetWindow(QWidget):
         self.btn_add_photos.setFont(font14)
         self.btn_add_photos.setStyleSheet(stylesheet8)
         self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
-        self.btn_add_photos.clicked.connect(lambda: self.add_photo_signal.emit(self.directory_choose.currentText()))
+        self.btn_add_photos.clicked.connect(self.add_files_to_dir)
+        self.btn_add_photos.setFixedWidth(200)
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self) -> None:
@@ -212,7 +213,6 @@ class AloneWidgetWindow(QWidget):
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
-
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
@@ -226,20 +226,24 @@ class AloneWidgetWindow(QWidget):
             stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
 
-
         try:
+            self.setStyleSheet(stylesheet2)
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
             self.scroll_area.setStyleSheet(stylesheet2)
-            self.groupbox_sort.setStyleSheet(stylesheet2)   # type: ignore[attr-defined]
             self.groupbox_btns.setStyleSheet(stylesheet2)
             self.socnet_group.setStyleSheet(stylesheet6)
             self.photo_show.setStyleSheet(stylesheet2)
             self.metadata_show.setStyleSheet(stylesheet6)
-            self.setStyleSheet(stylesheet2)
-            self.group_type.setStyleSheet(stylesheet1)      # type: ignore[attr-defined]
+            self.groupbox_directory_choose.setStyleSheet(stylesheet2)
+            self.sn_status.setStyleSheet(stylesheet9)
+            self.socnet_choose.setStyleSheet(stylesheet9)
+            self.photo_filter.setStyleSheet(stylesheet2)
+            self.directory_delete.setStyleSheet(stylesheet8)
+            self.directory_choose.setStyleSheet(stylesheet9)
+            self.directory_lbl.setStyleSheet(stylesheet2)
+            self.btn_add_photos.setStyleSheet(stylesheet8)
             self.make_buttons()
-            self.set_sort_layout()                          # type: ignore[attr-defined]
-            self.type_show_thumbnails()                     # type: ignore[attr-defined]
+            self.show_thumbnails()
         except AttributeError:
             pass
 
@@ -692,6 +696,12 @@ class AloneWidgetWindow(QWidget):
 
         self.show_thumbnails()
 
+    # нажатие "добавить файлы", контроль наличия хоть какой-то папки
+    def add_files_to_dir(self) -> None:
+        if self.directory_choose.currentText():
+            self.add_photo_signal.emit(self.directory_choose.currentText())
+        else:
+            pass
 
 # подтвердить удаление фото
 class DelPhotoConfirm(QDialog):
@@ -1468,7 +1478,7 @@ class EditExifData(QDialog):
         try:
             check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
         except ErrorsAndWarnings.EditExifError:
-            logging.error(f"Попытка неверной записи метаданных {photoname}, {photodirectory}, {editing_type}, {new_text}")
+            logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
             win_err = ErrorsAndWarnings.EditExifError_win(self)
             win_err.show()
             return
