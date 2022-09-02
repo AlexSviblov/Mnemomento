@@ -4,6 +4,7 @@ import exif
 from PIL import Image
 import sqlite3
 from typing import Union
+from GPSPhoto import gpsphoto
 
 import ErrorsAndWarnings
 
@@ -462,23 +463,24 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         modify_dict2 = {'gps_latitude': GPSLatitude}
         modify_dict3 = {'gps_longitude_ref': GPSLongitudeRef}
         modify_dict4 = {'gps_longitude': GPSLongitude}
+        info = gpsphoto.GPSInfo((float_value_lat, float_value_long))
 
     # Сделать сам модифай
     if modify_dict:
-        print(list(modify_dict.keys())[0])
-        print(modify_dict[f"{list(modify_dict.keys())[0]}"])
         img.set(list(modify_dict.keys())[0], modify_dict[f"{list(modify_dict.keys())[0]}"])
-
-    if modify_dict1:
-        img.set(list(modify_dict1.keys())[0], modify_dict1[f"{list(modify_dict1.keys())[0]}"])
-        img.set(list(modify_dict2.keys())[0], modify_dict2[f"{list(modify_dict2.keys())[0]}"])
-        img.set(list(modify_dict3.keys())[0], modify_dict3[f"{list(modify_dict3.keys())[0]}"])
-        img.set(list(modify_dict4.keys())[0], modify_dict4[f"{list(modify_dict4.keys())[0]}"])
 
     with open(f"{photofile}_buffername", 'wb') as new_file:
         new_file.write(img.get_file())
     os.remove(photofile)
     os.rename(f"{photofile}_buffername", photofile)
+
+    if modify_dict1:
+        # img.set(list(modify_dict1.keys())[0], modify_dict1[f"{list(modify_dict1.keys())[0]}"])
+        # img.set(list(modify_dict2.keys())[0], modify_dict2[f"{list(modify_dict2.keys())[0]}"])
+        # img.set(list(modify_dict3.keys())[0], modify_dict3[f"{list(modify_dict3.keys())[0]}"])
+        # img.set(list(modify_dict4.keys())[0], modify_dict4[f"{list(modify_dict4.keys())[0]}"])
+        photo = gpsphoto.GPSPhoto(photofile)
+        photo.modGPSData(info, photofile)
 
 
 # проверка ввода при редактировании exif

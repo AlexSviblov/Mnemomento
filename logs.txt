@@ -14,3 +14,5 @@
 02-Sep-22 13:06:11 - WARNING - unable to read tag 'maker_note'
 02-Sep-22 13:06:11 - WARNING - unable to read tag 'flashpix_version'
 02-Sep-22 13:06:11 - WARNING - unable to read tag '_interoperability_ifd_Pointer'
+02-Sep-22 16:37:55 - WARNING - unable to read tag 'gps_processing_method'
+02-Sep-22 16:37:55 - WARNING - unable to read tag 'gps_processing_method'
