@@ -20,7 +20,7 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
     own_dir = os.getcwd()
 
     # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
-    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(photoname, photodirectory, own_dir)
+    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(photoname, photodirectory)
     if shootingdatetime != "No data":
         shootingdate = shootingdatetime[:10]
     else:

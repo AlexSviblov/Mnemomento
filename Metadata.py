@@ -3,6 +3,7 @@ import os
 import exif
 from PIL import Image
 import sqlite3
+from typing import Union
 
 import ErrorsAndWarnings
 
@@ -22,10 +23,10 @@ def read_exif(photofile: str) -> dict:  # функция чтения всех �
 
 
 # извлечь из фотографии дату съёмки
-def date_from_exif(file_dir: str, own_dir: str, file: str) -> tuple[int,str,str,str]:
-    data = read_exif(file, file_dir, own_dir)
+def date_from_exif(file: str) -> tuple[Union[int, str]]:
+    data = read_exif(file)
     try:    # если дата считывается
-        date = data['Exif.Photo.DateTimeOriginal']
+        date = data['datetime_original']
         day = date[8:10]
         month = date[5:7]
         year = date[0:4]
@@ -44,11 +45,11 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     metadata = dict()
 
     try:
-        width = data['image_width']
-        height = data['image_height']
+        width = str(data['image_width'])
+        height = str(data['image_height'])
         metadata['Разрешение'] = width + 'x' + height
     except KeyError:
-        im = Image.open(photo_directory + photofile)
+        im = Image.open(photo_directory +'/'+ photofile)
         width, height = im.size
         metadata['Разрешение'] = str(width) + 'x' + str(height)
 
@@ -118,19 +119,20 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Диафрагма'] = ''
 
     try:
-        expo_time_fraction = data['exposure_time']
-        expo_time_float = data['exposure_time']
-        if expo_time_float >= 0.1:
-            expo_time_str = str(expo_time_float)
+        expo_time = data['exposure_time']
+        if expo_time >= 0.1:
+            expo_time_str = str(expo_time)
             metadata['Выдержка'] = expo_time_str
         else:
+            denominator = 1/expo_time
+            expo_time_fraction = f"1/{int(denominator)}"
             metadata['Выдержка'] = expo_time_fraction
     except KeyError:
         metadata['Выдержка'] = ''
 
     try:
         iso = data['photographic_sensitivity']
-        metadata['ISO'] = iso
+        metadata['ISO'] = str(iso)
     except KeyError:
         metadata['ISO'] = ''
 
@@ -178,7 +180,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 
 # данные для вноса в БД photos
-def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str]:
+def exif_for_db(photoname: str, photodirectory: str) -> tuple[str]:
     data = read_exif(photodirectory + photoname)
 
     try:
@@ -278,8 +280,10 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
         useful_data['Объектив'] = ''
 
     try:
-        if all_data['exposure_time'] < 0.5:
-            useful_data['Выдержка'] = str(all_data['exposure_time'])
+        if all_data['exposure_time'] < 0.1:
+            denominator = 1/all_data['exposure_time']
+            expo_time_show = f"1/{int(denominator)}"
+            useful_data['Выдержка'] = expo_time_show
         else:
             useful_data['Выдержка'] = str(all_data['exposure_time'])
     except KeyError:
@@ -299,16 +303,6 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
         useful_data['Фокусное расстояние'] = str(int(all_data['focal_length']))
     except KeyError:
         useful_data['Фокусное расстояние'] = ''
-
-    try:
-        useful_data['Режим съёмки'] = all_data['exposure_program']
-    except KeyError:
-        useful_data['Режим съёмки'] = ''
-
-    try:
-        useful_data['Режим вспышки'] = all_data['flash']
-    except KeyError:
-        useful_data['Режим вспышки'] = ''
 
     try:
         useful_data['Время съёмки'] = all_data['datetime_original']
@@ -384,7 +378,7 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
 
 
 # modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
-def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, new_value: str, own_dir: str) -> None:
+def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, new_value: str) -> None:
     photofile = photodirectory + '/' + photoname
 
     modify_dict = dict()
@@ -396,7 +390,6 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     with open(photofile, 'rb') as img:
         img = exif.Image(photofile)
 
-
     if editing_type == 0:
         modify_dict = {'make': str(new_value)}
 
@@ -407,54 +400,35 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         modify_dict = {'lens_model': str(new_value)}
 
     elif editing_type == 3:
-
         if '/' in new_value:
-            modify_dict = {'exposure_time': str(new_value)}
-        elif '.' in new_value:
-            float_value = float(new_value)
-            after = len(str(float_value).split('.')[1])
-            int_value = int(float_value * (10 ** after))
-            str_value = str(int_value) + '/' + str(10 ** after)
-
-            modify_dict = {'exposure_time': str(str_value)}
+            float_value = 1/float(new_value.split('/')[1])
+            modify_dict = {'exposure_time': float_value}
         else:
-            str_value = str(new_value) + '/1'
-            modify_dict = {'exposure_time': str(str_value)}
+            float_value = float(new_value)
+            modify_dict = {'exposure_time': str(float_value)}
 
     elif editing_type == 4:
-        modify_dict = {'exposure_time': str(new_value)}
+        modify_dict = {'photographic_sensitivity': int(new_value)}
 
     elif editing_type == 5:
-        float_value = float(new_value)
-        after = len(str(float_value).split('.')[1])
-        int_value = int(float_value * (10 ** after))
-        str_value = str(int_value) + '/' + str(10 ** after)
-
-        modify_dict = {'f_number': str(str_value)}
+        modify_dict = {'f_number': float(new_value)}
 
     elif editing_type == 6:
-        str_value = str(new_value) + '/1'
-        modify_dict = {'focal_length': str(str_value)}
-
-    elif editing_type == 7:
-        modify_dict = {'exposure_program': str(new_value)}
-
-    elif editing_type == 8:
-        modify_dict = {'flash': str(new_value)}
-
-    elif editing_type == 13:
-        modify_dict = {'datetime_original': str(new_value)}
-
-    elif editing_type == 10:
-        modify_dict = {'offset_time': str(new_value)}
+        modify_dict = {'focal_length': int(new_value)}
 
     elif editing_type == 11:
-        modify_dict = {'body_serial_number': str(new_value)}
+        modify_dict = {'datetime_original': str(new_value)}
 
-    elif editing_type == 12:
-        modify_dict = {'lens_serial_number': str(new_value)}
+    elif editing_type == 8:
+        modify_dict = {'offset_time': str(new_value)}
 
     elif editing_type == 9:
+        modify_dict = {'body_serial_number': str(new_value)}
+
+    elif editing_type == 10:
+        modify_dict = {'lens_serial_number': str(new_value)}
+
+    elif editing_type == 7:
         new_value_splitted = new_value.split(', ')
         float_value_lat = float(new_value_splitted[0])
         float_value_long = float(new_value_splitted[1])
@@ -472,26 +446,17 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         abs_value_lat = abs(float_value_lat)
         grad_lat = int(abs_value_lat)
         minut_lat = int((abs_value_lat - grad_lat) * 60)
-        secund_float_lat = ((abs_value_lat - grad_lat) * 60 - int((abs_value_lat - grad_lat) * 60)) * 60
-        secund_lat = round(secund_float_lat, 6)
+        secund_float_lat = round(((abs_value_lat - grad_lat) * 60 - int((abs_value_lat - grad_lat) * 60)) * 60, 6)
 
-        grad_lat_str = str(grad_lat) + '/1'
-        minut_lat_str = str(minut_lat) + '/1'
-        secund_lat_str = str(int(secund_lat*10000)) + '/10000'
+        GPSLatitude = tuple([float(grad_lat), float(minut_lat), float(secund_float_lat)])
 
-        GPSLatitude = grad_lat_str + ' ' + minut_lat_str + ' ' + secund_lat_str
 
         abs_value_long = abs(float_value_long)
         grad_long = int(abs_value_long)
         minut_long = int((abs_value_long - grad_long) * 60)
-        secund_float_long = ((abs_value_long - grad_long) * 60 - int((abs_value_long - grad_long) * 60)) * 60
-        secund_long = round(secund_float_long, 6)
+        secund_float_long = round(((abs_value_long - grad_long) * 60 - int((abs_value_long - grad_long) * 60)) * 60, 6)
 
-        grad_long_str = str(grad_long) + '/1'
-        minut_long_str = str(minut_long) + '/1'
-        secund_long_str = str(int(secund_long * 10000)) + '/10000'
-
-        GPSLongitude = grad_long_str + ' ' + minut_long_str + ' ' + secund_long_str
+        GPSLongitude = tuple([float(grad_long), float(minut_long), float(secund_float_long)])
 
         modify_dict1 = {'gps_latitude_ref': GPSLatitudeRef}
         modify_dict2 = {'gps_latitude': GPSLatitude}
@@ -510,19 +475,20 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         img.set(list(modify_dict3.keys())[0], modify_dict3[f"{list(modify_dict3.keys())[0]}"])
         img.set(list(modify_dict4.keys())[0], modify_dict4[f"{list(modify_dict4.keys())[0]}"])
 
-    with open(f"{photoname}1", 'wb') as new_file:
+    with open(f"{photofile}_buffername", 'wb') as new_file:
         new_file.write(img.get_file())
-
-
+    os.remove(photofile)
+    os.rename(f"{photofile}_buffername", photofile)
 
 
 # проверка ввода при редактировании exif
-def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_value: str, own_dir: str) -> None:
+def exif_check_edit(editing_type: int, new_value: str) -> None:
 
     # Ошибка ввода вызывает ошибку для except в объекте окна, который уже там делает return
     def make_error():
         raise ErrorsAndWarnings.EditExifError()
 
+    # выдержка
     if editing_type == 3:
         if '/' in new_value:
             try:
@@ -530,19 +496,13 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
                     make_error()
             except Exception:
                 make_error()
-        elif '.' in new_value:
-            try:
-                float_value = float(new_value)
-                if float_value < 0:
-                    make_error()
-            except ValueError:
-                make_error()
         else:
             try:
-                int(new_value)
+                float(new_value)
             except ValueError:
                 make_error()
 
+    # ISO
     elif editing_type == 4:
         try:
             int(new_value)
@@ -551,16 +511,16 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except ValueError:
             make_error()
 
+    # диафрагма
     elif editing_type == 5:
         try:
             float_value = float(new_value)
-            after = len(str(float_value).split('.')[1])
-            int_value = int(float_value * (10 ** after))
             if float_value < 0:
                 make_error()
         except ValueError:
             make_error()
 
+    # фокусное расстояние
     elif editing_type == 6:
         try:
             if int(new_value) < 0:
@@ -568,25 +528,8 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except ValueError:
             make_error()
 
-    elif editing_type == 7:
-        try:
-            if int(new_value) < 10:
-                pass
-            else:
-                make_error()
-        except ValueError:
-            make_error()
-
-    elif editing_type == 8:
-        try:
-            if int(new_value) < 256:
-                pass
-            else:
-                make_error()
-        except ValueError:
-            make_error()
-
-    elif editing_type == 13:
+    # дата съёмки
+    elif editing_type == 11:
         try:
             int(new_value[0:4])
 
@@ -623,7 +566,8 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except ValueError:
             make_error()
 
-    elif editing_type == 10:
+    # часовой пояс
+    elif editing_type == 8:
         try:
             int(new_value[1])
             int(new_value[2])
@@ -638,7 +582,8 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
         except (ValueError, IndexError):
             make_error()
 
-    elif editing_type == 9:
+    # GPS
+    elif editing_type == 7:
         new_value_splitted = new_value.split(', ')
 
         try:
@@ -646,7 +591,6 @@ def exif_check_edit(photoname: str, photodirectory: str, editing_type: int, new_
             float(new_value_splitted[1])
         except (ValueError, IndexError):
             make_error()
-
 
 
 # Замена неправильного названия для выбора группировки на правильное

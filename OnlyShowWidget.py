@@ -819,7 +819,7 @@ class EditExifData(QDialog):
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
         own_dir = os.getcwd()
-        data = Metadata.exif_show_edit(photoname, photodirectory, own_dir)
+        data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
         # Дата и время съёмки из формата exif в формат QDateTime
         def date_convert(data: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
@@ -1078,17 +1078,17 @@ class EditExifData(QDialog):
     def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
         # Перезаписать в exif и БД новые метаданные
         def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text, own_dir)
+            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
 
         # проверка введённых пользователем метаданных
-        def check_enter(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_check_edit(photoname, photodirectory, editing_type, new_text, own_dir)
+        def check_enter(editing_type: int, new_text: str) -> None:
+            Metadata.exif_check_edit(editing_type, new_text)
 
         own_dir = os.getcwd()
 
         # проверка введённых пользователем метаданных
         try:
-            check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
+            check_enter(editing_type, new_text)
         except ErrorsAndWarnings.EditExifError:
             logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
             win_err = ErrorsAndWarnings.EditExifError_win(self)

@@ -1249,7 +1249,7 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
-            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 13, self.full_exif_date, os.getcwd())
+            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 13, self.full_exif_date)
             PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
         else:       # переименовывается файл в папке назначения
             new_old_name = self.old_name.text() + '.' + self.format
@@ -1264,7 +1264,7 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
-            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, 13, self.full_exif_date, os.getcwd())
+            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, 13, self.full_exif_date)
             PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
         self.file_rename_transfer_signal.emit()
         self.close()
@@ -1989,19 +1989,19 @@ class EditExifData(QDialog):
     def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
         # Перезаписать в exif и БД новые метаданные
         def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text, own_dir)
+            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
             PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
 
         # проверка введённых пользователем метаданных
-        def check_enter(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
-            Metadata.exif_check_edit(photoname, photodirectory, editing_type, new_text, own_dir)
+        def check_enter(editing_type: int, new_text: str) -> None:
+            Metadata.exif_check_edit(editing_type, new_text)
 
         # Если изменение метаданных в таблице - дело рук программы, а не пользователя (не было предшествующего двойного нажатия)
         own_dir = os.getcwd()
 
         # проверка введённых пользователем метаданных
         try:
-            check_enter(photoname, photodirectory, editing_type, new_text, own_dir)
+            check_enter(editing_type, new_text)
         except ErrorsAndWarnings.EditExifError:
             logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
             win_err = ErrorsAndWarnings.EditExifError_win(self)

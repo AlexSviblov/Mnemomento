@@ -29,7 +29,7 @@ def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/
         file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/
                                             # file_full[-1] = IMG_3805.jpg
 
-    error, day, month, year = Metadata.date_from_exif(file_dir, current_dir, file_full[-1])
+    error, day, month, year = Metadata.date_from_exif(file)
 
     fileexist = ''
 
