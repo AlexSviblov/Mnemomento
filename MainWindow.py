@@ -34,7 +34,7 @@ font12 = QtGui.QFont('Times', 12)
 font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 
-logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S')
+logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
 
 class MainWindow(QMainWindow):
@@ -151,20 +151,20 @@ class MainWindow(QMainWindow):
 
     # добавить в основной каталог на постоянку файлы
     def func_add_const_files(self) -> None:
-        add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        file_list = add_files_chosen[0]
+        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        file_list = self.add_files_chosen[0]
         if not file_list:
             return
 
-        progressbar = ProgressBar()
-        self.setCentralWidget(progressbar)
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
 
-        add_files_progress = ConstMaker(file_list=file_list)
-        add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        add_files_progress.finished.connect(lambda h: self.finish_thread_add_const(h))
-        add_files_progress.start()
+        self.add_files_progress = ConstMaker(file_list=file_list)
+        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(lambda h: self.finish_thread_add_const(h))
+        self.add_files_progress.start()
 
     # добавить в основной каталог на постоянку папку
     def func_add_const_dir(self) -> None:
@@ -174,15 +174,15 @@ class MainWindow(QMainWindow):
         except FileNotFoundError:
             return
 
-        progressbar = ProgressBar()
-        self.setCentralWidget(progressbar)
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
 
-        add_dir_progress = ConstMaker(file_list=file_list)
-        add_dir_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        add_dir_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        add_dir_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        add_dir_progress.finished.connect(self.finish_thread_add_const)
-        add_dir_progress.start()
+        self.add_files_progress = ConstMaker(file_list=file_list)
+        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(self.finish_thread_add_const)
+        self.add_files_progress.start()
 
     # добавить в дополнительный каталог папку на постоянку
     def func_add_alone_dir(self) -> None:
@@ -193,20 +193,20 @@ class MainWindow(QMainWindow):
         except FileNotFoundError:
             return
 
-        progressbar = ProgressBar()
-        self.setCentralWidget(progressbar)
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
 
-        add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
-        add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
-        add_files_progress.start()
+        self.add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
+        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
+        self.add_files_progress.start()
 
     # добавить в основной каталог на постоянку файлы
     def func_add_alone_files(self, dir_to_add) -> None:
-        add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        file_list = add_files_chosen[0]
+        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        file_list = self.add_files_chosen[0]
         if not file_list:
             return
         path_splitted = file_list[0].split("/")
@@ -215,52 +215,52 @@ class MainWindow(QMainWindow):
             photo_directory_buf += path_splitted[i] + '/'
         photo_directory = photo_directory_buf[:-1]
 
-        progressbar = ProgressBar()
-        self.setCentralWidget(progressbar)
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
 
-        add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=file_list, mode="files", exists_dir=dir_to_add)
-        add_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        add_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        add_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
-        add_files_progress.start()
+        self.add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=file_list, mode="files", exists_dir=dir_to_add)
+        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
+        self.add_files_progress.start()
 
     # одноразовый просмотр папки
     def func_view_dir(self) -> None:
-        view_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        self.view_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
 
         try:
-            self.photo_files_list_view = FilesDirs.make_files_list_from_dir(view_dir_chosen)
+            self.photo_files_list_view = FilesDirs.make_files_list_from_dir(self.view_dir_chosen)
         except FileNotFoundError:
             return
 
-        progressbar = ProgressBar()
-        self.setCentralWidget(progressbar)
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
 
-        view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
-        view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        view_files_progress.finished.connect(self.finish_thread_view_dir)
-        view_files_progress.start()
+        self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
+        self.view_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.view_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.view_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.view_files_progress.finished.connect(self.finish_thread_view_dir)
+        self.view_files_progress.start()
 
     # одноразовый просмотр файлов
     def func_view_files(self) -> None:
-        view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
-        self.photo_files_list_view = view_files_chosen[0]
+        self.view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        self.photo_files_list_view = self.view_files_chosen[0]
 
         if not self.photo_files_list_view:
             return
 
-        progressbar = ProgressBar()
-        self.setCentralWidget(progressbar)
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
 
-        view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
-        view_files_progress.preprogress.connect(lambda x: progressbar.progressbar_set_max(x))
-        view_files_progress.progress.connect(lambda y: progressbar.progressbar_set_value(y))
-        view_files_progress.info_text.connect(lambda t: progressbar.info_set_text(t))
-        view_files_progress.finished.connect(self.finish_thread_view_dir)
-        view_files_progress.start()
+        self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
+        self.view_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.view_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.view_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.view_files_progress.finished.connect(self.finish_thread_view_dir)
+        self.view_files_progress.start()
 
     # По окончании добавления файлов в основной каталог, запустить виджет его показа
     def finish_thread_add_const(self, files: list) -> None:
@@ -269,6 +269,7 @@ class MainWindow(QMainWindow):
             win = ErrorsAndWarnings.PhotoExists(self, files, "const")
             win.show()
         self.show_main_const_widget()
+        self.add_files_progress = None
 
     # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
     def finish_thread_add_alone(self, files: str) -> None:
@@ -282,10 +283,12 @@ class MainWindow(QMainWindow):
             win = ErrorsAndWarnings.PhotoExists(self, files, "alone")   # type: ignore[assignment]
             win.show()
             self.show_main_alone_widget()
+        self.add_files_progress = None
 
     # По окончании создания миниатюр разового просмотра, запустить виджет показа
     def finish_thread_view_dir(self) -> None:
         self.show_view_dir()
+        self.view_files_progress = None
 
     # Виджет показа основного каталога
     def show_main_const_widget(self) -> None:
@@ -775,7 +778,7 @@ class AloneMaker(QtCore.QThread):
                 if os.path.exists(desination_dir + '/' + file_name):
                     file_exists.append(file)
                 else:
-                    FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir, mode='files')
+                    FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir, type_add='files')
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
                 self.info_text.emit(f"Обработка файла {file} завершена")
@@ -817,6 +820,20 @@ class TimeMaker(QtCore.QThread):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    do = 0
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
+
+        if os.path.isdir(settings["destination_dir"]) and os.path.isdir(settings["thumbs_dir"]):
+            pass
+        else:
+            do = 1
+    if do:
+        with open('settings.json', 'w') as json_file:
+            bsl = '\\'
+            new_set = {"destination_dir": f"{os.getcwd().replace(bsl, '/')}", "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}", "transfer_mode": "copy", "thumbs_row": "2", "color_theme": "light"}
+            json.dump(new_set, json_file)
 
     try:
         win = MainWindow()

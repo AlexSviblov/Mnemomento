@@ -1,10 +1,10 @@
 import logging
 import os
-import exif
-from PIL import Image
+import exif                     # type: ignore[import]
+from PIL import Image           # type: ignore[import]
 import sqlite3
 from typing import Union
-from GPSPhoto import gpsphoto
+from GPSPhoto import gpsphoto   # type: ignore[import]
 
 import ErrorsAndWarnings
 
@@ -15,16 +15,17 @@ cur = conn.cursor()
 
 
 # считать весь exif из фотографии
-def read_exif(photofile: str) -> dict:  # функция чтения всех метаданных из файла
+def read_exif(photofile: str) -> dict[str, str]:  # функция чтения всех метаданных из файла
     with open(photofile, 'rb') as img:
+
         img = exif.Image(photofile)
-        data = img.get_all()
+        data = img.get_all()        # type: ignore[attr-defined]
 
     return data
 
 
 # извлечь из фотографии дату съёмки
-def date_from_exif(file: str) -> tuple[Union[int, str]]:
+def date_from_exif(file: str) -> tuple[int, str, str, str]:
     data = read_exif(file)
     try:    # если дата считывается
         date = data['datetime_original']
@@ -34,9 +35,9 @@ def date_from_exif(file: str) -> tuple[Union[int, str]]:
         error = 0
     except KeyError: # если дата не считывается - No_Date_Info
         error = 1
-        day = 0
-        month = 0
-        year = 0
+        day = '0'
+        month = '0'
+        year = '0'
     return error, day, month, year
 
 
@@ -145,15 +146,8 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
         if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
 
-            GPSLatitude_splitted = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
-            GPSLongitude_splitted = list(GPSLongitude)
-
-            GPSLongitude_float = list()
-            GPSLatitude_float = list()
-
-            for i in range(0, 3):
-                GPSLongitude_float.append(GPSLongitude_splitted[i])
-                GPSLatitude_float.append((GPSLatitude_splitted[i]))
+            GPSLongitude_float = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+            GPSLatitude_float = list(GPSLongitude)
 
             GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
             GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600
@@ -181,8 +175,8 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 
 # данные для вноса в БД photos
-def exif_for_db(photoname: str, photodirectory: str) -> tuple[str]:
-    data = read_exif(photodirectory + photoname)
+def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str]:
+    data = read_exif(photodirectory + '/' + photoname)
 
     try:
         camera = data['model']
@@ -206,18 +200,11 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str]:
         GPSLongitudeRef = data['gps_longitude_ref']
         GPSLongitude = data['gps_longitude']
 
-        GPSLatitude_splitted = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
-        GPSLongitude_splitted = list(GPSLongitude)
+        GPSLongitude_float = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+        GPSLatitude_float = list(GPSLongitude)
 
-        GPSLongitude_float = list()
-        GPSLatitude_float = list()
-
-        for i in range(0, 3):
-            GPSLongitude_float.append(GPSLongitude_splitted[i])
-            GPSLatitude_float.append((GPSLatitude_splitted[i]))
-
-        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
-        GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
+        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600  # type: ignore[operator]
+        GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600    # type: ignore[operator]
 
         if GPSLongitudeRef == 'E':
             pass
@@ -239,7 +226,7 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str]:
 def exif_show_edit(photoname: str) -> dict[str, str]:
     with open(photoname, 'rb') as img:
         img = exif.Image(photoname)
-        all_data = img.get_all()
+        all_data = img.get_all()    # type: ignore[attr-defined]
 
     useful_data = dict()
 
@@ -383,10 +370,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     photofile = photodirectory + '/' + photoname
 
     modify_dict = dict()
-    modify_dict1 = dict()
-    modify_dict2 = dict()
-    modify_dict3 = dict()
-    modify_dict4 = dict()
+    modify_dict_gps = dict()
 
     with open(photofile, 'rb') as img:
         img = exif.Image(photofile)
@@ -403,19 +387,19 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     elif editing_type == 3:
         if '/' in new_value:
             float_value = 1/float(new_value.split('/')[1])
-            modify_dict = {'exposure_time': float_value}
+            modify_dict = {'exposure_time': float_value}        # type: ignore[dict-item]
         else:
             float_value = float(new_value)
             modify_dict = {'exposure_time': str(float_value)}
 
     elif editing_type == 4:
-        modify_dict = {'photographic_sensitivity': int(new_value)}
+        modify_dict = {'photographic_sensitivity': int(new_value)}  # type: ignore[dict-item]
 
     elif editing_type == 5:
-        modify_dict = {'f_number': float(new_value)}
+        modify_dict = {'f_number': float(new_value)}    # type: ignore[dict-item]
 
     elif editing_type == 6:
-        modify_dict = {'focal_length': int(new_value)}
+        modify_dict = {'focal_length': int(new_value)}  # type: ignore[dict-item]
 
     elif editing_type == 11:
         modify_dict = {'datetime_original': str(new_value)}
@@ -434,53 +418,20 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         float_value_lat = float(new_value_splitted[0])
         float_value_long = float(new_value_splitted[1])
 
-        if float_value_lat < 0:
-            GPSLatitudeRef = 'S'
-        else:
-            GPSLatitudeRef = 'N'
-
-        if float_value_long < 0:
-            GPSLongitudeRef = 'W'
-        else:
-            GPSLongitudeRef = 'E'
-
-        abs_value_lat = abs(float_value_lat)
-        grad_lat = int(abs_value_lat)
-        minut_lat = int((abs_value_lat - grad_lat) * 60)
-        secund_float_lat = round(((abs_value_lat - grad_lat) * 60 - int((abs_value_lat - grad_lat) * 60)) * 60, 6)
-
-        GPSLatitude = tuple([float(grad_lat), float(minut_lat), float(secund_float_lat)])
-
-
-        abs_value_long = abs(float_value_long)
-        grad_long = int(abs_value_long)
-        minut_long = int((abs_value_long - grad_long) * 60)
-        secund_float_long = round(((abs_value_long - grad_long) * 60 - int((abs_value_long - grad_long) * 60)) * 60, 6)
-
-        GPSLongitude = tuple([float(grad_long), float(minut_long), float(secund_float_long)])
-
-        modify_dict1 = {'gps_latitude_ref': GPSLatitudeRef}
-        modify_dict2 = {'gps_latitude': GPSLatitude}
-        modify_dict3 = {'gps_longitude_ref': GPSLongitudeRef}
-        modify_dict4 = {'gps_longitude': GPSLongitude}
-        info = gpsphoto.GPSInfo((float_value_lat, float_value_long))
+        modify_dict_gps = gpsphoto.GPSInfo((float_value_lat, float_value_long))
 
     # Сделать сам модифай
     if modify_dict:
-        img.set(list(modify_dict.keys())[0], modify_dict[f"{list(modify_dict.keys())[0]}"])
+        img.set(list(modify_dict.keys())[0], modify_dict[f"{list(modify_dict.keys())[0]}"]) # type: ignore[attr-defined]
 
     with open(f"{photofile}_buffername", 'wb') as new_file:
-        new_file.write(img.get_file())
+        new_file.write(img.get_file())  # type: ignore[attr-defined]
     os.remove(photofile)
     os.rename(f"{photofile}_buffername", photofile)
 
-    if modify_dict1:
-        # img.set(list(modify_dict1.keys())[0], modify_dict1[f"{list(modify_dict1.keys())[0]}"])
-        # img.set(list(modify_dict2.keys())[0], modify_dict2[f"{list(modify_dict2.keys())[0]}"])
-        # img.set(list(modify_dict3.keys())[0], modify_dict3[f"{list(modify_dict3.keys())[0]}"])
-        # img.set(list(modify_dict4.keys())[0], modify_dict4[f"{list(modify_dict4.keys())[0]}"])
+    if modify_dict_gps:
         photo = gpsphoto.GPSPhoto(photofile)
-        photo.modGPSData(info, photofile)
+        photo.modGPSData(modify_dict_gps, photofile)
 
 
 # проверка ввода при редактировании exif
@@ -605,8 +556,9 @@ def equip_name_check(equip_list: list[str], type: str) -> list[str]:
             equip_list[i] = right_equip
         except TypeError:
             pass
-
-    return equip_list
+        equip_set = set(equip_list)
+        equip_list_final = list(equip_set)
+    return equip_list_final
 
 
 # проверка, является ли переданное имя - исправлением неправильного
@@ -626,5 +578,5 @@ def clear_exif(photoname: str, photodirectory: str):
     photofile = photodirectory + '/' + photoname
     with open(photofile, 'wb') as img:
         img = exif.Image(photofile)
-        img.delete_all()
+        img.delete_all()    # type: ignore[attr-defined]
 

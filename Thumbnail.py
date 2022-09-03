@@ -1,9 +1,9 @@
-from PIL import Image
+import logging
+
+from PIL import Image   # type: ignore[import]
 import os
 import shutil
 import Settings
-
-destination_thumbs = Settings.get_destination_thumb()
 
 
 # получение списка файлов формата jpg из папки
@@ -17,6 +17,7 @@ def get_images_list(directory: str) -> list[str]:
 
 # Создать миниатюры при добавлении папки или файлов "на постоянку" в основной каталог
 def make_const_thumbnails(directory: str, file: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     directory_splitted = directory.split('/')
 
     year = directory_splitted[-3]
@@ -40,6 +41,7 @@ def make_const_thumbnails(directory: str, file: str) -> None:
 
 # Создать миниатюры при добавлении папки или файлов "на постоянку" в дополнительный каталог
 def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_lastname: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     if not os.path.isdir(destination_thumbs + '/thumbnail/alone/' + directory_lastname):
         os.mkdir(destination_thumbs + '/thumbnail/alone/' + directory_lastname)
 
@@ -52,6 +54,7 @@ def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_las
 
 # Сравнение, какие миниатюры лишние, каких недостаточно
 def research_flaw_thumbnails(photo_directory: str, thumbnail_directory: str) -> tuple[list[str], list[str]]:
+    destination_thumbs = Settings.get_destination_thumb()
     thumbnail_directory_splitted = thumbnail_directory.split('/')
     if '/const/' in thumbnail_directory:
         thumb_year = thumbnail_directory_splitted[-3]
@@ -99,6 +102,7 @@ def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_dir
 
 # Создание миниатюр для просмотра
 def make_thumbnails_view(photo_file: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     photo_splitted = photo_file.split('/')
     photo_name = photo_splitted[-1]     # C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/IMG_4090.jpg
     image = Image.open(r"{}".format(photo_file))
@@ -110,6 +114,7 @@ def make_thumbnails_view(photo_file: str) -> None:
 
 # удаление миниатюр фото для разового просмотра
 def delete_exists() -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     existing_thumbs = get_images_list(destination_thumbs + '/thumbnail/view/')
     for file in existing_thumbs:
         os.remove(destination_thumbs + '/thumbnail/view/' + file)
@@ -117,6 +122,7 @@ def delete_exists() -> None:
 
 # Удалить миниатюру файла, удаляемого из основного каталога
 def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     dir_splitted = photodirectory.split('/')
     date_part = dir_splitted[-3]+'/'+dir_splitted[-2]+'/'+dir_splitted[-1]
     thumb_dir = destination_thumbs + '/thumbnail/const/' + date_part
@@ -125,6 +131,7 @@ def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
 
 # перенос миниатюры при изменении даты в метаданных снимка
 def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[str], new_date: list[str], rename_name: str, chosen: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     if chosen == 'old':    # переименовывают файл уже находящийся в папке
         os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
                   destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
@@ -140,6 +147,7 @@ def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[s
 
 # удалить миниатюру после переноса файла
 def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: list[str]) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     new_dir = destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + '/thumbnail_'
     old_dir = destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/'
     if not os.path.isdir(old_dir):
@@ -158,6 +166,7 @@ def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: 
 
 # Удалить миниатюру файла, удаляемого из дополнительного каталога
 def delete_thumbnail_alone(photoname: str, photodirectory: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     dir_splitted = photodirectory.split('/')
     dir_name = dir_splitted[-1]
     thumb_dir = destination_thumbs + '/thumbnail/alone/' + dir_name
@@ -166,6 +175,7 @@ def delete_thumbnail_alone(photoname: str, photodirectory: str) -> None:
 
 # Удалить все миниатюры и сами фото директории из доп.каталога
 def delete_thumb_dir(photodirectory: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
     photo_dir_splitted = photodirectory.split('/')
     dir_name = photo_dir_splitted[-1]
     thumb_dir = destination_thumbs + '/thumbnail/alone/' + dir_name

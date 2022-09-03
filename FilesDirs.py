@@ -22,15 +22,12 @@ def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/
     destination = Settings.get_destination_media() + '/Media/Photo/const/'
     mode = Settings.get_photo_transfer_mode()
 
-    current_dir = os.getcwd()
     file_dir = ''
     file_full = file.split(r'/')
     for i in range(len(file_full)-1):
         file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/
                                             # file_full[-1] = IMG_3805.jpg
-
     error, day, month, year = Metadata.date_from_exif(file)
-
     fileexist = ''
 
     if mode == 'copy':
@@ -49,7 +46,7 @@ def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/
                     os.mkdir(destination + str(year) + '/' + str(month))
                 if not os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):
                     os.mkdir(destination + str(year) + '/' + str(month) + '/' + str(day))
-                    shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1] )
+                    shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1])
                     Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), file_full[-1])
                     PhotoDataDB.add_to_database(file_full[-1], destination + str(year) + '/' + str(month) + '/' + str(day))
         else:   # error == 1
@@ -59,7 +56,7 @@ def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/
                 else:
                     shutil.copy2(file, destination + 'No_Date_Info/No_Date_Info/No_Date_Info/' + file_full[-1])
                     Thumbnail.make_const_thumbnails(destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_full[-1])
-                    PhotoDataDB.add_to_database(file_full[-1] , destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
+                    PhotoDataDB.add_to_database(file_full[-1], destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
             else:
                 os.mkdir(destination + 'No_Date_Info')
                 os.mkdir(destination + 'No_Date_Info/No_Date_Info')

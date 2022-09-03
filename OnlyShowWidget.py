@@ -6,7 +6,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
-from PIL import Image
+from PIL import Image       # type: ignore[import]
 import Screenconfig
 import Metadata
 import Settings
@@ -91,7 +91,7 @@ class WidgetWindow(QWidget):
         self.groupbox_btns = QGroupBox(self)
         self.groupbox_btns.setLayout(self.layout_btns)
         self.groupbox_btns.setStyleSheet(stylesheet2)
-        self.groupbox_btns.setFixedSize(70, 220)
+        self.groupbox_btns.setFixedSize(70, 160)
         self.layoutoutside.addWidget(self.groupbox_btns, 0, 2, 1, 1)
 
         self.show_thumbnails()
@@ -214,11 +214,9 @@ class WidgetWindow(QWidget):
         # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
-
         pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif(Metadata.read_exif(self.button_text),
-                                             self.button_text, self.photo_directory)
+        metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
         params = list(metadata.keys())
@@ -235,8 +233,8 @@ class WidgetWindow(QWidget):
         max_len = 0
         for i in range(len(params)):
             if metadata[params[i]]:
-                self.metadata_show.setItem(r, 0, QTableWidgetItem(params[i]))
-                self.metadata_show.setItem(r, 1, QTableWidgetItem(metadata[params[i]]))
+                self.metadata_show.setItem(r, 0, QTableWidgetItem(str(params[i])))
+                self.metadata_show.setItem(r, 1, QTableWidgetItem(str(metadata[params[i]])))
                 r += 1
                 if len(metadata[params[i]]) > max_len:
                     max_len = len(metadata[params[i]])
@@ -495,12 +493,6 @@ class EditExifData(QDialog):
         self.flength_lbl = QLabel(self)
         self.flength_lbl.setText("Фокусное расстояние:")
 
-        self.cammode_lbl = QLabel(self)
-        self.cammode_lbl.setText("Режим съёмки:")
-
-        self.flashmode_lbl = QLabel(self)
-        self.flashmode_lbl.setText("Режим вспышки:")
-
         self.serialbody_lbl = QLabel(self)
         self.serialbody_lbl.setText("Серийный номер камеры:")
 
@@ -528,12 +520,6 @@ class EditExifData(QDialog):
         self.flength_lbl.setStyleSheet(stylesheet2)
         self.flength_lbl.setFont(font12)
 
-        self.cammode_lbl.setStyleSheet(stylesheet2)
-        self.cammode_lbl.setFont(font12)
-
-        self.flashmode_lbl.setStyleSheet(stylesheet2)
-        self.flashmode_lbl.setFont(font12)
-
         self.serialbody_lbl.setStyleSheet(stylesheet2)
         self.serialbody_lbl.setFont(font12)
 
@@ -547,8 +533,6 @@ class EditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.iso_lbl, 4, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.fnumber_lbl, 5, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.flength_lbl, 6, 0, 1, 1)
-        self.tab_tt_layout.addWidget(self.cammode_lbl, 7, 0, 1, 1)
-        self.tab_tt_layout.addWidget(self.flashmode_lbl, 8, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
@@ -565,10 +549,6 @@ class EditExifData(QDialog):
         self.fnumber_line = QLineEdit(self)
 
         self.flength_line = QLineEdit(self)
-
-        self.cammode_line = QLineEdit(self)
-
-        self.flashmode_line = QLineEdit(self)
 
         self.serialbody_line = QLineEdit(self)
 
@@ -595,12 +575,6 @@ class EditExifData(QDialog):
         self.flength_line.setStyleSheet(stylesheet1)
         self.flength_line.setFont(font12)
 
-        self.cammode_line.setStyleSheet(stylesheet1)
-        self.cammode_line.setFont(font12)
-
-        self.flashmode_line.setStyleSheet(stylesheet1)
-        self.flashmode_line.setFont(font12)
-
         self.serialbody_line.setStyleSheet(stylesheet1)
         self.serialbody_line.setFont(font12)
 
@@ -614,8 +588,6 @@ class EditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.iso_line, 4, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.fnumber_line, 5, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.flength_line, 6, 1, 1, 1)
-        self.tab_tt_layout.addWidget(self.cammode_line, 7, 1, 1, 1)
-        self.tab_tt_layout.addWidget(self.flashmode_line, 8, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.serialbody_line, 9, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_line, 10, 1, 1, 1)
 
@@ -791,11 +763,11 @@ class EditExifData(QDialog):
 
         self.mode_check_fn.setCheckState(Qt.Checked)
 
-        self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(13))
-        self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(10))
-        self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(10))
-        self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(9))
-        self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+        self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(11))
+        self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(8))
+        self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(8))
+        self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
+        self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
 
         self.maker_line.textChanged.connect(lambda: self.changes_to_indicator(0))
         self.camera_line.textChanged.connect(lambda: self.changes_to_indicator(1))
@@ -804,10 +776,8 @@ class EditExifData(QDialog):
         self.iso_line.textChanged.connect(lambda: self.changes_to_indicator(4))
         self.fnumber_line.textChanged.connect(lambda: self.changes_to_indicator(5))
         self.flength_line.textChanged.connect(lambda: self.changes_to_indicator(6))
-        self.cammode_line.textChanged.connect(lambda: self.changes_to_indicator(7))
-        self.flashmode_line.textChanged.connect(lambda: self.changes_to_indicator(8))
-        self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(11))
-        self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(12))
+        self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+        self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
 
     # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
     def changes_to_indicator(self, index: int) -> None:
@@ -861,17 +831,15 @@ class EditExifData(QDialog):
 
         # заполнить поля второй вкладки
         def fill_equip_set() -> None:
-            self.maker_line.setText(data['Производитель'])
-            self.camera_line.setText(data['Камера'])
-            self.lens_line.setText(data['Объектив'])
-            self.time_line.setText(data['Выдержка'])
-            self.iso_line.setText(data['ISO'])
-            self.fnumber_line.setText(data['Диафрагма'])
-            self.flength_line.setText(data['Фокусное расстояние'])
-            self.cammode_line.setText(data['Режим съёмки'])
-            self.flashmode_line.setText(data['Режим вспышки'])
-            self.serialbody_line.setText(data['Серийный номер камеры'])
-            self.seriallens_line.setText(data['Серийный номер объектива'])
+            self.maker_line.setText(str(data['Производитель']))
+            self.camera_line.setText(str(data['Камера']))
+            self.lens_line.setText(str(data['Объектив']))
+            self.time_line.setText(str(data['Выдержка']))
+            self.iso_line.setText(str(data['ISO']))
+            self.fnumber_line.setText(str(data['Диафрагма']))
+            self.flength_line.setText(str(data['Фокусное расстояние']))
+            self.serialbody_line.setText(str(data['Серийный номер камеры']))
+            self.seriallens_line.setText(str(data['Серийный номер объектива']))
 
         # заполнить вкладку GPS
         def fill_gps() -> None:
@@ -1006,8 +974,6 @@ class EditExifData(QDialog):
         iso = self.iso_line.text()
         fnumber = self.fnumber_line.text()
         flenght = self.flength_line.text()
-        cammode = self.cammode_line.text()
-        flashmode = self.flashmode_line.text()
         serialbody = self.serialbody_line.text()
         seriallens = self.seriallens_line.text()
 
@@ -1016,7 +982,7 @@ class EditExifData(QDialog):
 
         gps = self.latitude_fn_line.text() + ", " + self.longitude_fn_line.text()
 
-        all_meta_entered = [maker, camera, lens, time, iso, fnumber, flenght, cammode, flashmode, gps, timezone,
+        all_meta_entered = [maker, camera, lens, time, iso, fnumber, flenght, gps, timezone,
                             serialbody, seriallens, datetime]
 
         return all_meta_entered
@@ -1077,7 +1043,7 @@ class EditExifData(QDialog):
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
+        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
             Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
 
         # проверка введённых пользователем метаданных
@@ -1095,7 +1061,7 @@ class EditExifData(QDialog):
             win_err.show()
             return
 
-        rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+        rewriting(photoname, photodirectory, editing_type, new_text)
         self.edited_signal.emit()
 
     # очистка exif

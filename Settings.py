@@ -243,10 +243,8 @@ class SettingWidget(QWidget):
         jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
                        'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color}
 
-
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
-
 
         self.parent().stylesheet_color()    # type: ignore[attr-defined]
 
@@ -340,13 +338,14 @@ class TransferFiles(QDialog):
         self.layout_win.addWidget(self.label, 0, 0, 1, 1)
         self.layout_win.addWidget(self.text, 0, 1, 1, 1)
 
-        proccess = DoTransfer(self.code, self.old_media, self.new_media, self.old_thumb, self.new_thumb)
-        proccess.finished.connect(self.func_finished)
+        self.proccess = DoTransfer(self.code, self.old_media, self.new_media, self.old_thumb, self.new_thumb)
+        self.proccess.finished.connect(self.func_finished)
 
-        proccess.start()
+        self.proccess.start()
 
     def func_finished(self) -> None:
         self.photo_transfered.emit()
+        self.proccess = None
         self.close()
 
     def func_reject(self) -> None:
@@ -388,7 +387,7 @@ class DoTransfer(QtCore.QThread):
 
                 shutil.move(self.old_thumb + r'/thumbnail', self.new_thumb)
 
-                shutil.rmtree(self.old_media + r'/thumbnail_reserve')
+                shutil.rmtree(self.old_thumb + r'/thumbnail_reserve')
             case 3:
                 shutil.copytree(self.old_media + r'/Media', self.old_media + r'/Media_reserve')
                 shutil.copy(os.getcwd() + '/PhotoDB.db', os.getcwd() + '/PhotoDB_reserve.db')

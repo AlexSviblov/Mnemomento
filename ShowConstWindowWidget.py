@@ -562,32 +562,25 @@ class ConstWidgetWindow(QWidget):
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
-            self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
+            self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
             self.socnet_group.show()
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
-            self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
+            self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
             self.socnet_group.show()
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
+            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
 
         self.show_social_networks(self.last_clicked_name, photo_directory)
         self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
         self.metadata_show.setStyleSheet(stylesheet6)
-
-        if self.max_name_len*12 > self.metadata_show.columnWidth(0):
-            self.socnet_group.setColumnWidth(0, self.max_name_len*12)
-            self.metadata_show.setColumnWidth(0, self.max_name_len*12)
-
-            self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
-            self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1))
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
@@ -734,13 +727,11 @@ class ConstWidgetWindow(QWidget):
 
         def re_show():
             if self.group_type.currentText() == 'Дата':
-                pass
+                self.showinfo()
             else:
-                for i in reversed(range(self.layout_sn.count())):
-                    self.layout_sn.itemAt(i).widget().deleteLater()
-                    self.pic.clear()
-                    self.metadata_show.clear()
-                    self.metadata_show.hide()
+                self.pic.clear()
+                self.metadata_show.clear()
+                self.metadata_show.hide()
 
                 if self.group_type.currentText() == 'Соцсети':
                     self.socnet_choose.setCurrentText(old_network)
@@ -760,7 +751,8 @@ class ConstWidgetWindow(QWidget):
 
         if self.group_type.currentText() == 'Дата':
             dialog_edit.movement_signal.connect(lambda y, m, d: self.get_date(y, m, d))
-        else:
+
+        if self.pic.isVisible():
             dialog_edit.edited_signal.connect(re_show)
 
         # dialog_edit.edited_signal_no_move.connect(self.pre_show_info)
@@ -789,6 +781,13 @@ class ConstWidgetWindow(QWidget):
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
 
+            if not sn_names:
+                self.socnet_group.setStyleSheet(stylesheet2)
+                self.socnet_group.hide()
+                return
+            else:
+                self.socnet_group.show()
+
             self.max_name_len = 0
             for name in sn_names:
                 if len(name) > self.max_name_len:
@@ -814,11 +813,6 @@ class ConstWidgetWindow(QWidget):
                 self.sn_tag_choose.addItem('Не публиковать')
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
-
-                if self.photo_rotation == 'gor':
-                    self.sn_tag_choose.setFixedWidth(180)
-                else:
-                    self.sn_tag_choose.setFixedWidth(self.metadata_show.columnWidth(1))
 
                 if sn_tags[f'{name}'] == 'No value':
                     self.sn_tag_choose.setCurrentText('Не выбрано')
@@ -846,11 +840,17 @@ class ConstWidgetWindow(QWidget):
             self.socnet_group_header = self.socnet_group.horizontalHeader()
 
             if self.photo_rotation == 'gor':
-                self.socnet_group_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-                self.socnet_group_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+                self.socnet_group.setColumnWidth(0, self.max_name_len * 12)
+                self.socnet_group.setColumnWidth(1, 180)
             else:
-                self.socnet_group.setColumnWidth(0, self.metadata_show.columnWidth(0))
-                self.socnet_group.setColumnWidth(1, self.metadata_show.columnWidth(1))
+                if self.metadata_show.columnWidth(0) > 100:
+                 self.socnet_group.setColumnWidth(0, self.metadata_show.columnWidth(0))
+                else:
+                    self.socnet_group.setColumnWidth(0, 100)
+                if self.metadata_show.columnWidth(1) > 180:
+                    self.socnet_group.setColumnWidth(1, self.metadata_show.columnWidth(1))
+                else:
+                    self.socnet_group.setColumnWidth(1, 180)
 
             self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1)+2)
             self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
@@ -992,7 +992,6 @@ class ConstWidgetWindow(QWidget):
 
     # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
-
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
         self.camera_choose.setFixedHeight(30)
@@ -1406,12 +1405,6 @@ class EditExifData(QDialog):
         self.flength_lbl = QLabel(self)
         self.flength_lbl.setText("Фокусное расстояние:")
 
-        self.cammode_lbl = QLabel(self)
-        self.cammode_lbl.setText("Режим съёмки:")
-
-        self.flashmode_lbl = QLabel(self)
-        self.flashmode_lbl.setText("Режим вспышки:")
-
         self.serialbody_lbl = QLabel(self)
         self.serialbody_lbl.setText("Серийный номер камеры:")
 
@@ -1439,12 +1432,6 @@ class EditExifData(QDialog):
         self.flength_lbl.setStyleSheet(stylesheet2)
         self.flength_lbl.setFont(font12)
 
-        self.cammode_lbl.setStyleSheet(stylesheet2)
-        self.cammode_lbl.setFont(font12)
-
-        self.flashmode_lbl.setStyleSheet(stylesheet2)
-        self.flashmode_lbl.setFont(font12)
-
         self.serialbody_lbl.setStyleSheet(stylesheet2)
         self.serialbody_lbl.setFont(font12)
 
@@ -1458,8 +1445,6 @@ class EditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.iso_lbl, 4, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.fnumber_lbl, 5, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.flength_lbl, 6, 0, 1, 1)
-        self.tab_tt_layout.addWidget(self.cammode_lbl, 7, 0, 1, 1)
-        self.tab_tt_layout.addWidget(self.flashmode_lbl, 8, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
@@ -1476,10 +1461,6 @@ class EditExifData(QDialog):
         self.fnumber_line = QLineEdit(self)
 
         self.flength_line = QLineEdit(self)
-
-        self.cammode_line = QLineEdit(self)
-
-        self.flashmode_line = QLineEdit(self)
 
         self.serialbody_line = QLineEdit(self)
 
@@ -1506,12 +1487,6 @@ class EditExifData(QDialog):
         self.flength_line.setStyleSheet(stylesheet1)
         self.flength_line.setFont(font12)
 
-        self.cammode_line.setStyleSheet(stylesheet1)
-        self.cammode_line.setFont(font12)
-
-        self.flashmode_line.setStyleSheet(stylesheet1)
-        self.flashmode_line.setFont(font12)
-
         self.serialbody_line.setStyleSheet(stylesheet1)
         self.serialbody_line.setFont(font12)
 
@@ -1525,8 +1500,6 @@ class EditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.iso_line, 4, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.fnumber_line, 5, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.flength_line, 6, 1, 1, 1)
-        self.tab_tt_layout.addWidget(self.cammode_line, 7, 1, 1, 1)
-        self.tab_tt_layout.addWidget(self.flashmode_line, 8, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.serialbody_line, 9, 1, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_line, 10, 1, 1, 1)
 
@@ -1702,11 +1675,11 @@ class EditExifData(QDialog):
 
         self.mode_check_fn.setCheckState(Qt.Checked)
 
-        self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(13))
-        self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(10))
-        self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(10))
-        self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(9))
-        self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+        self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(11))
+        self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(8))
+        self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(8))
+        self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
+        self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
 
         self.maker_line.textChanged.connect(lambda: self.changes_to_indicator(0))
         self.camera_line.textChanged.connect(lambda: self.changes_to_indicator(1))
@@ -1715,10 +1688,8 @@ class EditExifData(QDialog):
         self.iso_line.textChanged.connect(lambda: self.changes_to_indicator(4))
         self.fnumber_line.textChanged.connect(lambda: self.changes_to_indicator(5))
         self.flength_line.textChanged.connect(lambda: self.changes_to_indicator(6))
-        self.cammode_line.textChanged.connect(lambda: self.changes_to_indicator(7))
-        self.flashmode_line.textChanged.connect(lambda: self.changes_to_indicator(8))
-        self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(11))
-        self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(12))
+        self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+        self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
 
     # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
     def changes_to_indicator(self, index: int) -> None:
@@ -1775,8 +1746,6 @@ class EditExifData(QDialog):
             self.iso_line.setText(str(data['ISO']))
             self.fnumber_line.setText(str(data['Диафрагма']))
             self.flength_line.setText(str(data['Фокусное расстояние']))
-            self.cammode_line.setText(str(data['Режим съёмки']))
-            self.flashmode_line.setText(str(data['Режим вспышки']))
             self.serialbody_line.setText(str(data['Серийный номер камеры']))
             self.seriallens_line.setText(str(data['Серийный номер объектива']))
 
@@ -1913,8 +1882,6 @@ class EditExifData(QDialog):
         iso = self.iso_line.text()
         fnumber = self.fnumber_line.text()
         flenght = self.flength_line.text()
-        cammode = self.cammode_line.text()
-        flashmode = self.flashmode_line.text()
         serialbody = self.serialbody_line.text()
         seriallens = self.seriallens_line.text()
 
@@ -1923,7 +1890,7 @@ class EditExifData(QDialog):
 
         gps = self.latitude_fn_line.text() + ", " + self.longitude_fn_line.text()
 
-        all_meta_entered = [maker, camera, lens, time, iso, fnumber, flenght, cammode, flashmode, gps, timezone,
+        all_meta_entered = [maker, camera, lens, time, iso, fnumber, flenght, gps, timezone,
                             serialbody, seriallens, datetime]
 
         return all_meta_entered
@@ -1965,9 +1932,6 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setDisabled(False)
             self.longitude_dmc_sec_line.setDisabled(False)
 
-        print(self.mode_check_fn.checkState())
-        print(self.mode_check_dmc.checkState())
-
     # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
@@ -1988,16 +1952,13 @@ class EditExifData(QDialog):
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
+        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
             Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
             PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
 
         # проверка введённых пользователем метаданных
         def check_enter(editing_type: int, new_text: str) -> None:
             Metadata.exif_check_edit(editing_type, new_text)
-
-        # Если изменение метаданных в таблице - дело рук программы, а не пользователя (не было предшествующего двойного нажатия)
-        own_dir = os.getcwd()
 
         # проверка введённых пользователем метаданных
         try:
@@ -2009,7 +1970,7 @@ class EditExifData(QDialog):
             return
 
         # Если меняется дата -> проверка на перенос файла в новую папку
-        if editing_type == 13:
+        if editing_type == 11:
             if photodirectory[-12:] == 'No_Date_Info':
                 new_date = photodirectory[-38:]
             else:
@@ -2018,7 +1979,7 @@ class EditExifData(QDialog):
             new_date_splitted = new_date.split('/')
             old_date_splitted = old_date.split(':')
             if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
-                rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+                rewriting(photoname, photodirectory, editing_type, new_text)
                 self.edited_signal_no_move.emit()
             else:   # другая дата, требуется перенос файла
                 destination = Settings.get_destination_media() + '/Media/Photo/const'
@@ -2038,7 +1999,7 @@ class EditExifData(QDialog):
                     if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
                         os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
                     os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                    rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+                    rewriting(photoname, photodirectory, editing_type, new_text)
                     shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
                     PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
                                                        destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
@@ -2052,7 +2013,7 @@ class EditExifData(QDialog):
                     self.close()
                 else:
                     if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
-                        rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+                        rewriting(photoname, photodirectory, editing_type, new_text)
                         shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
                         PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
                                                            destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
@@ -2075,12 +2036,9 @@ class EditExifData(QDialog):
 
                         window_equal.file_rename_transfer_signal.connect(lambda: self.close())
 
-        elif editing_type == 1 or editing_type == 2:
-            rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-            self.edited_signal.emit()
         else:
-            rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
-            self.edited_signal_no_move.emit()
+            rewriting(photoname, photodirectory, editing_type, new_text)
+            self.edited_signal.emit()
 
     # записать новые метаданные
     def clear_exif_func(self) -> None:

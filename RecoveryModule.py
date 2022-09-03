@@ -146,12 +146,12 @@ class RecoveryWidget(QWidget):
     # выполнение восстановления
     def do_recovery_func(self) -> None:
         loading_win = RecoveryLoadingWin(self)
-        process = DoRecovery()
-        process.finished.connect(loading_win.close)
-        process.loading_text_show.connect(lambda t: loading_win.set_process_lbl(t))
-        process.finished.connect(self.update_values)
+        self.proccess = DoRecovery()
+        self.proccess.finished.connect(loading_win.close)
+        self.proccess.loading_text_show.connect(lambda t: loading_win.set_process_lbl(t))
+        self.proccess.finished.connect(self.update_values)
         loading_win.show()
-        process.start()
+        self.proccess.start()
 
     # обновить GUI по завершении восстановления
     def update_values(self) -> None:
@@ -160,6 +160,7 @@ class RecoveryWidget(QWidget):
         self.err_photos_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[0]))
         self.err_socnets_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[1]))
         self.len_exists_value.setText(str(len(SynhronizeDBMedia.research_all_media_photos())))
+        self.proccess = None
 
 
 # тупа анимация загрузки с надписью

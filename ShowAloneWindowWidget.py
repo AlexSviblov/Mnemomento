@@ -439,31 +439,22 @@ class AloneWidgetWindow(QWidget):
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
-            self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
-            self.socnet_group.show()
+            self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
-            self.layout_show.addWidget(self.socnet_group, 1, 1, 1, 1)
-            self.socnet_group.show()
+            self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_directory_choose.height() - 30,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
+            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
 
         self.show_social_networks(self.last_clicked, self.photo_directory)
         self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
-
-        if self.max_sn_name_len*12 > self.metadata_show.columnWidth(0):
-            self.socnet_group.setColumnWidth(0, self.max_sn_name_len*12)
-            self.metadata_show.setColumnWidth(0, self.max_sn_name_len*12)
-
-            self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
-            self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1))
 
     # изменить размер фото при изменении размера окна
     def resizeEvent(self, QResizeEvent):
@@ -599,11 +590,17 @@ class AloneWidgetWindow(QWidget):
         def fill_sn_widgets(sn_names: list[str], sn_tags: dict) -> None:
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
+            if not sn_names:
+                self.socnet_group.setStyleSheet(stylesheet2)
+                self.socnet_group.hide()
+                return
+            else:
+                self.socnet_group.show()
 
-            self.max_sn_name_len = 0
+            self.max_name_len = 0
             for name in sn_names:
-                if len(name) > self.max_sn_name_len:
-                    self.max_sn_name_len = len(name)
+                if len(name) > self.max_name_len:
+                    self.max_name_len = len(name)
 
                 self.sn_lbl = QLabel(self)
                 self.sn_lbl.setFont(font14)
@@ -626,11 +623,6 @@ class AloneWidgetWindow(QWidget):
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
 
-                if self.photo_rotation == 'gor':
-                    self.sn_tag_choose.setFixedWidth(180)
-                else:
-                    self.sn_tag_choose.setFixedWidth(self.metadata_show.columnWidth(1))
-
                 if sn_tags[f'{name}'] == 'No value':
                     self.sn_tag_choose.setCurrentText('Не выбрано')
                 elif sn_tags[f'{name}'] == 'No publicate':
@@ -648,20 +640,22 @@ class AloneWidgetWindow(QWidget):
                 if self.sn_lbl.width() > self.metadata_show.columnWidth(0):
                     self.metadata_show.setColumnWidth(0, self.sn_lbl.width())
 
-                if not sn_names:
-                    self.socnet_group.setStyleSheet(stylesheet2)
-                else:
-                    self.socnet_group.setStyleSheet(stylesheet6)
+                self.socnet_group.setStyleSheet(stylesheet6)
 
                 self.socnet_group_header = self.socnet_group.horizontalHeader()
 
                 if self.photo_rotation == 'gor':
-                    # self.socnet_group_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-                    self.socnet_group.setColumnWidth(0, self.max_sn_name_len*12)
-                    self.socnet_group_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+                    self.socnet_group.setColumnWidth(0, self.max_name_len * 12)
+                    self.socnet_group.setColumnWidth(1, 180)
                 else:
-                    self.socnet_group.setColumnWidth(0, self.metadata_show.columnWidth(0))
-                    self.socnet_group.setColumnWidth(1, self.metadata_show.columnWidth(1))
+                    if self.metadata_show.columnWidth(0) > 100:
+                        self.socnet_group.setColumnWidth(0, self.metadata_show.columnWidth(0))
+                    else:
+                        self.socnet_group.setColumnWidth(0, 100)
+                    if self.metadata_show.columnWidth(1) > 180:
+                        self.socnet_group.setColumnWidth(1, self.metadata_show.columnWidth(1))
+                    else:
+                        self.socnet_group.setColumnWidth(1, 180)
 
                 self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1) + 2)
                 self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
@@ -703,6 +697,7 @@ class AloneWidgetWindow(QWidget):
             self.add_photo_signal.emit(self.directory_choose.currentText())
         else:
             pass
+
 
 # подтвердить удаление фото
 class DelPhotoConfirm(QDialog):
@@ -1432,7 +1427,7 @@ class EditExifData(QDialog):
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str, own_dir: str) -> None:
+        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
             Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
             PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
 
@@ -1451,7 +1446,7 @@ class EditExifData(QDialog):
             win_err.show()
             return
 
-        rewriting(photoname, photodirectory, editing_type, new_text, own_dir)
+        rewriting(photoname, photodirectory, editing_type, new_text)
         self.edited_signal.emit()
 
     # записать новые метаданные
