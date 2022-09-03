@@ -402,6 +402,7 @@ class EditExifData(QDialog):
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+        self.btn_cancel.clicked.connect(self.close)
 
         self.btn_clear = QPushButton(self)
         self.btn_clear.setText("Очистить")
@@ -885,9 +886,9 @@ class EditExifData(QDialog):
         keys = list(data.keys())
 
         for parameter in range(len(data)):
-            self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
+            self.table.setItem(parameter, 0, QTableWidgetItem(str(keys[parameter])))
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
-            self.table.setItem(parameter, 1, QTableWidgetItem(data[keys[parameter]]))
+            self.table.setItem(parameter, 1, QTableWidgetItem(str(data[keys[parameter]])))
 
         year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min = date_convert(data)
 

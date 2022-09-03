@@ -791,6 +791,7 @@ class EditExifData(QDialog):
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+        self.btn_cancel.clicked.connect(self.close)
 
         self.btn_clear = QPushButton(self)
         self.btn_clear.setText("Очистить")
