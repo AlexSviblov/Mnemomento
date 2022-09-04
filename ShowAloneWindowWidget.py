@@ -24,6 +24,10 @@ stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
+icon_explorer = str()
+icon_view = str()
+icon_edit = str()
+icon_delete = str()
 
 
 font14 = QtGui.QFont('Times', 14)
@@ -200,6 +204,10 @@ class AloneWidgetWindow(QWidget):
         global stylesheet7
         global stylesheet8
         global stylesheet9
+        global icon_explorer
+        global icon_view
+        global icon_edit
+        global icon_delete
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
@@ -213,6 +221,10 @@ class AloneWidgetWindow(QWidget):
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
+            icon_view = os.getcwd() + '/icons/view_light.png'
+            icon_edit = os.getcwd() + '/icons/edit_light.png'
+            icon_delete = os.getcwd() + '/icons/delete_light.png'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
@@ -225,6 +237,10 @@ class AloneWidgetWindow(QWidget):
                           "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            icon_explorer = os.getcwd() + '/icons/explorer_dark.png'
+            icon_view = os.getcwd() + '/icons/view_dark.png'
+            icon_edit = os.getcwd() + '/icons/edit_dark.png'
+            icon_delete = os.getcwd() + '/icons/delete_dark.png'
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -490,30 +506,36 @@ class AloneWidgetWindow(QWidget):
     def make_buttons(self) -> None:
         self.edit_btn = QToolButton(self)
         self.edit_btn.setStyleSheet(stylesheet1)
-        # self.edit_btn.setIcon()
-        self.edit_btn.setText('RED')
+        self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
+        self.edit_btn.setIconSize(QtCore.QSize(50, 50))
+        self.edit_btn.setToolTip("Редактирование метаданных")
         self.edit_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.edit_btn, 0, 0, 1, 1)
         self.edit_btn.clicked.connect(self.edit_photo_func)
 
         self.del_btn = QToolButton(self)
         self.del_btn.setStyleSheet(stylesheet1)
-        # self.del_btn.setIcon()
-        self.del_btn.setText('DEL')
+        self.del_btn.setIcon(QtGui.QIcon(icon_delete))
+        self.del_btn.setIconSize(QtCore.QSize(50, 50))
+        self.del_btn.setToolTip("Удалить")
         self.del_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.del_btn, 1, 0, 1, 1)
         self.del_btn.clicked.connect(self.del_photo_func)
 
         self.explorer_btn = QToolButton(self)
         self.explorer_btn.setStyleSheet(stylesheet1)
-        self.explorer_btn.setText('EXP')
+        self.explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
+        self.explorer_btn.setIconSize(QtCore.QSize(50, 50))
+        self.explorer_btn.setToolTip("Показать в проводнике")
         self.explorer_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.explorer_btn, 2, 0, 1, 1)
         self.explorer_btn.clicked.connect(self.call_explorer)
 
         self.open_file_btn = QToolButton(self)
         self.open_file_btn.setStyleSheet(stylesheet1)
-        self.open_file_btn.setText('OPN')
+        self.open_file_btn.setIcon(QtGui.QIcon(icon_view))
+        self.open_file_btn.setIconSize(QtCore.QSize(50, 50))
+        self.open_file_btn.setToolTip("Открыть")
         self.open_file_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.open_file_btn, 3, 0, 1, 1)
         self.open_file_btn.clicked.connect(self.open_file_func)

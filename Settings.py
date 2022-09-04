@@ -20,6 +20,7 @@ stylesheet1 = str()
 stylesheet2 = str()
 stylesheet8 = str()
 stylesheet9 = str()
+loading_icon = str()
 
 
 # объект окна настроек
@@ -50,6 +51,7 @@ class SettingWin(QMainWindow):
         global stylesheet2
         global stylesheet8
         global stylesheet9
+        global loading_icon
 
         if get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
@@ -58,7 +60,7 @@ class SettingWin(QMainWindow):
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
-
+            loading_icon = os.getcwd() + '/icons/loading_light.gif'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
@@ -66,6 +68,7 @@ class SettingWin(QMainWindow):
                           "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            loading_icon = os.getcwd() + '/icons/loading_dark.gif'
 
 
 # сами настройки (виджет)
@@ -278,7 +281,6 @@ class SettingWidget(QWidget):
 class TransferFiles(QDialog):
     photo_transfered = QtCore.pyqtSignal()
 
-
     def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
         super(TransferFiles, self).__init__(parent)
 
@@ -330,7 +332,8 @@ class TransferFiles(QDialog):
         self.text = QLabel(self)
         self.text.setText('Загрузка, подождите')
         self.text.setStyleSheet(stylesheet2)
-        self.movie = QMovie("g0R5.gif")
+        self.text.setFont(font14)
+        self.movie = QMovie(loading_icon)
         self.label.setMovie(self.movie)
         self.label.setStyleSheet(stylesheet2)
         self.movie.start()
