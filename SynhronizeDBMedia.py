@@ -15,6 +15,10 @@ cur = conn.cursor()
 
 # получить все каталоги+файлы из ФотоДБ (таблицы фото и соцсети)
 def get_all_db_ways() -> tuple[list[list[str]], list[list[str]]]:
+    """
+    Все пути из БД PhotoDB (из обеих таблиц)
+    :return: список путей (путь каталога, имя файла) таблицы фото и таблицы соцсетей
+    """
 
     sql_str1 = "SELECT catalog, filename FROM photos"
     sql_str2 = "SELECT catalog, filename FROM socialnetworks"
@@ -30,6 +34,12 @@ def get_all_db_ways() -> tuple[list[list[str]], list[list[str]]]:
 
 # проверить существуют ли файлы из БД на диске
 def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[list[str]]) -> None:
+    """
+    Если файла, путь к которому указан в БД, не существует - стереть запись.
+    :param all_photos_db: список путей таблицы photos БД PhotoDB.
+    :param all_socnets_db: список путей таблицы socialnetworks БД PhotoDB.
+    :return: если файла по записанному пути не оказывается - запись из БД стирается.
+    """
     for i in range(0, len(all_photos_db)):
         if os.path.exists(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}"):
             if Settings.get_destination_media() not in all_photos_db[i][0]:
@@ -64,12 +74,15 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
 
 # найти все фото в директории хранения медиа
 def research_all_media_photos() -> list[list[str]]:
+    """
+    Сбор вообще всех JPG, кроме миниатюр, в директории хранения фотографий.
+    :return: список абсолютных путей.
+    """
     filelist = []
     path = Settings.get_destination_media()
     for root, dirs, files in os.walk(path):
         for file in files:
             if (file.endswith(".jpg") or file.endswith(".JPG")) and 'thumbnail_' not in file:
-                # append the file name to the list
                 filelist.append([root.replace('\\', '/'), file])
 
     return filelist
@@ -77,6 +90,13 @@ def research_all_media_photos() -> list[list[str]]:
 
 # Если фото есть в директории хранения, но нет в БД - записать
 def add_flaw_to_db(filelist: list[list[str]]) -> None:
+    """
+    Если фото есть в директории хранения, но нет в БД - сделать запись в БД, как при добавлении фото в каталог.
+    Для каждой таблицы производится отдельная проверка на наличие записи. Защита от дублирований на случай, если в
+    однйо таблице запись есть, а во второй нет.
+    :param filelist: список абсолютных путей всех фотографий формата JPG, кроме миниатюр, в директории хранения фото.
+    :return: записи в БД PhotoDB в обеих таблицах
+    """
     for combo in filelist:
         photoname = combo[1]
         photodirectory = combo[0]
@@ -123,6 +143,10 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
 
 # Проверка, что в путях в БД содержится путь хранения медиа, т.е. Бд ведёт к папке хранения, а не куда-то в небытие
 def check_destination_corr_db() -> tuple[int, int]:
+    """
+    Проверка для отображения "количества ошибок" в ГУЕ.
+    :return: количество записей, где в графе catalog не содержится путь к директории хранения фото из настроек.
+    """
     all_photos_db, all_socnets_db = get_all_db_ways()
     media_destination = Settings.get_destination_media()
     photo_conflicts = 0

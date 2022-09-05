@@ -8,6 +8,10 @@ import Settings
 
 # получение списка файлов формата jpg из папки
 def get_images_list(directory: str) -> list[str]:
+    """
+    :param directory: абсолютный путь к папке, возвращается.
+    :return: список абсолютных путей ко всем файлам формата JPG в directory.
+    """
     file_list = list()
     for file in os.listdir(directory):
         if file.endswith(".jpg") or file.endswith(".JPG"):
@@ -17,6 +21,12 @@ def get_images_list(directory: str) -> list[str]:
 
 # Создать миниатюры при добавлении папки или файлов "на постоянку" в основной каталог
 def make_const_thumbnails(directory: str, file: str) -> None:
+    """
+    Используется (по состоянию на 05.09.22) только в FileDirs.transfer_const_photos.
+    :param directory: передаётся абсолютный путь директории, где должна будет храниться миниатюра.
+    :param file: передаётся абсолютный путь к файлу (фотографии), миниатюру которого надо создать.
+    :return: в нужной папке в каталоге хранения миниатюр создаётся миниатюра добавленной в основной каталог фотографии.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     directory_splitted = directory.split('/')
 
@@ -32,7 +42,7 @@ def make_const_thumbnails(directory: str, file: str) -> None:
         os.mkdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month + '/' + day)
 
     image = Image.open(r"{}".format(directory + '/' + file))
-    image.thumbnail((250, 250))
+    image.thumbnail((250, 250))     # TODO: размер кнопки 150*150, может поменять размер миниатюр
     image.save('thumbnail_%s' % file)
     date = year + '/' + month + '/' + day
     os.replace('thumbnail_%s' % file, destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
@@ -41,6 +51,13 @@ def make_const_thumbnails(directory: str, file: str) -> None:
 
 # Создать миниатюры при добавлении папки или файлов "на постоянку" в дополнительный каталог
 def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_lastname: str) -> None:
+    """
+    Используется (по состоянию на 05.09.22) только в FileDirs.transfer_alone_photos.
+    :param directory_lastname: название добавляемой папки.
+    :param photofile: абсолютный путь к фотографии.
+    :param photofile_lastname: имя файла, миниатюру которого надо сделать (IMG_4049.jpg).
+    :return:
+    """
     destination_thumbs = Settings.get_destination_thumb()
     if not os.path.isdir(destination_thumbs + '/thumbnail/alone/' + directory_lastname):
         os.mkdir(destination_thumbs + '/thumbnail/alone/' + directory_lastname)
@@ -54,6 +71,16 @@ def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_las
 
 # Сравнение, какие миниатюры лишние, каких недостаточно
 def research_flaw_thumbnails(photo_directory: str, thumbnail_directory: str) -> tuple[list[str], list[str]]:
+    """
+    При выборе папки в доп.каталоге или даты в основном, проверяется, нет ли в директории миниатюр лишних файлов
+    или, наоборот, недостающих. При нормальной работе программы это не должно понадобиться, но пусть будет.
+    Так как применяется в нештатных ситуациях, то и в основном каталоге при выборе группировки по оборудованию
+    и соцсетям, делать я это не стал.
+    :param photo_directory: абсолютный путь к папке с фотографиями.
+    :param thumbnail_directory: абсолютный путь к папке с миниатюрами.
+    :return: список недостающих миниатюр, которые надо создать, и список избыточных миниатюр, которые надо удалить,
+    чтобы память не занимали впустую.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     thumbnail_directory_splitted = thumbnail_directory.split('/')
     if '/const/' in thumbnail_directory:
@@ -80,13 +107,21 @@ def research_flaw_thumbnails(photo_directory: str, thumbnail_directory: str) -> 
         thumbs_already.append(thumb[10:])
 
     images_list = get_images_list(photo_directory)
-    nedostatok_thumbs_result = list(set(images_list) - set(thumbs_already))  # есть фото, но нет миниатюр
+    flaw_thumbs_result = list(set(images_list) - set(thumbs_already))  # есть фото, но нет миниатюр
     excess_thumbs_result = list(set(thumbs_already) - set(images_list))  # есть миниатюра, а фото нет
-    return nedostatok_thumbs_result, excess_thumbs_result
+    return flaw_thumbs_result, excess_thumbs_result
 
 
 # Создание недостающих миниатюр и удаление лишних
 def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_directory: str, thumbnail_directory: str) -> None:
+    """
+    Связано с предыдущей функций непосредственно # TODO: может их тогда объединить
+    :param flaw_thumbnails: список фотографий, к которым недостаёт миниатюр, их адо создать.
+    :param excess_thumbs: список миниатюр, к которым нет фотографий, их надо удалить.
+    :param photo_directory: абсолютный путь к папке с фотографиями.
+    :param thumbnail_directory: абсолютный путь к папке с миниатюрами.
+    :return: баланс в папке миниатюр до следующего сбоя.
+    """
     if flaw_thumbnails:
         for file in flaw_thumbnails:
             image = Image.open(r"{}".format(photo_directory + '/' + file))
@@ -102,6 +137,13 @@ def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_dir
 
 # Создание миниатюр для просмотра
 def make_thumbnails_view(photo_file: str) -> None:
+    """
+    Создание миниатюр дял режима просмотра. Делать миниатюры для кнопок так и так надо. Если для основого и
+    дополнительного каталогов, создание миниатюр один раз это ускорение последущих отображений миниатюр, то
+    в режиме одноразового просмотра это необходимость.
+    :param photo_file: абсолютный путь к фотографии, для которой надо создать миниатюру.
+    :return: миниатюра для переданного фото (а в общем контексте - всем выбранным для разового просмотра файла) создана.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     photo_splitted = photo_file.split('/')
     photo_name = photo_splitted[-1]     # C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/IMG_4090.jpg
@@ -114,6 +156,11 @@ def make_thumbnails_view(photo_file: str) -> None:
 
 # удаление миниатюр фото для разового просмотра
 def delete_exists() -> None:
+    """
+    То что прошлая функция создала, при закрытии программы надо стереть, чтобы просто так не валялось.
+    Также применяется при повторном пользовании функцией разового просмотра в рамках 1 сессии.
+    :return: папка view в диреткории хранения миниатюр пуста.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     existing_thumbs = get_images_list(destination_thumbs + '/thumbnail/view/')
     for file in existing_thumbs:
@@ -122,6 +169,12 @@ def delete_exists() -> None:
 
 # Удалить миниатюру файла, удаляемого из основного каталога
 def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
+    """
+    При удалении файла производится в т.ч. и удаление миниатюры (чтобы не засорять память).
+    :param photoname: имя файла (не путь).
+    :param photodirectory: путь директории фотографии (не миниатюры).
+    :return: миниатюра удалена.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     dir_splitted = photodirectory.split('/')
     date_part = dir_splitted[-3]+'/'+dir_splitted[-2]+'/'+dir_splitted[-1]
@@ -131,13 +184,25 @@ def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
 
 # перенос миниатюры при изменении даты в метаданных снимка
 def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[str], new_date: list[str], rename_name: str, chosen: str) -> None:
+    """
+    Если у фотографии в основном каталоге была изменена дата в метаданных, то фото переносится в другую папку,
+    также необходимо перенести и миниатюру в соответствующую папку в каталоге хранения миниатюр.
+    Применяется только, когда было совпадение имён, то есть папка назначения переноса гарантированно существует.
+    :param old_name: имя файла в папке назначения .
+    :param new_name: имя переносимого файла.
+    :param old_date: новая дата съёмки изменённого файла.
+    :param new_date: старая дата съёмки изменённого файла.
+    :param rename_name: новое имя переименовываемого файла.
+    :param chosen: какой файл переименовывается, переносимый или уже находящийся в папке назначения.
+    :return: миниатюра перенесена в новую папку.
+    """
     destination_thumbs = Settings.get_destination_thumb()
+
     if chosen == 'old':    # переименовывают файл уже находящийся в папке
         os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
                   destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
         shutil.move(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
                     destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
-
     else:   # chosen == 'new' - переименовывают переносимый файл
         os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
                   destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
@@ -145,8 +210,15 @@ def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[s
                     destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
 
 
-# удалить миниатюру после переноса файла
+# перенести миниатюру после переноса файла
 def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: list[str]) -> None:
+    """
+    Перенос миниатюры при переносе фотографии, вызванном изменением даты.
+    :param photoname: имя фотографии.
+    :param new_date: дата, из директории которой надо перенести.
+    :param old_date: дата, в директорию которой надо перенести.
+    :return: миниатюра перенесена.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     new_dir = destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + '/thumbnail_'
     old_dir = destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/'
@@ -166,6 +238,12 @@ def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: 
 
 # Удалить миниатюру файла, удаляемого из дополнительного каталога
 def delete_thumbnail_alone(photoname: str, photodirectory: str) -> None:
+    """
+    При удалении файла производится в т.ч. и удаление миниатюры (чтобы не засорять память).
+    :param photoname: имя файла (не путь).
+    :param photodirectory: путь директории фотографии (не миниатюры).
+    :return: миниатюра удалена.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     dir_splitted = photodirectory.split('/')
     dir_name = dir_splitted[-1]
@@ -175,6 +253,11 @@ def delete_thumbnail_alone(photoname: str, photodirectory: str) -> None:
 
 # Удалить все миниатюры и сами фото директории из доп.каталога
 def delete_thumb_dir(photodirectory: str) -> None:
+    """
+    Если из дополнительного каталога удаляется папка - удалить её миниатюры.
+    :param photodirectory: название папки.
+    :return: удалены и миниатюры, и их папка.
+    """
     destination_thumbs = Settings.get_destination_thumb()
     photo_dir_splitted = photodirectory.split('/')
     dir_name = photo_dir_splitted[-1]

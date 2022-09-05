@@ -10,6 +10,10 @@ import ErrorsAndWarnings
 
 # Достаёт список файлов расширения jpg из папки
 def make_files_list_from_dir(directory: str) -> list[str]:
+    """
+    :param directory: абсолютный путь к папке, возвращается.
+    :return: список абсолютных путей ко всем файлам формата JPG в directory.
+    """
     file_list = list()
     for file in os.listdir(directory):
         if file.endswith(".jpg") or file.endswith(".JPG"):
