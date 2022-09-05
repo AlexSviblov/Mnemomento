@@ -988,9 +988,16 @@ class ConstWidgetWindow(QWidget):
         else:
             socnet_max_len = 0
             for net in socnets:
-                self.socnet_choose.addItem(f'{net}')
-                if len(net) > socnet_max_len:
-                    socnet_max_len = len(net)
+                if net[0:9] != 'numnumnum':
+                    self.socnet_choose.addItem(f'{net}')
+                    if len(net) > socnet_max_len:
+                        socnet_max_len = len(net)
+                else:
+                    self.socnet_choose.addItem(f'{net[9:]}')
+                    if len(net) - 9 > socnet_max_len:
+                        socnet_max_len = len(net) - 9
+
+
 
             self.socnet_choose.setFixedWidth(socnet_max_len*12+30)
 

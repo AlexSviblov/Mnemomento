@@ -4,6 +4,8 @@ from PyQt5 import QtGui, QtWidgets, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 import sqlite3
+
+import PhotoDataDB
 import Settings
 
 
@@ -90,7 +92,7 @@ class SocialNetworks(QWidget):
         for i in reversed(range(self.group_layout.count())):
             self.group_layout.itemAt(i).widget().deleteLater()
 
-        networks = self.get_social_networks_list()
+        networks = PhotoDataDB.get_socialnetworks()
         max_sn_name = 0
         for i in range(0, len(networks)):
             self.soc_net_lbl = QLabel(self)
@@ -127,12 +129,10 @@ class SocialNetworks(QWidget):
             self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
         except AttributeError:
             pass
-
+        # МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
         self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
 
-
-        # МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
 
     # считать из БД введённые соцсети
     def get_social_networks_list(self) -> list[str]:

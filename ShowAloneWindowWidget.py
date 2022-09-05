@@ -278,9 +278,14 @@ class AloneWidgetWindow(QWidget):
             else:
                 net_max_length = 0
                 for net in socnets:
-                    self.socnet_choose.addItem(f'{net}')
-                    if len(net) > net_max_length:
-                        net_max_length = len(net)
+                    if net[0:9] != 'numnumnum':
+                        self.socnet_choose.addItem(f'{net}')
+                        if len(net) > net_max_length:
+                            net_max_length = len(net)
+                    else:
+                        self.socnet_choose.addItem(f'{net[9:]}')
+                        if len(net) - 9 > net_max_length:
+                            net_max_length = len(net) - 9
                     self.socnet_choose.setFixedWidth(net_max_length*12+30)
             self.socnet_choose.show()
             self.sn_status.show()
