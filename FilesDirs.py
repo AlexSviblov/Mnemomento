@@ -21,8 +21,14 @@ def make_files_list_from_dir(directory: str) -> list[str]:
     return file_list
 
 
-# Создание миниатюр для основного каталога
-def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/1.jpg'
+# Перенос файлов, создание записи в БД и создание миниатюры для основного каталога
+def transfer_const_photos(file: str) -> str:
+    """
+    Для фото file проверяется его дата съёмки, при необходимости создаётся директория для этой даты в директории
+    хранения фотографий, создаётся запись в БД, создаётся миниатюра.
+    :param file: абсолютный путь фотографии = 'C:/Users/user/Pictures/1.jpg'
+    :return: если такой файл уже добавлен (совпадение по имени и дате), то вернуть его.
+    """
     destination = Settings.get_destination_media() + '/Media/Photo/const/'
     mode = Settings.get_photo_transfer_mode()
 
@@ -106,8 +112,16 @@ def transfer_const_photos(file: str) -> str:    #file = 'C:/Users/user/Pictures/
     return fileexist
 
 
-# Создание миниатюр для дополнительного каталога
-def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:    # photo_directory = 'C:/Users/user/Pictures/СНГ'    # photofile = 'C:/Users/user/Pictures/СНГ/20191231133253_IMG_2339.jpg'
+# Перенос файлов, создание записи в БД и создание миниатюры для дополнительного каталога
+def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:
+    """
+    Для фото file выполняется перенос, создаётся запись в БД, создаётся миниатюра.
+    :param photo_directory: путь к папке, которая добавляется = 'C:/Users/user/Pictures/СНГ'
+    :param photofile: абсолютный путь к файлу = 'C:/Users/user/Pictures/СНГ/20191231133253_IMG_2339.jpg'
+    :param exists_dir_name: если добавляются файлы к папке, которая уже добавлена - имя этой папки.
+    :param type_add: файлы в существующую папку или добавление целиковой новой папки.
+    :return: файлы перенесены, записаны в БД и созданы миниатюры.
+    """
     destination = Settings.get_destination_media() + '/Media/Photo/alone/'
     mode = Settings.get_photo_transfer_mode()
 
@@ -130,6 +144,11 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
 
 # удалить все файлы и папку из доп.каталога
 def del_alone_dir(photo_directory: str) -> None:
+    """
+    Удаляется папка из доп.каталога (именно сама папка, записи в БД и миниатюры удаляются не тут).
+    :param photo_directory: абсолютный путь к папке.
+    :return: папка очищена и удалена.
+    """
     photo_list = Thumbnail.get_images_list(photo_directory)
     for file in photo_list:
         os.remove(photo_directory + '/' + file)
