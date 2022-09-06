@@ -574,6 +574,7 @@ def equip_name_check_reverse(normname: str, type: str) -> str:
     return exifname
 
 
+# удалить все метаданные
 def clear_exif(photoname: str, photodirectory: str):
     photofile = photodirectory + '/' + photoname
     with open(photofile, 'wb') as img:

@@ -157,7 +157,13 @@ def del_alone_dir(photo_directory: str) -> None:
 
 
 # очистка пустых папок при закрытии
-def clear_empty_dirs(path=Settings.get_destination_media() + "/Media/Photo/const/") -> None:
+def clear_empty_dirs() -> None:
+    """
+    При закрытии программы осуществляется попытка удаления пустых папок основного каталога.
+    :return: удаляются пустые папки (если есть папка месяца, где 1 пустой день и больше ничего, то при 1 закрытии
+    удалится только пустая папка дня, а уже при следующем, пустая папка месяца)
+    """
+    path = Settings.get_destination_media() + "/Media/Photo/const/"
     for d in os.listdir(path):
         a = os.path.join(path, d)
         if os.path.isdir(a):
