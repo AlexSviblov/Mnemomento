@@ -1354,7 +1354,7 @@ class EditExifData(QDialog):
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
         self.get_metadata(photoname, photodirectory)
-        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
@@ -1973,7 +1973,7 @@ class EditExifData(QDialog):
         else:
             self.close()
 
-        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:

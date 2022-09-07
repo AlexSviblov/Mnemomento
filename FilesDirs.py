@@ -167,6 +167,6 @@ def clear_empty_dirs() -> None:
     for d in os.listdir(path):
         a = os.path.join(path, d)
         if os.path.isdir(a):
-            clear_empty_dirs(a)
+            clear_empty_dirs()
             if not os.listdir(a):
                 os.rmdir(a)
