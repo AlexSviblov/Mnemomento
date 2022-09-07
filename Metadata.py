@@ -15,7 +15,12 @@ cur = conn.cursor()
 
 
 # считать весь exif из фотографии
-def read_exif(photofile: str) -> dict[str, str]:  # функция чтения всех метаданных из файла
+def read_exif(photofile: str) -> dict[str, str]:
+    """
+    Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
+    :param photofile: абсолютный путь к файлу фотографии.
+    :return: словарь всех вытащенных библиотекой exif метаданных.
+    """
     with open(photofile, 'rb') as img:
 
         img = exif.Image(photofile)
@@ -26,6 +31,13 @@ def read_exif(photofile: str) -> dict[str, str]:  # функция чтения 
 
 # извлечь из фотографии дату съёмки
 def date_from_exif(file: str) -> tuple[int, str, str, str]:
+    """
+    Для определения папки хранения файла в основном каталоге, необходимо при его добавлении в программу, достать
+    дату съёмки из метаданных.
+    :param file: абсолютный путь к файлу.
+    :return: error = 1, если даты нет, и фото следует поместить в No_Date_Info, иначе - day, month, year - строки
+    длинами 2, 2, 4 соответственно.
+    """
     data = read_exif(file)
     try:    # если дата считывается
         date = data['datetime_original']
@@ -43,7 +55,14 @@ def date_from_exif(file: str) -> tuple[int, str, str, str]:
 
 # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
 def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
-
+    """
+    Фильтрация всех метаданных, оставляет только те, что показываются при просмотре фотографии в таблице.
+    :param data: словарь, содержащий все метаданные.
+    :param photofile: имя файла.
+    :param photo_directory: директория хранения файла.
+    :return: словарь с 11 значениями (Разрешение, ориентация, производитель, камера, объектив, дата съёмки,
+    фокусное расстояние, ISO, диафрагма, выдержка, координаты GPS.
+    """
     metadata = dict()
 
     try:
@@ -51,7 +70,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         height = str(data['image_height'])
         metadata['Разрешение'] = width + 'x' + height
     except KeyError:
-        im = Image.open(photo_directory +'/'+ photofile)
+        im = Image.open(photo_directory + '/' + photofile)
         width, height = im.size
         metadata['Разрешение'] = str(width) + 'x' + str(height)
 
@@ -176,6 +195,12 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 # данные для вноса в БД photos
 def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str]:
+    """
+    Вынуть из фото метаданные для БД: камера, объектив, дата съёмки, дата-время съёмки, GPS.
+    :param photoname: имя файла.
+    :param photodirectory: директория для хранения фото.
+    :return: камера, объектив, дата, GPS.
+    """
     data = read_exif(photodirectory + '/' + photoname)
 
     try:
@@ -224,6 +249,13 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str
 
 # exif для показа в режиме редактирования
 def exif_show_edit(photoname: str) -> dict[str, str]:
+    """
+    Вычленить из метаданных фотографии необходимые к показу в окне редактирования (производитель, камера, объектив,
+    ISO, диафрагма, фокусное расстояние, выдержка, GPS, серийный номер объектива, серийный номер фотоаппарата,
+    время съёмки, часовой пояс).
+    :param photoname: абсолютный путь к файлу.
+    :return: словарь с 11 значениями.
+    """
     with open(photoname, 'rb') as img:
         img = exif.Image(photoname)
         all_data = img.get_all()    # type: ignore[attr-defined]
@@ -367,6 +399,28 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
 
 # modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
 def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, new_value: str) -> None:
+    """
+    Перезапись exif-метаданных в фотографии. Осуществляется полностью exif, кроме записи GPS в файл, где их до этого
+    не было, для этого используется библиотека GPSPhoto.
+    :param photoname: имя файла.
+    :param photodirectory: директоряи хранения файла.
+    :param editing_type: код изменяемого параметра (
+    0 - производитель;
+    1 - камера;
+    2 - объектив;
+    3 - выдержка;
+    4 - ISO;
+    5 - диафрагма;
+    6 - фокусное расстояние;
+    7 - GPS;
+    8 - часовой пояс съёмки;
+    9 - серийный номер фотоаппарата;
+    10 - серийный номер объектива;
+    11 - дата-время съёмки
+    ).
+    :param new_value: новое значение для параметра.
+    :return: перезаписанные метаданные в файле (по факту создаётся НОВЫЙ ФАЙЛ с тем же именем).
+    """
     photofile = photodirectory + '/' + photoname
 
     modify_dict = dict()
@@ -436,7 +490,12 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
 
 # проверка ввода при редактировании exif
 def exif_check_edit(editing_type: int, new_value: str) -> None:
-
+    """
+    Проверка корректности ввода новых метаданных.
+    :param editing_type: изменяемый тип (0-11).
+    :param new_value: новое значение.
+    :return: если всё верно - pass и перезапись метаданных, если есть ошибка - окно предупреждения и запрет на перезапись.
+    """
     # Ошибка ввода вызывает ошибку для except в объекте окна, который уже там делает return
     def make_error():
         raise ErrorsAndWarnings.EditExifError()
@@ -548,6 +607,13 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
 
 # Замена неправильного названия для выбора группировки на правильное
 def equip_name_check(equip_list: list[str], type: str) -> list[str]:
+    """
+    Для корректного отображения выпадающих списком камер и объективов в основном каталоге при группировке по
+    оборудованию - данные достаются из БД фотографий, сравниваются с данными БД исправлений и очищаются от повторений.
+    :param equip_list: список строк с названием оборудования.
+    :param type: тип оборудования.
+    :return: список уникальных исправленных названий оборудования.
+    """
     for i in range(len(equip_list)):
         sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{equip_list[i]}\''
         cur.execute(sql_str)
@@ -563,7 +629,13 @@ def equip_name_check(equip_list: list[str], type: str) -> list[str]:
 
 # проверка, является ли переданное имя - исправлением неправильного
 def equip_name_check_reverse(normname: str, type: str) -> str:
-
+    """
+    Для поиска в БД необходимо искать не только отображаемое значение и неправильное, которое могло быть
+    исправлено.
+    :param normname: корректное исправленное имя.
+    :param type: тип устройства.
+    :return: как оборудование автоматически пишется в exif.
+    """
     sql_str = f'SELECT exifname FROM ernames WHERE type = \'{type}\' AND normname = \'{normname}\''
     cur.execute(sql_str)
     try:
@@ -576,6 +648,12 @@ def equip_name_check_reverse(normname: str, type: str) -> str:
 
 # удалить все метаданные
 def clear_exif(photoname: str, photodirectory: str):
+    """
+    Удалить все метаданные из файла.
+    :param photoname:  имя файла.
+    :param photodirectory: директори хранения.
+    :return: в отличие от перезаписи или добавления метаданных, не требуется осздание нового файла.
+    """
     photofile = photodirectory + '/' + photoname
     with open(photofile, 'wb') as img:
         img = exif.Image(photofile)

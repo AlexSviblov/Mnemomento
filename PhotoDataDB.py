@@ -16,7 +16,7 @@ cur = conn.cursor()
 def add_to_database(photoname: str, photodirectory: str) -> None:
     """
     Добавить запись о фотографии, добавляемой в программу, в базу данных.
-    :param photoname: абсолютный путь фотографии.
+    :param photoname: имя фотографии.
     :param photodirectory: каталог хранения фотографии.
     :return: добавляются 2 записи в БД (1 в таблице photos, 2 в socialnetworks)
     """
