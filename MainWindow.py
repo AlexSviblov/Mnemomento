@@ -345,7 +345,7 @@ class MainWindow(QMainWindow):
     def clear_view_close(self) -> None:
         try:
             Thumbnail.delete_exists()
-            FilesDirs.clear_empty_dirs()
+            # FilesDirs.clear_empty_dirs()
         except FileNotFoundError:
             pass
 
@@ -838,7 +838,7 @@ if __name__ == "__main__":
     try:
         win = MainWindow()
         win.show()
-    except Exception as e:
-        logging.exception(f"ALL PROGRAM ERROR - Error {e} - __name__ == \"__main__\" - ")
+    except:
+        logging.exception(f"ALL PROGRAM ERROR")
 
     sys.exit(app.exec_())

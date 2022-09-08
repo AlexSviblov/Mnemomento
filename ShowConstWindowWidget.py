@@ -538,8 +538,9 @@ class ConstWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
+        logging.info("До метадата фильтр")
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name, photo_directory)
-
+        logging.info("После метадата фильтр")
         self.photo_rotation = metadata['Rotation']
         params = list(metadata.keys())
         params.remove('Rotation')
