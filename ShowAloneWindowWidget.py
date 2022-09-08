@@ -495,7 +495,7 @@ class AloneWidgetWindow(QWidget):
                 self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
 
         else:
             self.pixmap2 = self.pixmap.scaled(
@@ -503,7 +503,7 @@ class AloneWidgetWindow(QWidget):
                 self.size().height() - self.groupbox_directory_choose.height() - 30,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
+            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
 
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 

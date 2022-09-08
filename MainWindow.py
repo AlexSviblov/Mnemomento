@@ -306,6 +306,7 @@ class MainWindow(QMainWindow):
     # Показ папки вне каталогов
     def show_view_dir(self) -> None:
         widget = OnlyShowWidget.WidgetWindow(self.photo_files_list_view)
+        widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         self.setCentralWidget(widget)
 
     # Начальный вид

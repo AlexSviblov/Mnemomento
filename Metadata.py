@@ -62,7 +62,6 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     :return: словарь с 11 значениями (Разрешение, ориентация, производитель, камера, объектив, дата съёмки,
     фокусное расстояние, ISO, диафрагма, выдержка, координаты GPS.
     """
-    logging.info("filter start")
     metadata = dict()
 
     try:
@@ -189,7 +188,6 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
             metadata['GPS'] = ''
     except KeyError:
         metadata['GPS'] = ''
-    logging.info("filter finish")
     return metadata
 
 

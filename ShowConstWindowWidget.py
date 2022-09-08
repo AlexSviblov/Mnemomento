@@ -93,6 +93,7 @@ class ConstWidgetWindow(QWidget):
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
         self.metadata_show.setFont(font14)
+        self.metadata_show.setStyleSheet(stylesheet6)
 
         self.metadata_show.horizontalHeader().setVisible(False)
         self.metadata_show.verticalHeader().setVisible(False)
@@ -538,9 +539,7 @@ class ConstWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        logging.info("До метадата фильтр")
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name, photo_directory)
-        logging.info("После метадата фильтр")
         self.photo_rotation = metadata['Rotation']
         params = list(metadata.keys())
         params.remove('Rotation')
@@ -582,21 +581,24 @@ class ConstWidgetWindow(QWidget):
             self.pic.show()
             self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
             self.socnet_group.show()
+            self.show_social_networks(self.last_clicked_name, photo_directory)
+            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 120)
+
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
             self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
+            self.show_social_networks(self.last_clicked_name, photo_directory)
             self.socnet_group.show()
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
+            self.set_minimum_size.emit( self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 120)
 
-        self.show_social_networks(self.last_clicked_name, photo_directory)
-        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
+        # self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
-        self.metadata_show.setStyleSheet(stylesheet6)
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
@@ -646,15 +648,14 @@ class ConstWidgetWindow(QWidget):
                 self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
-
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
         else:
             self.pixmap2 = self.pixmap.scaled(
                 self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 80,
-                self.size().height() - self.groupbox_sort.height() - 30,
+                self.size().height() - self.groupbox_sort.height() - 10,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
+            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
 
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 

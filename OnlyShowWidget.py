@@ -266,23 +266,24 @@ class WidgetWindow(QWidget):
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
 
-            pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
+            self.pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
                                     self.size().height() - self.metadata_show.height(),
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(pixmap2)
+            self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
+            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 120)
         else: # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
-            pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
+            self.pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
                                     self.metadata_show.width(), self.size().height() - 50,
                                     QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(pixmap2)
+            self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
+            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 120)
 
-        self.set_minimum_size.emit(self.scroll_area_widget.width() + self.metadata_show.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
 
     # в класс передаётся список файлов, надо получить их директорию

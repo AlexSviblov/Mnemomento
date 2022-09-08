@@ -1,24 +1,24 @@
 import sqlite3
 
-conn = sqlite3.connect('C:/Users/user/PycharmProjects/PhotoProgramm/test/PhotoDB.db')   # соединение с БД
-cur = conn.cursor()
-
-sql_str1 = 'CREATE TABLE photos (filename TEXT, catalog TEXT, camera TEXT, lens TEXT, shootingdate TEXT, shootingdatetime TEXT, additiondate TEXT, GPSdata TEXT)'
-
-sql_str2 = 'CREATE TABLE socialnetworks (filename TEXT, catalog TEXT, shootingdate TEXT)'
-
-cur.execute(sql_str1)
-cur.execute(sql_str2)
-
-conn.commit()
-
-
-# conn = sqlite3.connect('C:/Users/user/PycharmProjects/PhotoProgramm/ErrorNames.db')   # соединение с БД
+# conn = sqlite3.connect('C:/Users/Александр/Desktop/Релиз/empty/PhotoDB.db')   # соединение с БД
 # cur = conn.cursor()
 #
-# sql_str3 = 'CREATE TABLE ernames (type TEXT, exifname TEXT, normname TEXT)'
+# sql_str1 = 'CREATE TABLE photos (filename TEXT, catalog TEXT, camera TEXT, lens TEXT, shootingdate TEXT, shootingdatetime TEXT, additiondate TEXT, GPSdata TEXT)'
 #
-# cur.execute(sql_str3)
+# sql_str2 = 'CREATE TABLE socialnetworks (filename TEXT, catalog TEXT, shootingdate TEXT)'
+#
+# cur.execute(sql_str1)
+# cur.execute(sql_str2)
 #
 # conn.commit()
+
+
+conn = sqlite3.connect('C:/Users/Александр/Desktop/Релиз/empty//ErrorNames.db')   # соединение с БД
+cur = conn.cursor()
+
+sql_str3 = 'CREATE TABLE ernames (type TEXT, exifname TEXT, normname TEXT)'
+
+cur.execute(sql_str3)
+
+conn.commit()
 
