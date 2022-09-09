@@ -272,7 +272,7 @@ class WidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 120)
+            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 50)
         else: # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
@@ -282,7 +282,7 @@ class WidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 120)
+            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 50)
 
         self.oldsize = self.size()
 

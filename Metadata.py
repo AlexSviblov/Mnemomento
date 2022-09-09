@@ -188,6 +188,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
             metadata['GPS'] = ''
     except KeyError:
         metadata['GPS'] = ''
+
     return metadata
 
 

@@ -1,0 +1,4 @@
+08-Sep-22 17:56:51 - INFO - До метадата фильтр
+08-Sep-22 17:56:53 - INFO - filter start
+08-Sep-22 17:58:28 - INFO - filter finish
+08-Sep-22 17:58:29 - INFO - После метадата фильтр

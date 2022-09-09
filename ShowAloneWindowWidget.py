@@ -474,7 +474,7 @@ class AloneWidgetWindow(QWidget):
             self.pic.show()
 
         self.show_social_networks(self.last_clicked, self.photo_directory)
-        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
+        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 50)
         self.oldsize = self.size()
 
     # изменить размер фото при изменении размера окна
