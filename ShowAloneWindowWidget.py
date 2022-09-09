@@ -474,7 +474,7 @@ class AloneWidgetWindow(QWidget):
             self.pic.show()
 
         self.show_social_networks(self.last_clicked, self.photo_directory)
-        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 50)
+        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 60)
         self.oldsize = self.size()
 
     # изменить размер фото при изменении размера окна
@@ -1240,7 +1240,7 @@ class EditExifData(QDialog):
             self.tabs.setFixedHeight(self.table.height())
 
             self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
-                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
+                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 60)
 
         def fill_equip_set():
             self.maker_line.setText(str(data['Производитель']))

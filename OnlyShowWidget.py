@@ -272,7 +272,7 @@ class WidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 50)
+            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
         else: # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
@@ -282,7 +282,7 @@ class WidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 50)
+            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
         self.oldsize = self.size()
 
@@ -849,7 +849,7 @@ class EditExifData(QDialog):
             self.tabs.setFixedHeight(self.table.height())
 
             self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
-                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
+                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 60)
 
         # заполнить поля второй вкладки
         def fill_equip_set() -> None:

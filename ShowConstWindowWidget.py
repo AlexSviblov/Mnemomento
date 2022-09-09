@@ -582,7 +582,7 @@ class ConstWidgetWindow(QWidget):
             self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
             self.socnet_group.show()
             self.show_social_networks(self.last_clicked_name, photo_directory)
-            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 50)
+            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
 
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
@@ -595,7 +595,7 @@ class ConstWidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
-            self.set_minimum_size.emit( self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 50)
+            self.set_minimum_size.emit( self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
         # self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
@@ -1764,7 +1764,7 @@ class EditExifData(QDialog):
             self.tabs.setFixedHeight(self.table.height())
 
             self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
-                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 50)
+                                self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 60)
 
         def fill_equip_set():
             self.maker_line.setText(str(data['Производитель']))

@@ -264,7 +264,7 @@ class RedSN(QDialog):
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
         self.new_name_lbl = QLabel(self)
-        self.new_name_lbl.setText('Старое название:')
+        self.new_name_lbl.setText('Новое название:')
         self.new_name_lbl.setFont(font14)
         self.new_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.new_name_lbl, 1, 0, 1, 1)

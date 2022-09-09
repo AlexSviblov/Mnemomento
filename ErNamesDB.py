@@ -120,7 +120,6 @@ class ViewBDDialog(QWidget):
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
-
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
@@ -414,10 +413,8 @@ class AddBDDialog(QDialog):
 
         conn.commit()
 
-        ready = SuccessWindowClass(code=1000)
+        ready = SuccessWindowClass(self)
         ready.show()
-        if ready.exec_():
-            self.close()
 
 
 # удалить подмену
@@ -467,17 +464,31 @@ class DelBDDialog(QDialog):
 
 
 # "Изменения сохранены"
-class SuccessWindowClass(QMessageBox):
-    def __init__(self, code=0):
-        super(SuccessWindowClass, self).__init__()
-
+class SuccessWindowClass(QDialog):
+    def __init__(self, parent):
+        super(SuccessWindowClass, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.answer = None
         self.resize(100, 100)
 
         self.setWindowTitle('ГОТОВО')
-        self.setText("Изменения сохранены")
+        self.setStyleSheet(stylesheet2)
 
-        self.setDefaultButton(QMessageBox.Ok)
+        self.layout_all = QGridLayout(self)
+
+        self.text = QLabel(self)
+        self.text.setStyleSheet(stylesheet2)
+        self.text.setFont(font12)
+        self.text.setText("Изменения сохранены")
+        self.layout_all.addWidget(self.text, 0, 0, 1, 1)
+
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setFont(font12)
+        self.btn_ok.setStyleSheet(stylesheet8)
+        self.btn_ok.setText("Ок")
+        self.layout_all.addWidget(self.btn_ok, 1, 0, 1, 1)
+        self.btn_ok.clicked.connect(parent.close)
+        self.btn_ok.clicked.connect(self.close)
 
 
 if __name__ == "__main__":

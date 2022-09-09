@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
     def clear_view_close(self) -> None:
         try:
             Thumbnail.delete_exists()
-            # FilesDirs.clear_empty_dirs()
+            FilesDirs.clear_empty_dirs(Settings.get_destination_media() + "/Media/Photo/const/")
         except FileNotFoundError:
             pass
 
