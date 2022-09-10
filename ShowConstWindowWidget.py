@@ -1485,10 +1485,13 @@ class EditExifData(QDialog):
         self.time_line = QLineEdit(self)
 
         self.iso_line = QLineEdit(self)
+        self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
         self.fnumber_line = QLineEdit(self)
+        self.fnumber_line.setValidator(QtGui.QDoubleValidator(0, 100, 2))
 
         self.flength_line = QLineEdit(self)
+        self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
 
         self.serialbody_line = QLineEdit(self)
 
