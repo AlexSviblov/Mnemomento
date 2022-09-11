@@ -45,7 +45,8 @@ def make_const_thumbnails(directory: str, file: str) -> None:
     image.thumbnail((250, 250))     # TODO: размер кнопки 150*150, может поменять размер миниатюр
     image.save('thumbnail_%s' % file)
     date = year + '/' + month + '/' + day
-    os.replace('thumbnail_%s' % file, destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
+    # os.replace('thumbnail_%s' % file, destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
+    shutil.move('thumbnail_%s' % file, destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
     image.close()
 
 
@@ -65,7 +66,8 @@ def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_las
     image = Image.open(r"{}".format(photofile))
     image.thumbnail((250, 250))
     image.save('thumbnail_%s' % photofile_lastname)
-    os.replace('thumbnail_%s' % photofile_lastname, destination_thumbs + '/thumbnail/alone/' + directory_lastname + f'/thumbnail_{photofile_lastname}')
+    # os.replace('thumbnail_%s' % photofile_lastname, destination_thumbs + '/thumbnail/alone/' + directory_lastname + f'/thumbnail_{photofile_lastname}')
+    shutil.move('thumbnail_%s' % photofile_lastname, destination_thumbs + '/thumbnail/alone/' + directory_lastname + f'/thumbnail_{photofile_lastname}')
     image.close()
 
 
@@ -127,7 +129,8 @@ def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_dir
             image = Image.open(r"{}".format(photo_directory + '/' + file))
             image.thumbnail((250, 250))
             image.save('thumbnail_%s' % file)
-            os.replace('thumbnail_%s' % file, thumbnail_directory + f'/thumbnail_{file}')
+            # os.replace('thumbnail_%s' % file, thumbnail_directory + f'/thumbnail_{file}')
+            shutil.move('thumbnail_%s' % file, thumbnail_directory + f'/thumbnail_{file}')
             image.close()
 
     if excess_thumbs:
@@ -150,7 +153,8 @@ def make_thumbnails_view(photo_file: str) -> None:
     image = Image.open(r"{}".format(photo_file))
     image.thumbnail((250, 250))
     image.save('thumbnail_%s' % photo_name)
-    os.replace('thumbnail_%s' % photo_name, destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
+    # os.replace('thumbnail_%s' % photo_name, destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
+    shutil.move('thumbnail_%s' % photo_name, destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
     image.close()
 
 
