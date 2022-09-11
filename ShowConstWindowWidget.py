@@ -571,10 +571,7 @@ class ConstWidgetWindow(QWidget):
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
 
-        print(self.size())
         if self.photo_rotation == 'gor':
-            print(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40,
-                  self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40)
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
             self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
@@ -586,7 +583,6 @@ class ConstWidgetWindow(QWidget):
             self.socnet_group.show()
             self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
         else:  # self.photo_rotation == 'ver'
-            print(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30)
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
             self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
@@ -602,7 +598,6 @@ class ConstWidgetWindow(QWidget):
         self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
         # self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 60)
         self.oldsize = self.size()
-        print(self.pic.size())
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
