@@ -199,13 +199,24 @@ def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[s
     destination_thumbs = Settings.get_destination_thumb()
 
     if chosen == 'old':    # переименовывают файл уже находящийся в папке
-        os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
-                  destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
+        try:
+            os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
+                      destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
+        except FileExistsError:
+            os.remove(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
+            os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
+                      destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
         shutil.move(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
                     destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
     else:   # chosen == 'new' - переименовывают переносимый файл
-        os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
+        try:
+            os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
                   destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
+        except FileExistsError:
+            os.remove(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
+            os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
+                      destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
+
         shutil.move(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}',
                     destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
 

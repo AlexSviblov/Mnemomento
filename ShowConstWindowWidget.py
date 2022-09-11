@@ -721,7 +721,7 @@ class ConstWidgetWindow(QWidget):
             return
 
         photoname = self.last_clicked_name
-        photodirectory = self.last_clicked_dir[:-1]
+        photodirectory = self.last_clicked_dir
         dialog_del = DelPhotoConfirm(photoname, photodirectory)
         dialog_del.clear_info.connect(self.clear_after_del)
         if dialog_del.exec():
@@ -733,7 +733,7 @@ class ConstWidgetWindow(QWidget):
             return
 
         photoname = self.last_clicked_name
-        photodirectory = self.last_clicked_dir[:-1]
+        photodirectory = self.last_clicked_dir
 
         if self.group_type.currentText() == 'Дата':
             old_year = self.date_year.currentText()
