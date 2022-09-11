@@ -583,7 +583,6 @@ class ConstWidgetWindow(QWidget):
             self.socnet_group.show()
             self.show_social_networks(self.last_clicked_name, photo_directory)
             self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
-
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
@@ -595,7 +594,7 @@ class ConstWidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
-            self.set_minimum_size.emit( self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
         # self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 120)
         self.oldsize = self.size()
@@ -1489,7 +1488,7 @@ class EditExifData(QDialog):
         self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
         self.fnumber_line = QLineEdit(self)
-        self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+.\d+')))
+        self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[.]\d+')))
 
         self.flength_line = QLineEdit(self)
         self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
@@ -1558,7 +1557,9 @@ class EditExifData(QDialog):
         self.longitude_fn_lbl.setText("Долгота:")
 
         self.latitude_fn_line = QLineEdit(self)     # широта
+        self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
         self.longitude_fn_line = QLineEdit(self)    # долгота
+        self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.latitude_fn_lbl.setFont(font12)
         self.longitude_fn_lbl.setFont(font12)
@@ -1614,16 +1615,22 @@ class EditExifData(QDialog):
         self.longitude_dmc_sec_lbl.setText("Секунды:")
 
         self.latitude_dmc_deg_line = QLineEdit(self)  # широта
+        self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:90|[0-9]|[1-8][0-9])')))
 
-        self.latitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+        self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
         self.latitude_dmc_sec_line = QLineEdit(self)  # широта
+        self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
 
-        self.longitude_dmc_min_line = QLineEdit(self)  # широта
+        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
         self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
@@ -1848,12 +1855,30 @@ class EditExifData(QDialog):
         if self.mode_check_dmc.checkState() == 2:
             latitude_ref = self.latitude_dmc_choose.currentText()
             longitude_ref = self.longitude_dmc_choose.currentText()
-            latitude_deg = float(self.latitude_dmc_deg_line.text())
-            longitude_deg = float(self.longitude_dmc_deg_line.text())
-            latitude_min = float(self.latitude_dmc_min_line.text())
-            longitude_min = float(self.longitude_dmc_min_line.text())
-            latitude_sec = float(self.latitude_dmc_sec_line.text())
-            longitude_sec = float(self.longitude_dmc_sec_line.text())
+            try:
+                latitude_deg = float(self.latitude_dmc_deg_line.text())
+            except ValueError:
+                latitude_deg = 0
+            try:
+                longitude_deg = float(self.longitude_dmc_deg_line.text())
+            except ValueError:
+                longitude_deg = 0
+            try:
+                latitude_min = float(self.latitude_dmc_min_line.text())
+            except ValueError:
+                latitude_min = 0
+            try:
+                longitude_min = float(self.longitude_dmc_min_line.text())
+            except ValueError:
+                longitude_min = 0
+            try:
+                latitude_sec = float(self.latitude_dmc_sec_line.text())
+            except ValueError:
+                latitude_sec = 0
+            try:
+                longitude_sec = float(self.longitude_dmc_sec_line.text())
+            except ValueError:
+                longitude_sec = 0
 
             if latitude_ref == "Юг":
                 latitude_pm_coe = -1
@@ -1870,13 +1895,15 @@ class EditExifData(QDialog):
 
             self.latitude_fn_line.setText(str(latitude))
             self.longitude_fn_line.setText(str(longitude))
-
         else: #self.mode_check_fn.checkState() == 2
             try:
                 latitude = float(self.latitude_fn_line.text())
-                longitude = float(self.longitude_fn_line.text())
             except ValueError:
                 latitude = 0
+
+            try:
+                longitude = float(self.longitude_fn_line.text())
+            except ValueError:
                 longitude = 0
 
             if latitude > 0:

@@ -565,12 +565,16 @@ class EditExifData(QDialog):
         self.lens_line = QLineEdit(self)
 
         self.time_line = QLineEdit(self)
+        self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[./]\d+')))
 
         self.iso_line = QLineEdit(self)
+        self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
         self.fnumber_line = QLineEdit(self)
+        self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[.]\d+')))
 
         self.flength_line = QLineEdit(self)
+        self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
 
         self.serialbody_line = QLineEdit(self)
 
@@ -635,8 +639,11 @@ class EditExifData(QDialog):
         self.longitude_fn_lbl = QLabel(self)  # долгота
         self.longitude_fn_lbl.setText("Долгота:")
 
-        self.latitude_fn_line = QLineEdit(self)  # широта
-        self.longitude_fn_line = QLineEdit(self)  # долгота
+        self.latitude_fn_line = QLineEdit(self)     # широта
+        self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+        self.longitude_fn_line = QLineEdit(self)    # долгота
+        self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+
 
         self.latitude_fn_lbl.setFont(font12)
         self.longitude_fn_lbl.setFont(font12)
@@ -692,16 +699,22 @@ class EditExifData(QDialog):
         self.longitude_dmc_sec_lbl.setText("Секунды:")
 
         self.latitude_dmc_deg_line = QLineEdit(self)  # широта
+        self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:90|[0-9]|[1-8][0-9])')))
 
-        self.latitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+        self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
         self.latitude_dmc_sec_line = QLineEdit(self)  # широта
+        self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
 
-        self.longitude_dmc_min_line = QLineEdit(self)  # широта
+        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
         self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
