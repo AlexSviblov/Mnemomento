@@ -349,7 +349,6 @@ class WidgetWindow(QWidget):
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
 
-
     # открыть фотографию в приложении просмотра
     def open_file_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:

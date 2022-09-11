@@ -462,6 +462,7 @@ class AloneWidgetWindow(QWidget):
             self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
             self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
+            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
         else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
@@ -471,9 +472,10 @@ class AloneWidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()
+            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
         self.show_social_networks(self.last_clicked, self.photo_directory)
-        self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 60)
+        # self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 60)
         self.oldsize = self.size()
 
     # изменить размер фото при изменении размера окна
