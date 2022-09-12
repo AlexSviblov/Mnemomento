@@ -8,7 +8,7 @@ from GPSPhoto import gpsphoto   # type: ignore[import]
 
 import ErrorsAndWarnings
 
-conn = sqlite3.connect('ErrorNames.db')
+conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
 
 
 cur = conn.cursor()

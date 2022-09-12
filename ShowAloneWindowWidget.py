@@ -366,6 +366,7 @@ class AloneWidgetWindow(QWidget):
         for j in range(0, num_of_j):  # создание кнопок
             if j == num_of_j - 1:  # последний ряд (может быть неполным)
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
@@ -380,6 +381,7 @@ class AloneWidgetWindow(QWidget):
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')
