@@ -1,6 +1,8 @@
 import logging
 import sys
 import os
+import time
+
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
@@ -306,6 +308,7 @@ class ConstWidgetWindow(QWidget):
         for j in range(0, num_of_j):  # создание кнопок
             if j == num_of_j - 1:  # последний ряд (может быть неполным)
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(
@@ -323,6 +326,7 @@ class ConstWidgetWindow(QWidget):
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')
@@ -371,6 +375,7 @@ class ConstWidgetWindow(QWidget):
         for j in range(0, num_of_j):  # создание кнопок
             if j == num_of_j - 1:  # последний ряд (может быть неполным)
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
@@ -386,6 +391,7 @@ class ConstWidgetWindow(QWidget):
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')
@@ -399,6 +405,7 @@ class ConstWidgetWindow(QWidget):
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
+
 
         # фотографии списком выбираются из БД, где есть имя файла и каталог
         # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
@@ -447,6 +454,7 @@ class ConstWidgetWindow(QWidget):
         for j in range(0, num_of_j):  # создание кнопок
             if j == num_of_j - 1:  # последний ряд (может быть неполным)
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
@@ -462,6 +470,7 @@ class ConstWidgetWindow(QWidget):
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
+                    QtCore.QCoreApplication.processEvents()
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')

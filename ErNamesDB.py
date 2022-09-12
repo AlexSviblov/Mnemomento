@@ -20,7 +20,7 @@ stylesheet8 = str()
 stylesheet9 = str()
 
 
-conn = sqlite3.connect('ErrorNames.db')  # соединение с БД
+conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)  # соединение с БД
 
 
 cur = conn.cursor()
