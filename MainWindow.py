@@ -589,11 +589,6 @@ class StartShow(QWidget):
 
         self.layout_outside = QGridLayout(self)
 
-        font16 = QtGui.QFont('Times', 16)
-        font14 = QtGui.QFont('Times', 14)
-        font12 = QtGui.QFont('Times', 12)
-        font10 = QtGui.QFont('Times', 10)
-
         self.layout_buttons = QGridLayout(self)
 
         self.empty1 = QLabel()
@@ -730,7 +725,7 @@ class StartShow(QWidget):
         str_to_show = ''
         try:
             size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/alone/')
-        except:
+        except Exception:
             self.alone_stats.setText(str_to_show)
             return
         numdir = fullnum - numfiles

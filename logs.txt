@@ -20,3 +20,8 @@
 13-Sep-22 15:58:24 - WARNING - unable to read tag 'components_configuration'
 13-Sep-22 15:58:24 - WARNING - unable to read tag 'sensing_method'
 13-Sep-22 15:58:24 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 17:56:43 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 17:57:57 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 17:57:57 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 17:58:04 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 17:58:04 - WARNING - unable to read tag 'gps_processing_method'
