@@ -1,18 +1,22 @@
 import logging
-import math
 import sys
 import os
+import time
+
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from math import ceil
 from PyQt5.QtCore import Qt
-from PIL import Image       # type: ignore[import]
+from pathlib import Path
+import shutil
+import json
+import ErrorsAndWarnings
+import PhotoDataDB
 import Screenconfig
 import Metadata
 import Settings
 import Thumbnail
-import ErrorsAndWarnings
-import json
+import SocialNetworks
+import math
 
 
 stylesheet1 = str()
@@ -25,91 +29,75 @@ stylesheet9 = str()
 icon_explorer = str()
 icon_view = str()
 icon_edit = str()
+icon_delete = str()
 
 
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
 
-# noinspection PyUnresolvedReferences,PyArgumentList
-class WidgetWindow(QWidget):
-    resized_signal = QtCore.pyqtSignal()
-    set_minimum_size = QtCore.pyqtSignal(int)
+# редактирование exif
+class EditExifData(QDialog):
 
-    def __init__(self, photo_list: list[str]):
-        super().__init__()
+    edited_signal = QtCore.pyqtSignal()
+    edited_signal_no_move = QtCore.pyqtSignal()
+    movement_signal = QtCore.pyqtSignal(str, str, str)
+
+    def __init__(self, parent, photoname, photodirectory, chosen_group_type):
+        super().__init__(parent)
         self.stylesheet_color()
+
         self.setStyleSheet(stylesheet2)
 
-        self.own_dir = os.getcwd()
-        self.photo_list = photo_list
-        self.photo_directory = self.make_photo_dir(self.photo_list)
+        self.setWindowTitle('Редактирование метаданных')
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.layoutoutside = QGridLayout(self)
-        self.layoutoutside.setSpacing(10)
+        self.photoname = photoname
+        self.photodirectory = photodirectory
+        self.chosen_group_type = chosen_group_type
 
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.thumb_row = int(settings["thumbs_row"])
+        self.layout = QGridLayout(self)
+        self.layout.setSpacing(20)
+        self.setLayout(self.layout)
 
-        self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
-        self.pic.hide()
-        self.pic.setAlignment(Qt.AlignCenter)
+        self.table = QTableWidget(self)
+        self.table.setFont(font12)
+        self.table.setDisabled(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table.setStyleSheet(stylesheet6)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.scroll_area_widget = QScrollArea(self)  # создание подвижной области
-        self.layoutoutside.addWidget(self.scroll_area_widget, 0, 0, 2, 1)  # помещение подвижной области на слой
-        self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
-        self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
-        self.groupbox_thumbs.setStyleSheet(stylesheet1)
-        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
-        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
-        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
+        self.layout.addWidget(self.table, 0, 1, 1, 2)
 
-        self.scroll_area_widget.setFixedWidth(200*self.thumb_row)
-        self.scroll_area_widget.setWidgetResizable(True)
-        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
-        self.scroll_area_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area_widget.setStyleSheet(stylesheet2)
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setText("Записать")
+        self.btn_ok.setStyleSheet(stylesheet8)
+        self.btn_ok.setFont(font14)
+        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+        self.btn_ok.clicked.connect(self.pre_write_changes)
 
-        self.metadata_show = QtWidgets.QTableWidget()
-        self.metadata_show.setColumnCount(2)
-        self.metadata_show.setFont(font14)
-        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setDisabled(True)
-        self.metadata_show.horizontalHeader().setVisible(False)
-        self.metadata_show.verticalHeader().setVisible(False)
-        self.metadata_header = self.metadata_show.horizontalHeader()
-        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_show.setStyleSheet(stylesheet6)
+        self.btn_cancel = QPushButton(self)
+        self.btn_cancel.setText("Отмена")
+        self.btn_cancel.setStyleSheet(stylesheet8)
+        self.btn_cancel.setFont(font14)
+        self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+        self.btn_cancel.clicked.connect(self.close)
 
-        self.last_clicked = ''
+        self.btn_clear = QPushButton(self)
+        self.btn_clear.setText("Очистить")
+        self.btn_clear.setStyleSheet(stylesheet8)
+        self.btn_clear.setFont(font14)
+        self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
+        self.btn_clear.clicked.connect(self.clear_exif_func)
 
-        self.layout_btns = QGridLayout(self)
-        self.layout_btns.setSpacing(0)
+        self.make_tabs_gui()
 
-        self.make_buttons()
+        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
-        self.groupbox_btns = QGroupBox(self)
-        self.groupbox_btns.setLayout(self.layout_btns)
-        self.groupbox_btns.setStyleSheet(stylesheet2)
-        self.groupbox_btns.setFixedSize(70, 160)
-        self.layoutoutside.addWidget(self.groupbox_btns, 0, 2, 1, 1)
-
-        self.show_thumbnails()
-
-        self.resized_signal.connect(self.resize_func)
-        self.oldsize = QtCore.QSize(0, 0)
-
-        self.photo_show = QGroupBox(self)
-        self.photo_show.setAlignment(Qt.AlignCenter)
-        self.layout_show = QGridLayout(self)
-        self.layout_show.setAlignment(Qt.AlignCenter)
-        self.layout_show.setHorizontalSpacing(10)
-        self.photo_show.setLayout(self.layout_show)
-        self.photo_show.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.photo_show, 0, 1, 1, 1)
+        self.get_metadata(photoname, photodirectory)
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -123,6 +111,8 @@ class WidgetWindow(QWidget):
         global icon_explorer
         global icon_view
         global icon_edit
+        global icon_delete
+
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 =   """
@@ -219,6 +209,10 @@ class WidgetWindow(QWidget):
             icon_explorer = os.getcwd() + '/icons/explorer_light.png'
             icon_view = os.getcwd() + '/icons/view_light.png'
             icon_edit = os.getcwd() + '/icons/edit_light.png'
+            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
+            icon_view = os.getcwd() + '/icons/view_light.png'
+            icon_edit = os.getcwd() + '/icons/edit_light.png'
+            icon_delete = os.getcwd() + '/icons/delete_light.png'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 =   """
                                 border: 1px;
@@ -315,293 +309,25 @@ class WidgetWindow(QWidget):
             icon_explorer = os.getcwd() + '/icons/explorer_dark.png'
             icon_view = os.getcwd() + '/icons/view_dark.png'
             icon_edit = os.getcwd() + '/icons/edit_dark.png'
+            icon_delete = os.getcwd() + '/icons/delete_dark.png'
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
-            self.scroll_area_widget.setStyleSheet(stylesheet2)
+            self.scroll_area.setStyleSheet(stylesheet2)
+            self.groupbox_sort.setStyleSheet(stylesheet2)
             self.groupbox_btns.setStyleSheet(stylesheet2)
+            self.socnet_group.setStyleSheet(stylesheet6)
             self.photo_show.setStyleSheet(stylesheet2)
             self.metadata_show.setStyleSheet(stylesheet6)
-            self.edit_btn.setStyleSheet(stylesheet1)
-            self.setStyleSheet(stylesheet2)
-            self.show_thumbnails()
             self.make_buttons()
+            self.setStyleSheet(stylesheet2)
+            self.group_type.setStyleSheet(stylesheet1)
+            self.set_sort_layout()
+            self.type_show_thumbnails()
         except AttributeError:
             pass
-
-    # функция отображения кнопок с миниатюрами
-    def show_thumbnails(self) -> None:
-        for i in reversed(range(self.layout_inside_thumbs.count())):
-            self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
-
-        self.thumbnails_list = list()
-
-        for file in os.listdir(Settings.get_destination_thumb() + '/thumbnail/view/'):  # получение списка созданных миниатюр
-            if file.endswith(".jpg") or file.endswith(".JPG"):
-                self.thumbnails_list.append(file)
-
-        num_of_j = ceil(len(self.thumbnails_list) / self.thumb_row)  # количество строк кнопок
-        self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
-
-        for j in range(0, num_of_j):  # создание кнопок
-            if j == num_of_j - 1:  # последний ряд (может быть неполным)
-                for i in range(0, len(self.thumbnails_list) - self.thumb_row * (num_of_j - 1)):
-                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
-                    iqon.pixmap(150, 150)  # задание размера картинки
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)  # помещение картинки на кнопку
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{self.thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.clicked.connect(self.showinfo)
-            else:
-                for i in range(0, self.thumb_row):
-                    self.button = QtWidgets.QToolButton(self)
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')
-                    iqon.pixmap(150, 150)
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{self.thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.clicked.connect(self.showinfo)
-
-    # функция показа большой картинки
-    def showinfo(self) -> None:
-        try:
-            self.button_text = self.sender().text() # type: ignore[attr-defined]
-        except AttributeError:
-            if self.last_clicked == '':
-                return
-            else:
-                self.button_text = self.last_clicked
-
-        self.last_clicked = self.button_text
-
-        self.pic.clear()  # очистка от того, что показано сейчас
-
-        # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
-        self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
-
-        pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
-
-        metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
-
-        self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
-        params = list(metadata.keys())
-        params.remove('Rotation')
-
-        rows = 0
-        for param in params:
-            if metadata[param]:
-                rows += 1
-
-        self.metadata_show.setRowCount(rows)
-
-        r = 0
-        max_len = 0
-        for i in range(len(params)):
-            if metadata[params[i]]:
-                self.metadata_show.setItem(r, 0, QTableWidgetItem(str(params[i])))
-                self.metadata_show.setItem(r, 1, QTableWidgetItem(str(metadata[params[i]])))
-                r += 1
-                if len(metadata[params[i]]) > max_len:
-                    max_len = len(metadata[params[i]])
-
-        self.metadata_show.setColumnWidth(1, max_len*12)
-
-        if self.metadata_show.columnWidth(1) < 164:
-            self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
-            self.metadata_show.setColumnWidth(1, 164)
-
-        self.metadata_show.setFixedWidth(self.metadata_show.columnWidth(0) + self.metadata_show.columnWidth(1))
-
-        self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
-
-
-        if self.photo_rotation == 'gor':
-            self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
-            self.metadata_show.show()
-
-            self.pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
-                                    self.size().height() - self.metadata_show.height(),
-                                    QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
-            self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
-        else: # self.photo_rotation == 'ver'
-            self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
-            self.metadata_show.show()
-            self.pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
-                                    self.metadata_show.width(), self.size().height() - 50,
-                                    QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
-            self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
-
-        self.oldsize = self.size()
-
-    # в класс передаётся список файлов, надо получить их директорию
-    def make_photo_dir(self, photo_list: list[str]) -> str:
-        photo_splitted = photo_list[0].split('/')
-        photo_dir = ''
-        for i in range(0, len(photo_splitted)-1):
-            photo_dir += photo_splitted[i] + '/'
-
-        return photo_dir
-
-    # Действия при изменении размеров окна
-    def resizeEvent(self, QResizeEvent):
-        self.resized_signal.emit()
-
-    def resize_func(self) -> None:
-        raznost = self.oldsize - self.size()
-        if abs(raznost.width()) + abs(raznost.height()) < 300:
-            pass
-        else:
-            self.showinfo()
-
-    # создание кнопки редактирования
-    def make_buttons(self) -> None:
-        self.edit_btn = QToolButton(self)
-        self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
-        self.edit_btn.setIconSize(QtCore.QSize(50, 50))
-        self.edit_btn.setToolTip("Редактирование метаданных")
-        # self.edit_btn.setText('RED')
-        self.edit_btn.setStyleSheet(stylesheet1)
-        self.edit_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.edit_btn, 0, 0, 1, 1)
-        self.edit_btn.clicked.connect(self.edit_photo_func)
-
-        self.explorer_btn = QToolButton(self)
-        self.explorer_btn.setStyleSheet(stylesheet1)
-        self.explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
-        self.explorer_btn.setIconSize(QtCore.QSize(50, 50))
-        self.explorer_btn.setToolTip("Показать в проводнике")
-        # self.explorer_btn.setText('EXP')
-        self.explorer_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.explorer_btn, 1, 0, 1, 1)
-        self.explorer_btn.clicked.connect(self.call_explorer)
-
-        self.open_file_btn = QToolButton(self)
-        self.open_file_btn.setStyleSheet(stylesheet1)
-        self.open_file_btn.setIcon(QtGui.QIcon(icon_view))
-        self.open_file_btn.setIconSize(QtCore.QSize(50, 50))
-        self.open_file_btn.setToolTip("Открыть")
-        # self.open_file_btn.setText('OPN')
-        self.open_file_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.open_file_btn, 2, 0, 1, 1)
-        self.open_file_btn.clicked.connect(self.open_file_func)
-
-    # функция редактирования
-    def edit_photo_func(self) -> None:
-        if not self.pic.isVisible() or not self.last_clicked:
-            return
-
-        photoname = self.button_text
-        photodirectory = self.photo_directory[:-1]
-        dialog_edit = EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory)
-        dialog_edit.show()
-        dialog_edit.edited_signal.connect(self.showinfo)
-
-    # открыть фотографию в приложении просмотра
-    def open_file_func(self) -> None:
-        if not self.pic.isVisible() or not self.last_clicked:
-            return
-
-        path = self.photo_file  # 'C:/Users/user/Pictures/IMG_0454.jpg'
-        os.startfile(path)
-
-    # показать фото в проводнике
-    def call_explorer(self) -> None:
-        if not self.pic.isVisible() or not self.last_clicked:
-            return
-
-        open_path = self.photo_file # 'C:/Users/user/Pictures/IMG_0454.jpg'
-        path = open_path.replace('/', '\\')
-        exp_str = f'explorer /select,\"{path}\"'
-        os.system(exp_str)
-
-    # обновить дизайн при изменении настроек
-    def after_change_settings(self) -> None:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.thumb_row = int(settings["thumbs_row"])
-
-        self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
-        self.scroll_area_widget.setFixedWidth(200 * self.thumb_row)
-
-        self.show_thumbnails()
-
-
-# редактирование exif
-# noinspection PyArgumentList
-class EditExifData(QDialog):
-
-    edited_signal = QtCore.pyqtSignal()
-
-    def __init__(self, parent, photoname, photodirectory):
-        super().__init__(parent)
-        self.setStyleSheet(stylesheet2)
-
-        self.setWindowTitle('Редактирование метаданных')
-        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-
-        self.photoname = photoname
-        self.photodirectory = photodirectory
-
-        self.layout = QGridLayout(self)
-        self.layout.setSpacing(20)
-        self.setLayout(self.layout)
-
-        self.table = QTableWidget(self)
-        self.table.setFont(font12)
-        self.table.setDisabled(True)
-        self.table.verticalHeader().setVisible(False)
-        self.table.horizontalHeader().setStyleSheet(stylesheet3)
-        self.table.setStyleSheet(stylesheet6)
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
-        self.layout.addWidget(self.table, 0, 1, 1, 2)
-
-        self.btn_ok = QPushButton(self)
-        self.btn_ok.setText("Записать")
-        self.btn_ok.setStyleSheet(stylesheet8)
-        self.btn_ok.setFont(font14)
-        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
-        self.btn_ok.clicked.connect(self.pre_write_changes)
-
-        self.btn_cancel = QPushButton(self)
-        self.btn_cancel.setText("Отмена")
-        self.btn_cancel.setStyleSheet(stylesheet8)
-        self.btn_cancel.setFont(font14)
-        self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
-        self.btn_cancel.clicked.connect(self.close)
-
-        self.btn_clear = QPushButton(self)
-        self.btn_clear.setText("Очистить")
-        self.btn_clear.setStyleSheet(stylesheet8)
-        self.btn_clear.setFont(font14)
-        self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
-        self.btn_clear.clicked.connect(self.clear_exif_func)
-
-        self.make_tabs_gui()
-
-        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
-
-        self.get_metadata(photoname, photodirectory)
-        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # создание всего GUI в разделе, где можно редактировать метаданные
-    # noinspection PyUnresolvedReferences
     def make_tabs_gui(self) -> None:
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
@@ -794,17 +520,16 @@ class EditExifData(QDialog):
         self.mode_check_fn.setStyleSheet(stylesheet2)
         self.mode_check_fn.stateChanged.connect(self.block_check_gps)
 
-        self.latitude_fn_lbl = QLabel(self)  # широта
+        self.latitude_fn_lbl = QLabel(self)     # широта
         self.latitude_fn_lbl.setText("Широта:")
 
-        self.longitude_fn_lbl = QLabel(self)  # долгота
+        self.longitude_fn_lbl = QLabel(self)    # долгота
         self.longitude_fn_lbl.setText("Долгота:")
 
         self.latitude_fn_line = QLineEdit(self)     # широта
         self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
         self.longitude_fn_line = QLineEdit(self)    # долгота
         self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
-
 
         self.latitude_fn_lbl.setFont(font12)
         self.longitude_fn_lbl.setFont(font12)
@@ -825,10 +550,10 @@ class EditExifData(QDialog):
         self.longitude_fn_line.textChanged.connect(self.updating_other_gps)
         self.latitude_fn_line.textChanged.connect(self.updating_other_gps)
 
-        self.latitude_dmc_lbl = QLabel(self)  # широта
+        self.latitude_dmc_lbl = QLabel(self)     # широта
         self.latitude_dmc_lbl.setText("Широта:")
 
-        self.longitude_dmc_lbl = QLabel(self)  # долгота
+        self.longitude_dmc_lbl = QLabel(self)    # долгота
         self.longitude_dmc_lbl.setText("Долгота:")
 
         self.latitude_dmc_choose = QComboBox(self)
@@ -984,11 +709,9 @@ class EditExifData(QDialog):
 
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
-        own_dir = os.getcwd()
         data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
-        # Дата и время съёмки из формата exif в формат QDateTime
-        def date_convert(data: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
+        def date_convert(data):
             try:
                 date_part = data['Время съёмки'].split(' ')[0]
                 time_part = data['Время съёмки'].split(' ')[1]
@@ -1014,8 +737,7 @@ class EditExifData(QDialog):
 
             return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
 
-        # изменение размеров окна
-        def func_resize() -> None:
+        def func_resize():
             self.table.resizeColumnsToContents()
             self.table.horizontalHeader().setFixedHeight(1)
             self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2,
@@ -1025,8 +747,7 @@ class EditExifData(QDialog):
             self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
                                 self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 60)
 
-        # заполнить поля второй вкладки
-        def fill_equip_set() -> None:
+        def fill_equip_set():
             self.maker_line.setText(str(data['Производитель']))
             self.camera_line.setText(str(data['Камера']))
             self.lens_line.setText(str(data['Объектив']))
@@ -1037,8 +758,7 @@ class EditExifData(QDialog):
             self.serialbody_line.setText(str(data['Серийный номер камеры']))
             self.seriallens_line.setText(str(data['Серийный номер объектива']))
 
-        # заполнить вкладку GPS
-        def fill_gps() -> None:
+        def fill_gps():
             coords_all = data['Координаты']
             try:
                 latitude_part = float(coords_all.split(',')[0])
@@ -1063,11 +783,11 @@ class EditExifData(QDialog):
             latitude_deg = math.trunc(abs(latitude_part))
             longitude_deg = math.trunc(abs(longitude_part))
 
-            latitude_min = math.trunc((abs(latitude_part) - latitude_deg) * 60)
-            longitude_min = math.trunc((abs(longitude_part) - longitude_deg) * 60)
+            latitude_min = math.trunc((abs(latitude_part) - latitude_deg)*60)
+            longitude_min = math.trunc((abs(longitude_part) - longitude_deg)*60)
 
-            latitude_sec = round((((abs(latitude_part) - latitude_deg) * 60) - latitude_min) * 60, 3)
-            longitude_sec = round((((abs(longitude_part) - longitude_deg) * 60) - longitude_min) * 60, 3)
+            latitude_sec = round((((abs(latitude_part) - latitude_deg)*60) - latitude_min) * 60, 3)
+            longitude_sec = round((((abs(longitude_part) - longitude_deg)*60) - longitude_min) * 60, 3)
 
             self.latitude_dmc_deg_line.setText(str(latitude_deg))
             self.latitude_dmc_min_line.setText(str(latitude_min))
@@ -1081,7 +801,7 @@ class EditExifData(QDialog):
         keys = list(data.keys())
 
         for parameter in range(len(data)):
-            self.table.setItem(parameter, 0, QTableWidgetItem(str(keys[parameter])))
+            self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
             self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
             self.table.setItem(parameter, 1, QTableWidgetItem(str(data[keys[parameter]])))
 
@@ -1105,34 +825,55 @@ class EditExifData(QDialog):
         if self.mode_check_dmc.checkState() == 2:
             latitude_ref = self.latitude_dmc_choose.currentText()
             longitude_ref = self.longitude_dmc_choose.currentText()
-            latitude_deg = float(self.latitude_dmc_deg_line.text())
-            longitude_deg = float(self.longitude_dmc_deg_line.text())
-            latitude_min = float(self.latitude_dmc_min_line.text())
-            longitude_min = float(self.longitude_dmc_min_line.text())
-            latitude_sec = float(self.latitude_dmc_sec_line.text())
-            longitude_sec = float(self.longitude_dmc_sec_line.text())
+            try:
+                latitude_deg = float(self.latitude_dmc_deg_line.text())
+            except ValueError:
+                latitude_deg = 0
+            try:
+                longitude_deg = float(self.longitude_dmc_deg_line.text())
+            except ValueError:
+                longitude_deg = 0
+            try:
+                latitude_min = float(self.latitude_dmc_min_line.text())
+            except ValueError:
+                latitude_min = 0
+            try:
+                longitude_min = float(self.longitude_dmc_min_line.text())
+            except ValueError:
+                longitude_min = 0
+            try:
+                latitude_sec = float(self.latitude_dmc_sec_line.text())
+            except ValueError:
+                latitude_sec = 0
+            try:
+                longitude_sec = float(self.longitude_dmc_sec_line.text())
+            except ValueError:
+                longitude_sec = 0
 
             if latitude_ref == "Юг":
                 latitude_pm_coe = -1
-            else:  # latitude_ref == "Север"
+            else: # latitude_ref == "Север"
                 latitude_pm_coe = 1
 
             if longitude_ref == "Восток":
                 longitude_pm_coe = 1
-            else:  # latitude_ref == "Запад"
+            else: # latitude_ref == "Запад"
                 longitude_pm_coe = -1
 
-            latitude = round((latitude_pm_coe * (latitude_deg + latitude_min / 60 + latitude_sec / 3600)), 6)
-            longitude = round(longitude_pm_coe * (longitude_deg + longitude_min / 60 + longitude_sec / 3600), 6)
+            latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 6)
+            longitude = round(longitude_pm_coe*(longitude_deg + longitude_min/60 + longitude_sec/3600), 6)
 
             self.latitude_fn_line.setText(str(latitude))
             self.longitude_fn_line.setText(str(longitude))
-        else:  # self.mode_check_fn.checkState() == 2
+        else: #self.mode_check_fn.checkState() == 2
             try:
                 latitude = float(self.latitude_fn_line.text())
-                longitude = float(self.longitude_fn_line.text())
             except ValueError:
                 latitude = 0
+
+            try:
+                longitude = float(self.longitude_fn_line.text())
+            except ValueError:
                 longitude = 0
 
             if latitude > 0:
@@ -1185,7 +926,7 @@ class EditExifData(QDialog):
 
     # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
     def block_check_gps(self) -> None:
-        if self.sender().text() == "ШД Г.м.с":  # type: ignore[attr-defined]
+        if self.sender().text() == "ШД Г.м.с":    # type: ignore[attr-defined]
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
@@ -1224,6 +965,7 @@ class EditExifData(QDialog):
     def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
         for i in range(len(all_new_data)):
+
             if self.indicator[i] == 1:
                 self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
             else:
@@ -1241,12 +983,11 @@ class EditExifData(QDialog):
         # Перезаписать в exif и БД новые метаданные
         def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
             Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
+            PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
 
         # проверка введённых пользователем метаданных
         def check_enter(editing_type: int, new_text: str) -> None:
             Metadata.exif_check_edit(editing_type, new_text)
-
-        own_dir = os.getcwd()
 
         # проверка введённых пользователем метаданных
         try:
@@ -1257,15 +998,110 @@ class EditExifData(QDialog):
             win_err.show()
             return
 
-        rewriting(photoname, photodirectory, editing_type, new_text)
-        self.edited_signal.emit()
+        # Если меняется дата -> проверка на перенос файла в новую папку
+        if editing_type == 11 and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
+            if photodirectory[-12:] == 'No_Date_Info':
+                new_date = photodirectory[-38:]
+            else:
+                new_date = photodirectory[-10:]
+            old_date = new_text[:10]
+            new_date_splitted = new_date.split('/')
+            old_date_splitted = old_date.split(':')
+            if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
+                rewriting(photoname, photodirectory, editing_type, new_text)
+                self.edited_signal_no_move.emit()
+            else:   # другая дата, требуется перенос файла
+                destination = Settings.get_destination_media() + '/Media/Photo/const'
+                year_new = new_date_splitted[0]
+                month_new = new_date_splitted[1]
+                day_new = new_date_splitted[2]
 
-    # очистка exif
+                year_old = old_date_splitted[0]
+                month_old = old_date_splitted[1]
+                day_old = old_date_splitted[2]
+                old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
+                old_file_fullname = old_file_dir + '/' + photoname
+                new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
+                if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
+                    if not os.path.isdir(destination + '/' + str(year_old)):
+                        os.mkdir(destination + '/' + str(year_old))
+                    if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
+                        os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
+                    os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                    rewriting(photoname, photodirectory, editing_type, new_text)
+                    shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                    PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
+                                                       destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
+                    Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
+                    if self.chosen_group_type == 'Дата':
+                        self.movement_signal.emit(year_old, month_old, day_old)
+                    else:
+                        pass
+                        # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
+                        # заново присвоить ему objectName, чтобы снять с его метаданные
+                    self.close()
+                else:
+                    if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
+                        rewriting(photoname, photodirectory, editing_type, new_text)
+                        shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                        PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
+                                                           destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
+                        Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
+                        if self.chosen_group_type == 'Дата':
+                            self.movement_signal.emit(year_old, month_old, day_old)
+                        else:
+                            pass
+                            # надо обновить метаданные на экране, но проблема в том, что файл уже у другой папке и надо
+                            # заново присвоить ему objectName, чтобы снять с его метаданные
+                        self.close()
+
+                    else:
+                        window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, new_text)
+                        window_equal.show()
+                        if self.chosen_group_type == 'Дата':
+                            window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit(year_old, month_old, day_old))
+                        else:
+                            pass
+
+                        window_equal.file_rename_transfer_signal.connect(lambda: self.close())
+        else:
+            rewriting(photoname, photodirectory, editing_type, new_text)
+            self.edited_signal.emit()
+
+    # записать новые метаданные
     def clear_exif_func(self) -> None:
         def accepted():
-            Metadata.clear_exif(self.photoname, self.photodirectory)
-            self.get_metadata(self.photoname, self.photodirectory)
-            self.edited_signal.emit()
+            if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/'):
+                os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/')
+                os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/')
+                os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/')
+
+            photodirectory_splitted = self.photodirectory.split('/')
+            new_date_splitted = [photodirectory_splitted[-3], photodirectory_splitted[-2], photodirectory_splitted[-1]]
+            old_date_splitted = ['No_Date_Info', 'No_Date_Info', 'No_Date_Info']
+
+            # self.photodirectory = 'C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30'
+            # self.photoname = 'IMG_0866.jpg'
+            if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname):
+                Metadata.clear_exif(self.photoname, self.photodirectory)
+                PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
+                shutil.move(self.photodirectory + '/' + self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname)
+                PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info', self.photodirectory)
+                Thumbnail.transfer_diff_date_thumbnail(self.photoname, new_date_splitted, old_date_splitted)
+                self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info')
+            else:
+                window_equal = EqualNames(self, self.photoname, old_date_splitted, new_date_splitted, "No_Date_Info:No_Date_Info:No_Date_Info")
+                window_equal.show()
+                if self.chosen_group_type == 'Дата':
+                    window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+                else:
+                    pass
+
+                window_equal.file_rename_transfer_signal.connect(lambda: self.close())
+                window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+
+            self.get_metadata(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info')
+            self.close()
 
         def rejected():
             win.close()
@@ -1274,44 +1110,3 @@ class EditExifData(QDialog):
         win.show()
         win.accept_signal.connect(accepted)
         win.reject_signal.connect(rejected)
-
-
-# Окошко подтверждения желания очистить метаданные
-class ConfirmClear(QDialog):
-    accept_signal = QtCore.pyqtSignal()
-    reject_signal = QtCore.pyqtSignal()
-    def __init__(self, parent):
-        super(ConfirmClear, self).__init__(parent)
-
-        self.setStyleSheet(stylesheet2)
-
-        self.setWindowTitle('Подтверждение очистки')
-        self.resize(400, 100)
-        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-
-        self.layout = QGridLayout()
-        self.setLayout(self.layout)
-
-        self.lbl = QLabel()
-        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
-        self.lbl.setFont(font12)
-        self.lbl.setStyleSheet(stylesheet2)
-        self.lbl.setAlignment(Qt.AlignCenter)
-        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
-
-        btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
-        btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet8)
-        btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
-        btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet8)
-
-        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
-        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
-
-        btn_ok.clicked.connect(self.accept_signal.emit)
-        btn_ok.clicked.connect(self.close)
-        btn_cancel.clicked.connect(self.reject_signal.emit)
-        btn_cancel.clicked.connect(self.close)

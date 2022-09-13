@@ -8,7 +8,6 @@ import ShowAloneWindowWidget
 import ShowConstWindowWidget
 import SocialNetworks
 import Thumbnail
-import Screenconfig
 import ErNamesDB
 import FilesDirs
 import json
@@ -34,9 +33,11 @@ font12 = QtGui.QFont('Times', 12)
 font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 
-logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
+logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
 
+# noinspection PyUnresolvedReferences,PyArgumentList
 class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
@@ -99,9 +100,9 @@ class MainWindow(QMainWindow):
         self.menubar.addAction(social_networks_menu)
         social_networks_menu.triggered.connect(self.social_networks_func)
 
-        settings = QAction('Настройки', self)
-        self.menubar.addAction(settings)
-        settings.triggered.connect(self.settings_func)
+        settings_menu = QAction('Настройки', self)
+        self.menubar.addAction(settings_menu)
+        settings_menu.triggered.connect(self.settings_func)
 
         recovery = QAction('Восстановление', self)
         self.menubar.addAction(recovery)
@@ -121,25 +122,151 @@ class MainWindow(QMainWindow):
         global stylesheet10
 
         if Settings.get_theme_color() == 'light':
-            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
-            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet10 = "QMenu{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                           "QMenu::item::selected{border: 2px; background-color: #C0C0C0;}"
+            stylesheet1 =   """
+                             border: 1px;
+                             border-color: #A9A9A9;
+                             border-style: solid;
+                             color: #000000;
+                             background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet4 =   """
+                            QMenuBar 
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            }
+                            QMenuBar::item::selected
+                            {
+                                color: #000000;
+                                background-color: #C0C0C0
+                            }
+                            """
+            stylesheet5 =   """
+                            QProgressBar
+                            {
+                                border: 1px;
+                                border-color: #000000;
+                                border-style: solid;
+                                background-color: #FFFFFF;
+                                color: #000000
+                            }
+                            QProgressBar::chunk
+                            {
+                                background-color: #00FF7F;  
+                            }
+                            """
+            stylesheet8 =   """
+                            QPushButton
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            }
+                            QPushButton::pressed
+                            {
+                                border: 2px;
+                                background-color: #C0C0C0;
+                                margin-top: -1px
+                            }
+                            """
+            stylesheet10 =  """
+                            QMenu
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            }
+                            QMenu::item::selected
+                            {
+                                border: 2px;
+                                background-color: #C0C0C0;
+                            }
+                            """
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet10 = "QMenu{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                           "QMenu::item::selected{border: 2px; background-color: #2F2F2F;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet4 =   """
+                            QMenuBar 
+                            {
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            }
+                            QMenuBar::item::selected
+                            {
+                                color: #D3D3D3;
+                                background-color: #3F3F3F
+                            }
+                            """
+            stylesheet5 =   """
+                            QProgressBar
+                            {
+                                border: 1px;
+                                border-color: #000000;
+                                border-style: solid;
+                                background-color: #CCCCCC;
+                                color: #000000
+                            }
+                            QProgressBar::chunk
+                            {
+                                background-color: #1F7515;
+                            }
+                            """
+            stylesheet8 =   """
+                            QPushButton
+                            {
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            }
+                            QPushButton::pressed
+                            {
+                                border: 2px;
+                                background-color: #2F2F2F;
+                                margin-top: -1px
+                            }
+                            """
+            stylesheet10 =  """
+                            QMenu
+                            {
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            }
+                            QMenu::item::selected
+                            {
+                                border: 2px;
+                                background-color: #2F2F2F;
+                            }
+                            """
 
         self.setStyleSheet(stylesheet2)
         try:
@@ -407,6 +534,7 @@ class MainWindow(QMainWindow):
 
 
 # при добавлении папки
+# noinspection PyArgumentList
 class ProgressBar(QWidget):
     def __init__(self):
         super().__init__()
@@ -445,6 +573,7 @@ class ProgressBar(QWidget):
 
 
 # стартовое окно, при запуске программы
+# noinspection PyArgumentList
 class StartShow(QWidget):
 
     const_show_signal = QtCore.pyqtSignal()
@@ -459,11 +588,6 @@ class StartShow(QWidget):
         self.setWindowTitle("TEST")
 
         self.layout_outside = QGridLayout(self)
-
-        font16 = QtGui.QFont('Times', 16)
-        font14 = QtGui.QFont('Times', 14)
-        font12 = QtGui.QFont('Times', 12)
-        font10 = QtGui.QFont('Times', 10)
 
         self.layout_buttons = QGridLayout(self)
 
@@ -601,7 +725,7 @@ class StartShow(QWidget):
         str_to_show = ''
         try:
             size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/alone/')
-        except:
+        except Exception:
             self.alone_stats.setText(str_to_show)
             return
         numdir = fullnum - numfiles
@@ -657,6 +781,7 @@ class DB_window(QMainWindow):
 
 
 # просмотр окна соцсетей
+# noinspection PyArgumentList
 class Social_Network_window(QMainWindow):
     main_resize_signal = QtCore.pyqtSignal()
 
@@ -676,6 +801,7 @@ class Social_Network_window(QMainWindow):
 
 
 # добавление в основной каталог
+# noinspection PyUnresolvedReferences
 class ConstMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
@@ -723,6 +849,7 @@ class ConstMaker(QtCore.QThread):
 
 
 # добавление в дополнительный каталог
+# noinspection PyUnresolvedReferences
 class AloneMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
