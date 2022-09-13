@@ -125,31 +125,193 @@ class WidgetWindow(QWidget):
         global icon_edit
 
         if Settings.get_theme_color() == 'light':
-            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
-            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
-            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
-                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet3 =   """
+                                QHeaderView::section
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    background-color: #F0F0F0;
+                                    color: #000000;
+                                }
+                            """
+            stylesheet6 =   """
+                                QTableView
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                    gridline-color: #A9A9A9;
+                                }
+                            """
+            stylesheet7 =   """
+                            QTabWidget::pane
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                background-color: #F0F0F0;
+                                color: #000000;
+                            }
+                            QTabBar::tab
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                padding: 5px;
+                                color: #000000;
+                                min-width: 12em;
+                            }
+                            QTabBar::tab:selected
+                            {
+                                border: 2px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                margin-top: -1px;
+                                background-color: #C0C0C0;
+                                color: #000000;
+                            }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #C0C0C0;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #C0C0C0;
+                                }
+                            """
             icon_explorer = os.getcwd() + '/icons/explorer_light.png'
             icon_view = os.getcwd() + '/icons/view_light.png'
             icon_edit = os.getcwd() + '/icons/edit_light.png'
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
-                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet3 =   """
+                                QHeaderView::section
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                            """
+            stylesheet6 =   """
+                                QTableView
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1c1c1c;
+                                    gridline-color: #696969;
+                                }
+                            """
+            stylesheet7 =   """
+                                QTabWidget::pane
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3
+                                }
+                                QTabBar::tab
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    padding: 5px;
+                                    color: #D3D3D3;
+                                    min-width: 12em;
+                                } 
+                                QTabBar::tab:selected
+                                {
+                                    border: 2px;
+                                    border-color: #6A6A6A;
+                                    border-style: solid;
+                                    margin-top: -1px;
+                                    background-color: #1F1F1F;
+                                    color: #D3D3D3
+                                }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #2F2F2F;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #4F4F4F;
+                                }
+                            """
             icon_explorer = os.getcwd() + '/icons/explorer_dark.png'
             icon_view = os.getcwd() + '/icons/view_dark.png'
             icon_edit = os.getcwd() + '/icons/edit_dark.png'

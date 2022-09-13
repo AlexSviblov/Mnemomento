@@ -1,13 +1,12 @@
-import logging
 import sqlite3
 import sys
-import ErrorsAndWarnings
-import Settings
 
-from PyQt5.QtCore import Qt
 from PyQt5 import QtWidgets, QtCore, QtGui
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
+import ErrorsAndWarnings
+import Settings
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -19,9 +18,7 @@ stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 
-
 conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)  # соединение с БД
-
 
 cur = conn.cursor()
 
@@ -35,7 +32,7 @@ class ViewBDDialog(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.stylesheet_color()
-        
+
         # Создание окна
         self.setWindowTitle('База исправлений')
 
@@ -105,37 +102,248 @@ class ViewBDDialog(QWidget):
         global stylesheet9
 
         if Settings.get_theme_color() == 'light':
-            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
-            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QMenuBar::item::selected {color: #000000; background-color: #C0C0C0}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #FFFFFF; color: #000000} QProgressBar::chunk {background-color: #00FF7F; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;gridline-color: #A9A9A9;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #A9A9A9; border-style: solid; background-color: #F0F0F0; color: #000000;}" \
-                          "QTabBar::tab {border: 1px; border-color: #A9A9A9; border-style: solid; padding: 5px; color: #000000; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #A9A9A9; border-style: solid; margin-top: -1px; background-color: #C0C0C0; color: #000000;}"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet3 =   """
+                                QHeaderView::section
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    background-color: #F0F0F0;
+                                    color: #000000;
+                                }
+                            """
+            stylesheet4 =   """
+                                QMenuBar
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QMenuBar::item::selected
+                                {
+                                    color: #000000;
+                                    background-color: #C0C0C0
+                                }
+                            """
+            stylesheet5 =   """
+                                QProgressBar
+                                {
+                                    border: 1px;
+                                    border-color: #000000;
+                                    border-style: solid;
+                                    background-color: #FFFFFF;
+                                    color: #000000
+                                }
+                                QProgressBar::chunk
+                                {
+                                    background-color: #00FF7F;
+                                }
+                            """
+            stylesheet6 =   """
+                                QTableView
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                    gridline-color: #A9A9A9;
+                                }
+                            """
+            stylesheet7 =   """
+                            QTabWidget::pane
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                background-color: #F0F0F0;
+                                color: #000000;
+                            }
+                            QTabBar::tab
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                padding: 5px;
+                                color: #000000;
+                                min-width: 12em;
+                            }
+                            QTabBar::tab:selected
+                            {
+                                border: 2px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                margin-top: -1px;
+                                background-color: #C0C0C0;
+                                color: #000000;
+                            }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #C0C0C0;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #C0C0C0;
+                                }
+                            """
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet3 = "QHeaderView::section{border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}"
-            stylesheet4 = "QMenuBar {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QMenuBar::item::selected {color: #D3D3D3; background-color: #3F3F3F}"
-
-            stylesheet5 = "QProgressBar{border: 1px; border-color: #000000; border-style: solid; background-color: #CCCCCC; color: #000000} QProgressBar::chunk {background-color: #1F7515; }"
-            stylesheet6 = "QTableView{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1c1c1c; gridline-color: #696969;}"
-            stylesheet7 = "QTabWidget::pane {border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C;  color: #D3D3D3}" \
-                          "QTabBar::tab {border: 1px; border-color: #696969; border-style: solid; padding: 5px; color: #D3D3D3; min-width: 12em;} " \
-                          "QTabBar::tab:selected {border: 2px; border-color: #6A6A6A; border-style: solid; margin-top: -1px; background-color: #1F1F1F; color: #D3D3D3}"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet3 =   """
+                                QHeaderView::section
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                            """
+            stylesheet4 =   """
+                                QMenuBar
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QMenuBar::item::selected
+                                {
+                                    color: #D3D3D3;
+                                    background-color: #3F3F3F
+                                }
+                            """
+            stylesheet5 =   """
+                                QProgressBar
+                                {
+                                    border: 1px;
+                                    border-color: #000000;
+                                    border-style: solid;
+                                    background-color: #CCCCCC;
+                                    color: #000000
+                                } 
+                                QProgressBar::chunk 
+                                {
+                                    background-color: #1F7515;
+                                }
+                            """
+            stylesheet6 =   """
+                                QTableView
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1c1c1c;
+                                    gridline-color: #696969;
+                                }
+                            """
+            stylesheet7 =   """
+                                QTabWidget::pane
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3
+                                }
+                                QTabBar::tab
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    padding: 5px;
+                                    color: #D3D3D3;
+                                    min-width: 12em;
+                                } 
+                                QTabBar::tab:selected
+                                {
+                                    border: 2px;
+                                    border-color: #6A6A6A;
+                                    border-style: solid;
+                                    margin-top: -1px;
+                                    background-color: #1F1F1F;
+                                    color: #D3D3D3
+                                }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #2F2F2F;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #4F4F4F;
+                                }
+                            """
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -202,13 +410,13 @@ class ViewBDDialog(QWidget):
             self.table.setItem(i, 2, QTableWidgetItem(str(all_results[i][2])))
 
         self.table.resizeColumnsToContents()
-        self.table.setFixedWidth(self.table.columnWidth(0) + self.table.columnWidth(1) + self.table.columnWidth(2)+2)
+        self.table.setFixedWidth(self.table.columnWidth(0) + self.table.columnWidth(1) + self.table.columnWidth(2) + 2)
         height = 0
         for i in range(self.table.rowCount()):
             height += self.table.rowHeight(i)
         height += self.table.horizontalHeader().height()
         self.table.setFixedHeight(height)
-        self.resize(self.table.width()+20, self.height()+20)
+        self.resize(self.table.width() + 20, self.height() + 20)
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.verticalScrollBar().setDisabled(True)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -240,7 +448,7 @@ class ViewBDDialog(QWidget):
     def my_size(self) -> None:
         width = self.table.width()
         height = self.table.height() + self.add_btn.height()
-        self.resize(width+20, height+20)
+        self.resize(width + 20, height + 20)
         self.resized_signal.emit()
 
 
@@ -354,7 +562,6 @@ class AddBDDialog(QDialog):
         self.entered_info.setText(
             f'Тип: {self.type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n')
         self.layout_win.addWidget(self.entered_info, 1, 0, 1, 2)
-
 
         self.btn_ok_c = QPushButton(self)
         self.btn_ok_c.setText('Ввод')

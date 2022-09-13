@@ -2,3 +2,21 @@
 08-Sep-22 17:56:53 - INFO - filter start
 08-Sep-22 17:58:28 - INFO - filter finish
 08-Sep-22 17:58:29 - INFO - После метадата фильтр
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'exposure_bias_value'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'flashpix_version'
+13-Sep-22 15:58:20 - WARNING - unable to read tag '_interoperability_ifd_Pointer'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'components_configuration'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'sensing_method'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'exposure_bias_value'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'flashpix_version'
+13-Sep-22 15:58:20 - WARNING - unable to read tag '_interoperability_ifd_Pointer'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'components_configuration'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'sensing_method'
+13-Sep-22 15:58:20 - WARNING - unable to read tag 'gps_processing_method'
+13-Sep-22 15:58:24 - WARNING - unable to read tag 'exposure_bias_value'
+13-Sep-22 15:58:24 - WARNING - unable to read tag 'flashpix_version'
+13-Sep-22 15:58:24 - WARNING - unable to read tag '_interoperability_ifd_Pointer'
+13-Sep-22 15:58:24 - WARNING - unable to read tag 'components_configuration'
+13-Sep-22 15:58:24 - WARNING - unable to read tag 'sensing_method'
+13-Sep-22 15:58:24 - WARNING - unable to read tag 'gps_processing_method'
