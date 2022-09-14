@@ -940,8 +940,6 @@ class DelPhotoConfirm(QDialog):
         self.clear_info.emit()
         self.accept()
 
-
-
 # подтвердить удаление выбранной папки
 class DelDirConfirm(QDialog):
 

@@ -660,12 +660,19 @@ class ConstWidgetWindow(QWidget):
         self.pic.hide()
         self.metadata_show.clear()
         self.metadata_show.hide()
+        self.socnet_group.clear()
+        self.socnet_group.hide()
+
+        self.group_type.setDisabled(True)
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().setDisabled(True)
+        for i in reversed(range(self.layout_btns.count())):
+            self.layout_btns.itemAt(i).widget().setDisabled(True)
+        # иначе если будет загружаться много фото, а пользователь до окончания их загрузки, сменит тип, то фото
+        # начнут прогружаться в уже несуществующую scroll_area и крашнут программу
 
         for i in reversed(range(self.layout_inside_thumbs.count())):
             self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
-
-        self.socnet_group.clear()
-        self.socnet_group.hide()
 
         group_type = self.group_type.currentText()
         if group_type == 'Дата':
@@ -674,6 +681,12 @@ class ConstWidgetWindow(QWidget):
             self.sn_show_thumbnails()
         elif group_type == 'Оборудование':
             self.eqip_show_thumbnails()
+
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().setDisabled(False)
+        for i in reversed(range(self.layout_btns.count())):
+            self.layout_btns.itemAt(i).widget().setDisabled(False)
+        self.group_type.setDisabled(False)
 
     # функция показа большой картинки
     def showinfo(self) -> None:
@@ -1227,7 +1240,9 @@ class ConstWidgetWindow(QWidget):
         sort_type = self.group_type.currentText()
 
         for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().hide()
             self.layout_type.itemAt(i).widget().deleteLater()
+            QtCore.QCoreApplication.processEvents()
 
         if sort_type == 'Дата':
             self.fill_sort_date()
