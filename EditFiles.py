@@ -14,6 +14,7 @@ import PhotoDataDB
 import Screenconfig
 import Metadata
 import Settings
+import ShowConstWindowWidget
 import Thumbnail
 import SocialNetworks
 import math
@@ -1110,3 +1111,211 @@ class EditExifData(QDialog):
         win.show()
         win.accept_signal.connect(accepted)
         win.reject_signal.connect(rejected)
+
+
+# совпали имена файлов при переносе по новой дате в exif
+class EqualNames(QDialog):
+
+    file_rename_transfer_signal = QtCore.pyqtSignal()
+
+    def __init__(self, parent, filesname, old_date, new_date, full_exif_date):
+        super(EqualNames, self).__init__(parent)
+        self.full_exif_date = full_exif_date
+
+        # Создание окна
+        self.setWindowTitle('Конфликт имён файлов')
+        self.resize(600, 90)
+
+        # new - в котором изменили дату
+        # old - который уже есть в папке с этой датой
+        self.file_full_name = filesname
+        self.filename = filesname.split('.')[0]
+        self.format = filesname.split('.')[1]
+        self.old_date = old_date
+        self.new_date = new_date
+
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.layout = QGridLayout(self)
+        self.setLayout(self.layout)
+
+        self.text_lbl = QLabel(self)
+        self.text_lbl.setText('В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?')
+        self.text_lbl.setAlignment(Qt.AlignCenter)
+        self.text_lbl.setFont(font12)
+        self.text_lbl.setStyleSheet(stylesheet2)
+        self.layout.addWidget(self.text_lbl, 0, 0, 1, 4)
+
+        self.old_top_lbl = QLabel(self)
+        self.old_top_lbl.setText('Фото уже существующее в папке')
+        self.old_top_lbl.setFont(font12)
+        self.old_top_lbl.setStyleSheet(stylesheet2)
+        self.layout.addWidget(self.old_top_lbl, 1, 0, 1, 2)
+
+        self.new_top_lbl = QLabel(self)
+        self.new_top_lbl.setText('Фото перемещаемое из-за изменения даты')
+        self.new_top_lbl.setFont(font12)
+        self.new_top_lbl.setStyleSheet(stylesheet2)
+        self.layout.addWidget(self.new_top_lbl, 1, 2, 1, 2)
+
+        self.pic_old = QLabel(self)
+        self.pic_old.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.pic_old, 2, 0, 1, 2)
+
+        self.pic_new = QLabel(self)
+        self.pic_new.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.pic_new, 2, 2, 1, 2)
+
+        self.old_checkbox = QCheckBox(self)
+        self.old_checkbox.setObjectName('old_checkbox')
+        self.layout.addWidget(self.old_checkbox, 3, 0, 1, 1)
+
+        self.old_name = QLineEdit(self)
+        self.old_name.setText(self.filename)
+        self.old_name.setStyleSheet(stylesheet1)
+        self.old_name.setFont(font12)
+        self.layout.addWidget(self.old_name, 3, 1, 1, 1)
+        self.old_name.setDisabled(True)
+
+        self.new_checkbox = QCheckBox(self)
+        self.new_checkbox.setObjectName('new_checkbox')
+        self.layout.addWidget(self.new_checkbox, 3, 2, 1, 1)
+        self.new_checkbox.setCheckState(2)
+
+        self.new_name = QLineEdit(self)
+        self.new_name.setText(self.filename)
+        self.new_name.setStyleSheet(stylesheet1)
+        self.new_name.setFont(font12)
+        self.layout.addWidget(self.new_name, 3, 3, 1, 1)
+
+        self.old_checkbox.stateChanged.connect(self.check_disable)
+        self.new_checkbox.stateChanged.connect(self.check_disable)
+
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setText('Переименовать')
+        self.btn_ok.setFont(font12)
+        self.btn_ok.setStyleSheet(stylesheet8)
+        self.layout.addWidget(self.btn_ok, 4, 0, 1, 2)
+        self.btn_ok.clicked.connect(lambda: self.ok_check(self.new_name.text(), self.old_name.text()))
+
+        self.btn_cnl = QPushButton(self)
+        self.btn_cnl.setText('Не переносить (отменить изменение даты)')
+        self.btn_cnl.setFont(font12)
+        self.btn_cnl.setStyleSheet(stylesheet8)
+        self.layout.addWidget(self.btn_cnl, 4, 2, 1, 2)
+        self.btn_cnl.clicked.connect(lambda: self.close())
+
+        self.show_photos()
+
+    # показать в уменьшенном виде 2 фото, у которых совпали названия
+    def show_photos(self) -> None:
+        self.old_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/'
+        self.new_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/'
+        pixmap_old = QtGui.QPixmap(self.old_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
+        pixmap_new = QtGui.QPixmap(self.new_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
+        self.pic_old.setPixmap(pixmap_old)
+        self.pic_new.setPixmap(pixmap_new)
+
+    # какое фото выбрано для переименования, а какое остаётся со своим имеем
+    def check_disable(self) -> None:
+        last_changed = self.sender().objectName()
+        if last_changed == 'old_checkbox':
+            if self.old_checkbox.checkState():  # поставили галочку
+                self.new_name.setDisabled(True)
+                self.old_name.setDisabled(False)
+                self.new_checkbox.setCheckState(0)
+            else:
+                self.new_name.setDisabled(False)
+                self.old_name.setDisabled(True)
+                self.new_checkbox.setCheckState(2)
+        else:   # last_changed == 'new_checkbox'
+            if self.new_checkbox.checkState():  # поставили галочку
+                self.new_name.setDisabled(False)
+                self.old_name.setDisabled(True)
+                self.old_checkbox.setCheckState(0)
+            else:
+                self.new_name.setDisabled(True)
+                self.old_name.setDisabled(False)
+                self.old_checkbox.setCheckState(2)
+
+    # проверка ввода названий
+    def ok_check(self, new_enter_text: str, old_enter_text: str) -> None:
+
+        if new_enter_text == old_enter_text:
+            err_win = ErrorsAndWarnings.ExistFileRenameError1(self)
+            err_win.show()
+            return
+
+        if self.new_checkbox.checkState():  # переименовывается переносимый файл
+            new_new_name = self.new_name.text() + '.' + self.format
+
+            if os.path.exists(self.old_photo_dir + new_new_name):
+                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)     # type: ignore[assignment]
+                err_win.show()
+                return
+
+            os.rename(self.new_photo_dir + self.file_full_name, self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg')
+            shutil.move(self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg', self.old_photo_dir)
+            os.rename(self.old_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg', self.old_photo_dir + new_new_name)
+
+            PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
+            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
+            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 13, self.full_exif_date)
+            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
+        else:       # переименовывается файл в папке назначения
+            new_old_name = self.old_name.text() + '.' + self.format
+
+            if os.path.exists(self.old_photo_dir + new_old_name):
+                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)     # type: ignore[assignment]
+                err_win.show()
+                return
+
+            os.rename(self.old_photo_dir + self.file_full_name, self.old_photo_dir + new_old_name)
+            shutil.move(self.new_photo_dir + self.file_full_name, self.old_photo_dir)
+
+            PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
+            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
+            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, 13, self.full_exif_date)
+            PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
+        self.file_rename_transfer_signal.emit()
+        self.close()
+
+
+# Окошко подтверждения желания очистить метаданные
+class ConfirmClear(QDialog):
+    accept_signal = QtCore.pyqtSignal()
+    reject_signal = QtCore.pyqtSignal()
+    def __init__(self, parent):
+        super(ConfirmClear, self).__init__(parent)
+
+        self.setStyleSheet(stylesheet2)
+
+        self.setWindowTitle('Подтверждение очистки')
+        self.resize(400, 100)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+
+        self.layout = QGridLayout()
+        self.setLayout(self.layout)
+
+        self.lbl = QLabel()
+        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
+
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet8)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet8)
+
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
+
+        btn_ok.clicked.connect(self.accept_signal.emit)
+        btn_ok.clicked.connect(self.close)
+        btn_cancel.clicked.connect(self.reject_signal.emit)
+        btn_cancel.clicked.connect(self.close)
