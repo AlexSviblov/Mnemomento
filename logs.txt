@@ -1,6 +1,0 @@
-14-Sep-22 17:57:02 - WARNING - unable to read tag 'gps_processing_method'
-14-Sep-22 17:57:32 - WARNING - unable to read tag 'gps_processing_method'
-14-Sep-22 17:57:46 - WARNING - unable to read tag 'components_configuration'
-14-Sep-22 17:57:46 - WARNING - unable to read tag 'maker_note'
-14-Sep-22 17:57:46 - WARNING - unable to read tag 'flashpix_version'
-14-Sep-22 17:57:46 - WARNING - unable to read tag '_interoperability_ifd_Pointer'

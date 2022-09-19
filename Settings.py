@@ -303,7 +303,7 @@ class TransferFiles(QDialog):
 
     def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
         super(TransferFiles, self).__init__(parent)
-
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setStyleSheet(stylesheet2)
 
         self.old_media = old_media
@@ -433,6 +433,7 @@ class DoTransfer(QtCore.QThread):
 class Notification(QDialog):
     def __init__(self, parent):
         super(Notification, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Сохранено')
         layout = QGridLayout(self)
         self.setLayout(layout)

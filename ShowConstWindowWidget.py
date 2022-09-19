@@ -53,6 +53,7 @@ class ConstWidgetWindow(QWidget):
         with open('settings.json', 'r') as json_file:
             settings = json.load(json_file)
         self.thumb_row = int(settings["thumbs_row"])
+        self.soc_net_setting = int(settings["social_networks_status"])
 
         self.setWindowTitle("Тестовое окно")
 
@@ -362,7 +363,8 @@ class ConstWidgetWindow(QWidget):
             self.scroll_area.setStyleSheet(stylesheet2)
             self.groupbox_sort.setStyleSheet(stylesheet2)
             self.groupbox_btns.setStyleSheet(stylesheet2)
-            self.socnet_group.setStyleSheet(stylesheet6)
+            if self.soc_net_setting:
+                self.socnet_group.setStyleSheet(stylesheet6)
             self.photo_show.setStyleSheet(stylesheet2)
             self.metadata_show.setStyleSheet(stylesheet6)
             self.make_buttons()
@@ -758,32 +760,57 @@ class ConstWidgetWindow(QWidget):
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
 
-        if self.photo_rotation == 'gor':
-            self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
-            self.metadata_show.show()
-            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
-                                    QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
-            self.pic.show()
-            self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
-            self.socnet_group.show()
-            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
-        else:  # self.photo_rotation == 'ver'
-            self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
-            self.metadata_show.show()
-            self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
-            # self.show_social_networks(self.last_clicked_name, photo_directory)
-            self.socnet_group.show()
-            self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
-                                    QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
-            self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+        if self.soc_net_setting:
+            if self.photo_rotation == 'gor':
+                self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
+                self.metadata_show.show()
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
+                                        QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+                self.pic.setPixmap(self.pixmap2)
+                self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
+                self.pic.show()
+                self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
+                self.socnet_group.show()
+                self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
+                if self.pixmap2.width() > self.metadata_show.width() + self.socnet_group.width():
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 100)
+                else:
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 100)
+            else:  # self.photo_rotation == 'ver'
+                self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
+                self.metadata_show.show()
+                self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
+                self.socnet_group.show()
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
+                                        QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+                self.pic.setPixmap(self.pixmap2)
+                self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
+                self.pic.show()
+                self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+                self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
+        else:
+            if self.photo_rotation == 'gor':
+                self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
+                self.metadata_show.show()
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
+                                        QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+                self.pic.setPixmap(self.pixmap2)
+                self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
+                self.pic.show()
+                if self.pixmap2.width() > self.metadata_show.width():
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
+                else:
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+            else:  # self.photo_rotation == 'ver'
+                self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
+                self.metadata_show.show()
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
+                                        QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+                self.pic.setPixmap(self.pixmap2)
+                self.layout_show.addWidget(self.pic, 0, 0, 1, 1)
+                self.pic.show()
+                self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
-        self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
-        # self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 60)
         self.oldsize = self.size()
 
     # убрать с экрана фото и метаданные после удаления фотографии
@@ -1091,7 +1118,8 @@ class ConstWidgetWindow(QWidget):
     def fill_sort_groupbox(self) -> None:
         self.group_type = QComboBox(self)
         self.group_type.addItem('Дата')
-        self.group_type.addItem('Соцсети')
+        if self.soc_net_setting:
+            self.group_type.addItem('Соцсети')
         self.group_type.addItem('Оборудование')
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)

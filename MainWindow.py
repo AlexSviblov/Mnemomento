@@ -504,8 +504,10 @@ class MainWindow(QMainWindow):
     def update_settings_widget(self):
         self.stylesheet_color()
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
-            self.centralWidget().after_change_settings()
-            self.centralWidget().stylesheet_color()
+            chosen_dir = self.centralWidget().directory_choose.currentText()
+            self.show_main_alone_widget()
+            self.centralWidget().directory_choose.setCurrentText(chosen_dir)
+
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow: #Const
             self.centralWidget().after_change_settings()
             self.centralWidget().stylesheet_color()
