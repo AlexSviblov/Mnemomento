@@ -135,11 +135,11 @@ class SettingWidget(QWidget):
         self.transfer_mode_choose.addItem('cut')
         self.layout.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
 
-        self.num_thumbs_text = QLabel(self)
-        self.num_thumbs_text.setFont(font14)
-        self.num_thumbs_text.setStyleSheet(stylesheet2)
-        self.num_thumbs_text.setText('Миниатюр в ряд:')
-        self.layout.addWidget(self.num_thumbs_text, 3, 0, 1, 1)
+        self.num_thumbs_lbl = QLabel(self)
+        self.num_thumbs_lbl.setFont(font14)
+        self.num_thumbs_lbl.setStyleSheet(stylesheet2)
+        self.num_thumbs_lbl.setText('Миниатюр в ряд:')
+        self.layout.addWidget(self.num_thumbs_lbl, 3, 0, 1, 1)
 
         self.num_thumbs_choose = QComboBox(self)
         self.num_thumbs_choose.setFont(font14)
@@ -161,6 +161,16 @@ class SettingWidget(QWidget):
         self.theme_choose.addItem('light')
         self.theme_choose.addItem('dark')
         self.layout.addWidget(self.theme_choose, 4, 1, 1, 1)
+        
+        self.socnet_lbl = QLabel(self)
+        self.socnet_lbl.setStyleSheet(stylesheet2)
+        self.socnet_lbl.setFont(font14)
+        self.socnet_lbl.setText("Соцсети включены")
+        self.layout.addWidget(self.socnet_lbl, 5, 0, 1, 1)
+
+        self.socnet_choose = QCheckBox(self)
+        self.socnet_choose.setFont(font14)
+        self.layout.addWidget(self.socnet_choose, 5, 1, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Сохранить')
@@ -178,7 +188,7 @@ class SettingWidget(QWidget):
 
         self.show_settings()
 
-        self.resize(800, 220)
+        self.resize(800, 240)
 
     # выбор папки хранения фото
     def dir_media_choose(self) -> None:
@@ -209,11 +219,17 @@ class SettingWidget(QWidget):
         mode = settings['transfer_mode']
         self.old_num_thumbs = settings["thumbs_row"]
         self.old_theme_color = settings["color_theme"]
+        self.old_socnet_status = settings["social_networks_status"]
         self.media_space_line.setText(self.old_media_dir)
         self.thumbs_space_line.setText(self.old_thumb_dir)
         self.transfer_mode_choose.setCurrentText(mode)
         self.num_thumbs_choose.setCurrentText(self.old_num_thumbs)
         self.theme_choose.setCurrentText(self.old_theme_color)
+
+        if self.old_socnet_status:
+            self.socnet_choose.setChecked(QtCore.Qt.Checked)
+        else:
+            self.socnet_choose.setChecked(QtCore.Qt.Unchecked)
 
     # какие пути изменили, какие нет
     def check_changes(self) -> None:
@@ -242,9 +258,12 @@ class SettingWidget(QWidget):
         transfer_mode = self.transfer_mode_choose.currentText()
         num_thumbs = self.num_thumbs_choose.currentText()
         theme_color = self.theme_choose.currentText()
+        socnet_status = self.socnet_choose.checkState()
+
 
         jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
-                       'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color}
+                       'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color,
+                       'social_networks_status': socnet_status}
 
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
@@ -269,12 +288,13 @@ class SettingWidget(QWidget):
         self.thumbs_space_line.setStyleSheet(stylesheet1)
         self.thumbs_space_choose.setStyleSheet(stylesheet8)
         self.transfer_mode_choose.setStyleSheet(stylesheet9)
-        self.num_thumbs_text.setStyleSheet(stylesheet2)
+        self.num_thumbs_lbl.setStyleSheet(stylesheet2)
         self.num_thumbs_choose.setStyleSheet(stylesheet1)
         self.theme_lbl.setStyleSheet(stylesheet2)
         self.theme_choose.setStyleSheet(stylesheet9)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_cancel.setStyleSheet(stylesheet8)
+        self.socnet_lbl.setStyleSheet(stylesheet2)
 
 
 # перенос папок, если изменился путь
@@ -283,7 +303,7 @@ class TransferFiles(QDialog):
 
     def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
         super(TransferFiles, self).__init__(parent)
-
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setStyleSheet(stylesheet2)
 
         self.old_media = old_media
@@ -413,6 +433,7 @@ class DoTransfer(QtCore.QThread):
 class Notification(QDialog):
     def __init__(self, parent):
         super(Notification, self).__init__(parent)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Сохранено')
         layout = QGridLayout(self)
         self.setLayout(layout)
