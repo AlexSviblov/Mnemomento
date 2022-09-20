@@ -767,9 +767,9 @@ class ConstWidgetWindow(QWidget):
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
-                self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
+                self.layout_show.addWidget(self.pic, 0, 0, 1, 5)
                 self.pic.show()
-                self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
+                self.layout_show.addWidget(self.socnet_group, 1, 4, 1, 1)
                 self.socnet_group.show()
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
                 if self.pixmap2.width() > self.metadata_show.width() + self.socnet_group.width():
@@ -779,12 +779,12 @@ class ConstWidgetWindow(QWidget):
             else:  # self.photo_rotation == 'ver'
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
-                self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
+                self.layout_show.addWidget(self.socnet_group, 4, 1, 1, 1)
                 self.socnet_group.show()
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
-                self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
+                self.layout_show.addWidget(self.pic, 0, 0, 5, 1)
                 self.pic.show()
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
@@ -795,7 +795,7 @@ class ConstWidgetWindow(QWidget):
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
-                self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
+                self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
                 self.pic.show()
                 if self.pixmap2.width() > self.metadata_show.width():
                     self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
@@ -807,7 +807,9 @@ class ConstWidgetWindow(QWidget):
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
-                self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
+
+                self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
+
                 self.pic.show()
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
@@ -1162,11 +1164,6 @@ class ConstWidgetWindow(QWidget):
         self.day_lbl.setStyleSheet(stylesheet2)
         self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
 
-        if not self.year_lbl.text():
-            self.year_lbl.setText('Год:')
-            self.month_lbl.setText('    Месяц:')
-            self.day_lbl.setText('    День:')
-
         self.date_day = QComboBox(self)
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
@@ -1174,6 +1171,11 @@ class ConstWidgetWindow(QWidget):
         self.get_days()
         self.date_day.setFixedWidth(140)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
+
+        if not self.year_lbl.text():
+            self.year_lbl.setText('Год:')
+            self.month_lbl.setText('    Месяц:')
+            self.day_lbl.setText('    День:')
 
         self.date_day.setFixedHeight(30)
         self.date_month.setFixedHeight(30)
@@ -1209,8 +1211,6 @@ class ConstWidgetWindow(QWidget):
                     self.socnet_choose.addItem(f'{net[9:]}')
                     if len(net) - 9 > socnet_max_len:
                         socnet_max_len = len(net) - 9
-
-
 
             self.socnet_choose.setFixedWidth(socnet_max_len*12+30)
 
