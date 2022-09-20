@@ -429,8 +429,7 @@ class WidgetWindow(QWidget):
             self.metadata_show.show()
 
             self.pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
-                                    self.size().height() - self.metadata_show.height(),
-                                    QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+                                    self.size().height() - self.metadata_show.height(), QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
             self.pic.show()
@@ -439,8 +438,7 @@ class WidgetWindow(QWidget):
             self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
             self.metadata_show.show()
             self.pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
-                                    self.metadata_show.width(), self.size().height() - 50,
-                                    QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+                                    self.metadata_show.width(), self.size().height() - 50, QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
             self.pic.show()

@@ -273,7 +273,9 @@ class SettingWidget(QWidget):
         notice_win = Notification(self)
         notice_win.show()
 
-        if dir_thumb_chosen != self.old_thumb_dir or dir_media_chosen != self.old_media_dir or num_thumbs != self.old_num_thumbs or theme_color != self.old_theme_color:
+        if dir_thumb_chosen != self.old_thumb_dir or dir_media_chosen != self.old_media_dir or \
+                num_thumbs != self.old_num_thumbs or theme_color != self.old_theme_color or \
+                socnet_status != self.old_socnet_status:
             self.update_main_widget.emit()
 
         self.show_settings()
@@ -506,6 +508,17 @@ def get_theme_color() -> str:
     theme_color = settings['color_theme']
 
     return theme_color
+
+
+# включены или отключены соцсети
+def get_socnet_status() -> str:
+
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
+
+    socnet_status = int(settings['social_networks_status'])
+
+    return socnet_status
 
 
 if __name__ == "__main__":

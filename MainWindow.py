@@ -37,7 +37,6 @@ logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %
                     datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
 
-# noinspection PyUnresolvedReferences,PyArgumentList
 class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
@@ -48,7 +47,7 @@ class MainWindow(QMainWindow):
 
         self.setWindowTitle("ТЕСТ ПРОГРАММЫ")
         # Меньше невозможно сделать окно
-        self.setMinimumSize(1280, 720)
+        self.setMinimumSize(1366, 768)
         # раскрыть на весь экран
         self.showMaximized()
 
@@ -507,10 +506,36 @@ class MainWindow(QMainWindow):
             chosen_dir = self.centralWidget().directory_choose.currentText()
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(chosen_dir)
-
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow: #Const
-            self.centralWidget().after_change_settings()
-            self.centralWidget().stylesheet_color()
+            chosen_mode = self.centralWidget().group_type.currentText()
+            if chosen_mode == 'Оборудование':
+                chosen_camera = self.centralWidget().camera_choose.currentText()
+                chosen_lens = self.centralWidget().lens_choose.currentText()
+            elif chosen_mode == 'Соцсети':
+                chosen_network = self.centralWidget().socnet_choose.currentText()
+                chosen_status = self.centralWidget().sn_status.currentText()
+            else: # 'Дата'
+                chosen_year = self.centralWidget().date_year.currentText()
+                chosen_month = self.centralWidget().date_month.currentText()
+                chosen_day = self.centralWidget().date_day.currentText()
+
+            self.show_main_const_widget()
+            self.centralWidget().group_type.setCurrentText(chosen_mode)
+
+            if chosen_mode == 'Оборудование':
+                self.centralWidget().camera_choose.setCurrentText(chosen_camera)
+                self.centralWidget().lens_choose.setCurrentText(chosen_lens)
+            elif chosen_mode == 'Соцсети' and Settings.get_socnet_status():
+                self.centralWidget().socnet_choose.setCurrentText(chosen_network)
+                self.centralWidget().sn_status.setCurrentText(chosen_status)
+            elif chosen_mode == 'Дата':
+                self.centralWidget().date_year.setCurrentText(chosen_year)
+                self.centralWidget().date_month.setCurrentText(chosen_month)
+                self.centralWidget().date_day.setCurrentText(chosen_day)
+            else:
+                # Если были выбраны "Соцсети", но в настройках их отключили
+                pass
+
         elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             #OnlyShow
             self.centralWidget().after_change_settings()
             self.centralWidget().stylesheet_color()
