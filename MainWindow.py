@@ -503,9 +503,11 @@ class MainWindow(QMainWindow):
     def update_settings_widget(self):
         self.stylesheet_color()
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
+
             chosen_dir = self.centralWidget().directory_choose.currentText()
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(chosen_dir)
+
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow: #Const
             chosen_mode = self.centralWidget().group_type.currentText()
             if chosen_mode == 'Оборудование':
