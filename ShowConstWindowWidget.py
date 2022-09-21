@@ -3,7 +3,8 @@ import sys
 import os
 import time
 
-from PyQt5 import QtWidgets, QtGui, QtCore
+import folium
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from pathlib import Path
@@ -692,6 +693,16 @@ class ConstWidgetWindow(QWidget):
 
     # функция показа большой картинки
     def showinfo(self) -> None:
+        def make_map():
+            gps_dict = metadata['GPS']
+            gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+            m = folium.Map(location=gps_coords, zoom_start=13)
+            folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color='red')).add_to(m)
+            w = QtWebEngineWidgets.QWebEngineView()
+            w.setHtml(m.get_root().render())
+            w.resize(self.metadata_show.width(), self.pic.height() - self.metadata_show.height() - self.socnet_group.height() - 30)
+            self.layout_show.addWidget(2, 1, 1, 1)
+
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
         self.photo_path = self.sender().objectName()
@@ -788,6 +799,7 @@ class ConstWidgetWindow(QWidget):
                 self.pic.show()
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
+                make_map()
         else:
             if self.photo_rotation == 'gor':
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
