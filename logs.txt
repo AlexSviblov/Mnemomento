@@ -1,2 +1,0 @@
-20-Sep-22 16:54:39 - WARNING - unable to read tag 'gps_processing_method'
-20-Sep-22 16:54:39 - WARNING - unable to read tag 'gps_processing_method'
