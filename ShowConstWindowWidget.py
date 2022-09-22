@@ -698,15 +698,18 @@ class ConstWidgetWindow(QWidget):
     # функция показа большой картинки
     def showinfo(self) -> None:
 
+
         def make_map():
             try:
                 self.map_gps_widget.deleteLater()
             except (RuntimeError, AttributeError):
                 pass
+
             if metadata['GPS']:
                 self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
                 gps_dict = metadata['GPS']
                 gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+
                 self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
                 folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color='red')).add_to(self.map_gps)
                 self.map_gps_widget.setHtml(self.map_gps.get_root().render())
@@ -738,11 +741,14 @@ class ConstWidgetWindow(QWidget):
                                                    self.pic.height() - self.metadata_show.height() - 30)
                         self.map_gps_widget.setFixedSize(self.metadata_show.width(),
                                                          self.pic.height() - self.metadata_show.height() - 30)
+
                 self.map_gps_widget.show()
             else:
                 try:
                     self.map_gps_widget.deleteLater()
+
                 except (RuntimeError, AttributeError):
+
                     pass
 
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
@@ -826,6 +832,8 @@ class ConstWidgetWindow(QWidget):
                 self.socnet_group.show()
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
 
+                make_map()
+
                 if self.pixmap2.width() > self.metadata_show.width() + self.socnet_group.width():
                     self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 100)
                 else:
@@ -843,6 +851,7 @@ class ConstWidgetWindow(QWidget):
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
 
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+
         else:
             if self.photo_rotation == 'gor':
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
