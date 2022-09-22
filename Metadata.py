@@ -224,8 +224,8 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str
         GPSLongitudeRef = data['gps_longitude_ref']
         GPSLongitude = data['gps_longitude']
 
-        GPSLongitude_float = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
-        GPSLatitude_float = list(GPSLongitude)
+        GPSLongitude_float = list(GPSLongitude)  # Приведение координат к десятичным числам, как на Я.Картах
+        GPSLatitude_float = list(GPSLatitude)
 
         GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600  # type: ignore[operator]
         GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600    # type: ignore[operator]
@@ -657,4 +657,3 @@ def clear_exif(photoname: str, photodirectory: str):
     with open(photofile, 'wb') as img:
         img = exif.Image(photofile)
         img.delete_all()    # type: ignore[attr-defined]
-
