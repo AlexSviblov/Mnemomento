@@ -164,8 +164,8 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
         if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
 
-            GPSLongitude_float = list(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
-            GPSLatitude_float = list(GPSLongitude)
+            GPSLongitude_float = list(GPSLongitude)  # Приведение координат к десятичным числам, как на Я.Картах
+            GPSLatitude_float = list(GPSLatitude)
 
             GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
             GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600
@@ -657,4 +657,3 @@ def clear_exif(photoname: str, photodirectory: str):
     with open(photofile, 'wb') as img:
         img = exif.Image(photofile)
         img.delete_all()    # type: ignore[attr-defined]
-

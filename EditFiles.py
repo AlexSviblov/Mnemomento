@@ -972,7 +972,7 @@ class EditExifData(QDialog):
             else:
                 pass
 
-        if self.indicator[-1] == 0:
+        if self.indicator[-1] == 0: # -1 - изменение даты (возможен перенос)
             self.get_metadata(self.photoname, self.photodirectory)
         else:
             self.close()
