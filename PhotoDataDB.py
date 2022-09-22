@@ -460,12 +460,12 @@ def get_const_coordinates(fullpaths: list[str])-> list[str ,tuple[float]]:
 
         sql_str = f'SELECT GPSdata FROM photos WHERE filename = \'{filename}\' AND catalog = \'{catalog}\''
         cur.execute(sql_str)
-        gps_from_db = cur.fetchone()
+        gps_from_db = cur.fetchone()[0]
         if gps_from_db == 'No data':
             pass
         else:
-            lat = float(gps_from_db[0].split(', ')[0])
-            lon = float(gps_from_db[0].split(', ')[1])
+            lat = float(gps_from_db.split(', ')[0])
+            lon = float(gps_from_db.split(', ')[1])
             coords = (lat, lon)
             names_and_coords.append((filename, coords))
     return names_and_coords

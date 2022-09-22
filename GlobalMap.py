@@ -139,9 +139,12 @@ class GlobalMapWidget(QWidget):
         map_points_combo = PhotoDataDB.get_const_coordinates(full_paths)
         print(map_points_combo)
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
-        self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14)
-        for photo in map_points_combo:
-            folium.Marker(photo[1], popup=photo[0], icon=folium.Icon(color='red')).add_to(self.map_gps)
+        if map_points_combo:
+            self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14)
+            for photo in map_points_combo:
+                folium.Marker(photo[1], popup=photo[0], icon=folium.Icon(color='red')).add_to(self.map_gps)
+        else:
+            self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
         self.map_gps_widget.setHtml(self.map_gps.get_root().render())
 
         self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 3)
