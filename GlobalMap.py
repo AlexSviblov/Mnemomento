@@ -379,4 +379,3 @@ if __name__ == "__main__":
     win = GlobalMapWin()
     win.show()
     sys.exit(app.exec_())
-
