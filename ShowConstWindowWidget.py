@@ -707,7 +707,7 @@ class ConstWidgetWindow(QWidget):
                 self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
                 gps_dict = metadata['GPS']
                 gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
-                self.map_gps = folium.Map(location=gps_coords, zoom_start=13)
+                self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
                 folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color='red')).add_to(self.map_gps)
                 self.map_gps_widget.setHtml(self.map_gps.get_root().render())
                 if self.photo_rotation == 'gor':
@@ -868,7 +868,8 @@ class ConstWidgetWindow(QWidget):
                 self.pic.show()
 
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
-        make_map(); make_map()
+        QtCore.QCoreApplication.processEvents()
+        make_map()
         self.oldsize = self.size()
 
     # убрать с экрана фото и метаданные после удаления фотографии

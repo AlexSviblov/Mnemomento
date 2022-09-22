@@ -430,3 +430,42 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     cur.execute(sql_str6)
 
     conn.commit()
+
+
+# достать из БД список фото сделанных в определённый день
+def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
+    if year == 'No_Date_Info':
+        date_to_search = 'No data'
+    else:
+        date_to_search = f"{year}.{month}.{day}"
+
+    sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+    cur.execute(sql_str)
+    photodb_data = cur.fetchall()
+
+    fullpaths = list()
+    for photo in photodb_data:
+        if 'Media/Photo/const' in photo[1]:
+            fullpaths.append(photo[1] + '/' + photo[0])
+
+    return fullpaths
+
+
+# достать GPS-координаты фотографий основного каталога из БД
+def get_const_coordinates(fullpaths: list[str])-> list[str ,tuple[float]]:
+    names_and_coords = list()
+    for photofile in fullpaths:
+        filename = photofile.split('/')[-1]
+        catalog = photofile[:(-1)*len(filename)-1]
+
+        sql_str = f'SELECT GPSdata FROM photos WHERE filename = \'{filename}\' AND catalog = \'{catalog}\''
+        cur.execute(sql_str)
+        gps_from_db = cur.fetchone()
+        if gps_from_db == 'No data':
+            pass
+        else:
+            lat = float(gps_from_db[0].split(', ')[0])
+            lon = float(gps_from_db[0].split(', ')[1])
+            coords = (lat, lon)
+            names_and_coords.append((filename, coords))
+    return names_and_coords

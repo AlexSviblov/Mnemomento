@@ -1072,36 +1072,42 @@ class EditExifData(QDialog):
     # записать новые метаданные
     def clear_exif_func(self) -> None:
         def accepted():
-            if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/'):
-                os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/')
-                os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/')
-                os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/')
-
-            photodirectory_splitted = self.photodirectory.split('/')
-            new_date_splitted = [photodirectory_splitted[-3], photodirectory_splitted[-2], photodirectory_splitted[-1]]
-            old_date_splitted = ['No_Date_Info', 'No_Date_Info', 'No_Date_Info']
-
-            # self.photodirectory = 'C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30'
-            # self.photoname = 'IMG_0866.jpg'
-            if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname):
+            if 'No_Date_Info' in self.photodirectory:
                 Metadata.clear_exif(self.photoname, self.photodirectory)
                 PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
-                shutil.move(self.photodirectory + '/' + self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname)
-                PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info', self.photodirectory)
-                Thumbnail.transfer_diff_date_thumbnail(self.photoname, new_date_splitted, old_date_splitted)
-                self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info')
+                self.get_metadata(self.photoname, self.photodirectory)
+                self.close()
             else:
-                window_equal = EqualNames(self, self.photoname, old_date_splitted, new_date_splitted, "No_Date_Info:No_Date_Info:No_Date_Info")
-                window_equal.show()
-                if self.chosen_group_type == 'Дата':
-                    window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+                if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/'):
+                    os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/')
+                    os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/')
+                    os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/')
+
+                photodirectory_splitted = self.photodirectory.split('/')
+                new_date_splitted = [photodirectory_splitted[-3], photodirectory_splitted[-2], photodirectory_splitted[-1]]
+                old_date_splitted = ['No_Date_Info', 'No_Date_Info', 'No_Date_Info']
+
+                # self.photodirectory = 'C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30'
+                # self.photoname = 'IMG_0866.jpg'
+                if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname):
+                    Metadata.clear_exif(self.photoname, self.photodirectory)
+                    PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
+                    shutil.move(self.photodirectory + '/' + self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname)
+                    PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info', self.photodirectory)
+                    Thumbnail.transfer_diff_date_thumbnail(self.photoname, new_date_splitted, old_date_splitted)
+                    self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info')
                 else:
-                    pass
+                    window_equal = EqualNames(self, self.photoname, old_date_splitted, new_date_splitted, "No_Date_Info:No_Date_Info:No_Date_Info")
+                    window_equal.show()
+                    if self.chosen_group_type == 'Дата':
+                        window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+                    else:
+                        pass
 
-                window_equal.file_rename_transfer_signal.connect(lambda: self.close())
-                window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+                    window_equal.file_rename_transfer_signal.connect(lambda: self.close())
+                    window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
 
-            self.get_metadata(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info')
+                self.get_metadata(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info')
             self.close()
 
         def rejected():
