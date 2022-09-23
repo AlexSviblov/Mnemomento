@@ -432,16 +432,46 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     conn.commit()
 
 
-# достать из БД список фото сделанных в определённый день
+# достать из БД список фото сделанных в определённый день (используется только в GlobalMap)
 def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
+    photodb_data = list()
     if year == 'No_Date_Info':
         date_to_search = 'No data'
+        sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+        cur.execute(sql_str)
+        photodb_data = cur.fetchall()
     else:
-        date_to_search = f"{year}.{month}.{day}"
-
-    sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
-    cur.execute(sql_str)
-    photodb_data = cur.fetchall()
+        if year != 'All' and month != 'All' and day == 'All':
+            for i in range(1, 32):
+                str_i = str(i)
+                if len(str_i) == 1:
+                    str_i = '0' + str_i
+                date_to_search = f"{year}.{month}.{str_i}"
+                sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+                cur.execute(sql_str)
+                photodb_data.append(cur.fetchall())
+        elif year != 'All' and month == 'All' and day == 'All':
+            for j in range(1, 13):
+                str_j = str(j)
+                if len(str_j) == 1:
+                    str_j = '0' + str_j
+                for i in range(1, 32):
+                    str_i = str(i)
+                    if len(str_i) == 1:
+                        str_i = '0' + str_i
+                    date_to_search = f"{year}.{str_j}.{str_i}"
+                    sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+                    cur.execute(sql_str)
+                    photodb_data.append(cur.fetchall())
+        elif year == 'All' and month == 'All' and day == 'All':
+            sql_str = f"SELECT filename, catalog FROM photos"
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
+        else:
+            date_to_search = f"{year}.{month}.{day}"
+            sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
 
     fullpaths = list()
     for photo in photodb_data:
@@ -451,8 +481,8 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
     return fullpaths
 
 
-# достать GPS-координаты фотографий основного каталога из БД
-def get_const_coordinates(fullpaths: list[str])-> list[str ,tuple[float]]:
+# достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
+def get_const_coordinates(fullpaths: list[str]) -> list[tuple[float], str]:
     names_and_coords = list()
     for photofile in fullpaths:
         filename = photofile.split('/')[-1]

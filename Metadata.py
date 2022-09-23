@@ -646,7 +646,7 @@ def equip_name_check_reverse(normname: str, type: str) -> str:
 
 
 # удалить все метаданные
-def clear_exif(photoname: str, photodirectory: str):
+def clear_exif(photoname: str, photodirectory: str) -> None:
     """
     Удалить все метаданные из файла.
     :param photoname:  имя файла.

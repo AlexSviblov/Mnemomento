@@ -1,16 +1,14 @@
 import logging
 import math
-import sys
+import folium
 import os
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
 from PIL import Image       # type: ignore[import]
-import Screenconfig
 import Metadata
 import Settings
-import Thumbnail
 import ErrorsAndWarnings
 import json
 
@@ -55,6 +53,8 @@ class WidgetWindow(QWidget):
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
         self.pic.setAlignment(Qt.AlignCenter)
+
+        self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
         self.scroll_area_widget = QScrollArea(self)  # создание подвижной области
         self.layoutoutside.addWidget(self.scroll_area_widget, 0, 0, 2, 1)  # помещение подвижной области на слой
@@ -371,8 +371,38 @@ class WidgetWindow(QWidget):
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.clicked.connect(self.showinfo)
 
+    def make_map(self) -> None:
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
+
+        if self.gps_coordinates:
+            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+            gps_dict = self.gps_coordinates
+            gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+
+            self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
+            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+            if self.photo_rotation == 'gor':
+                self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+                self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
+                self.map_gps_widget.setFixedHeight(self.metadata_show.height())
+            else: # self.photo_rotation == 'ver'
+                self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+                self.map_gps_widget.setFixedWidth(self.metadata_show.width())
+                self.map_gps_widget.setFixedHeight(self.height() - self.metadata_show.height() - 100)
+            self.map_gps_widget.show()
+        else:
+            try:
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+
     # функция показа большой картинки
     def showinfo(self) -> None:
+
         try:
             self.button_text = self.sender().text() # type: ignore[attr-defined]
         except AttributeError:
@@ -395,7 +425,10 @@ class WidgetWindow(QWidget):
         self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
         params = list(metadata.keys())
         params.remove('Rotation')
-
+        try:
+            self.gps_coordinates = metadata['GPS']
+        except KeyError:
+            self.gps_coordinates = ''
         rows = 0
         for param in params:
             if metadata[param]:
@@ -423,27 +456,28 @@ class WidgetWindow(QWidget):
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
 
-
         if self.photo_rotation == 'gor':
-            self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
+            self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
 
             self.pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
                                     self.size().height() - self.metadata_show.height(), QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
+            self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
             self.pic.show()
             self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
         else: # self.photo_rotation == 'ver'
-            self.layout_show.addWidget(self.metadata_show, 1, 1, 1, 1)
+            self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
             self.pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
                                     self.metadata_show.width(), self.size().height() - 50, QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
-            self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
+            self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
             self.pic.show()
             self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
+        QtCore.QCoreApplication.processEvents()
+        self.make_map()
         self.oldsize = self.size()
 
     # в класс передаётся список файлов, надо получить их директорию
@@ -459,12 +493,14 @@ class WidgetWindow(QWidget):
     def resizeEvent(self, QResizeEvent):
         self.resized_signal.emit()
 
+    # изменить размер фото при изменении размера окна
     def resize_func(self) -> None:
-        raznost = self.oldsize - self.size()
-        if abs(raznost.width()) + abs(raznost.height()) < 300:
-            pass
-        else:
-            self.showinfo()
+        self.resize_photo()
+
+    def resize_photo(self) -> None:
+        if not self.pic.isVisible():
+            return
+        self.showinfo()
 
     # создание кнопки редактирования
     def make_buttons(self) -> None:

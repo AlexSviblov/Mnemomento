@@ -1,19 +1,14 @@
-import logging
-import sys
 import os
-from PyQt5 import QtWidgets, QtGui, QtCore
+import folium
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 import math
 from PyQt5.QtCore import Qt
-from pathlib import Path
-import shutil
 import json
 
 import EditFiles
-import ErrorsAndWarnings
 import FilesDirs
 import PhotoDataDB
-import Screenconfig
 import Metadata
 import Settings
 import Thumbnail
@@ -63,6 +58,8 @@ class AloneWidgetWindow(QWidget):
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
         self.pic.setAlignment(Qt.AlignCenter)
+
+        self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
         self.scroll_area = QScrollArea(self)  # создание подвижной области
         self.layoutoutside.addWidget(self.scroll_area, 1, 0, 2, 1)  # помещение подвижной области на слой
@@ -562,8 +559,47 @@ class AloneWidgetWindow(QWidget):
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
 
+    def make_map(self) -> None:
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
+
+        if self.gps_coordinates:
+            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+            gps_dict = self.gps_coordinates
+            gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+
+            self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
+            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+            if self.photo_rotation == 'gor':
+                self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+                if self.soc_net_setting:
+                    self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
+                    self.map_gps_widget.setFixedHeight(self.metadata_show.height())
+                else:
+                    self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
+                    self.map_gps_widget.setFixedHeight(self.metadata_show.height())
+            else: # self.photo_rotation == 'ver'
+                self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+                if self.soc_net_setting:
+                    self.map_gps_widget.setFixedWidth(self.metadata_show.width())
+                    self.map_gps_widget.setFixedHeight(self.height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - self.socnet_group.height() - 100)
+                else:
+                    self.map_gps_widget.setFixedWidth(self.metadata_show.width())
+                    self.map_gps_widget.setFixedHeight(
+                        self.height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 100)
+            self.map_gps_widget.show()
+        else:
+            try:
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+
     # функция показа большой картинки
     def showinfo(self) -> None:
+
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
         try:
@@ -592,6 +628,10 @@ class AloneWidgetWindow(QWidget):
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']
+        try:
+            self.gps_coordinates = metadata['GPS']
+        except KeyError:
+            self.gps_coordinates = ''
         params = list(metadata.keys())
         params.remove('Rotation')
 
@@ -629,18 +669,18 @@ class AloneWidgetWindow(QWidget):
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
-                self.layout_show.addWidget(self.pic, 0, 0, 1, 5)
+                self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
                 self.pic.show()
-                self.layout_show.addWidget(self.socnet_group, 1, 4, 1, 1)
+                self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
             else:  # self.photo_rotation == 'ver'
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
-                self.layout_show.addWidget(self.socnet_group, 4, 1, 1, 1)
+                self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_directory_choose.height() - 30,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
-                self.layout_show.addWidget(self.pic, 0, 0, 5, 1)
+                self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
                 self.pic.show()
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
             self.show_social_networks(self.last_clicked, self.photo_directory)
@@ -670,7 +710,8 @@ class AloneWidgetWindow(QWidget):
                 self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
                 self.pic.show()
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
-
+        QtCore.QCoreApplication.processEvents()
+        self.make_map()
         self.oldsize = self.size()
 
     # изменить размер фото при изменении размера окна
@@ -680,6 +721,7 @@ class AloneWidgetWindow(QWidget):
     # изменить размер фото при изменении размера окна
     def resize_func(self) -> None:
         self.resize_photo()
+        self.resize_map()
 
     def resize_photo(self) -> None:
         if not self.pic.isVisible():
@@ -701,6 +743,35 @@ class AloneWidgetWindow(QWidget):
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
 
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
+
+    def resize_map(self):
+        try:
+            self.map_gps_widget.isVisible()
+        except (RuntimeError, AttributeError):
+            pass
+
+        if not self.map_gps_widget.isVisible():
+            return
+        if self.photo_rotation == 'gor':
+            self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+            if self.soc_net_setting:
+                self.map_gps_widget.setFixedWidth(
+                    self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
+                self.map_gps_widget.setFixedHeight(self.metadata_show.height())
+            else:
+                self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
+                self.map_gps_widget.setFixedHeight(self.metadata_show.height())
+        else:  # self.photo_rotation == 'ver'
+            self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+            if self.soc_net_setting:
+                self.map_gps_widget.setFixedWidth(self.metadata_show.width())
+                self.map_gps_widget.setFixedHeight(
+                    self.height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - self.socnet_group.height() - 100)
+            else:
+                self.map_gps_widget.setFixedWidth(self.metadata_show.width())
+                self.map_gps_widget.setFixedHeight(
+                    self.height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 100)
+        self.map_gps_widget.show()
 
     # Создание кнопок удаления и редактирования
     def make_buttons(self) -> None:
