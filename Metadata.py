@@ -477,14 +477,17 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     if modify_dict:
         img.set(list(modify_dict.keys())[0], modify_dict[f"{list(modify_dict.keys())[0]}"]) # type: ignore[attr-defined]
 
-    with open(f"{photofile}_buffername", 'wb') as new_file:
-        new_file.write(img.get_file())  # type: ignore[attr-defined]
-    os.remove(photofile)
-    os.rename(f"{photofile}_buffername", photofile)
+        with open(f"{photofile}_buffername", 'wb') as new_file:
+            new_file.write(img.get_file())  # type: ignore[attr-defined]
+        os.remove(photofile)
+        os.rename(f"{photofile}_buffername", photofile)
 
     if modify_dict_gps:
+
         photo = gpsphoto.GPSPhoto(photofile)
         photo.modGPSData(modify_dict_gps, photofile)
+
+
 
 
 # проверка ввода при редактировании exif

@@ -371,6 +371,7 @@ class WidgetWindow(QWidget):
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.clicked.connect(self.showinfo)
 
+    # создание и отрисовка карты с GPS-меткой
     def make_map(self) -> None:
         try:
             self.map_gps_widget.deleteLater()

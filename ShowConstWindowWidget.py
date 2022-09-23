@@ -690,6 +690,7 @@ class ConstWidgetWindow(QWidget):
             self.layout_btns.itemAt(i).widget().setDisabled(False)
         self.group_type.setDisabled(False)
 
+    # создание и отрисовка карты с GPS-меткой
     def make_map(self) -> None:
         try:
             self.map_gps_widget.deleteLater()

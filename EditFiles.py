@@ -1,9 +1,9 @@
 import logging
 import sys
 import os
-import time
+import folium
 
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from pathlib import Path
@@ -328,10 +328,45 @@ class EditExifData(QDialog):
         except AttributeError:
             pass
 
+    def make_map(self, coordinates, filename):
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
+
+            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+
+        if coordinates:
+            self.map_gps = folium.Map(location=coordinates, zoom_start=14)
+            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color='red')).add_to(self.map_gps)
+        else:
+            self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
+
+        self.popup = folium.LatLngPopup()
+        self.map_gps.add_child(self.popup)
+        self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+
+        self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
+
+
+    def change_tab_gps(self):
+        if self.tabs.currentIndex() == 0 or self.tabs.currentIndex() == 1:
+            self.table.show()
+            self.layout.addWidget(self.table, 0, 1, 1, 2)
+            try:
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+        else:
+            self.table.hide()
+            self.make_map((float(self.latitude_fn_line.text()), float(self.longitude_fn_line.text())), self.photoname)
+
     # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
+        self.tabs.currentChanged.connect(self.change_tab_gps)
+
         self.tab_date = QWidget(self)
         self.tab_technic_settings = QWidget(self)
         self.tab_GPS = QWidget(self)
