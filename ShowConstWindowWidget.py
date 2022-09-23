@@ -252,9 +252,6 @@ class ConstWidgetWindow(QWidget):
             icon_explorer = os.getcwd() + '/icons/explorer_light.png'
             icon_view = os.getcwd() + '/icons/view_light.png'
             icon_edit = os.getcwd() + '/icons/edit_light.png'
-            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
-            icon_view = os.getcwd() + '/icons/view_light.png'
-            icon_edit = os.getcwd() + '/icons/edit_light.png'
             icon_delete = os.getcwd() + '/icons/delete_light.png'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 =   """

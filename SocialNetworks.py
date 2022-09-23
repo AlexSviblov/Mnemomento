@@ -12,6 +12,8 @@ import Settings
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet8 = str()
+icon_edit = str()
+icon_delete = str()
 
 
 conn = sqlite3.connect('PhotoDB.db')  # соединение с БД
@@ -65,6 +67,8 @@ class SocialNetworks(QWidget):
         global stylesheet1
         global stylesheet2
         global stylesheet8
+        global icon_edit
+        global icon_delete
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 =   """
@@ -95,7 +99,8 @@ class SocialNetworks(QWidget):
                                     margin-top: -1px
                                 }
                             """
-
+            icon_edit = os.getcwd() + '/icons/edit_light.png'
+            icon_delete = os.getcwd() + '/icons/delete_light.png'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 =   """
                                 border: 1px;
@@ -125,6 +130,8 @@ class SocialNetworks(QWidget):
                                     margin-top: -1px
                                 }
                             """
+            icon_edit = os.getcwd() + '/icons/edit_dark.png'
+            icon_delete = os.getcwd() + '/icons/delete_dark.png'
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -158,7 +165,8 @@ class SocialNetworks(QWidget):
             self.btn_red = QToolButton(self)
             self.btn_red.setStyleSheet(stylesheet1)
             self.btn_red.setFixedSize(50, 50)
-            self.btn_red.setText('RED')
+            self.btn_red.setIcon(QtGui.QIcon(icon_edit))
+            self.btn_red.setToolTip('Редактировать название')
             self.btn_red.setObjectName(networks[i])
             self.btn_red.clicked.connect(self.func_red)
             self.group_layout.addWidget(self.btn_red, i, 1, 1, 1)
@@ -166,7 +174,8 @@ class SocialNetworks(QWidget):
             self.btn_del = QToolButton(self)
             self.btn_del.setStyleSheet(stylesheet1)
             self.btn_del.setFixedSize(50, 50)
-            self.btn_del.setText('DEL')
+            self.btn_del.setIcon(QtGui.QIcon(icon_delete))
+            self.btn_del.setToolTip('Удалить соцсеть')
             self.btn_del.setObjectName(networks[i])
             self.btn_del.clicked.connect(self.func_del)
             self.group_layout.addWidget(self.btn_del, i, 2, 1, 1)
@@ -177,10 +186,9 @@ class SocialNetworks(QWidget):
             self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
         except AttributeError:
             pass
-        # МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
+        #TODO: МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
         self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
-
 
     # считать из БД введённые соцсети
     def get_social_networks_list(self) -> list[str]:

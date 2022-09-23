@@ -3,8 +3,7 @@ import os
 import exif                     # type: ignore[import]
 from PIL import Image           # type: ignore[import]
 import sqlite3
-from typing import Union
-from GPSPhoto import gpsphoto   # type: ignore[import]
+from typing import Union, Tuple
 
 import ErrorsAndWarnings
 
@@ -422,6 +421,15 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     """
     photofile = photodirectory + '/' + photoname
 
+    # перевод координат из формата вещественного числа в кортеж для записи в exif
+    def exif_coord_to_tuple(coord: float) -> tuple[float, float, float]:
+        deg = float(int(coord))
+        mins_full = (coord - deg) * 60
+        mins = float(int(mins_full))
+        sec_full = (mins_full - mins) * 60
+        sec = round(sec_full, 4)
+        return (deg, mins, sec)
+
     modify_dict = dict()
     modify_dict_gps = dict()
 
@@ -471,7 +479,19 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         float_value_lat = float(new_value_splitted[0])
         float_value_long = float(new_value_splitted[1])
 
-        modify_dict_gps = gpsphoto.GPSInfo((float_value_lat, float_value_long))
+        lat_list = exif_coord_to_tuple(float_value_lat)
+        long_list = exif_coord_to_tuple(float_value_long)
+        if float_value_lat > 0:
+            lat_ref = 'N'
+        else:
+            lat_ref = 'S'
+
+        if float_value_long > 0:
+            lon_ref = 'E'
+        else:
+            lon_ref = 'W'
+
+        modify_dict_gps = [float_value_lat, lat_ref, float_value_long, lon_ref]
 
     # Сделать сам модифай
     if modify_dict:
@@ -483,12 +503,15 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         os.rename(f"{photofile}_buffername", photofile)
 
     if modify_dict_gps:
+        img.set('gps_latitude_ref', lat_ref)
+        img.set('gps_latitude', lat_list)
+        img.set('gps_longitude_ref', lon_ref)
+        img.set('gps_longitude', long_list)
 
-        photo = gpsphoto.GPSPhoto(photofile)
-        photo.modGPSData(modify_dict_gps, photofile)
-
-
-
+        with open(f"{photofile}_buffername", 'wb') as new_file:
+            new_file.write(img.get_file())  # type: ignore[attr-defined]
+        os.remove(photofile)
+        os.rename(f"{photofile}_buffername", photofile)
 
 # проверка ввода при редактировании exif
 def exif_check_edit(editing_type: int, new_value: str) -> None:
@@ -660,3 +683,4 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     with open(photofile, 'wb') as img:
         img = exif.Image(photofile)
         img.delete_all()    # type: ignore[attr-defined]
+

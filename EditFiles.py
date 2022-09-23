@@ -38,6 +38,7 @@ font12 = QtGui.QFont('Times', 12)
 
 
 # редактирование exif
+# noinspection PyUnresolvedReferences
 class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()
@@ -347,7 +348,6 @@ class EditExifData(QDialog):
         self.map_gps_widget.setHtml(self.map_gps.get_root().render())
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
-
 
     def change_tab_gps(self):
         if self.tabs.currentIndex() == 0 or self.tabs.currentIndex() == 1:
