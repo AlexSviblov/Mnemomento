@@ -1,14 +1,14 @@
 import logging
 import os
-import exif                     # type: ignore[import]
-from PIL import Image           # type: ignore[import]
+import exif  # type: ignore[import]
+from PIL import Image  # type: ignore[import]
 import sqlite3
 from typing import Union, Tuple
+from GPSPhoto import gpsphoto
 
 import ErrorsAndWarnings
 
 conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
-
 
 cur = conn.cursor()
 
@@ -21,9 +21,8 @@ def read_exif(photofile: str) -> dict[str, str]:
     :return: словарь всех вытащенных библиотекой exif метаданных.
     """
     with open(photofile, 'rb') as img:
-
         img = exif.Image(photofile)
-        data = img.get_all()        # type: ignore[attr-defined]
+        data = img.get_all()  # type: ignore[attr-defined]
     return data
 
 
@@ -37,13 +36,13 @@ def date_from_exif(file: str) -> tuple[int, str, str, str]:
     длинами 2, 2, 4 соответственно.
     """
     data = read_exif(file)
-    try:    # если дата считывается
+    try:  # если дата считывается
         date = data['datetime_original']
         day = date[8:10]
         month = date[5:7]
         year = date[0:4]
         error = 0
-    except KeyError: # если дата не считывается - No_Date_Info
+    except KeyError:  # если дата не считывается - No_Date_Info
         error = 1
         day = '0'
         month = '0'
@@ -143,7 +142,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
             expo_time_str = str(expo_time)
             metadata['Выдержка'] = expo_time_str
         else:
-            denominator = 1/expo_time
+            denominator = 1 / expo_time
             expo_time_fraction = f"1/{int(denominator)}"
             metadata['Выдержка'] = expo_time_fraction
     except KeyError:
@@ -226,8 +225,10 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str
         GPSLongitude_float = list(GPSLongitude)  # Приведение координат к десятичным числам, как на Я.Картах
         GPSLatitude_float = list(GPSLatitude)
 
-        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600  # type: ignore[operator]
-        GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600    # type: ignore[operator]
+        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[
+            2] / 3600  # type: ignore[operator]
+        GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[
+            2] / 3600  # type: ignore[operator]
 
         if GPSLongitudeRef == 'E':
             pass
@@ -256,7 +257,7 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
     """
     with open(photoname, 'rb') as img:
         img = exif.Image(photoname)
-        all_data = img.get_all()    # type: ignore[attr-defined]
+        all_data = img.get_all()  # type: ignore[attr-defined]
 
     useful_data = dict()
 
@@ -299,7 +300,7 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
 
     try:
         if all_data['exposure_time'] < 0.1:
-            denominator = 1/all_data['exposure_time']
+            denominator = 1 / all_data['exposure_time']
             expo_time_show = f"1/{int(denominator)}"
             useful_data['Выдержка'] = expo_time_show
         else:
@@ -447,8 +448,8 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
 
     elif editing_type == 3:
         if '/' in new_value:
-            float_value = 1/float(new_value.split('/')[1])
-            modify_dict = {'exposure_time': float_value}        # type: ignore[dict-item]
+            float_value = 1 / float(new_value.split('/')[1])
+            modify_dict = {'exposure_time': float_value}  # type: ignore[dict-item]
         else:
             float_value = float(new_value)
             modify_dict = {'exposure_time': str(float_value)}
@@ -457,7 +458,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         modify_dict = {'photographic_sensitivity': int(new_value)}  # type: ignore[dict-item]
 
     elif editing_type == 5:
-        modify_dict = {'f_number': float(new_value)}    # type: ignore[dict-item]
+        modify_dict = {'f_number': float(new_value)}  # type: ignore[dict-item]
 
     elif editing_type == 6:
         modify_dict = {'focal_length': int(new_value)}  # type: ignore[dict-item]
@@ -495,7 +496,8 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
 
     # Сделать сам модифай
     if modify_dict:
-        img.set(list(modify_dict.keys())[0], modify_dict[f"{list(modify_dict.keys())[0]}"]) # type: ignore[attr-defined]
+        img.set(list(modify_dict.keys())[0],
+                modify_dict[f"{list(modify_dict.keys())[0]}"])  # type: ignore[attr-defined]
 
         with open(f"{photofile}_buffername", 'wb') as new_file:
             new_file.write(img.get_file())  # type: ignore[attr-defined]
@@ -503,15 +505,22 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         os.rename(f"{photofile}_buffername", photofile)
 
     if modify_dict_gps:
-        img.set('gps_latitude_ref', lat_ref)
-        img.set('gps_latitude', lat_list)
-        img.set('gps_longitude_ref', lon_ref)
-        img.set('gps_longitude', long_list)
 
-        with open(f"{photofile}_buffername", 'wb') as new_file:
-            new_file.write(img.get_file())  # type: ignore[attr-defined]
+        try:
+            info = gpsphoto.GPSInfo((float_value_lat, float_value_long))
+            photo = gpsphoto.GPSPhoto(photofile)
+            photo.modGPSData(info, f'{photofile}_buffername')
+        except (RuntimeError, KeyError, ValueError):
+            img.set('gps_latitude_ref', lat_ref)
+            img.set('gps_latitude', lat_list)
+            img.set('gps_longitude_ref', lon_ref)
+            img.set('gps_longitude', long_list)
+
+            with open(f"{photofile}_buffername", 'wb') as new_file:
+                new_file.write(img.get_file())  # type: ignore[attr-defined]
         os.remove(photofile)
         os.rename(f"{photofile}_buffername", photofile)
+
 
 # проверка ввода при редактировании exif
 def exif_check_edit(editing_type: int, new_value: str) -> None:
@@ -521,6 +530,7 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
     :param new_value: новое значение.
     :return: если всё верно - pass и перезапись метаданных, если есть ошибка - окно предупреждения и запрет на перезапись.
     """
+
     # Ошибка ввода вызывает ошибку для except в объекте окна, который уже там делает return
     def make_error():
         raise ErrorsAndWarnings.EditExifError()
@@ -595,7 +605,8 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
             else:
                 make_error()
 
-            if new_value[4] == ':' and new_value[7] == ':' and new_value[13] == ':' and new_value[16] == ':' and new_value[10] == ' ':
+            if new_value[4] == ':' and new_value[7] == ':' and new_value[13] == ':' and new_value[16] == ':' and \
+                    new_value[10] == ' ':
                 pass
             else:
                 make_error()
@@ -682,5 +693,4 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     photofile = photodirectory + '/' + photoname
     with open(photofile, 'wb') as img:
         img = exif.Image(photofile)
-        img.delete_all()    # type: ignore[attr-defined]
-
+        img.delete_all()  # type: ignore[attr-defined]

@@ -186,7 +186,6 @@ class SocialNetworks(QWidget):
             self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
         except AttributeError:
             pass
-        #TODO: МЕНЯТЬ РАЗМЕРЫ ОКНА ПОД РАЗМЕР БЛОКА С НАЗВАНИЕМ СОЦСЕТЕЙ, СИГНАЛ В MAINWINDOW
         self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
 

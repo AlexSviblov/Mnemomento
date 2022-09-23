@@ -337,11 +337,11 @@ class EditExifData(QDialog):
 
             self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
-        if coordinates:
+        if coordinates[0] != 0 and coordinates[1] != 0:
             self.map_gps = folium.Map(location=coordinates, zoom_start=14)
             folium.Marker(coordinates, popup=filename, icon=folium.Icon(color='red')).add_to(self.map_gps)
         else:
-            self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
+            self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
         self.popup = folium.LatLngPopup()
         self.map_gps.add_child(self.popup)
