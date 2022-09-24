@@ -74,7 +74,6 @@ def transfer_const_photos(file: str) -> str:
                 shutil.copy2(file, destination + 'No_Date_Info/No_Date_Info/No_Date_Info/' + file_full[-1] )
                 Thumbnail.make_const_thumbnails(destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_full[-1])
                 PhotoDataDB.add_to_database(file_full[-1], destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
-
     else:   # mode == 'cut'
         if error == 0:
             if os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):    # папка назначения существует

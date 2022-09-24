@@ -482,20 +482,26 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
 
 
 # достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
-def get_const_coordinates(fullpaths: list[str]) -> list[tuple[float], str]:
+def get_global_map_info(fullpaths: list[str]) -> list[tuple[float], str]:
     names_and_coords = list()
     for photofile in fullpaths:
         filename = photofile.split('/')[-1]
         catalog = photofile[:(-1)*len(filename)-1]
 
-        sql_str = f'SELECT GPSdata FROM photos WHERE filename = \'{filename}\' AND catalog = \'{catalog}\''
+        sql_str = f'SELECT GPSdata, camera, shootingdate FROM photos WHERE filename = \'{filename}\' AND catalog = \'{catalog}\''
         cur.execute(sql_str)
-        gps_from_db = cur.fetchone()[0]
+        all_db_data = cur.fetchall()[0]
+        gps_from_db = all_db_data[0]
+        camera_db = all_db_data[1]
+        camera = Metadata.equip_name_check([camera_db], 'camera')[0]
+        shootingdate = all_db_data[2]
         if gps_from_db == 'No data':
             pass
         else:
+            catalog_splitted = catalog.split('/')
+            thumbnail_way = f"{Settings.get_destination_thumb()}/thumbnail/const/{catalog_splitted[-3]}/{catalog_splitted[-2]}/{catalog_splitted[-1]}"
             lat = float(gps_from_db.split(', ')[0])
             lon = float(gps_from_db.split(', ')[1])
             coords = (lat, lon)
-            names_and_coords.append((filename, coords))
+            names_and_coords.append((filename, coords, shootingdate, camera, thumbnail_way))
     return names_and_coords
