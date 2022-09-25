@@ -31,13 +31,13 @@ def transfer_const_photos(file: str) -> str:
     """
     destination = Settings.get_destination_media() + '/Media/Photo/const/'
     mode = Settings.get_photo_transfer_mode()
-
     file_dir = ''
     file_full = file.split(r'/')
     for i in range(len(file_full)-1):
         file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/
                                             # file_full[-1] = IMG_3805.jpg
     error, day, month, year = Metadata.date_from_exif(file)
+
     fileexist = ''
 
     if mode == 'copy':

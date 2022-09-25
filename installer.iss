@@ -22,12 +22,11 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=C:\Users\Александр\Desktop\Релиз\installer
 OutputBaseFilename=mysetup
 SetupIconFile=C:\Users\Public\AppData\TestForPhotoPr\icons\icon.ico
 Compression=lzma
-SolidCompression=yes
+SolidCompression=yes           
 WizardStyle=modern
 
 [Languages]
@@ -37,9 +36,19 @@ Name: "russian"; MessagesFile: "compiler:Languages\Russian.isl"
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
+[Dirs]
+Name: "{app}"; Permissions: everyone-full
+Name: "{app}\Media"; Permissions: everyone-full
+Name: "{app}\Media\Photo"; Permissions: everyone-full
+Name: "{app}\Media\Photo\const"; Permissions: everyone-full
+Name: "{app}\Media\Photo\alone"; Permissions: everyone-full
+Name: "{app}\thumbnail"; Permissions: everyone-full
+Name: "{app}\thumbnail\const"; Permissions: everyone-full
+Name: "{app}\thumbnail\alone"; Permissions: everyone-full
+
 [Files]
-Source: "C:\Users\Александр\Desktop\Релиз\empty\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "C:\Users\Александр\Desktop\Релиз\empty\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "C:\Users\Александр\Desktop\Релиз\empty\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion; Permissions: everyone-full
+Source: "C:\Users\Александр\Desktop\Релиз\empty\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Permissions: everyone-full
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]

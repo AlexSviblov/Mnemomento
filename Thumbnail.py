@@ -29,11 +29,9 @@ def make_const_thumbnails(directory: str, file: str) -> None:
     """
     destination_thumbs = Settings.get_destination_thumb()
     directory_splitted = directory.split('/')
-
     year = directory_splitted[-3]
     month = directory_splitted[-2]
     day = directory_splitted[-1]
-
     if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + year):
         os.mkdir(destination_thumbs + '/thumbnail/const/' + year)
     if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month):
@@ -43,10 +41,8 @@ def make_const_thumbnails(directory: str, file: str) -> None:
 
     image = Image.open(r"{}".format(directory + '/' + file))
     image.thumbnail((250, 250))     # TODO: размер кнопки 150*150, может поменять размер миниатюр
-    image.save('thumbnail_%s' % file)
     date = year + '/' + month + '/' + day
-    # os.replace('thumbnail_%s' % file, destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
-    shutil.move('thumbnail_%s' % file, destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
+    image.save(destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
     image.close()
 
 

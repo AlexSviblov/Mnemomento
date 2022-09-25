@@ -36,6 +36,7 @@ def date_from_exif(file: str) -> tuple[int, str, str, str]:
     длинами 2, 2, 4 соответственно.
     """
     data = read_exif(file)
+
     try:  # если дата считывается
         date = data['datetime_original']
         day = date[8:10]

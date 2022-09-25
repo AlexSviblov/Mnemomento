@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 
 import ErrorsAndWarnings
@@ -7,10 +8,8 @@ import sqlite3
 
 import Settings
 
-conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
-
+conn = sqlite3.connect(f'file:{os.getcwd()}\\PhotoDB.db', check_same_thread=False, uri=True)
 cur = conn.cursor()
-
 
 # Добавление записи в БД при добавлении фото в каталог
 def add_to_database(photoname: str, photodirectory: str) -> None:
@@ -20,6 +19,7 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
     :param photodirectory: каталог хранения фотографии.
     :return: добавляются 2 записи в БД (1 в таблице photos, 2 в socialnetworks)
     """
+
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
     # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
@@ -29,13 +29,12 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
     else:
         shootingdate = shootingdatetime
 
-
     sql_str1 = f'INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
                f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{GPS}\')'
-
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
+
     if len(all_column_names) == 3:
         sql_str2 = f'INSERT INTO socialnetworks VALUES (\'{photoname}\',\'{photodirectory}\',\'{shootingdate}\')'
     else:
@@ -43,9 +42,10 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
         for i in range(len(all_column_names) - 3):
             sn_str += ',\'No value\' '
         sql_str2 = f'INSERT INTO socialnetworks VALUES (\'{photoname}\',\'{photodirectory}\',\'{shootingdate}\'{sn_str})'
-    cur.execute(sql_str1)
-    cur.execute(sql_str2)
 
+    cur.execute(sql_str1)
+
+    cur.execute(sql_str2)
     conn.commit()
 
 
