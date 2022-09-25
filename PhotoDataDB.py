@@ -499,7 +499,7 @@ def get_global_map_info(fullpaths: list[str]) -> list[tuple[float], str]:
             pass
         else:
             catalog_splitted = catalog.split('/')
-            thumbnail_way = f"{Settings.get_destination_thumb()}/thumbnail/const/{catalog_splitted[-3]}/{catalog_splitted[-2]}/{catalog_splitted[-1]}"
+            thumbnail_way = f"{Settings.get_destination_thumb()}/thumbnail/const/{catalog_splitted[-3]}/{catalog_splitted[-2]}/{catalog_splitted[-1]}/thumbnail_{filename}"
             lat = float(gps_from_db.split(', ')[0])
             lon = float(gps_from_db.split(', ')[1])
             coords = (lat, lon)
