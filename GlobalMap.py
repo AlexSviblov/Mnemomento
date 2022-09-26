@@ -135,27 +135,21 @@ class GlobalMapWidget(QWidget):
                 lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
-        map_points_combo = PhotoDataDB.get_const_coordinates(full_paths)
+        map_points_combo = PhotoDataDB.get_global_map_info(full_paths)
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         if map_points_combo:
             self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14)
             for photo in map_points_combo:
-                folium.Marker(photo[1], popup=photo[0], icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.map_gps)
+                html_show = self.popup_html(photo[0], photo[2], photo[3], photo[4])
+                popup = folium.Popup(folium.Html(html_show, script=True), max_width=500)
+                folium.Marker(photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.map_gps)
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
 
         formatter = "function(num) {return L.Util.formatNum(num, 6) + ' º ';};"
 
-        MousePosition(
-            position="topright",
-            separator=" | ",
-            empty_string="NaN",
-            lng_first=True,
-            num_digits=20,
-            prefix="Coordinates:",
-            lat_formatter=formatter,
-            lng_formatter=formatter,
-        ).add_to(self.map_gps)
+        MousePosition(position="topright", separator=", ", empty_string="NaN",  lng_first=True,
+            num_digits=20, prefix="Координаты:", lat_formatter=formatter, lng_formatter=formatter).add_to(self.map_gps)
 
         popup1 = folium.LatLngPopup()
 
@@ -399,6 +393,29 @@ class GlobalMapWidget(QWidget):
             self.fill_sort_socnets()
         elif sort_type == 'Оборудование':
             self.fill_sort_equipment()
+
+    def popup_html(self, photo_name, shooting_date, camera, thumbnail_way):
+        html = f"""
+       <!DOCTYPE html>
+       <html>
+       <center><img src=\"{thumbnail_way}\"  width=100 height=100 ></center>
+       <center><h4 width="200px">{photo_name}</h4></center>
+       <center> <table style="height: 100px; width: 305px; border: 1px solid black;">
+       <tbody>
+       <tr>
+       <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Дата съёмки </span></td>
+       <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{shooting_date}</td>
+       </tr>
+       <tr>
+       <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Камера </span></td>
+       <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{camera}</td>
+       </tr>
+       </tbody>
+       </table></center>
+       </html>
+       """
+        print(thumbnail_way)
+        return html
 
 
 if __name__ == "__main__":

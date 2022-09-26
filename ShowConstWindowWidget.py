@@ -707,6 +707,9 @@ class ConstWidgetWindow(QWidget):
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
                     self.map_gps_widget.setFixedHeight(self.metadata_show.height())
+                    print(f"{self.pic.width()} - {self.metadata_show.width()} - {self.socnet_group.width()} - 40")
+                    print(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
+                    print(self.metadata_show.height())
                 else:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                     self.map_gps_widget.setFixedHeight(self.metadata_show.height())
@@ -715,16 +718,19 @@ class ConstWidgetWindow(QWidget):
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.metadata_show.width())
                     self.map_gps_widget.setFixedHeight(self.height() - self.groupbox_sort.height() - self.metadata_show.height() - self.socnet_group.height() - 100)
+                    print(self.metadata_show.width())
+                    print(f"{self.height()} - {self.groupbox_sort.height()} - {self.metadata_show.height()} - {self.socnet_group.height()} - 100")
+                    print(self.height() - self.groupbox_sort.height() - self.metadata_show.height() - self.socnet_group.height() - 100)
                 else:
                     self.map_gps_widget.setFixedWidth(self.metadata_show.width())
-                    self.map_gps_widget.setFixedHeight(
-                        self.height() - self.groupbox_sort.height() - self.metadata_show.height() - 100)
+                    self.map_gps_widget.setFixedHeight(self.height() - self.groupbox_sort.height() - self.metadata_show.height() - 100)
             self.map_gps_widget.show()
         else:
             try:
                 self.map_gps_widget.deleteLater()
             except (RuntimeError, AttributeError):
                 pass
+        print(self.map_gps_widget.size())
 
     # функция показа большой картинки
     def showinfo(self) -> None:
@@ -831,7 +837,6 @@ class ConstWidgetWindow(QWidget):
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
 
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
-
         else:
             if self.photo_rotation == 'gor':
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
@@ -857,6 +862,7 @@ class ConstWidgetWindow(QWidget):
                 self.pic.show()
 
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+
         QtCore.QCoreApplication.processEvents()
         self.make_map()
         self.oldsize = self.size()
@@ -927,12 +933,13 @@ class ConstWidgetWindow(QWidget):
 
     def resize_map(self):
         try:
-            self.map_gps_widget.isVisible()
+            if not self.map_gps_widget.isVisible():
+                return
+            else:
+                pass
         except (RuntimeError, AttributeError):
-            pass
-
-        if not self.map_gps_widget.isVisible():
             return
+
         if self.photo_rotation == 'gor':
             self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
             if self.soc_net_setting:
@@ -1096,6 +1103,7 @@ class ConstWidgetWindow(QWidget):
             self.socnet_group.setRowCount(len(sn_names))
             if not sn_names:
                 self.socnet_group.setStyleSheet(stylesheet2)
+                self.socnet_group.setFixedSize(0, 0)
                 self.socnet_group.hide()
                 return
             else:
