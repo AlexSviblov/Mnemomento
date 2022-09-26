@@ -13,6 +13,9 @@ import Metadata
 import Settings
 from folium.plugins import MousePosition
 
+import base64
+from folium import IFrame
+
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -140,9 +143,21 @@ class GlobalMapWidget(QWidget):
         if map_points_combo:
             self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14)
             for photo in map_points_combo:
-                html_show = self.popup_html(photo[0], photo[2], photo[3], photo[4])
-                popup = folium.Popup(folium.Html(html_show, script=True), max_width=500)
-                folium.Marker(photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.map_gps)
+                # html_show = self.popup_html(photo[0], photo[2], photo[3], photo[4])
+                #
+                # popup = folium.Popup(folium.Html(html_show), max_width=500)
+                # folium.Marker(photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.map_gps)
+
+                # encoded = base64.b64encode(open(f'{photo[4]}', 'rb').read())
+                # html = '<img src="data:image/png;base64,{}">'.format
+                #
+                # iframe = IFrame(html(encoded.decode('UTF-8')), width=400, height=350)
+                # popup = folium.Popup(iframe, max_width=400)
+
+                iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
+                popup = folium.Popup(iframe, max_width=400)
+                folium.Marker(location=photo[1], popup=popup,
+                              icon=folium.Icon(color='gray')).add_to(self.map_gps)
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
 
@@ -395,26 +410,34 @@ class GlobalMapWidget(QWidget):
             self.fill_sort_equipment()
 
     def popup_html(self, photo_name, shooting_date, camera, thumbnail_way):
-        html = """
-       <!DOCTYPE html>
+
+        encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
+        html_img = '<img src="data:image/png;base64,{}">'.format
+        html_img_str = '<img src="data:image/png;base64,{}">'
+        html = f"""
        <html>
-       <center><img src=\"""" + thumbnail_way + """\" alt="logo" width=100 height=100 ></center>
-       <center><h4 style="margin-bottom:5"; width="200px">{}</h4>""".format(photo_name) + """</center>
-       <center> <table style="height: 126px; width: 305px;">
-       <tbody>
-       <tr>
-       <td style="background-color: #F0F0F0;"><span style="color: #000000;">Дата съёмки </span></td>
-       <td style="width: 150px;background-color: #F0F0F0;">""" + shooting_date + """</td>
-       </tr>
-       <tr>
-       <td style="background-color: #F0F0F0;"><span style="color: #000000;">Камера </span></td>
-       <td style="width: 150px;background-color: #F0F0F0;">{}</td>""".format(camera) + """
-       </tr>
-       </tbody>
-       </table></center>
+           """ + html_img_str + f"""
+           <center><h4 width="200px">{photo_name}</h4></center>
+           <center> <table style="height: 100px; width: 305px; border: 1px solid black;">
+               <tbody>
+                   <tr>
+                       <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Дата съёмки </span></td>
+                       <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{shooting_date}</td>
+                   </tr>
+                   <tr>
+                       <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Камера </span></td>
+                       <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{camera}</td>
+                   </tr>
+               </tbody>
+           </table></center>
        </html>
        """
-        return html
+
+        html_show = html.format
+
+        iframe = IFrame(html_show(encoded.decode('UTF-8')), width=400, height=350)
+
+        return iframe
 
 
 if __name__ == "__main__":
