@@ -40,7 +40,7 @@ def make_const_thumbnails(directory: str, file: str) -> None:
         os.mkdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month + '/' + day)
 
     image = Image.open(r"{}".format(directory + '/' + file))
-    image.thumbnail((250, 250))     # TODO: размер кнопки 150*150, может поменять размер миниатюр
+    image.thumbnail((250, 250))
     date = year + '/' + month + '/' + day
     image.save(destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
     image.close()

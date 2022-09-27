@@ -299,6 +299,8 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
         status_bd = 'Will publicate'
     elif status == 'Опубликовано':
         status_bd = 'Publicated'
+    else:
+        status_bd = 'No value'
 
     try:
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\''
@@ -503,7 +505,7 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
 
 
 # достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
-def get_global_map_info(fullpaths: list[str]) -> list[tuple[float], str]:
+def get_global_map_info(fullpaths: list[str]) -> list[str, tuple[float], str, str, str, bool]:
     names_and_coords = list()
     for photofile in fullpaths:
         filename = photofile.split('/')[-1]

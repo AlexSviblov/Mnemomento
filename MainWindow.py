@@ -58,10 +58,10 @@ class MainWindow(QMainWindow):
         self.add_menu = self.menubar.addMenu('Добавить')
         self.add_menu.setStyleSheet(stylesheet10)
 
-        add_const_files_bar = QAction('Добавить файлы в общий каталог', self)
+        add_const_files_bar = QAction('Добавить файлы в основной каталог', self)
         add_const_files_bar.triggered.connect(self.func_add_const_files)
 
-        add_const_directory_bar = QAction('Добавить папку в общий каталог', self)
+        add_const_directory_bar = QAction('Добавить папку в основной каталог', self)
         add_const_directory_bar.triggered.connect(self.func_add_const_dir)
 
         add_const_alone_directory = QAction('Добавить папку в дополнительный каталог', self)
@@ -74,10 +74,10 @@ class MainWindow(QMainWindow):
         self.view_menu = self.menubar.addMenu('Посмотреть')
         self.view_menu.setStyleSheet(stylesheet10)
 
-        view_dir = QAction('Просмотр папки', self)
+        view_dir = QAction('Разовый просмотр папки', self)
         view_dir.triggered.connect(self.func_view_dir)
 
-        view_files = QAction('Просмотр файлов', self)
+        view_files = QAction('Разовый просмотр файлов', self)
         view_files.triggered.connect(self.func_view_files)
 
         view_const_dir = QAction('Просмотр основного каталога', self)
@@ -484,7 +484,7 @@ class MainWindow(QMainWindow):
         self.window_sn.show()
 
     # Изменение размера окна таблицы при её редактировании
-    def resize_sn_window(self):
+    def resize_sn_window(self) -> None:
         self.window_sn.resize(self.window_sn.size())
         self.window_sn.adjustSize()
 
@@ -494,14 +494,13 @@ class MainWindow(QMainWindow):
         window_set.update_main_widget.connect(self.update_settings_widget)
         window_set.show()
 
-
     # восстановление
-    def recovery_func(self):
+    def recovery_func(self) -> None:
         self.recovery_win = RecoveryModule.RecoveryWin(self)
         self.recovery_win.show()
 
     # после изменения в настройках надо обновить текущий виджет
-    def update_settings_widget(self):
+    def update_settings_widget(self) -> None:
         self.stylesheet_color()
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
 
@@ -545,7 +544,7 @@ class MainWindow(QMainWindow):
         elif type(self.centralWidget()) == StartShow:
             self.start_show()
         else:
-            print('Other')
+            pass
 
         try:
             self.window_sn.setStyleSheet(stylesheet2)
@@ -592,13 +591,13 @@ class ProgressBar(QWidget):
         self.transfer_info.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.transfer_info, 3, 0, 1, 3)
 
-    def progressbar_set_max(self, max):
+    def progressbar_set_max(self, max: int) -> None:
         self.progressbar.setMaximum(max)
 
-    def progressbar_set_value(self, value):
+    def progressbar_set_value(self, value: int) -> None:
         self.progressbar.setValue(value)
 
-    def info_set_text(self, text):
+    def info_set_text(self, text: str) -> None:
         self.transfer_info.setText(f"{text}")
 
 
@@ -825,7 +824,7 @@ class Social_Network_window(QMainWindow):
         self.resize(self.widget_sn.size())
         self.widget_sn.resize_signal.connect(self.self_resize)
 
-    def self_resize(self):
+    def self_resize(self) -> None:
         self.resize(self.widget_sn.size())
         self.main_resize_signal.emit()
 

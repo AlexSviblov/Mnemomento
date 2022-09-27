@@ -744,7 +744,7 @@ class AloneWidgetWindow(QWidget):
 
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
-    def resize_map(self):
+    def resize_map(self) -> None:
         try:
             self.map_gps_widget.isVisible()
         except (RuntimeError, AttributeError):
@@ -847,11 +847,15 @@ class AloneWidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
+        def renamed_re_show():
+            self.show_thumbnails()
+
         photoname = self.button_text
         photodirectory = self.photo_directory
         dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory, chosen_group_type='None')
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
+        dialog_edit.renamed_signal.connect(renamed_re_show)
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_ph_del(self) -> None:
@@ -990,6 +994,7 @@ class AloneWidgetWindow(QWidget):
             self.add_photo_signal.emit(self.directory_choose.currentText())
         else:
             pass
+
 
 
 # подтвердить удаление фото

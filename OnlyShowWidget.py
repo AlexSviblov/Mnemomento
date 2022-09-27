@@ -491,7 +491,7 @@ class WidgetWindow(QWidget):
         return photo_dir
 
     # Действия при изменении размеров окна
-    def resizeEvent(self, QResizeEvent):
+    def resizeEvent(self, QResizeEvent) -> None:
         self.resized_signal.emit()
 
     # изменить размер фото при изменении размера окна

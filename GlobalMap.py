@@ -120,7 +120,7 @@ class GlobalMapWidget(QWidget):
         self.btn_show.clicked.connect(self.make_show_map)
 
     # вывести карту
-    def make_show_map(self):
+    def make_show_map(self) -> None:
         sort_type = self.group_type.currentText()
         match sort_type:
             case 'Дата':
@@ -421,10 +421,10 @@ class GlobalMapWidget(QWidget):
         elif sort_type == 'Оборудование':
             self.fill_sort_equipment()
 
-    def popup_html(self, photo_name, shooting_date, camera, thumbnail_way):
+    def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
 
         date_splitted = shooting_date.split('.')
-        date_show = f"{date_splitted[-1]}.{shooting_date[-2]}.{shooting_date[-3]}"
+        date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
 
         encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
         html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
@@ -459,7 +459,7 @@ class GlobalMapWidget(QWidget):
 
         return iframe
 
-    def popup_html_group(self, photo_data_list):
+    def popup_html_group(self, photo_data_list: list[list[str, str, str, str, bool]]) -> IFrame:
 
         html_result = f"""
                <html>

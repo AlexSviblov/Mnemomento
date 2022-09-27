@@ -258,6 +258,32 @@ class ErNamesDBErrorWin(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
+class RenameTransferingPhoto(QDialog):
+    def __init__(self, parent=None):
+        super(RenameTransferingPhoto, self).__init__(parent)
+        stylesheet_color()
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle('Предупреждение')
+
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText('При смены даты съёмки фотографии основного каталога, она переносится.\n'
+                    'Переносимые фотографии не переименовываются (возможно, когда-то появится такая функция).\n'
+                    'Если вам всё ещё необходимо переименовать файл - сделайте это заново.')
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet2)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet8)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)
+
+
 # при любой ошибки в процессе modify_exif вызывается ошибка
 class EditExifError(Exception):
     pass

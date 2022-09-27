@@ -1059,6 +1059,34 @@ class ConstWidgetWindow(QWidget):
                     self.lens_choose.setCurrentText(old_lens)
                     self.eqip_show_thumbnails()
 
+        def renamed_re_show():
+            self.pic.clear()
+            self.metadata_show.clear()
+            self.metadata_show.hide()
+            try:
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+            try:
+                self.socnet_group.hide()
+            except (RuntimeError, AttributeError):
+                pass
+
+            if self.group_type.currentText() == 'Соцсети':
+                self.socnet_choose.setCurrentText(old_network)
+                self.sn_status.setCurrentText(old_status)
+                self.sn_show_thumbnails()
+            elif self.group_type.currentText() == 'Оборудование':
+                self.fill_sort_equipment()
+                self.camera_choose.setCurrentText(old_camera)
+                self.lens_choose.setCurrentText(old_lens)
+                self.eqip_show_thumbnails()
+            else:
+                self.date_year.setCurrentText(old_year)
+                self.date_month.setCurrentText(old_month)
+                self.date_day.setCurrentText(old_day)
+                self.date_show_thumbnails()
+
         dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
                                    chosen_group_type=self.group_type.currentText())
         dialog_edit.show()
@@ -1069,8 +1097,8 @@ class ConstWidgetWindow(QWidget):
         if self.pic.isVisible():
             dialog_edit.edited_signal.connect(re_show)
 
-        # dialog_edit.edited_signal_no_move.connect(self.pre_show_info)
         dialog_edit.edited_signal_no_move.connect(self.showinfo)
+        dialog_edit.renamed_signal.connect(renamed_re_show)
 
     # при редактировании метаданных могут создаваться новые папки (по датам), а фото будут переноситься - надо обновлять отображение
     def get_date(self, year: str, month: str, day: str) -> None:
