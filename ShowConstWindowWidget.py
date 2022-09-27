@@ -707,9 +707,6 @@ class ConstWidgetWindow(QWidget):
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
                     self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-                    print(f"{self.pic.width()} - {self.metadata_show.width()} - {self.socnet_group.width()} - 40")
-                    print(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
-                    print(self.metadata_show.height())
                 else:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                     self.map_gps_widget.setFixedHeight(self.metadata_show.height())
@@ -718,9 +715,6 @@ class ConstWidgetWindow(QWidget):
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.metadata_show.width())
                     self.map_gps_widget.setFixedHeight(self.height() - self.groupbox_sort.height() - self.metadata_show.height() - self.socnet_group.height() - 100)
-                    print(self.metadata_show.width())
-                    print(f"{self.height()} - {self.groupbox_sort.height()} - {self.metadata_show.height()} - {self.socnet_group.height()} - 100")
-                    print(self.height() - self.groupbox_sort.height() - self.metadata_show.height() - self.socnet_group.height() - 100)
                 else:
                     self.map_gps_widget.setFixedWidth(self.metadata_show.width())
                     self.map_gps_widget.setFixedHeight(self.height() - self.groupbox_sort.height() - self.metadata_show.height() - 100)
@@ -730,7 +724,6 @@ class ConstWidgetWindow(QWidget):
                 self.map_gps_widget.deleteLater()
             except (RuntimeError, AttributeError):
                 pass
-        print(self.map_gps_widget.size())
 
     # функция показа большой картинки
     def showinfo(self) -> None:

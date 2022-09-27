@@ -291,12 +291,21 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
     :param status: 1 из 4 возможных статусов в формате БД.
     :return: абсолютные пути фото с выбранным статусом в выбранной соцсети.
     """
+    if status == 'Не выбрано':
+        status_bd = 'No value'
+    elif status == 'Не публиковать':
+        status_bd = 'No publicate'
+    elif status == 'Опубликовать':
+        status_bd = 'Will publicate'
+    elif status == 'Опубликовано':
+        status_bd = 'Publicated'
+
     try:
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status}\''
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
     except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status}\''
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 
@@ -439,7 +448,7 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
         date_to_search = 'No data'
         sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
         cur.execute(sql_str)
-        photodb_data = cur.fetchall()
+        date_info = cur.fetchall()
     else:
         if year != 'All' and month != 'All' and day == 'All':
             for i in range(1, 32):
@@ -449,7 +458,10 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
                 date_to_search = f"{year}.{month}.{str_i}"
                 sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
                 cur.execute(sql_str)
-                photodb_data.append(cur.fetchall())
+                date_info = cur.fetchall()
+                if date_info:
+                    for photo_data in date_info:
+                        photodb_data.append(photo_data)
         elif year != 'All' and month == 'All' and day == 'All':
             for j in range(1, 13):
                 str_j = str(j)
@@ -462,16 +474,25 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
                     date_to_search = f"{year}.{str_j}.{str_i}"
                     sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
                     cur.execute(sql_str)
-                    photodb_data.append(cur.fetchall())
+                    date_info = cur.fetchall()
+                    if date_info:
+                        for photo_data in date_info:
+                            photodb_data.append(photo_data)
         elif year == 'All' and month == 'All' and day == 'All':
             sql_str = f"SELECT filename, catalog FROM photos"
             cur.execute(sql_str)
-            photodb_data = cur.fetchall()
+            date_info = cur.fetchall()
+            if date_info:
+                for photo_data in date_info:
+                    photodb_data.append(photo_data)
         else:
             date_to_search = f"{year}.{month}.{day}"
             sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
             cur.execute(sql_str)
-            photodb_data = cur.fetchall()
+            date_info = cur.fetchall()
+            if date_info:
+                for photo_data in date_info:
+                    photodb_data.append(photo_data)
 
     fullpaths = list()
     for photo in photodb_data:
@@ -503,5 +524,11 @@ def get_global_map_info(fullpaths: list[str]) -> list[tuple[float], str]:
             lat = float(gps_from_db.split(', ')[0])
             lon = float(gps_from_db.split(', ')[1])
             coords = (lat, lon)
-            names_and_coords.append((filename, coords, shootingdate, camera, thumbnail_way))
+            group_by = False
+            for already_added in names_and_coords:
+                if already_added[1] == coords:
+                    already_added[5] = True
+                    group_by = True
+            names_and_coords.append([filename, coords, shootingdate, camera, thumbnail_way, group_by])
+
     return names_and_coords

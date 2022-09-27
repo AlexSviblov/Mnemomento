@@ -12,6 +12,7 @@ import PhotoDataDB
 import Metadata
 import Settings
 from folium.plugins import MousePosition
+from PIL import Image
 
 import base64
 from folium import IFrame
@@ -139,25 +140,36 @@ class GlobalMapWidget(QWidget):
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
         map_points_combo = PhotoDataDB.get_global_map_info(full_paths)
+
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         if map_points_combo:
             self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14)
+            photo_grouped_shown = list()
             for photo in map_points_combo:
-                # html_show = self.popup_html(photo[0], photo[2], photo[3], photo[4])
-                #
-                # popup = folium.Popup(folium.Html(html_show), max_width=500)
-                # folium.Marker(photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.map_gps)
-
-                # encoded = base64.b64encode(open(f'{photo[4]}', 'rb').read())
-                # html = '<img src="data:image/png;base64,{}">'.format
-                #
-                # iframe = IFrame(html(encoded.decode('UTF-8')), width=400, height=350)
-                # popup = folium.Popup(iframe, max_width=400)
-
-                iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
-                popup = folium.Popup(iframe, max_width=400)
-                folium.Marker(location=photo[1], popup=popup,
-                              icon=folium.Icon(color='gray')).add_to(self.map_gps)
+                if not photo[5]:
+                    iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
+                    popup = folium.Popup(iframe)
+                    folium.Marker(location=photo[1], popup=popup,
+                                  icon=folium.Icon(color='red', icon='glyphicon glyphicon-picture')).add_to(self.map_gps)
+                else: # несколько фото с 1 меткой GPS
+                    if photo not in photo_grouped_shown:
+                        group_photo_list = list()
+                        for photo_compare in map_points_combo:
+                            if photo_compare[1] == photo[1] and not photo_compare[4] == photo[4]:
+                                group_photo_list.append(photo_compare)
+                                photo_grouped_shown.append(photo_compare)
+                            else: # совпадение координат
+                                pass
+                        if len(group_photo_list) > 0:
+                            group_photo_list.append(photo)
+                            photo_grouped_shown.append(photo)
+                            iframe = self.popup_html_group(group_photo_list)
+                            popup = folium.Popup(iframe)
+                            folium.Marker(location=photo[1], popup=popup,
+                                          icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(
+                                self.map_gps)
+                        else:
+                            pass
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
 
@@ -411,18 +423,20 @@ class GlobalMapWidget(QWidget):
 
     def popup_html(self, photo_name, shooting_date, camera, thumbnail_way):
 
+        date_splitted = shooting_date.split('.')
+        date_show = f"{date_splitted[-1]}.{shooting_date[-2]}.{shooting_date[-3]}"
+
         encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
-        html_img = '<img src="data:image/png;base64,{}">'.format
-        html_img_str = '<img src="data:image/png;base64,{}">'
+        html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
         html = f"""
        <html>
            """ + html_img_str + f"""
            <center><h4 width="200px">{photo_name}</h4></center>
-           <center> <table style="height: 100px; width: 305px; border: 1px solid black;">
+           <center> <table style="height: 80px; width: 305px; border: 1px solid black;">
                <tbody>
                    <tr>
                        <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Дата съёмки </span></td>
-                       <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{shooting_date}</td>
+                       <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{date_show}</td>
                    </tr>
                    <tr>
                        <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Камера </span></td>
@@ -435,10 +449,71 @@ class GlobalMapWidget(QWidget):
 
         html_show = html.format
 
-        iframe = IFrame(html_show(encoded.decode('UTF-8')), width=400, height=350)
+        im = Image.open(thumbnail_way)
+        width, height = im.size
+
+        if width > height:
+            iframe = IFrame(html_show(encoded.decode('UTF-8')), width=380, height=330)
+        else:
+            iframe = IFrame(html_show(encoded.decode('UTF-8')), width=380, height=410)
 
         return iframe
 
+    def popup_html_group(self, photo_data_list):
+
+        html_result = f"""
+               <html>
+                   """
+        i = 0
+        for photo in photo_data_list:
+
+            photo_name = photo[0]
+            shooting_date = photo[2]
+            camera = photo[3]
+            thumbnail_way = photo[4]
+
+            date_splitted = shooting_date.split('.')
+            date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
+
+            encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
+            if i == 0:
+                html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
+            else:
+                html_img_str =  """
+                                    <br>
+                                    <br>
+                                    <br>
+                                    <br>
+                                    <br>
+                                <center><img src="data:image/png;base64,{}"></center>"""
+
+            html = html_img_str + f"""
+                       <center><h4 width="200px">{photo_name}</h4></center>
+                       <center> <table style="height: 80px; width: 305px; border: 1px solid black;">
+                           <tbody>
+                               <tr>
+                                   <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Дата съёмки </span></td>
+                                   <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{date_show}</td>
+                               </tr>
+                               <tr>
+                                   <td style="background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;"><span style="color: #000000; ">Камера </span></td>
+                                   <td style="width: 150px;background-color: #F0F0F0; border: 1px solid black; text-align: center; font-size: 16px;">{camera}</td>
+                               </tr>
+                           </tbody>
+                       </table></center>
+                        """
+            html_show = html.format
+            html_result += html_show(encoded.decode('UTF-8'))
+            i += 1
+
+
+
+        html_result += """</html>
+           """
+
+        iframe = IFrame(html_result, width=380, height=410)
+
+        return iframe
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
