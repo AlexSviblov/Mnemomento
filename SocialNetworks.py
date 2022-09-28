@@ -23,6 +23,7 @@ font14 = QtGui.QFont('Times', 14)
 
 
 class SocialNetworks(QWidget):
+    social_network_changed = QtCore.pyqtSignal()
     resize_signal = QtCore.pyqtSignal(int, int)
 
     def __init__(self, parent=None):
@@ -212,6 +213,7 @@ class SocialNetworks(QWidget):
     def func_red(self) -> None:
         net_name = self.sender().objectName()
         red_dialog = RedSN(net_oldname=net_name)
+        red_dialog.social_network_changed.connect(self.social_network_changed.emit)
         if red_dialog.exec():
             pass
 
@@ -221,6 +223,7 @@ class SocialNetworks(QWidget):
     def func_del(self) -> None:
         net_name = self.sender().objectName()
         del_dialog = DelSN(net_name=net_name)
+        del_dialog.social_network_changed.connect(self.social_network_changed.emit)
         if del_dialog.exec():
             pass
 
@@ -290,6 +293,8 @@ class AddSN(QDialog):
 
 # переименование соцсети
 class RedSN(QDialog):
+    social_network_changed = QtCore.pyqtSignal()
+
     def __init__(self, net_oldname):
         super(RedSN, self).__init__()
 
@@ -364,11 +369,15 @@ class RedSN(QDialog):
             sql_str = f'ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {textwithnum}'
             cur.execute(sql_str)
         conn.commit()
+        self.social_network_changed.emit()
+
         self.accept()
 
 
 # удалить соцсеть
 class DelSN(QDialog):
+    social_network_changed = QtCore.pyqtSignal()
+
     def __init__(self, net_name):
         super(DelSN, self).__init__()
         self.setStyleSheet(stylesheet2)
@@ -417,6 +426,8 @@ class DelSN(QDialog):
         cur.execute(sql_str)
 
         conn.commit()
+
+        self.social_network_changed.emit()
         self.accept()
 
 

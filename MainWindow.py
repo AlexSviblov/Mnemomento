@@ -503,6 +503,7 @@ class MainWindow(QMainWindow):
         self.window_sn = Social_Network_window(self)
         self.window_sn.resize(self.window_sn.size())
         self.window_sn.main_resize_signal.connect(self.resize_sn_window)
+        self.window_sn.social_network_changed.connect(self.update_network_changes)
         self.window_sn.show()
 
     # Изменение размера окна таблицы при её редактировании
@@ -582,6 +583,9 @@ class MainWindow(QMainWindow):
             self.recovery_win.stylesheet_color()
         except AttributeError:
             pass
+
+    def update_network_changes(self):
+        print('111')
 
 
 # при добавлении папки
@@ -834,12 +838,14 @@ class DB_window(QMainWindow):
 # просмотр окна соцсетей
 # noinspection PyArgumentList
 class Social_Network_window(QMainWindow):
+    social_network_changed = QtCore.pyqtSignal()
     main_resize_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle("Соц.сети")
         self.widget_sn = SocialNetworks.SocialNetworks(self)
+        self.widget_sn.social_network_changed.connect(self.social_network_changed.emit)
         self.setCentralWidget(self.widget_sn)
         self.setStyleSheet(stylesheet2)
 
@@ -1021,3 +1027,4 @@ if __name__ == "__main__":
         logging.exception(f"ALL PROGRAM ERROR")
 
     sys.exit(app.exec_())
+
