@@ -534,3 +534,13 @@ def get_global_map_info(fullpaths: list[str]) -> list[str, tuple[float], str, st
             names_and_coords.append([filename, coords, shootingdate, camera, thumbnail_way, group_by])
 
     return names_and_coords
+
+
+# переименовать файлы в Б при смене имени
+def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
+    sql_str1 = f"UPDATE photos SET filename = \'{new_file_name}\' WHERE filename = \'{old_file_name}\' AND catalog = \'{catalog}\'"
+    sql_str2 = f"UPDATE socialnetworks SET filename = \'{new_file_name}\' WHERE filename = \'{old_file_name}\' AND catalog = \'{catalog}\'"
+    cur.execute(sql_str1)
+    cur.execute(sql_str2)
+
+    conn.commit()

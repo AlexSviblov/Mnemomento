@@ -489,6 +489,10 @@ class AloneWidgetWindow(QWidget):
         self.metadata_show.hide()
         self.pic.clear()
         self.pic.hide()
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
 
         for i in reversed(range(self.layout_inside_thumbs.count())):
             self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
@@ -746,12 +750,13 @@ class AloneWidgetWindow(QWidget):
 
     def resize_map(self) -> None:
         try:
-            self.map_gps_widget.isVisible()
+            if not self.map_gps_widget.isVisible():
+                return
+            else:
+                pass
         except (RuntimeError, AttributeError):
-            pass
-
-        if not self.map_gps_widget.isVisible():
             return
+
         if self.photo_rotation == 'gor':
             self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
             if self.soc_net_setting:

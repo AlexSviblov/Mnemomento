@@ -1238,11 +1238,12 @@ class EditExifData(QDialog):
         win.show()
         win.accept_signal.connect(accepted)
         win.reject_signal.connect(rejected)
-        
-    def rename_file(self, file_directory: str, file_name: str, new_name: str):
-        # TODO: сделать ёпта
-        print('акукарача')
-        pass
+
+    # переименование файла
+    def rename_file(self, file_directory: str, file_name: str, new_name: str) -> None:
+        PhotoDataDB.file_rename(file_directory, file_name, new_name)
+        Thumbnail.file_rename(file_directory, file_name, new_name)
+        shutil.move(f"{file_directory}/{file_name}", f"{file_directory}/{new_name}")
 
 
 # совпали имена файлов при переносе по новой дате в exif

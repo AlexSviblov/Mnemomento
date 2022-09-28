@@ -25,59 +25,10 @@ stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
+map_tiles = str()
 
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
-
-
-# объект окна настроек
-class GlobalMapWin(QMainWindow):
-    update_main_widget = pyqtSignal()
-
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.stylesheet_color()
-
-        # Создание окна
-        self.setWindowTitle('Настройки')
-        self.setStyleSheet(stylesheet2)
-        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-
-        self.map_widget = GlobalMapWidget()
-
-        self.setCentralWidget(self.map_widget)
-        self.resize(self.map_widget.size())
-
-    def stylesheet_color(self):
-        global stylesheet1
-        global stylesheet2
-        global stylesheet8
-        global stylesheet9
-        global loading_icon
-
-        if Settings.get_theme_color() == 'light':
-            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
-            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
-            loading_icon = os.getcwd() + '/icons/loading_light.gif'
-        else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
-            loading_icon = os.getcwd() + '/icons/loading_dark.gif'
-        try:
-            self.map_widget.groupbox_sort.setStyleSheet(stylesheet2)
-            self.setStyleSheet(stylesheet2)
-            self.map_widget.setStyleSheet(stylesheet2)
-            self.map_widget.set_sort_layout()
-        except AttributeError:
-            pass
 
 
 class GlobalMapWidget(QWidget):
@@ -88,6 +39,7 @@ class GlobalMapWidget(QWidget):
         super().__init__()
         self.setWindowTitle('Настройки')
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.stylesheet_color()
 
         with open('settings.json', 'r') as json_file:
             settings = json.load(json_file)
@@ -108,6 +60,9 @@ class GlobalMapWidget(QWidget):
 
         self.layout_outside.addWidget(self.groupbox_sort, 0, 1, 1, 1)
 
+        self.empty = QLabel(self)
+        self.layout_outside.addWidget(self.empty, 1, 0, 1, 3)
+
         self.fill_sort_groupbox()
         self.set_sort_layout()
 
@@ -116,8 +71,42 @@ class GlobalMapWidget(QWidget):
         self.btn_show.setFont(font14)
         self.btn_show.setStyleSheet(stylesheet8)
         self.btn_show.setFixedSize(100, 31)
-        self.layout_outside.addWidget(self.btn_show, 0, 2, 1, 1,alignment=QtCore.Qt.AlignVCenter)
+        self.layout_outside.addWidget(self.btn_show, 0, 2, 1, 1, alignment=QtCore.Qt.AlignVCenter)
         self.btn_show.clicked.connect(self.make_show_map)
+
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet8
+        global stylesheet9
+        global loading_icon
+        global map_tiles
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
+            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
+                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            loading_icon = os.getcwd() + '/icons/loading_light.gif'
+            map_tiles = "OpenStreetMap"
+        else:  # Settings.get_theme_color() == 'dark'
+            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
+                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
+            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
+                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            loading_icon = os.getcwd() + '/icons/loading_dark.gif'
+            map_tiles = "OpenStreetMap"
+        try:
+            self.groupbox_sort.setStyleSheet(stylesheet2)
+            self.setStyleSheet(stylesheet2)
+            self.setStyleSheet(stylesheet2)
+            self.set_sort_layout()
+        except AttributeError:
+            pass
 
     # вывести карту
     def make_show_map(self) -> None:
@@ -143,7 +132,7 @@ class GlobalMapWidget(QWidget):
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         if map_points_combo:
-            self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14)
+            self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14, tiles=map_tiles)
             photo_grouped_shown = list()
             for photo in map_points_combo:
                 if not photo[5]:
@@ -423,8 +412,11 @@ class GlobalMapWidget(QWidget):
 
     def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
 
-        date_splitted = shooting_date.split('.')
-        date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
+        if shooting_date != "No data":
+            date_splitted = shooting_date.split('.')
+            date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
+        else:
+            date_show = "No data"
 
         encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
         html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
@@ -472,8 +464,11 @@ class GlobalMapWidget(QWidget):
             camera = photo[3]
             thumbnail_way = photo[4]
 
-            date_splitted = shooting_date.split('.')
-            date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
+            if shooting_date != "No data":
+                date_splitted = shooting_date.split('.')
+                date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
+            else:
+                date_show = "No data"
 
             encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
             if i == 0:
@@ -514,6 +509,7 @@ class GlobalMapWidget(QWidget):
         iframe = IFrame(html_result, width=380, height=410)
 
         return iframe
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

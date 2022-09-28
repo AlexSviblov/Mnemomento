@@ -17,6 +17,7 @@ import ErrorsAndWarnings
 import Settings
 import RecoveryModule
 import logging
+import GlobalMap
 
 
 stylesheet1 = str()
@@ -91,13 +92,21 @@ class MainWindow(QMainWindow):
         self.view_menu.addAction(view_const_dir)
         self.view_menu.addAction(view_alone_dir)
 
-        database_ernames_menu = QAction('База исправлений', self)
-        self.menubar.addAction(database_ernames_menu)
+        self.bases_menu = self.menubar.addMenu('Данные')
+        self.bases_menu.setStyleSheet(stylesheet10)
+
+        database_ernames_menu = QAction('Исправления метаданных', self)
         database_ernames_menu.triggered.connect(self.db_ernames_view_func)
 
-        social_networks_menu = QAction('Соц.сети', self)
-        self.menubar.addAction(social_networks_menu)
+        social_networks_menu = QAction('Социальные сети', self)
         social_networks_menu.triggered.connect(self.social_networks_func)
+
+        self.bases_menu.addAction(database_ernames_menu)
+        self.bases_menu.addAction(social_networks_menu)
+
+        global_map = QAction('Карта', self)
+        self.menubar.addAction(global_map)
+        global_map.triggered.connect(self.show_global_map)
 
         settings_menu = QAction('Настройки', self)
         self.menubar.addAction(settings_menu)
@@ -272,6 +281,7 @@ class MainWindow(QMainWindow):
             self.menubar.setStyleSheet(stylesheet4)
             self.view_menu.setStyleSheet(stylesheet10)
             self.add_menu.setStyleSheet(stylesheet10)
+            self.bases_menu.setStyleSheet(stylesheet10)
         except AttributeError:
             pass
 
@@ -435,6 +445,10 @@ class MainWindow(QMainWindow):
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         self.setCentralWidget(widget)
 
+    def show_global_map(self):
+        widget = GlobalMap.GlobalMapWidget()
+        self.setCentralWidget(widget)
+
     # Начальный вид
     def start_show(self) -> None:
         widget = StartShow()
@@ -472,7 +486,15 @@ class MainWindow(QMainWindow):
     def clear_view_close(self) -> None:
         try:
             Thumbnail.delete_exists()
-            FilesDirs.clear_empty_dirs(Settings.get_destination_media() + "/Media/Photo/const/")
+            path = Settings.get_destination_media() + "/Media/Photo/const/"
+            FilesDirs.clear_empty_dirs(path)
+        except FileNotFoundError:
+            pass
+
+        try:
+            Thumbnail.delete_exists()
+            path = Settings.get_destination_thumb() + "/thumbnail/const/"
+            FilesDirs.clear_empty_dirs(path)
         except FileNotFoundError:
             pass
 

@@ -273,3 +273,15 @@ def delete_thumb_dir(photodirectory: str) -> None:
 
     os.rmdir(destination_thumbs + f'/thumbnail/alone/{dir_name}')
 
+# переименовать миниатюру при переименовании файла фотографии
+def file_rename(file_directory: str, old_file_name: str, new_file_name: str) -> None:
+    destination_thumbs = Settings.get_destination_thumb()
+    dir_splitted = file_directory.split('/')
+    if 'const' in dir_splitted:
+        catalog_part = '/thumbnail/const/' + dir_splitted[-3]+'/'+dir_splitted[-2]+'/'+dir_splitted[-1] + '/'
+    else: # 'alone' in dir_splitted
+        catalog_part = '/thumbnail/alone/' + dir_splitted[-1] + '/'
+    thumb_dir = destination_thumbs + catalog_part
+    old_thumb_file = f'thumbnail_{old_file_name}'
+    new_thumb_file = f'thumbnail_{new_file_name}'
+    shutil.move(thumb_dir + old_thumb_file, thumb_dir + new_thumb_file)

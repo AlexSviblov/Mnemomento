@@ -1,0 +1,11 @@
+28-Sep-22 11:40:25 - ERROR - ALL PROGRAM ERROR
+Traceback (most recent call last):
+  File "C:\Users\user\PycharmProjects\PhotoProgramm\MainWindow.py", line 1008, in <module>
+    win = MainWindow()
+  File "C:\Users\user\PycharmProjects\PhotoProgramm\MainWindow.py", line 107, in __init__
+    self.menubar.addMenu(global_map)
+TypeError: arguments did not match any overloaded call:
+  addMenu(self, QMenu): argument 1 has unexpected type 'QAction'
+  addMenu(self, str): argument 1 has unexpected type 'QAction'
+  addMenu(self, QIcon, str): argument 1 has unexpected type 'QAction'
+
