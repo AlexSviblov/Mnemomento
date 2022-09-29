@@ -332,13 +332,14 @@ class EditExifData(QDialog):
         except AttributeError:
             pass
 
+    # создание карты и метки на ней
     def make_map(self, coordinates, filename):
         try:
             self.map_gps_widget.deleteLater()
         except (RuntimeError, AttributeError):
             pass
 
-            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+        self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
         if coordinates[0] != 0 and coordinates[1] != 0:
             self.map_gps = folium.Map(location=coordinates, zoom_start=14)
@@ -352,6 +353,7 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
+    # отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
     def change_tab_gps(self):
         if self.tabs.currentIndex() in (0, 1, 3):
             self.table.show()
@@ -363,6 +365,7 @@ class EditExifData(QDialog):
         else:
             self.table.hide()
             self.make_map((float(self.latitude_fn_line.text()), float(self.longitude_fn_line.text())), self.photoname)
+            self.map_gps_widget.show()
 
     # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
@@ -921,6 +924,7 @@ class EditExifData(QDialog):
 
         func_resize()
 
+    # считать и отобразить данные файла (имя и вес)
     def get_file_data(self, file_name: str, file_directory: str) -> None:
         file_name_splitted = file_name.split('.')
         self.picture_file_format = file_name_splitted[1]
@@ -1093,7 +1097,7 @@ class EditExifData(QDialog):
                 pass
 
         if self.indicator[-1] == 0: # -1 - изменение даты (возможен перенос)
-            self.get_metadata(self.photoname, self.photodirectory)
+            self.update_show_data()
         else:
             if type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
                 if self.filename_line.text() != self.old_filename and self.indicator[11] == 1:
@@ -1102,7 +1106,7 @@ class EditExifData(QDialog):
                 self.close()
                 return
             else:
-                self.get_metadata(self.photoname, self.photodirectory)
+                self.update_show_data()
 
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
@@ -1262,6 +1266,11 @@ class EditExifData(QDialog):
         PhotoDataDB.file_rename(file_directory, file_name, new_name)
         Thumbnail.file_rename(file_directory, file_name, new_name)
         shutil.move(f"{file_directory}/{file_name}", f"{file_directory}/{new_name}")
+
+    # обновить данные в таблице/ на карте после записи метаданных
+    def update_show_data(self):
+        self.get_metadata(self.photoname, self.photodirectory)
+        self.change_tab_gps()
 
 
 # совпали имена файлов при переносе по новой дате в exif

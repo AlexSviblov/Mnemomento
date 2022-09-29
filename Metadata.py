@@ -143,8 +143,11 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
             expo_time_str = str(expo_time)
             metadata['Выдержка'] = expo_time_str
         else:
-            denominator = 1 / expo_time
-            expo_time_fraction = f"1/{int(denominator)}"
+            try:
+                denominator = 1 / expo_time
+                expo_time_fraction = f"1/{int(denominator)}"
+            except ZeroDivisionError:
+                expo_time_fraction = 0
             metadata['Выдержка'] = expo_time_fraction
     except KeyError:
         metadata['Выдержка'] = ''
@@ -301,8 +304,11 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
 
     try:
         if all_data['exposure_time'] < 0.1:
-            denominator = 1 / all_data['exposure_time']
-            expo_time_show = f"1/{int(denominator)}"
+            try:
+                denominator = 1 / all_data['exposure_time']
+                expo_time_show = f"1/{int(denominator)}"
+            except ZeroDivisionError:
+                expo_time_show = '0'
             useful_data['Выдержка'] = expo_time_show
         else:
             useful_data['Выдержка'] = str(all_data['exposure_time'])

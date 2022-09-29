@@ -583,7 +583,7 @@ ATTRIBUTE_TYPE_MAP = (
         "orientation": (int(ExifTypes.SHORT), 0),
 
         # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
-        "photographic_sensitivity": (int(ExifTypes.SHORT), 0),
+        "photographic_sensitivity": (int(ExifTypes.SHORT), "exif"),
         # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
 
         "pixel_x_dimension": (int(ExifTypes.SHORT), "exif"),
