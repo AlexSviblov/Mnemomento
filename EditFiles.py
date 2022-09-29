@@ -802,12 +802,30 @@ class EditExifData(QDialog):
                 date_part = "0000:00:00"
                 time_part = "00:00:00"
 
-            year = int(date_part.split(":")[0])
-            month = int(date_part.split(":")[1])
-            day = int(date_part.split(":")[2])
-            hour = int(time_part.split(":")[0])
-            minute = int(time_part.split(":")[1])
-            second = int(time_part.split(":")[2])
+            try:
+                year = int(date_part.split(":")[0])
+            except ValueError:
+                year = 0
+            try:
+                month = int(date_part.split(":")[1])
+            except ValueError:
+                month = 0
+            try:
+                day = int(date_part.split(":")[2])
+            except ValueError:
+                day = 0
+            try:
+                hour = int(time_part.split(":")[0])
+            except ValueError:
+                hour = 0
+            try:
+                minute = int(time_part.split(":")[1])
+            except ValueError:
+                minute = 0
+            try:
+                second = int(time_part.split(":")[2])
+            except ValueError:
+                second = 0
 
             try:
                 zone_pm = data['Часовой пояс'][0]
@@ -1078,7 +1096,7 @@ class EditExifData(QDialog):
             self.get_metadata(self.photoname, self.photodirectory)
         else:
             if type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
-                if self.filename_line.text() != self.old_filename:
+                if self.filename_line.text() != self.old_filename and self.indicator[11] == 1:
                     win_warn = ErrorsAndWarnings.RenameTransferingPhoto(self)
                     win_warn.show()
                 self.close()

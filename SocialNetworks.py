@@ -204,6 +204,7 @@ class SocialNetworks(QWidget):
     # добавление соцсети
     def add_func(self) -> None:
         dialog_add = AddSN()
+        dialog_add.social_network_changed.connect(self.social_network_changed.emit)
         if dialog_add.exec():
             pass
 
@@ -232,6 +233,8 @@ class SocialNetworks(QWidget):
 
 # добавление новой соцсети
 class AddSN(QDialog):
+    social_network_changed = QtCore.pyqtSignal()
+
     def __init__(self):
         super(AddSN, self).__init__()
         # Создание окна
@@ -288,6 +291,8 @@ class AddSN(QDialog):
             sql_str = f'ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\''
             cur.execute(sql_str)
         conn.commit()
+        self.social_network_changed.emit()
+
         self.accept()
 
 

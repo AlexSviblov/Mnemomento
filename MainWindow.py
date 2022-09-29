@@ -530,7 +530,6 @@ class MainWindow(QMainWindow):
             chosen_dir = self.centralWidget().directory_choose.currentText()
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(chosen_dir)
-
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow: #Const
             chosen_mode = self.centralWidget().group_type.currentText()
             if chosen_mode == 'Оборудование':
@@ -560,7 +559,6 @@ class MainWindow(QMainWindow):
             else:
                 # Если были выбраны "Соцсети", но в настройках их отключили
                 pass
-
         elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             #OnlyShow
             self.centralWidget().after_change_settings()
             self.centralWidget().stylesheet_color()
@@ -585,7 +583,17 @@ class MainWindow(QMainWindow):
             pass
 
     def update_network_changes(self):
-        print('111')
+        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:  # Alone
+            if self.centralWidget().socnet_group.isVisible():
+                self.centralWidget().show_social_networks(self.centralWidget().last_clicked, self.centralWidget().photo_directory)
+        elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:  # Const
+            if self.centralWidget().socnet_group.isVisible():
+                self.centralWidget().show_social_networks(self.centralWidget().last_clicked_name, self.centralWidget().last_clicked_dir)
+
+            if self.centralWidget().group_type.currentText() == 'Соцсети':
+                self.centralWidget().fill_sort_socnets()
+        else:
+            pass
 
 
 # при добавлении папки
