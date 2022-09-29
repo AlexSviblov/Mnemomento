@@ -857,6 +857,10 @@ class AloneWidgetWindow(QWidget):
 
         photoname = self.button_text
         photodirectory = self.photo_directory
+
+        if not os.path.exists(f"{photodirectory}/{photoname}"):
+            return
+
         dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory, chosen_group_type='None')
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)

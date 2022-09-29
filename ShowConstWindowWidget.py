@@ -1024,11 +1024,15 @@ class ConstWidgetWindow(QWidget):
 
     # редактирование exif
     def edit_exif_func(self) -> None:
+        print(self.pic.isVisible())
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
         photoname = self.last_clicked_name
         photodirectory = self.last_clicked_dir
+
+        if not os.path.exists(f"{photodirectory}/{photoname}"):
+            return
 
         if self.group_type.currentText() == 'Дата':
             old_year = self.date_year.currentText()

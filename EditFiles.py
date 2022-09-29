@@ -75,26 +75,7 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.table, 0, 1, 1, 2)
 
-        self.btn_ok = QPushButton(self)
-        self.btn_ok.setText("Записать")
-        self.btn_ok.setStyleSheet(stylesheet8)
-        self.btn_ok.setFont(font14)
-        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
-        self.btn_ok.clicked.connect(self.pre_write_changes)
-
-        self.btn_cancel = QPushButton(self)
-        self.btn_cancel.setText("Отмена")
-        self.btn_cancel.setStyleSheet(stylesheet8)
-        self.btn_cancel.setFont(font14)
-        self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
-        self.btn_cancel.clicked.connect(self.close)
-
-        self.btn_clear = QPushButton(self)
-        self.btn_clear.setText("Очистить")
-        self.btn_clear.setStyleSheet(stylesheet8)
-        self.btn_clear.setFont(font14)
-        self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
-        self.btn_clear.clicked.connect(self.clear_exif_func)
+        self.make_buttons()
 
         self.make_tabs_gui()
 
@@ -317,20 +298,36 @@ class EditExifData(QDialog):
             icon_delete = os.getcwd() + '/icons/delete_dark.png'
 
         try:
-            self.groupbox_thumbs.setStyleSheet(stylesheet1)
-            self.scroll_area.setStyleSheet(stylesheet2)
-            self.groupbox_sort.setStyleSheet(stylesheet2)
-            self.groupbox_btns.setStyleSheet(stylesheet2)
-            self.socnet_group.setStyleSheet(stylesheet6)
-            self.photo_show.setStyleSheet(stylesheet2)
-            self.metadata_show.setStyleSheet(stylesheet6)
-            self.make_buttons()
             self.setStyleSheet(stylesheet2)
-            self.group_type.setStyleSheet(stylesheet1)
-            self.set_sort_layout()
-            self.type_show_thumbnails()
+            self.table.setStyleSheet(stylesheet6)
+            self.make_buttons()
+            self.make_tabs_gui()
+            self.update_show_data()
         except AttributeError:
             pass
+
+    # создание кнопок
+    def make_buttons(self):
+        self.btn_ok = QPushButton(self)
+        self.btn_ok.setText("Записать")
+        self.btn_ok.setStyleSheet(stylesheet8)
+        self.btn_ok.setFont(font14)
+        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+        self.btn_ok.clicked.connect(self.pre_write_changes)
+
+        self.btn_cancel = QPushButton(self)
+        self.btn_cancel.setText("Отмена")
+        self.btn_cancel.setStyleSheet(stylesheet8)
+        self.btn_cancel.setFont(font14)
+        self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+        self.btn_cancel.clicked.connect(self.close)
+
+        self.btn_clear = QPushButton(self)
+        self.btn_clear.setText("Очистить")
+        self.btn_clear.setStyleSheet(stylesheet8)
+        self.btn_clear.setFont(font14)
+        self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
+        self.btn_clear.clicked.connect(self.clear_exif_func)
 
     # создание карты и метки на ней
     def make_map(self, coordinates, filename):
@@ -749,6 +746,23 @@ class EditExifData(QDialog):
             self.tab_file_layout.addWidget(self.file_size_line, 1, 1, 1, 1)
             self.tab_file.setLayout(self.tab_file_layout)
 
+        def make_connects():
+            self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(11))
+            self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(8))
+            self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(8))
+            self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
+            self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
+
+            self.maker_line.textChanged.connect(lambda: self.changes_to_indicator(0))
+            self.camera_line.textChanged.connect(lambda: self.changes_to_indicator(1))
+            self.lens_line.textChanged.connect(lambda: self.changes_to_indicator(2))
+            self.time_line.textChanged.connect(lambda: self.changes_to_indicator(3))
+            self.iso_line.textChanged.connect(lambda: self.changes_to_indicator(4))
+            self.fnumber_line.textChanged.connect(lambda: self.changes_to_indicator(5))
+            self.flength_line.textChanged.connect(lambda: self.changes_to_indicator(6))
+            self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
+            self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
+
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
@@ -769,22 +783,7 @@ class EditExifData(QDialog):
         make_tab_tt()
         make_tab_gps()
         make_tab_file()
-
-        self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(11))
-        self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(8))
-        self.timezone_num_choose.timeChanged.connect(lambda: self.changes_to_indicator(8))
-        self.latitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
-        self.longitude_fn_line.textChanged.connect(lambda: self.changes_to_indicator(7))
-
-        self.maker_line.textChanged.connect(lambda: self.changes_to_indicator(0))
-        self.camera_line.textChanged.connect(lambda: self.changes_to_indicator(1))
-        self.lens_line.textChanged.connect(lambda: self.changes_to_indicator(2))
-        self.time_line.textChanged.connect(lambda: self.changes_to_indicator(3))
-        self.iso_line.textChanged.connect(lambda: self.changes_to_indicator(4))
-        self.fnumber_line.textChanged.connect(lambda: self.changes_to_indicator(5))
-        self.flength_line.textChanged.connect(lambda: self.changes_to_indicator(6))
-        self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
-        self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
+        make_connects()
 
     # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
     def changes_to_indicator(self, index: int) -> None:
@@ -1056,8 +1055,7 @@ class EditExifData(QDialog):
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
                 self.mode_check_fn.setCheckState(Qt.Checked)
-
-        elif self.sender().text() == "Числом":  # type: ignore[attr-defined]
+        else: # self.sender().text() == "Числом":
             if self.mode_check_fn.checkState() == 2:
                 self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
@@ -1090,7 +1088,6 @@ class EditExifData(QDialog):
     def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
         for i in range(len(all_new_data)):
-
             if self.indicator[i] == 1:
                 self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
             else:
@@ -1163,8 +1160,8 @@ class EditExifData(QDialog):
                 year_old = old_date_splitted[0]
                 month_old = old_date_splitted[1]
                 day_old = old_date_splitted[2]
+
                 old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
-                old_file_fullname = old_file_dir + '/' + photoname
                 new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
                 if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
                     if not os.path.isdir(destination + '/' + str(year_old)):
@@ -1229,7 +1226,6 @@ class EditExifData(QDialog):
                 photodirectory_splitted = self.photodirectory.split('/')
                 new_date_splitted = [photodirectory_splitted[-3], photodirectory_splitted[-2], photodirectory_splitted[-1]]
                 old_date_splitted = ['No_Date_Info', 'No_Date_Info', 'No_Date_Info']
-
                 # self.photodirectory = 'C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30'
                 # self.photoname = 'IMG_0866.jpg'
                 if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname):
@@ -1298,6 +1294,11 @@ class EqualNames(QDialog):
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
+        self.make_gui()
+
+        self.show_photos()
+
+    def make_gui(self):
         self.text_lbl = QLabel(self)
         self.text_lbl.setText('В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?')
         self.text_lbl.setAlignment(Qt.AlignCenter)
@@ -1363,8 +1364,6 @@ class EqualNames(QDialog):
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 4, 2, 1, 2)
         self.btn_cnl.clicked.connect(lambda: self.close())
-
-        self.show_photos()
 
     # показать в уменьшенном виде 2 фото, у которых совпали названия
     def show_photos(self) -> None:
