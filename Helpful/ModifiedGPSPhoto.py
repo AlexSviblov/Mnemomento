@@ -541,7 +541,7 @@ class GPSPhoto(object):
                     itude = str(tags[tag]).strip('[').strip(']').split(',')
 
 
-                    # added by Sashka
+                    # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
                     if '/' in itude[0]:
                         coord = float(itude[0].split('/')[0]) / float(itude[0].split('/')[1])
                         deg = str(int(coord))
@@ -555,7 +555,7 @@ class GPSPhoto(object):
                             num_decs = 4
                         sec = f'{int(sec_float * 10 ** num_decs)}/{10 ** num_decs}'
                         itude = [deg, mins, sec]
-                    # added by Sashka
+                    # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
 
 
                     var = parseItude(itude)
@@ -570,7 +570,7 @@ class GPSPhoto(object):
 
 
 
-                    # added by Sashka
+                    # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
                     if '/' in itude[0]:
                         coord = float(itude[0].split('/')[0]) / float(itude[0].split('/')[1])
                         deg = str(int(coord))
@@ -584,7 +584,7 @@ class GPSPhoto(object):
                             num_decs = 4
                         sec = f'{int(sec_float * 10 ** num_decs)}/{10 ** num_decs}'
                         itude = [deg, mins, sec]
-                    # added by Sashka
+                    # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
 
 
                     var = parseItude(itude)

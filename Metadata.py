@@ -692,6 +692,11 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     :return: в отличие от перезаписи или добавления метаданных, не требуется осздание нового файла.
     """
     photofile = photodirectory + '/' + photoname
-    with open(photofile, 'wb') as img:
+    with open(photofile, 'rb') as img:
         img = exif.Image(photofile)
         img.delete_all()  # type: ignore[attr-defined]
+
+    with open(f"{photofile}_buffername", 'wb') as new_file:
+        new_file.write(img.get_file())  # type: ignore[attr-defined]
+    os.remove(photofile)
+    os.rename(f"{photofile}_buffername", photofile)

@@ -925,7 +925,7 @@ class EditExifData(QDialog):
         file_name_splitted = file_name.split('.')
         self.picture_file_format = file_name_splitted[1]
         file_name_show = file_name_splitted[0]
-        self.old_filename = file_name
+        self.old_filename = file_name.split('.')[0]
         self.filename_line.setText(f"{file_name_show}")
 
         size = os.path.getsize(f"{file_directory}/{file_name}")
@@ -1106,10 +1106,10 @@ class EditExifData(QDialog):
 
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        new_file_name = self.filename_line.text() + '.' + self.picture_file_format
-        if new_file_name == self.old_filename:
+        if self.filename_line.text() == self.old_filename:
             pass
         else:
+            new_file_name = self.filename_line.text() + '.' + self.picture_file_format
             if os.path.exists(f"{self.photodirectory}/{new_file_name}"):
                 win_err = ErrorsAndWarnings.ExistFileRenameError2(self)
                 win_err.show()
