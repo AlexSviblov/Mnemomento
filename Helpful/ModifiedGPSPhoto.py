@@ -690,7 +690,7 @@ class GPSPhoto(object):
 
         # Convert ExifData back and save in new file
         exif_bytes = dump(exif_dict)
-        im.save(newFileName, "jpeg", exif=exif_bytes)
+        im.save(newFileName, "jpeg", exif=exif_bytes, quality=95, subsampling=0)
 
 
 def getElevation(coords, apiKey):

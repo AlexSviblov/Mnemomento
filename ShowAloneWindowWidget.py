@@ -1005,7 +1005,6 @@ class AloneWidgetWindow(QWidget):
             pass
 
 
-
 # подтвердить удаление фото
 class DelPhotoConfirm(QDialog):
     clear_info = QtCore.pyqtSignal()

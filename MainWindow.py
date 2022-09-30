@@ -339,7 +339,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
         self.add_files_progress.start()
 
-    # добавить в основной каталог на постоянку файлы
+    # добавить в доп.каталог файлы
     def func_add_alone_files(self, dir_to_add) -> None:
         self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
         file_list = self.add_files_chosen[0]
@@ -966,7 +966,7 @@ class AloneMaker(QtCore.QThread):
             file_exists = []
             for file in self.files_list:
                 self.info_text.emit(f"Идёт обработка файла {file}")
-                desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]
+                desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.exists_dir.split('/')[-1]
                 file_name = file.split('/')[-1]
                 if os.path.exists(desination_dir + '/' + file_name):
                     file_exists.append(file)

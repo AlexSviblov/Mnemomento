@@ -525,6 +525,14 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
 
             with open(f"{photofile}_buffername", 'wb') as new_file:
                 new_file.write(img.get_file())  # type: ignore[attr-defined]
+
+        # img.set('gps_latitude_ref', lat_ref)
+        # img.set('gps_latitude', lat_list)
+        # img.set('gps_longitude_ref', lon_ref)
+        # img.set('gps_longitude', long_list)
+        #
+        # with open(f"{photofile}_buffername", 'wb') as new_file:
+        #     new_file.write(img.get_file())  # type: ignore[attr-defined]
         os.remove(photofile)
         os.rename(f"{photofile}_buffername", photofile)
 
