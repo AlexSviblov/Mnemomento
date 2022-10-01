@@ -804,7 +804,7 @@ class ConstWidgetWindow(QWidget):
             if self.photo_rotation == 'gor':
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
                 self.metadata_show.show()
-                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 80, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
                 self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
@@ -834,7 +834,7 @@ class ConstWidgetWindow(QWidget):
             if self.photo_rotation == 'gor':
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
                 self.metadata_show.show()
-                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 80, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
                 self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
@@ -1024,7 +1024,6 @@ class ConstWidgetWindow(QWidget):
 
     # редактирование exif
     def edit_exif_func(self) -> None:
-        print(self.pic.isVisible())
         if not self.pic.isVisible() or not self.last_clicked:
             return
 

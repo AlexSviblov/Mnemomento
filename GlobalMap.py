@@ -134,7 +134,11 @@ class GlobalMapWidget(QWidget):
         if map_points_combo:
             self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14, tiles=map_tiles)
             photo_grouped_shown = list()
+            i=0
             for photo in map_points_combo:
+                print(photo)
+                print(i)
+                i+=1
                 if not photo[5]:
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
@@ -159,8 +163,13 @@ class GlobalMapWidget(QWidget):
                                 self.map_gps)
                         else:
                             pass
+                QtCore.QCoreApplication.processEvents()
+                self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+
+                self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 3)
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
+
 
         formatter = "function(num) {return L.Util.formatNum(num, 6) + ' º ';};"
 
@@ -510,9 +519,3 @@ class GlobalMapWidget(QWidget):
 
         return iframe
 
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = GlobalMapWin()
-    win.show()
-    sys.exit(app.exec_())

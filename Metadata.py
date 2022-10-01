@@ -1,10 +1,13 @@
 import logging
 import os
+
+import PIL.Image
 import exif  # type: ignore[import]
 from PIL import Image  # type: ignore[import]
 import sqlite3
 from typing import Union, Tuple
 from GPSPhoto import gpsphoto
+from piexif import load, dump
 
 import ErrorsAndWarnings
 
@@ -67,10 +70,12 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         width = str(data['image_width'])
         height = str(data['image_height'])
         metadata['Разрешение'] = width + 'x' + height
+
     except KeyError:
         im = Image.open(photo_directory + '/' + photofile)
         width, height = im.size
         metadata['Разрешение'] = str(width) + 'x' + str(height)
+        im.close()
 
     if width > height:  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
         metadata['Rotation'] = 'gor'
@@ -229,10 +234,8 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str
         GPSLongitude_float = list(GPSLongitude)  # Приведение координат к десятичным числам, как на Я.Картах
         GPSLatitude_float = list(GPSLatitude)
 
-        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[
-            2] / 3600  # type: ignore[operator]
-        GPSLatitude_value = GPSLatitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[
-            2] / 3600  # type: ignore[operator]
+        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600  # type: ignore[operator]
+        GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600  # type: ignore[operator]
 
         if GPSLongitudeRef == 'E':
             pass
@@ -714,3 +717,79 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
         new_file.write(img.get_file())  # type: ignore[attr-defined]
     os.remove(photofile)
     os.rename(f"{photofile}_buffername", photofile)
+
+
+def check_photo_rotation(photo_file):
+    data = read_exif(photo_file)
+    try:
+        width = str(data['image_width'])
+        height = str(data['image_height'])
+    except KeyError:
+        meta_orientation = data['orientation']
+        im = Image.open(photo_file)
+        exif_dict = load(im.info["exif"])
+        exif_bytes = dump(exif_dict)
+        match meta_orientation:
+            case 1:
+                im_flipped = im
+                width = data['pixel_x_dimension']
+                height = data['pixel_y_dimension']
+            case 2:
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                width = data['pixel_x_dimension']
+                height = data['pixel_y_dimension']
+            case 3:
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
+                width = data['pixel_x_dimension']
+                height = data['pixel_y_dimension']
+            case 4:
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+                width = data['pixel_x_dimension']
+                height = data['pixel_y_dimension']
+            case 5:
+                im_flipped_buffer = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_buffer.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                width = data['pixel_y_dimension']
+                height = data['pixel_x_dimension']
+            case 6:
+                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                width = data['pixel_y_dimension']
+                height = data['pixel_x_dimension']
+            case 7:
+                im_flipped_buffer = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_buffer.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                width = data['pixel_y_dimension']
+                height = data['pixel_x_dimension']
+            case 8:
+                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                width = data['pixel_y_dimension']
+                height = data['pixel_x_dimension']
+            case _:
+                im_flipped = im
+                width = data['pixel_x_dimension']
+                height = data['pixel_y_dimension']
+
+        im_flipped.save(photo_file + '_buffer', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+        os.remove(photo_file)
+        os.rename(photo_file + '_buffer', photo_file)
+        im.close()
+        im_flipped.close()
+        write_normal_photo_size(photo_file, width, height)
+
+
+def write_normal_photo_size(photo_file, width, height):
+    with open(photo_file, 'rb') as img:
+        img = exif.Image(photo_file)
+
+    img.set('image_width', width)
+    img.set('image_height', height)
+    # img.set('orientation', Orientation.TOP_LEFT)
+
+    with open(f"{photo_file}_buffername", 'wb') as new_file:
+        new_file.write(img.get_file())
+    os.remove(photo_file)
+    os.rename(f"{photo_file}_buffername", photo_file)

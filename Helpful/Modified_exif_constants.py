@@ -564,6 +564,12 @@ ATTRIBUTE_TYPE_MAP = (
         "gps_track_ref": (int(ExifTypes.ASCII), "gps"),
         "gps_version_id": (int(ExifTypes.BYTE), "gps"),
         "image_description": (int(ExifTypes.ASCII), 0),
+
+        # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
+        "image_height": (int(ExifTypes.LONG), 0),
+        "image_width": (int(ExifTypes.LONG), 0),
+        # added by Sashka +-++-++-++-++-++-++-++-++-++-++-+
+
         "image_unique_id": (int(ExifTypes.ASCII), "exif"),
         "iso_speed": (int(ExifTypes.SHORT), "exif"),
         "lens_specification": (int(ExifTypes.RATIONAL), "exif"),
