@@ -788,7 +788,7 @@ def write_normal_photo_size(photo_file, width, height):
     img.set('image_width', width)
     img.set('image_height', height)
     # img.set('orientation', Orientation.TOP_LEFT)
-
+    # СЛЕТАЮТ НАХУЙ ВЫДЕРЖКА И ГПС
     with open(f"{photo_file}_buffername", 'wb') as new_file:
         new_file.write(img.get_file())
     os.remove(photo_file)
