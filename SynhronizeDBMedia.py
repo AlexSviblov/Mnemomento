@@ -8,6 +8,7 @@ import Metadata
 
 import PhotoDataDB
 import Settings
+import Thumbnail
 
 conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
 cur = conn.cursor()
@@ -165,3 +166,49 @@ def check_destination_corr_db() -> tuple[int, int]:
     return photo_conflicts, socnet_conflicts
 
 
+def thumbnail_photo_conformity():
+    thumb_list = research_all_thumbnails()
+    for file in thumb_list:
+        path_splitted = file.split('/')
+        file_name = path_splitted[-1][10:]
+        if 'const' in path_splitted:
+            pass # do
+        elif 'alone' in path_splitted:
+            pass #do
+        elif 'view' in path_splitted:
+            pass # pass
+        else:
+            pass # delete
+
+
+    photo_paths = get_all_db_ways()[0]
+    for combo in photo_paths:
+        catalog_splitted = combo[0].split('/')
+        if 'const' in catalog_splitted:
+            date_part = f"{catalog_splitted[-3]}/{catalog_splitted[-2]}/{catalog_splitted[-1]}/"
+            destination = Settings.get_destination_thumb() + '/thumbnail/const/'
+            thumbnail_way = destination + date_part + combo[1]
+            if os.path.exists(thumbnail_way):
+                pass
+            else:
+                Thumbnail.make_const_thumbnails(combo[0], combo[1])
+        elif 'alone' in catalog_splitted:
+            catalog_name = combo[0].split('/')[-1]
+            destination = Settings.get_destination_thumb() + '/thumbnail/alone/'
+            thumbnail_way = destination + catalog_name + '/' + combo[1]
+            if os.path.exists(thumbnail_way):
+                pass
+            else:
+                Thumbnail.make_alone_thumbnails(catalog_name, f"{combo[0]}/{combo[1]}", combo[1])
+
+
+
+def research_all_thumbnails() -> list[list[str]]:
+    filelist = []
+    path = Settings.get_destination_thumb()
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if (file.endswith(".jpg") or file.endswith(".JPG")) and 'thumbnail_' in file:
+                filelist.append([root.replace('\\', '/'), file])
+
+    return filelist

@@ -441,6 +441,8 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         sec = round(sec_full, 4)
         return (deg, mins, sec)
 
+    original_metadata = get_original_metadata(photofile)
+
     modify_dict = dict()
     modify_dict_gps = dict()
 
@@ -449,12 +451,24 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
 
     if editing_type == 0:
         modify_dict = {'make': str(new_value)}
+        try:
+            original_metadata.pop('make')
+        except KeyError:
+            pass
 
     elif editing_type == 1:
         modify_dict = {'model': str(new_value)}
+        try:
+            original_metadata.pop('model')
+        except KeyError:
+            pass
 
     elif editing_type == 2:
         modify_dict = {'lens_model': str(new_value)}
+        try:
+            original_metadata.pop('lens_model')
+        except KeyError:
+            pass
 
     elif editing_type == 3:
         if '/' in new_value:
@@ -463,27 +477,59 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         else:
             float_value = float(new_value)
             modify_dict = {'exposure_time': str(float_value)}
+        try:
+            original_metadata.pop('exposure_time')
+        except KeyError:
+            pass
 
     elif editing_type == 4:
         modify_dict = {'photographic_sensitivity': int(new_value)}  # type: ignore[dict-item]
+        try:
+            original_metadata.pop('photographic_sensitivity')
+        except KeyError:
+            pass
 
     elif editing_type == 5:
         modify_dict = {'f_number': float(new_value)}  # type: ignore[dict-item]
+        try:
+            original_metadata.pop('f_number')
+        except KeyError:
+            pass
 
     elif editing_type == 6:
         modify_dict = {'focal_length': int(new_value)}  # type: ignore[dict-item]
+        try:
+            original_metadata.pop('focal_length')
+        except KeyError:
+            pass
 
     elif editing_type == 11:
         modify_dict = {'datetime_original': str(new_value)}
+        try:
+            original_metadata.pop('datetime_original')
+        except KeyError:
+            pass
 
     elif editing_type == 8:
         modify_dict = {'offset_time': str(new_value)}
+        try:
+            original_metadata.pop('offset_time')
+        except KeyError:
+            pass
 
     elif editing_type == 9:
         modify_dict = {'body_serial_number': str(new_value)}
+        try:
+            original_metadata.pop('body_serial_number')
+        except KeyError:
+            pass
 
     elif editing_type == 10:
         modify_dict = {'lens_serial_number': str(new_value)}
+        try:
+            original_metadata.pop('lens_serial_number')
+        except KeyError:
+            pass
 
     elif editing_type == 7:
         new_value_splitted = new_value.split(', ')
@@ -503,41 +549,56 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
             lon_ref = 'W'
 
         modify_dict_gps = [float_value_lat, lat_ref, float_value_long, lon_ref]
+        try:
+            original_metadata.pop('gps_latitude_ref')
+        except KeyError:
+            pass
+        try:
+            original_metadata.pop('gps_latitude')
+        except KeyError:
+            pass
+        try:
+            original_metadata.pop('gps_longitude_ref')
+        except KeyError:
+            pass
+        try:
+            original_metadata.pop('gps_longitude')
+        except KeyError:
+            pass
 
     # Сделать сам модифай
     if modify_dict:
         img.set(list(modify_dict.keys())[0],
                 modify_dict[f"{list(modify_dict.keys())[0]}"])  # type: ignore[attr-defined]
 
-        with open(f"{photofile}_buffername", 'wb') as new_file:
+        for i in range(len(original_metadata)):
+            img.set(list(original_metadata.keys())[i], original_metadata[f"{list(original_metadata.keys())[i]}"])
+
+        with open(f"{photofile}_temp", 'wb') as new_file:
             new_file.write(img.get_file())  # type: ignore[attr-defined]
         os.remove(photofile)
-        os.rename(f"{photofile}_buffername", photofile)
+        os.rename(f"{photofile}_temp", photofile)
 
     if modify_dict_gps:
 
         try:
             info = gpsphoto.GPSInfo((float_value_lat, float_value_long))
             photo = gpsphoto.GPSPhoto(photofile)
-            photo.modGPSData(info, f'{photofile}_buffername')
-        except (RuntimeError, KeyError, ValueError):
+            photo.modGPSData(info, f'{photofile}_temp')
+        except Exception:
             img.set('gps_latitude_ref', lat_ref)
             img.set('gps_latitude', lat_list)
             img.set('gps_longitude_ref', lon_ref)
             img.set('gps_longitude', long_list)
 
-            with open(f"{photofile}_buffername", 'wb') as new_file:
+            for i in range(len(original_metadata)):
+                img.set(list(original_metadata.keys())[i], original_metadata[f"{list(original_metadata.keys())[i]}"])
+
+            with open(f"{photofile}_temp", 'wb') as new_file:
                 new_file.write(img.get_file())  # type: ignore[attr-defined]
 
-        # img.set('gps_latitude_ref', lat_ref)
-        # img.set('gps_latitude', lat_list)
-        # img.set('gps_longitude_ref', lon_ref)
-        # img.set('gps_longitude', long_list)
-        #
-        # with open(f"{photofile}_buffername", 'wb') as new_file:
-        #     new_file.write(img.get_file())  # type: ignore[attr-defined]
         os.remove(photofile)
-        os.rename(f"{photofile}_buffername", photofile)
+        os.rename(f"{photofile}_temp", photofile)
 
 
 # проверка ввода при редактировании exif
@@ -713,10 +774,10 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
         img = exif.Image(photofile)
         img.delete_all()  # type: ignore[attr-defined]
 
-    with open(f"{photofile}_buffername", 'wb') as new_file:
+    with open(f"{photofile}_temp", 'wb') as new_file:
         new_file.write(img.get_file())  # type: ignore[attr-defined]
     os.remove(photofile)
-    os.rename(f"{photofile}_buffername", photofile)
+    os.rename(f"{photofile}_temp", photofile)
 
 
 def check_photo_rotation(photo_file):
@@ -747,8 +808,8 @@ def check_photo_rotation(photo_file):
                 width = data['pixel_x_dimension']
                 height = data['pixel_y_dimension']
             case 5:
-                im_flipped_buffer = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                # im_flipped = im_flipped_buffer.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
                 im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
                 width = data['pixel_y_dimension']
                 height = data['pixel_x_dimension']
@@ -758,8 +819,8 @@ def check_photo_rotation(photo_file):
                 width = data['pixel_y_dimension']
                 height = data['pixel_x_dimension']
             case 7:
-                im_flipped_buffer = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                # im_flipped = im_flipped_buffer.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
                 im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
                 width = data['pixel_y_dimension']
                 height = data['pixel_x_dimension']
@@ -773,9 +834,9 @@ def check_photo_rotation(photo_file):
                 width = data['pixel_x_dimension']
                 height = data['pixel_y_dimension']
 
-        im_flipped.save(photo_file + '_buffer', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+        im_flipped.save(photo_file + '_temp', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
         os.remove(photo_file)
-        os.rename(photo_file + '_buffer', photo_file)
+        os.rename(photo_file + '_temp', photo_file)
         im.close()
         im_flipped.close()
         write_normal_photo_size(photo_file, width, height)
@@ -787,9 +848,190 @@ def write_normal_photo_size(photo_file, width, height):
 
     img.set('image_width', width)
     img.set('image_height', height)
-    # img.set('orientation', Orientation.TOP_LEFT)
-    # СЛЕТАЮТ НАХУЙ ВЫДЕРЖКА И ГПС
-    with open(f"{photo_file}_buffername", 'wb') as new_file:
+    img.set('orientation', exif._constants.Orientation.TOP_LEFT)
+
+    original_metadata = get_original_metadata(photo_file)
+
+    for i in range(len(original_metadata)):
+        img.set(list(original_metadata.keys())[i], original_metadata[f"{list(original_metadata.keys())[i]}"])
+
+    with open(f"{photo_file}_temp", 'wb') as new_file:
         new_file.write(img.get_file())
     os.remove(photo_file)
-    os.rename(f"{photo_file}_buffername", photo_file)
+    os.rename(f"{photo_file}_temp", photo_file)
+
+
+def get_original_metadata(photo_file):
+    all_data = read_exif(photo_file)
+        
+    original_metadata = {}
+    
+    try:
+        original_metadata['make'] = all_data['make']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['model'] = all_data['model']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['lens_model'] = all_data['lens_model']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['exposure_time'] = all_data['exposure_time']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['photographic_sensitivity'] = all_data['photographic_sensitivity']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['f_number'] = all_data['f_number']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['focal_length'] = all_data['focal_length']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['datetime_original'] = all_data['datetime_original']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['offset_time'] = all_data['offset_time']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['body_serial_number'] = all_data['body_serial_number']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['lens_serial_number'] = all_data['lens_serial_number']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['gps_latitude_ref'] = all_data['gps_latitude_ref']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['gps_latitude'] = all_data['gps_latitude']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['gps_longitude_ref'] = all_data['gps_longitude_ref']
+    except KeyError:
+        pass
+
+    try:
+        original_metadata['gps_longitude'] = all_data['gps_longitude']
+    except KeyError:
+        pass
+    
+    return original_metadata
+
+
+def onlyshow_rotation(photo_file):
+    data = read_exif(photo_file)
+    im = Image.open(photo_file)
+    try:
+        width = str(data['image_width'])
+        height = str(data['image_height'])
+    except KeyError:
+        meta_orientation = data['orientation']
+        match meta_orientation:
+            case 1:
+                im_flipped = im
+                orientation = 1
+            case 2:
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                orientation = 1
+            case 3:
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
+                orientation = 1
+            case 4:
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+                orientation = 1
+            case 5:
+                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                orientation = 0
+            case 6:
+                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                orientation = 0
+            case 7:
+                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                orientation = 0
+            case 8:
+                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                orientation = 0
+            case _:
+                im_flipped = im
+                orientation = 1
+
+        im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
+        photo_show = photo_file + '_temp'
+    else:
+        photo_show = photo_file
+        orientation = 1
+
+    return photo_show, orientation
+
+
+def onlyshow_thumbnail_orientation(photo_file, thumbnail_file):
+    data = read_exif(photo_file)
+    thum = Image.open(thumbnail_file)
+    try:
+        width = str(data['image_width'])
+        height = str(data['image_height'])
+    except KeyError:
+        meta_orientation = data['orientation']
+        match meta_orientation:
+            case 1:
+                thum_flipped = thum
+            case 2:
+                thum_flipped = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+            case 3:
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_180)
+            case 4:
+                thum_flipped = thum.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+            case 5:
+                thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+            case 6:
+                # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+            case 7:
+                thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+            case 8:
+                # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+            case _:
+                thum_flipped = thum
+
+        thum_flipped.save(thumbnail_file + '_temp', 'jpeg', quality=95, subsampling=0)
+        os.remove(thumbnail_file)
+        os.rename(thumbnail_file + '_temp', thumbnail_file)
+    else:
+        pass

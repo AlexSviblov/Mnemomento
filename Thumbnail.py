@@ -4,6 +4,7 @@ from PIL import Image   # type: ignore[import]
 import os
 import shutil
 import Settings
+import Metadata
 
 
 # получение списка файлов формата jpg из папки
@@ -24,7 +25,7 @@ def make_const_thumbnails(directory: str, file: str) -> None:
     """
     Используется (по состоянию на 05.09.22) только в FileDirs.transfer_const_photos.
     :param directory: передаётся абсолютный путь директории, где должна будет храниться миниатюра.
-    :param file: передаётся абсолютный путь к файлу (фотографии), миниатюру которого надо создать.
+    :param file: передаётся имя файла (фотографии), миниатюру которого надо создать.
     :return: в нужной папке в каталоге хранения миниатюр создаётся миниатюра добавленной в основной каталог фотографии.
     """
     destination_thumbs = Settings.get_destination_thumb()
@@ -139,6 +140,8 @@ def make_thumbnails_view(photo_file: str) -> None:
     :param photo_file: абсолютный путь к фотографии, для которой надо создать миниатюру.
     :return: миниатюра для переданного фото (а в общем контексте - всем выбранным для разового просмотра файла) создана.
     """
+
+
     destination_thumbs = Settings.get_destination_thumb()
     photo_splitted = photo_file.split('/')
     photo_name = photo_splitted[-1]     # C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/IMG_4090.jpg
@@ -146,6 +149,7 @@ def make_thumbnails_view(photo_file: str) -> None:
     image.thumbnail((250, 250))
     image.save(destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
     image.close()
+    Metadata.onlyshow_thumbnail_orientation(photo_file, destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
 
 
 # удаление миниатюр фото для разового просмотра
@@ -272,6 +276,7 @@ def delete_thumb_dir(photodirectory: str) -> None:
         os.remove(destination_thumbs + f'/thumbnail/alone/{dir_name}/{file}')
 
     os.rmdir(destination_thumbs + f'/thumbnail/alone/{dir_name}')
+
 
 # переименовать миниатюру при переименовании файла фотографии
 def file_rename(file_directory: str, old_file_name: str, new_file_name: str) -> None:

@@ -262,6 +262,8 @@ class DoRecovery(QtCore.QThread):
         filelist_exist = SynhronizeDBMedia.research_all_media_photos()
         self.loading_text_show.emit("Добавление в базу данных недостающих записей")
         SynhronizeDBMedia.add_flaw_to_db(filelist_exist)
+        self.loading_text_show.emit("Синхронизация фотографий и миниатюр")
+        SynhronizeDBMedia.thumbnail_photo_conformity()
         self.finished.emit()
 
 

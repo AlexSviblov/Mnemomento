@@ -419,11 +419,21 @@ class WidgetWindow(QWidget):
         # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
-        pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
+        # pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
+        show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)
+        pixmap = QtGui.QPixmap(show_photo)
 
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
+        if orientation == 1:
+            pass
+        else:
+            if self.photo_rotation == 'ver':
+                self.photo_rotation = 'gor'
+            else:
+                self.photo_rotation = 'ver'
+
         params = list(metadata.keys())
         params.remove('Rotation')
         try:
@@ -480,6 +490,8 @@ class WidgetWindow(QWidget):
         QtCore.QCoreApplication.processEvents()
         self.make_map()
         self.oldsize = self.size()
+        if show_photo != self.photo_file:
+            os.remove(show_photo)
 
     # в класс передаётся список файлов, надо получить их директорию
     def make_photo_dir(self, photo_list: list[str]) -> str:

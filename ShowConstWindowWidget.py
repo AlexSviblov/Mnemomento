@@ -12,6 +12,7 @@ import Settings
 import Thumbnail
 import math
 import EditFiles
+import PIL
 
 
 stylesheet1 = str()

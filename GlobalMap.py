@@ -21,6 +21,7 @@ from folium import IFrame
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
+stylesheet5 = str()
 stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
@@ -63,6 +64,13 @@ class GlobalMapWidget(QWidget):
         self.empty = QLabel(self)
         self.layout_outside.addWidget(self.empty, 1, 0, 1, 3)
 
+        self.progressbar = QProgressBar()
+        self.progressbar.setFixedWidth(int(self.width()/4))
+        self.progressbar.setFont(font14)
+        self.progressbar.setStyleSheet(stylesheet5)
+        self.layout_outside.addWidget(self.progressbar, 0, 3, 1, 1)
+        self.progressbar.hide()
+
         self.fill_sort_groupbox()
         self.set_sort_layout()
 
@@ -71,12 +79,13 @@ class GlobalMapWidget(QWidget):
         self.btn_show.setFont(font14)
         self.btn_show.setStyleSheet(stylesheet8)
         self.btn_show.setFixedSize(100, 31)
-        self.layout_outside.addWidget(self.btn_show, 0, 2, 1, 1, alignment=QtCore.Qt.AlignVCenter)
+        self.layout_outside.addWidget(self.btn_show, 0, 2, 1, 1)
         self.btn_show.clicked.connect(self.make_show_map)
 
     def stylesheet_color(self):
         global stylesheet1
         global stylesheet2
+        global stylesheet5
         global stylesheet8
         global stylesheet9
         global loading_icon
@@ -85,6 +94,20 @@ class GlobalMapWidget(QWidget):
         if Settings.get_theme_color() == 'light':
             stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
             stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
+            stylesheet5 = """
+                                        QProgressBar
+                                        {
+                                            border: 1px;
+                                            border-color: #000000;
+                                            border-style: solid;
+                                            background-color: #FFFFFF;
+                                            color: #000000
+                                        }
+                                        QProgressBar::chunk
+                                        {
+                                            background-color: #00FF7F;  
+                                        }
+                                        """
             stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
                           "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
@@ -94,12 +117,27 @@ class GlobalMapWidget(QWidget):
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
             stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
+            stylesheet5 = """
+                                        QProgressBar
+                                        {
+                                            border: 1px;
+                                            border-color: #000000;
+                                            border-style: solid;
+                                            background-color: #CCCCCC;
+                                            color: #000000
+                                        }
+                                        QProgressBar::chunk
+                                        {
+                                            background-color: #1F7515;
+                                        }
+                                        """
             stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
                           "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
             stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
                           "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
             loading_icon = os.getcwd() + '/icons/loading_dark.gif'
             map_tiles = "OpenStreetMap"
+
         try:
             self.groupbox_sort.setStyleSheet(stylesheet2)
             self.setStyleSheet(stylesheet2)
@@ -110,6 +148,8 @@ class GlobalMapWidget(QWidget):
 
     # вывести карту
     def make_show_map(self) -> None:
+        self.progressbar.show()
+        self.progressbar.setMaximum(100)
         sort_type = self.group_type.currentText()
         match sort_type:
             case 'Дата':
@@ -128,17 +168,15 @@ class GlobalMapWidget(QWidget):
                 lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
+        self.progressbar.setValue(1)
         map_points_combo = PhotoDataDB.get_global_map_info(full_paths)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+        progress = 0
         if map_points_combo:
             self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14, tiles=map_tiles)
             photo_grouped_shown = list()
-            i=0
             for photo in map_points_combo:
-                print(photo)
-                print(i)
-                i+=1
                 if not photo[5]:
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
@@ -163,13 +201,14 @@ class GlobalMapWidget(QWidget):
                                 self.map_gps)
                         else:
                             pass
-                QtCore.QCoreApplication.processEvents()
                 self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+                progress += 1
+                self.progressbar.setValue(int((progress/len(map_points_combo))*99+1))
+                QtCore.QCoreApplication.processEvents()
 
-                self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 3)
+                self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 4)
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
-
 
         formatter = "function(num) {return L.Util.formatNum(num, 6) + ' º ';};"
 
@@ -183,6 +222,7 @@ class GlobalMapWidget(QWidget):
         self.map_gps_widget.setHtml(self.map_gps.get_root().render())
 
         self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 3)
+        self.progressbar.hide()
 
     # Получение годов
     def get_years(self) -> None:
