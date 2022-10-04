@@ -1,10 +1,7 @@
-import json
 import os
 import sys
-import shutil
-import time
 
-from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -108,6 +105,7 @@ class RecoveryWin(QMainWindow):
 
 
 # сам виджет со всем GUI
+# noinspection PyUnresolvedReferences
 class RecoveryWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
@@ -130,19 +128,26 @@ class RecoveryWidget(QWidget):
         self.lbl_len_socnets.setStyleSheet(stylesheet2)
 
         self.lbl_err_photos = QLabel(self)
-        self.lbl_err_photos.setText("      Обнаружено ошибок в таблице данных о фотографиях:")
+        self.lbl_err_photos.setText("Обнаружено ошибок в таблице данных о фотографиях:")
         self.lbl_err_photos.setFont(font14)
         self.lbl_err_photos.setStyleSheet(stylesheet2)
+        self.lbl_err_photos.setAlignment(QtCore.Qt.AlignRight)
 
         self.lbl_err_socnets = QLabel(self)
-        self.lbl_err_socnets.setText("      Обнаружено ошибок в таблице о социальных сетях:")
+        self.lbl_err_socnets.setText("Обнаружено ошибок в таблице о социальных сетях:")
         self.lbl_err_socnets.setFont(font14)
         self.lbl_err_socnets.setStyleSheet(stylesheet2)
+        self.lbl_err_socnets.setAlignment(QtCore.Qt.AlignRight)
 
         self.lbl_len_exists = QLabel(self)
         self.lbl_len_exists.setText("Фотографий в папке хранения:")
         self.lbl_len_exists.setFont(font14)
         self.lbl_len_exists.setStyleSheet(stylesheet2)
+
+        self.lbl_len_thumbs = QLabel(self)
+        self.lbl_len_thumbs.setText("Миниатюр в папке хранения:")
+        self.lbl_len_thumbs.setFont(font14)
+        self.lbl_len_thumbs.setStyleSheet(stylesheet2)
 
         self.len_photos_value = QLineEdit(self)
         self.len_photos_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[0])))
@@ -174,6 +179,12 @@ class RecoveryWidget(QWidget):
         self.len_exists_value.setFont(font14)
         self.len_exists_value.setStyleSheet(stylesheet1)
 
+        self.len_thumbs_value = QLineEdit(self)
+        self.len_thumbs_value.setText(str(len(SynhronizeDBMedia.research_all_thumbnails())))
+        self.len_thumbs_value.setDisabled(True)
+        self.len_thumbs_value.setFont(font14)
+        self.len_thumbs_value.setStyleSheet(stylesheet1)
+
         self.layout.addWidget(self.lbl_len_photos, 0, 0, 1, 1)
         self.layout.addWidget(self.len_photos_value, 0, 1, 1, 1)
         self.layout.addWidget(self.lbl_len_socnets, 1, 0, 1, 1)
@@ -184,6 +195,8 @@ class RecoveryWidget(QWidget):
         self.layout.addWidget(self.err_socnets_value, 1, 3, 1, 1)
         self.layout.addWidget(self.lbl_len_exists, 2, 0, 1, 1)
         self.layout.addWidget(self.len_exists_value, 2, 1, 1, 1)
+        self.layout.addWidget(self.lbl_len_thumbs, 3, 0, 1, 1)
+        self.layout.addWidget(self.len_thumbs_value, 3, 1, 1, 1)
 
         self.btn_recovery = QPushButton(self)
         self.btn_recovery.setText("Запустить восстановление")
@@ -211,6 +224,7 @@ class RecoveryWidget(QWidget):
         self.err_photos_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[0]))
         self.err_socnets_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[1]))
         self.len_exists_value.setText(str(len(SynhronizeDBMedia.research_all_media_photos())))
+        self.len_thumbs_value.setText(str(len(SynhronizeDBMedia.research_all_thumbnails())))
         self.proccess = None
 
 
@@ -220,6 +234,9 @@ class RecoveryLoadingWin(QDialog):
         super().__init__(parent)
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
+        self.setWindowTitle('Загрузка')
+
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.label = QLabel(self)
         self.text = QLabel(self)

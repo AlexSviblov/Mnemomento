@@ -1,12 +1,8 @@
 import os
-import shutil
 import sqlite3
 import datetime
-
 import FilesDirs
 import Metadata
-
-import PhotoDataDB
 import Settings
 import Thumbnail
 
@@ -44,24 +40,26 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
     for i in range(0, len(all_photos_db)):
         if os.path.exists(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}"):
             if Settings.get_destination_media() not in all_photos_db[i][0]:
-                sql_str1 = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
+                sql_str1 = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' " \
+                           f"AND filename = \'{all_photos_db[i][1]}\'"
                 cur.execute(sql_str1)
-                sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
+                sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_photos_db[i][0]}\' " \
+                           f"AND filename = \'{all_photos_db[i][1]}\'"
                 cur.execute(sql_str2)
                 if '/alone/' in all_photos_db[i][0]:
                     FilesDirs.transfer_const_photos(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}")
                 elif '/const/' in all_photos_db[i][0]:
                     FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}", f"{all_photos_db[i][1]}")
         else:
-            sql_str_del = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' and filename = \'{all_photos_db[i][1]}\'"
+            sql_str_del = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' AND filename = \'{all_photos_db[i][1]}\'"
             cur.execute(sql_str_del)
 
     for i in range(0, len(all_socnets_db)):
         if os.path.exists(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}"):
             if Settings.get_destination_media() not in all_socnets_db[i][0]:
-                sql_str1 = f"DELETE FROM photos WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
+                sql_str1 = f"DELETE FROM photos WHERE catalog = \'{all_socnets_db[i][0]}\' AND filename = \'{all_socnets_db[i][1]}\'"
                 cur.execute(sql_str1)
-                sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
+                sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' AND filename = \'{all_socnets_db[i][1]}\'"
                 cur.execute(sql_str2)
                 if '/alone/' in all_socnets_db[i][0]:
                     FilesDirs.transfer_const_photos(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}")
@@ -80,10 +78,12 @@ def research_all_media_photos() -> list[list[str]]:
     :return: список абсолютных путей.
     """
     filelist = []
-    path = Settings.get_destination_media()
+    # path = Settings.get_destination_media()
+    path = Settings.get_destination_media() + '/Media/Photo'
     for root, dirs, files in os.walk(path):
         for file in files:
-            if (file.endswith(".jpg") or file.endswith(".JPG")) and 'thumbnail_' not in file:
+            # if (file.endswith(".jpg") or file.endswith(".JPG")) and 'thumbnail_' not in file:
+            if file.endswith(".jpg") or file.endswith(".JPG"):
                 filelist.append([root.replace('\\', '/'), file])
 
     return filelist
@@ -166,20 +166,38 @@ def check_destination_corr_db() -> tuple[int, int]:
     return photo_conflicts, socnet_conflicts
 
 
-def thumbnail_photo_conformity():
+# соотнести миниатюры в папке хранения и фотографии, лишние миниатюры удалить, недостающие добавить
+def thumbnail_photo_conformity() -> None:
+    """
+    Используется для удаления лишних миниатюр, которые не были удалены при удалении фотографий и создания недостающих
+    :return: создаются или удаляются миниатюры
+    """
     thumb_list = research_all_thumbnails()
-    for file in thumb_list:
-        path_splitted = file.split('/')
-        file_name = path_splitted[-1][10:]
-        if 'const' in path_splitted:
-            pass # do
-        elif 'alone' in path_splitted:
-            pass #do
-        elif 'view' in path_splitted:
-            pass # pass
+    for file_l in thumb_list:
+        file = file_l[0]
+        if 'thumbnail_' not in file:
+            os.remove(file)
         else:
-            pass # delete
-
+            path_splitted = file.split('/')
+            file_name = path_splitted[-1][10:]
+            if 'const' in path_splitted:
+                date_part = f"{path_splitted[-4]}/{path_splitted[-3]}/{path_splitted[-2]}/"
+                photo_way = Settings.get_destination_media() + '/Media/Photo/const/' + date_part + file_name
+                if os.path.exists(photo_way):
+                    pass
+                else:
+                    os.remove(file)
+            elif 'alone' in path_splitted:
+                dir_name_part = path_splitted[-2]
+                photo_way = Settings.get_destination_media() + '/Media/Photo/alone/' + dir_name_part + '/' + file_name
+                if os.path.exists(photo_way):
+                    pass
+                else:
+                    os.remove(file)
+            elif 'view' in path_splitted:
+                pass
+            else:
+                os.remove(file)
 
     photo_paths = get_all_db_ways()[0]
     for combo in photo_paths:
@@ -202,13 +220,17 @@ def thumbnail_photo_conformity():
                 Thumbnail.make_alone_thumbnails(catalog_name, f"{combo[0]}/{combo[1]}", combo[1])
 
 
-
+# получить список всех имеющихся миниатюр
 def research_all_thumbnails() -> list[list[str]]:
+    """
+    Получается список всех миниатюр в директории хранения
+    :return: список путей файлов, которые передаются как список из 1 элемента, надо бы это поправить
+    """
     filelist = []
-    path = Settings.get_destination_thumb()
+    path = Settings.get_destination_thumb() + '/thumbnail'
     for root, dirs, files in os.walk(path):
         for file in files:
-            if (file.endswith(".jpg") or file.endswith(".JPG")) and 'thumbnail_' in file:
-                filelist.append([root.replace('\\', '/'), file])
+            if file.endswith(".jpg") or file.endswith(".JPG"):
+                filelist.append([root.replace('\\', '/') + '/' + file])
 
     return filelist
