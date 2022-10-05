@@ -577,6 +577,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
         os.rename(f"{photofile}_temp", photofile)
 
     if modify_dict_gps:
+        # TODO: нихуя не работает залупа
 
         try:
             info = gpsphoto.GPSInfo((float_value_lat, float_value_long))
@@ -814,7 +815,7 @@ def check_photo_rotation(photo_file: str) -> None:
                 case 5:
                     im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
                     # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                    im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
                     width = data['pixel_y_dimension']
                     height = data['pixel_x_dimension']
                 case 6:
@@ -825,7 +826,7 @@ def check_photo_rotation(photo_file: str) -> None:
                 case 7:
                     im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
                     # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                    im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
                     width = data['pixel_y_dimension']
                     height = data['pixel_x_dimension']
                 case 8:
@@ -838,17 +839,19 @@ def check_photo_rotation(photo_file: str) -> None:
                     width = data['pixel_x_dimension']
                     height = data['pixel_y_dimension']
 
-            im_flipped.save(photo_file + '_temp', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
-            os.remove(photo_file)
-            os.rename(photo_file + '_temp', photo_file)
+            # im_flipped.save(photo_file + '_temp', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+            im_flipped.save(photo_file, 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+            # os.remove(photo_file)
+            # os.rename(photo_file + '_temp', photo_file)
             im.close()
             im_flipped.close()
+            write_normal_photo_size(photo_file, int(width), int(height))
         except KeyError:
             im = Image.open(photo_file)
             width = im.width
             height = im.height
             im.close()
-        write_normal_photo_size(photo_file, int(width), int(height))
+            write_normal_photo_size(photo_file, int(width), int(height))
 
 
 # записать в метаданные нормально ширину и высоту картинки
@@ -860,8 +863,7 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
     :param height: высота в пикселях
     :return:
     """
-    with open(photo_file, 'rb') as img:
-        img = exif.Image(photo_file)
+    img = exif.Image(photo_file)
 
     img.set('image_width', width)
     img.set('image_height', height)
@@ -872,10 +874,13 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
     for i in range(len(original_metadata)):
         img.set(list(original_metadata.keys())[i], original_metadata[f"{list(original_metadata.keys())[i]}"])
 
-    with open(f"{photo_file}_temp", 'wb') as new_file:
+    # with open(f"{photo_file}_temp", 'wb') as new_file:
+    with open(f"{photo_file}", 'wb') as new_file:
         new_file.write(img.get_file())
-    os.remove(photo_file)
-    os.rename(f"{photo_file}_temp", photo_file)
+    # TODO: пишет, что не может удалить photo_file, типа он используется
+    # os.remove(photo_file)
+    # os.rename(f"{photo_file}_temp", photo_file)
+
 
 # Считать отображаемые метаданные до их изменения
 def get_original_metadata(photo_file: str) -> dict:

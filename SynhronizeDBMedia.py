@@ -165,6 +165,7 @@ def check_destination_corr_db() -> tuple[int, int]:
     return photo_conflicts, socnet_conflicts
 
 
+# TODO: пизда долгая хуйня, надо ускорять
 # соотнести миниатюры в папке хранения и фотографии, лишние миниатюры удалить, недостающие добавить
 def thumbnail_photo_conformity() -> None:
     """
