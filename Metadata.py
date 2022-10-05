@@ -789,59 +789,65 @@ def check_photo_rotation(photo_file: str) -> None:
         width = str(data['image_width'])
         height = str(data['image_height'])
     except KeyError:
-        meta_orientation = data['orientation']
-        im = Image.open(photo_file)
-        exif_dict = load(im.info["exif"])
-        exif_bytes = dump(exif_dict)
-        match meta_orientation:
-            case 1:
-                im_flipped = im
-                width = data['pixel_x_dimension']
-                height = data['pixel_y_dimension']
-            case 2:
-                im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                width = data['pixel_x_dimension']
-                height = data['pixel_y_dimension']
-            case 3:
-                im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
-                width = data['pixel_x_dimension']
-                height = data['pixel_y_dimension']
-            case 4:
-                im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-                width = data['pixel_x_dimension']
-                height = data['pixel_y_dimension']
-            case 5:
-                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-                width = data['pixel_y_dimension']
-                height = data['pixel_x_dimension']
-            case 6:
-                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-                width = data['pixel_y_dimension']
-                height = data['pixel_x_dimension']
-            case 7:
-                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-                width = data['pixel_y_dimension']
-                height = data['pixel_x_dimension']
-            case 8:
-                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-                width = data['pixel_y_dimension']
-                height = data['pixel_x_dimension']
-            case _:
-                im_flipped = im
-                width = data['pixel_x_dimension']
-                height = data['pixel_y_dimension']
+        try:
+            meta_orientation = data['orientation']
+            im = Image.open(photo_file)
+            exif_dict = load(im.info["exif"])
+            exif_bytes = dump(exif_dict)
+            match meta_orientation:
+                case 1:
+                    im_flipped = im
+                    width = data['pixel_x_dimension']
+                    height = data['pixel_y_dimension']
+                case 2:
+                    im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                    width = data['pixel_x_dimension']
+                    height = data['pixel_y_dimension']
+                case 3:
+                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
+                    width = data['pixel_x_dimension']
+                    height = data['pixel_y_dimension']
+                case 4:
+                    im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+                    width = data['pixel_x_dimension']
+                    height = data['pixel_y_dimension']
+                case 5:
+                    im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                    # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                    width = data['pixel_y_dimension']
+                    height = data['pixel_x_dimension']
+                case 6:
+                    # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                    width = data['pixel_y_dimension']
+                    height = data['pixel_x_dimension']
+                case 7:
+                    im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                    # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                    width = data['pixel_y_dimension']
+                    height = data['pixel_x_dimension']
+                case 8:
+                    # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                    width = data['pixel_y_dimension']
+                    height = data['pixel_x_dimension']
+                case _:
+                    im_flipped = im
+                    width = data['pixel_x_dimension']
+                    height = data['pixel_y_dimension']
 
-        im_flipped.save(photo_file + '_temp', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
-        os.remove(photo_file)
-        os.rename(photo_file + '_temp', photo_file)
-        im.close()
-        im_flipped.close()
+            im_flipped.save(photo_file + '_temp', 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+            os.remove(photo_file)
+            os.rename(photo_file + '_temp', photo_file)
+            im.close()
+            im_flipped.close()
+        except KeyError:
+            im = Image.open(photo_file)
+            width = im.width
+            height = im.height
+            im.close()
         write_normal_photo_size(photo_file, int(width), int(height))
 
 

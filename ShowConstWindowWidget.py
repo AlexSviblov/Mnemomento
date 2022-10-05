@@ -15,7 +15,6 @@ import Thumbnail
 import EditFiles
 
 
-
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
@@ -578,17 +577,7 @@ class ConstWidgetWindow(QWidget):
         else:
             pass
 
-        match self.sn_status.currentText():
-            case 'Не выбрано':
-                status_bd = 'No value'
-            case 'Не публиковать':
-                status_bd = 'No publicate'
-            case 'Опубликовать':
-                status_bd = 'Will publicate'
-            case 'Опубликовано':
-                status_bd = 'Publicated'
-
-        photo_list = PhotoDataDB.get_sn_photo_list(network, status_bd)
+        photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText())
 
         thumb_names = list()
         thumbnails_list = list()

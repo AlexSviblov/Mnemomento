@@ -278,7 +278,7 @@ class SettingWidget(QWidget):
             with open('settings.json', 'r') as json_file:
                 settings = json.load(json_file)
         except FileNotFoundError:
-            # TODO
+
             pass
         self.old_media_dir = settings['destination_dir']
         self.old_thumb_dir = settings['thumbs_dir']

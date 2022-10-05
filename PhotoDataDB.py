@@ -200,7 +200,6 @@ def edit_sn_tags(photoname: str, photodirectory: str, new_status: str, network: 
     :param network: соцсеть, в которой надо сменить статус.
     :return: изменение статуса в БД.
     """
-    # TODO: если удалить соцсети, а потом поменять тег - то вылет. Исправить. Сделать коннект Соцсетей и основного виджета на обновление
     sql_str = f'UPDATE socialnetworks SET {network} = \'{new_status}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
     cur.execute(sql_str)
 

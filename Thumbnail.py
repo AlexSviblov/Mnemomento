@@ -111,8 +111,9 @@ def research_flaw_thumbnails(photo_directory: str, thumbnail_directory: str) -> 
 # Создание недостающих миниатюр и удаление лишних
 def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_directory: str, thumbnail_directory: str) -> None:
     """
-    Связано с предыдущей функций непосредственно # TODO: может их тогда объединить
-    :param flaw_thumbnails: список фотографий, к которым недостаёт миниатюр, их адо создать.
+    Связано с предыдущей функций непосредственно, в Alone и Const (дата), используется отдельно в Const(соцсети
+    и оборудование).
+    :param flaw_thumbnails: список фотографий, к которым недостаёт миниатюр, их надо создать.
     :param excess_thumbs: список миниатюр, к которым нет фотографий, их надо удалить.
     :param photo_directory: абсолютный путь к папке с фотографиями.
     :param thumbnail_directory: абсолютный путь к папке с миниатюрами.
