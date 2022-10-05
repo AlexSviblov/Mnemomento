@@ -1,11 +1,8 @@
 import json
-import logging
 import os
 import sys
 import shutil
-import time
-
-from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QThread, pyqtSignal
@@ -30,7 +27,6 @@ class SettingWin(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.stylesheet_color()
-
         # Создание окна
         self.setWindowTitle('Настройки')
         self.setStyleSheet(stylesheet2)
@@ -54,20 +50,92 @@ class SettingWin(QMainWindow):
         global loading_icon
 
         if get_theme_color() == 'light':
-            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
-            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #C0C0C0;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #C0C0C0;
+                                }
+                            """
             loading_icon = os.getcwd() + '/icons/loading_light.gif'
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #2F2F2F;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #4F4F4F;
+                                }
+                            """
             loading_icon = os.getcwd() + '/icons/loading_dark.gif'
 
 
@@ -79,9 +147,7 @@ class SettingWidget(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Настройки')
-
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        # self.resize(800, 800)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -268,7 +334,7 @@ class SettingWidget(QWidget):
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
 
-        self.parent().stylesheet_color()    # type: ignore[attr-defined]
+        self.parent().stylesheet_color()
 
         notice_win = Notification(self)
         notice_win.show()
@@ -379,12 +445,10 @@ class TransferFiles(QDialog):
 
 # переброска файлов вынесена в отдельный поток, так как в одном потоке с QDialog, оно ломает GUI
 class DoTransfer(QtCore.QThread):
-
     finished = QtCore.pyqtSignal()
 
     def __init__(self, code, old_media, new_media, old_thumb, new_thumb):
         QThread.__init__(self)
-
         self.old_media = old_media
         self.new_media = new_media
         self.old_thumb = old_thumb
@@ -409,9 +473,7 @@ class DoTransfer(QtCore.QThread):
 
             case 2:
                 shutil.copytree(self.old_thumb + r'/thumbnail', self.old_thumb + r'/thumbnail_reserve')
-
                 shutil.move(self.old_thumb + r'/thumbnail', self.new_thumb)
-
                 shutil.rmtree(self.old_thumb + r'/thumbnail_reserve')
             case 3:
                 shutil.copytree(self.old_media + r'/Media', self.old_media + r'/Media_reserve')
@@ -456,68 +518,49 @@ class Notification(QDialog):
 
 # получить путь хранения медиа - для других модулей
 def get_destination_media() -> str:
-
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-
     destination_media = settings['destination_dir']
-
     return destination_media
 
 
 # получить путь хранения миниатюр - для других модулей
 def get_destination_thumb() -> str:
-
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-
     destination_thumb = settings['thumbs_dir']
-
     return destination_thumb
 
 
 # количество миниатюр в строке
 def get_thumbs_rows() -> str:
-
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-
-
     thumbs_rows = settings['thumbs_rows']
-
     return thumbs_rows
 
 
 # режим переноса фото при добавлении
 def get_photo_transfer_mode() -> str:
-
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-
     transfer_mode = settings['transfer_mode']
-
     return transfer_mode
 
 
 # выбранная визуальная тема
 def get_theme_color() -> str:
-
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-
     theme_color = settings['color_theme']
-
     return theme_color
 
 
 # включены или отключены соцсети
 def get_socnet_status() -> str:
-
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-
     socnet_status = int(settings['social_networks_status'])
-
     return socnet_status
 
 

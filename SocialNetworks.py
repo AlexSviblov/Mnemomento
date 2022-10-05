@@ -1,9 +1,9 @@
 import os
 import sys
-from PyQt5 import QtGui, QtWidgets, QtCore
+import sqlite3
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
-import sqlite3
 
 import PhotoDataDB
 import Settings
@@ -302,7 +302,6 @@ class RedSN(QDialog):
 
     def __init__(self, net_oldname):
         super(RedSN, self).__init__()
-
         self.setWindowTitle('Редактирование названия')
         self.resize(600, 90)
         self.setStyleSheet(stylesheet2)

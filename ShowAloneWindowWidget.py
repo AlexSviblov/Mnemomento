@@ -1,10 +1,10 @@
 import os
 import folium
+import json
+import math
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
-import math
 from PyQt5.QtCore import Qt
-import json
 
 import EditFiles
 import FilesDirs
@@ -38,7 +38,6 @@ class AloneWidgetWindow(QWidget):
 
     def __init__(self):
         super().__init__()
-
         self.stylesheet_color()
 
         self.own_dir = os.getcwd()
@@ -607,7 +606,7 @@ class AloneWidgetWindow(QWidget):
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
         try:
-            self.button_text = self.sender().text() # type: ignore[attr-defined]
+            self.button_text = self.sender().text()
         except AttributeError:
             if self.last_clicked == '':
                 return
@@ -632,6 +631,7 @@ class AloneWidgetWindow(QWidget):
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']
+
         try:
             self.gps_coordinates = metadata['GPS']
         except KeyError:
@@ -929,14 +929,15 @@ class AloneWidgetWindow(QWidget):
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
 
-                if sn_tags[f'{name}'] == 'No value':
-                    self.sn_tag_choose.setCurrentText('Не выбрано')
-                elif sn_tags[f'{name}'] == 'No publicate':
-                    self.sn_tag_choose.setCurrentText('Не публиковать')
-                elif sn_tags[f'{name}'] == 'Will publicate':
-                    self.sn_tag_choose.setCurrentText('Опубликовать')
-                elif sn_tags[f'{name}'] == 'Publicated':
-                    self.sn_tag_choose.setCurrentText('Опубликовано')
+                match sn_tags[f'{name}']:
+                    case 'No value':
+                        self.sn_tag_choose.setCurrentText('Не выбрано')
+                    case 'No publicate':
+                        self.sn_tag_choose.setCurrentText('Не публиковать')
+                    case 'Will publicate':
+                        self.sn_tag_choose.setCurrentText('Опубликовать')
+                    case 'Publicated':
+                        self.sn_tag_choose.setCurrentText('Опубликовано')
 
                 self.sn_tag_choose.currentTextChanged.connect(edit_tags)
 
@@ -967,15 +968,15 @@ class AloneWidgetWindow(QWidget):
                 self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
 
         def edit_tags():
-            new_status = self.sender().currentText()
-            if new_status == 'Не выбрано':
-                new_status_bd = 'No value'
-            elif new_status == 'Не публиковать':
-                new_status_bd = 'No publicate'
-            elif new_status == 'Опубликовать':
-                new_status_bd = 'Will publicate'
-            elif new_status == 'Опубликовано':
-                new_status_bd = 'Publicated'
+            match self.sender().currentText():
+                case 'Не выбрано':
+                    new_status_bd = 'No value'
+                case 'Не публиковать':
+                    new_status_bd = 'No publicate'
+                case 'Опубликовать':
+                    new_status_bd = 'Will publicate'
+                case 'Опубликовано':
+                    new_status_bd = 'Publicated'
 
             network = self.sender().objectName()
             PhotoDataDB.edit_sn_tags(photoname, photodirectory, new_status_bd, network)
@@ -1011,7 +1012,6 @@ class DelPhotoConfirm(QDialog):
 
     def __init__(self, photoname, photodirectory):
         super(DelPhotoConfirm, self).__init__()
-
         self.photoname = photoname
         self.photodirectory = photodirectory
 
@@ -1057,12 +1057,10 @@ class DelPhotoConfirm(QDialog):
 
 # подтвердить удаление выбранной папки
 class DelDirConfirm(QDialog):
-
     clear_info = QtCore.pyqtSignal()
 
     def __init__(self, photodirectory):
         super(DelDirConfirm, self).__init__()
-
         self.photodirectory = photodirectory
 
         self.setStyleSheet(stylesheet2)
@@ -1111,6 +1109,7 @@ class DelDirConfirm(QDialog):
 class ConfirmClear(QDialog):
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
+
     def __init__(self, parent):
         super(ConfirmClear, self).__init__(parent)
 

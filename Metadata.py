@@ -1,15 +1,12 @@
-import logging
 import os
-
-import PIL.Image
-import exif  # type: ignore[import]
-from PIL import Image  # type: ignore[import]
+import exif
 import sqlite3
-from typing import Union, Tuple
+from PIL import Image
 from GPSPhoto import gpsphoto
 from piexif import load, dump
 
 import ErrorsAndWarnings
+
 
 conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
 
@@ -25,7 +22,7 @@ def read_exif(photofile: str) -> dict[str, str]:
     """
     with open(photofile, 'rb') as img:
         img = exif.Image(photofile)
-        data = img.get_all()  # type: ignore[attr-defined]
+        data = img.get_all()
     return data
 
 
@@ -234,8 +231,8 @@ def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str
         GPSLongitude_float = list(GPSLongitude)  # Приведение координат к десятичным числам, как на Я.Картах
         GPSLatitude_float = list(GPSLatitude)
 
-        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600  # type: ignore[operator]
-        GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600  # type: ignore[operator]
+        GPSLongitude_value = GPSLongitude_float[0] + GPSLongitude_float[1] / 60 + GPSLongitude_float[2] / 3600
+        GPSLatitude_value = GPSLatitude_float[0] + GPSLatitude_float[1] / 60 + GPSLatitude_float[2] / 3600
 
         if GPSLongitudeRef == 'E':
             pass
@@ -264,7 +261,7 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
     """
     with open(photoname, 'rb') as img:
         img = exif.Image(photoname)
-        all_data = img.get_all()  # type: ignore[attr-defined]
+        all_data = img.get_all()
 
     useful_data = dict()
 
@@ -399,7 +396,6 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
             GPSLatitude_value = GPSLatitude_value * (-1)
 
         useful_data['Координаты'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
-
     except KeyError:
         useful_data['Координаты'] = ''
 
@@ -449,133 +445,134 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     with open(photofile, 'rb') as img:
         img = exif.Image(photofile)
 
-    if editing_type == 0:
-        modify_dict = {'make': str(new_value)}
-        try:
-            original_metadata.pop('make')
-        except KeyError:
-            pass
+    match editing_type:
+        case 0:
+            modify_dict = {'make': str(new_value)}
+            try:
+                original_metadata.pop('make')
+            except KeyError:
+                pass
 
-    elif editing_type == 1:
-        modify_dict = {'model': str(new_value)}
-        try:
-            original_metadata.pop('model')
-        except KeyError:
-            pass
+        case 1:
+            modify_dict = {'model': str(new_value)}
+            try:
+                original_metadata.pop('model')
+            except KeyError:
+                pass
 
-    elif editing_type == 2:
-        modify_dict = {'lens_model': str(new_value)}
-        try:
-            original_metadata.pop('lens_model')
-        except KeyError:
-            pass
+        case 2:
+            modify_dict = {'lens_model': str(new_value)}
+            try:
+                original_metadata.pop('lens_model')
+            except KeyError:
+                pass
 
-    elif editing_type == 3:
-        if '/' in new_value:
-            float_value = 1 / float(new_value.split('/')[1])
-            modify_dict = {'exposure_time': float_value}  # type: ignore[dict-item]
-        else:
-            float_value = float(new_value)
-            modify_dict = {'exposure_time': str(float_value)}
-        try:
-            original_metadata.pop('exposure_time')
-        except KeyError:
-            pass
+        case 3:
+            if '/' in new_value:
+                float_value = 1 / float(new_value.split('/')[1])
+                modify_dict = {'exposure_time': float_value}
+            else:
+                float_value = float(new_value)
+                modify_dict = {'exposure_time': str(float_value)}
+            try:
+                original_metadata.pop('exposure_time')
+            except KeyError:
+                pass
 
-    elif editing_type == 4:
-        modify_dict = {'photographic_sensitivity': int(new_value)}  # type: ignore[dict-item]
-        try:
-            original_metadata.pop('photographic_sensitivity')
-        except KeyError:
-            pass
+        case 4:
+            modify_dict = {'photographic_sensitivity': int(new_value)}
+            try:
+                original_metadata.pop('photographic_sensitivity')
+            except KeyError:
+                pass
 
-    elif editing_type == 5:
-        modify_dict = {'f_number': float(new_value)}  # type: ignore[dict-item]
-        try:
-            original_metadata.pop('f_number')
-        except KeyError:
-            pass
+        case 5:
+            modify_dict = {'f_number': float(new_value)}
+            try:
+                original_metadata.pop('f_number')
+            except KeyError:
+                pass
 
-    elif editing_type == 6:
-        modify_dict = {'focal_length': int(new_value)}  # type: ignore[dict-item]
-        try:
-            original_metadata.pop('focal_length')
-        except KeyError:
-            pass
+        case 6:
+            modify_dict = {'focal_length': int(new_value)}
+            try:
+                original_metadata.pop('focal_length')
+            except KeyError:
+                pass
 
-    elif editing_type == 11:
-        modify_dict = {'datetime_original': str(new_value)}
-        try:
-            original_metadata.pop('datetime_original')
-        except KeyError:
-            pass
+        case 11:
+            modify_dict = {'datetime_original': str(new_value)}
+            try:
+                original_metadata.pop('datetime_original')
+            except KeyError:
+                pass
 
-    elif editing_type == 8:
-        modify_dict = {'offset_time': str(new_value)}
-        try:
-            original_metadata.pop('offset_time')
-        except KeyError:
-            pass
+        case 8:
+            modify_dict = {'offset_time': str(new_value)}
+            try:
+                original_metadata.pop('offset_time')
+            except KeyError:
+                pass
 
-    elif editing_type == 9:
-        modify_dict = {'body_serial_number': str(new_value)}
-        try:
-            original_metadata.pop('body_serial_number')
-        except KeyError:
-            pass
+        case 9:
+            modify_dict = {'body_serial_number': str(new_value)}
+            try:
+                original_metadata.pop('body_serial_number')
+            except KeyError:
+                pass
 
-    elif editing_type == 10:
-        modify_dict = {'lens_serial_number': str(new_value)}
-        try:
-            original_metadata.pop('lens_serial_number')
-        except KeyError:
-            pass
+        case 10:
+            modify_dict = {'lens_serial_number': str(new_value)}
+            try:
+                original_metadata.pop('lens_serial_number')
+            except KeyError:
+                pass
 
-    elif editing_type == 7:
-        new_value_splitted = new_value.split(', ')
-        float_value_lat = float(new_value_splitted[0])
-        float_value_long = float(new_value_splitted[1])
+        case 7:
+            new_value_splitted = new_value.split(', ')
+            float_value_lat = float(new_value_splitted[0])
+            float_value_long = float(new_value_splitted[1])
 
-        lat_list = exif_coord_to_tuple(float_value_lat)
-        long_list = exif_coord_to_tuple(float_value_long)
-        if float_value_lat > 0:
-            lat_ref = 'N'
-        else:
-            lat_ref = 'S'
+            lat_list = exif_coord_to_tuple(float_value_lat)
+            long_list = exif_coord_to_tuple(float_value_long)
+            if float_value_lat > 0:
+                lat_ref = 'N'
+            else:
+                lat_ref = 'S'
 
-        if float_value_long > 0:
-            lon_ref = 'E'
-        else:
-            lon_ref = 'W'
+            if float_value_long > 0:
+                lon_ref = 'E'
+            else:
+                lon_ref = 'W'
 
-        modify_dict_gps = [float_value_lat, lat_ref, float_value_long, lon_ref]
-        try:
-            original_metadata.pop('gps_latitude_ref')
-        except KeyError:
-            pass
-        try:
-            original_metadata.pop('gps_latitude')
-        except KeyError:
-            pass
-        try:
-            original_metadata.pop('gps_longitude_ref')
-        except KeyError:
-            pass
-        try:
-            original_metadata.pop('gps_longitude')
-        except KeyError:
-            pass
+            modify_dict_gps = [float_value_lat, lat_ref, float_value_long, lon_ref]
+            try:
+                original_metadata.pop('gps_latitude_ref')
+            except KeyError:
+                pass
+            try:
+                original_metadata.pop('gps_latitude')
+            except KeyError:
+                pass
+            try:
+                original_metadata.pop('gps_longitude_ref')
+            except KeyError:
+                pass
+            try:
+                original_metadata.pop('gps_longitude')
+            except KeyError:
+                pass
 
     # Сделать сам модифай
     if modify_dict:
         img.set(list(modify_dict.keys())[0],
-                modify_dict[f"{list(modify_dict.keys())[0]}"])  # type: ignore[attr-defined]
+                modify_dict[f"{list(modify_dict.keys())[0]}"])
 
         for i in range(len(original_metadata)):
             img.set(list(original_metadata.keys())[i], original_metadata[f"{list(original_metadata.keys())[i]}"])
 
         with open(f"{photofile}_temp", 'wb') as new_file:
-            new_file.write(img.get_file())  # type: ignore[attr-defined]
+            new_file.write(img.get_file())
         os.remove(photofile)
         os.rename(f"{photofile}_temp", photofile)
 
@@ -595,7 +592,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
                 img.set(list(original_metadata.keys())[i], original_metadata[f"{list(original_metadata.keys())[i]}"])
 
             with open(f"{photofile}_temp", 'wb') as new_file:
-                new_file.write(img.get_file())  # type: ignore[attr-defined]
+                new_file.write(img.get_file())
 
         os.remove(photofile)
         os.rename(f"{photofile}_temp", photofile)
@@ -614,110 +611,110 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
     def make_error():
         raise ErrorsAndWarnings.EditExifError()
 
-    # выдержка
-    if editing_type == 3:
-        if '/' in new_value:
-            try:
-                if int(new_value.split('/')[0]) < 0 or int(new_value.split('/')[1]) < 0:
+    match editing_type:
+
+        # выдержка
+        case 3:
+            if '/' in new_value:
+                try:
+                    if int(new_value.split('/')[0]) < 0 or int(new_value.split('/')[1]) < 0:
+                        make_error()
+                except Exception:
                     make_error()
-            except Exception:
-                make_error()
-        else:
+            else:
+                try:
+                    float(new_value)
+                except ValueError:
+                    make_error()
+
+        # ISO
+        case 4:
             try:
-                float(new_value)
+                int(new_value)
+                if int(new_value) < 0:
+                    make_error()
             except ValueError:
                 make_error()
 
-    # ISO
-    elif editing_type == 4:
-        try:
-            int(new_value)
-            if int(new_value) < 0:
-                make_error()
-        except ValueError:
-            make_error()
-
-    # диафрагма
-    elif editing_type == 5:
-        try:
-            float_value = float(new_value)
-            if float_value < 0:
-                make_error()
-        except ValueError:
-            make_error()
-
-    # фокусное расстояние
-    elif editing_type == 6:
-        try:
-            if int(new_value) < 0:
-                make_error()
-        except ValueError:
-            make_error()
-
-    # дата съёмки
-    elif editing_type == 11:
-        try:
-            int(new_value[0:4])
-
-            if 1 <= int(new_value[5:7]) <= 12:
-                pass
-            else:
+        # диафрагма
+        case 5:
+            try:
+                float_value = float(new_value)
+                if float_value < 0:
+                    make_error()
+            except ValueError:
                 make_error()
 
-            if 1 <= int(new_value[8:10]) <= 31:
-                pass
-            else:
+        # фокусное расстояние
+        case 6:
+            try:
+                if int(new_value) < 0:
+                    make_error()
+            except ValueError:
                 make_error()
 
-            if 0 <= int(new_value[11:13]) <= 24:
-                pass
-            else:
+        # дата съёмки
+        case 11:
+            try:
+                int(new_value[0:4])
+
+                if 1 <= int(new_value[5:7]) <= 12:
+                    pass
+                else:
+                    make_error()
+
+                if 1 <= int(new_value[8:10]) <= 31:
+                    pass
+                else:
+                    make_error()
+
+                if 0 <= int(new_value[11:13]) <= 24:
+                    pass
+                else:
+                    make_error()
+
+                if 0 <= int(new_value[14:16]) <= 60:
+                    pass
+                else:
+                    make_error()
+
+                if 0 <= int(new_value[17:19]) <= 60:
+                    pass
+                else:
+                    make_error()
+
+                if new_value[4] == ':' and new_value[7] == ':' and new_value[13] == ':' and new_value[16] == ':' and \
+                        new_value[10] == ' ':
+                    pass
+                else:
+                    make_error()
+            except ValueError:
                 make_error()
 
-            if 0 <= int(new_value[14:16]) <= 60:
-                pass
-            else:
+        # часовой пояс
+        case 8:
+            try:
+                int(new_value[1])
+                int(new_value[2])
+                if new_value[0] == '+' or new_value[0] == '-':
+                    pass
+                else:
+                    make_error()
+                if new_value[3] == ':' and new_value[4] == '0' and new_value[5] == '0':
+                    pass
+                else:
+                    make_error()
+            except (ValueError, IndexError):
                 make_error()
 
-            if 0 <= int(new_value[17:19]) <= 60:
-                pass
-            else:
+        # GPS
+        case 7:
+            new_value_splitted = new_value.split(', ')
+            try:
+                float(new_value_splitted[0])
+                float(new_value_splitted[1])
+            except (ValueError, IndexError):
                 make_error()
-
-            if new_value[4] == ':' and new_value[7] == ':' and new_value[13] == ':' and new_value[16] == ':' and \
-                    new_value[10] == ' ':
-                pass
-            else:
-                make_error()
-
-        except ValueError:
-            make_error()
-
-    # часовой пояс
-    elif editing_type == 8:
-        try:
-            int(new_value[1])
-            int(new_value[2])
-            if new_value[0] == '+' or new_value[0] == '-':
-                pass
-            else:
-                make_error()
-            if new_value[3] == ':' and new_value[4] == '0' and new_value[5] == '0':
-                pass
-            else:
-                make_error()
-        except (ValueError, IndexError):
-            make_error()
-
-    # GPS
-    elif editing_type == 7:
-        new_value_splitted = new_value.split(', ')
-
-        try:
-            float(new_value_splitted[0])
-            float(new_value_splitted[1])
-        except (ValueError, IndexError):
-            make_error()
 
 
 # Замена неправильного названия для выбора группировки на правильное
@@ -772,15 +769,21 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     photofile = photodirectory + '/' + photoname
     with open(photofile, 'rb') as img:
         img = exif.Image(photofile)
-        img.delete_all()  # type: ignore[attr-defined]
+        img.delete_all()
 
     with open(f"{photofile}_temp", 'wb') as new_file:
-        new_file.write(img.get_file())  # type: ignore[attr-defined]
+        new_file.write(img.get_file())
     os.remove(photofile)
     os.rename(f"{photofile}_temp", photofile)
 
 
-def check_photo_rotation(photo_file):
+# Проверка и исправление ориентации фотографии
+def check_photo_rotation(photo_file: str) -> None:
+    """
+    Для добавляемых в каталоги фотографий можно сделать нормальный поворот, чтобы ен крутить их каждый раз
+    :param photo_file: абсолютный путь к фотографии
+    :return: фотография нормально повёрнута
+    """
     data = read_exif(photo_file)
     try:
         width = str(data['image_width'])
@@ -839,10 +842,18 @@ def check_photo_rotation(photo_file):
         os.rename(photo_file + '_temp', photo_file)
         im.close()
         im_flipped.close()
-        write_normal_photo_size(photo_file, width, height)
+        write_normal_photo_size(photo_file, int(width), int(height))
 
 
-def write_normal_photo_size(photo_file, width, height):
+# записать в метаданные нормально ширину и высоту картинки
+def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
+    """
+    После поворота, как надо, необходимо вписать в метаданные в нормальном виде размеры сторон и актуальную ориентацию (Top_Left)
+    :param photo_file: абсолютный пуь к фотографии
+    :param width: ширина в пикселях
+    :param height: высота в пикселях
+    :return:
+    """
     with open(photo_file, 'rb') as img:
         img = exif.Image(photo_file)
 
@@ -860,8 +871,14 @@ def write_normal_photo_size(photo_file, width, height):
     os.remove(photo_file)
     os.rename(f"{photo_file}_temp", photo_file)
 
-
-def get_original_metadata(photo_file):
+# Считать отображаемые метаданные до их изменения
+def get_original_metadata(photo_file: str) -> dict:
+    """
+    Так как после вписания данных в раздел метаданных "0th" происходит хуета с полезной информацией - надо её
+    считать до изменения, а потом записать обратно
+    :param photo_file: абсолютный путь к файлу с изменяемыми метаданными
+    :return: словарь исходных корректных значений exif
+    """
     all_data = read_exif(photo_file)
         
     original_metadata = {}
@@ -944,7 +961,14 @@ def get_original_metadata(photo_file):
     return original_metadata
 
 
-def onlyshow_rotation(photo_file):
+# Ориантация файла при разовом просмотре
+def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
+    """
+    Так как для разового просомтра файл не редактируется, а отобразить корректно его надо - если он с нормальной
+    ориентацией, то показывается он, иначе создаётся нормально повёрнутая копия этого файла и отображается она
+    :param photo_file: путь к файлу, который надо показать
+    :return: соответствует ли ориентация той, что считана в showinfo заранее, если нет - выбрать обратную
+    """
     data = read_exif(photo_file)
     im = Image.open(photo_file)
     try:
@@ -996,7 +1020,14 @@ def onlyshow_rotation(photo_file):
     return photo_show, orientation
 
 
-def onlyshow_thumbnail_orientation(photo_file, thumbnail_file):
+# Ориентация миниатюры фотографии при разовом просмотре
+def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None:
+    """
+    Если файл кривой, то надо повернуть его миниатюру (сначала создаётся миниатюра, потом поворачивается)
+    :param photo_file: абсолютный путь фотографии (узнать ориентацию)
+    :param thumbnail_file: абсолютный путь миниатюры
+    :return: миниатюра ставится в корректное положение
+    """
     data = read_exif(photo_file)
     thum = Image.open(thumbnail_file)
     try:

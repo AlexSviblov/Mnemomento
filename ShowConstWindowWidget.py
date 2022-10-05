@@ -1,18 +1,19 @@
 import os
 import folium
+import json
+import math
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from pathlib import Path
-import json
+
 import PhotoDataDB
 import Screenconfig
 import Metadata
 import Settings
 import Thumbnail
-import math
 import EditFiles
-import PIL
+
 
 
 stylesheet1 = str()
@@ -156,7 +157,6 @@ class ConstWidgetWindow(QWidget):
         global icon_view
         global icon_edit
         global icon_delete
-
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 =   """
@@ -443,7 +443,6 @@ class ConstWidgetWindow(QWidget):
 
     # функция отображения кнопок с миниатюрами при сортировке по датам
     def date_show_thumbnails(self) -> None:
-
         year = self.date_year.currentText()
         month = self.date_month.currentText()
         day = self.date_day.currentText()
@@ -567,7 +566,6 @@ class ConstWidgetWindow(QWidget):
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
 
-
         # фотографии списком выбираются из БД, где есть имя файла и каталог
         # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
         # для showinfo и editexif дата берётся из objectName
@@ -579,16 +577,16 @@ class ConstWidgetWindow(QWidget):
             return
         else:
             pass
-        status = self.sn_status.currentText()
 
-        if status == 'Не выбрано':
-            status_bd = 'No value'
-        elif status == 'Не публиковать':
-            status_bd = 'No publicate'
-        elif status == 'Опубликовать':
-            status_bd = 'Will publicate'
-        elif status == 'Опубликовано':
-            status_bd = 'Publicated'
+        match self.sn_status.currentText():
+            case 'Не выбрано':
+                status_bd = 'No value'
+            case 'Не публиковать':
+                status_bd = 'No publicate'
+            case 'Опубликовать':
+                status_bd = 'Will publicate'
+            case 'Опубликовано':
+                status_bd = 'Publicated'
 
         photo_list = PhotoDataDB.get_sn_photo_list(network, status_bd)
 
@@ -674,13 +672,13 @@ class ConstWidgetWindow(QWidget):
         for i in reversed(range(self.layout_inside_thumbs.count())):
             self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
 
-        group_type = self.group_type.currentText()
-        if group_type == 'Дата':
-            self.date_show_thumbnails()
-        elif group_type == 'Соцсети':
-            self.sn_show_thumbnails()
-        elif group_type == 'Оборудование':
-            self.eqip_show_thumbnails()
+        match self.group_type.currentText():
+            case 'Дата':
+                self.date_show_thumbnails()
+            case 'Соцсети':
+                self.sn_show_thumbnails()
+            case 'Оборудование':
+                self.eqip_show_thumbnails()
 
         for i in reversed(range(self.layout_type.count())):
             self.layout_type.itemAt(i).widget().setDisabled(False)
@@ -767,6 +765,7 @@ class ConstWidgetWindow(QWidget):
 
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name, self.photo_directory)
         self.photo_rotation = metadata['Rotation']
+
         try:
             self.gps_coordinates = metadata['GPS']
         except KeyError:
@@ -875,26 +874,27 @@ class ConstWidgetWindow(QWidget):
         except (RuntimeError, AttributeError):
             pass
 
-        if self.group_type.currentText() == 'Дата':
-            old_year = self.date_year.currentText()
-            old_month = self.date_month.currentText()
-            old_day = self.date_day.currentText()
-            self.fill_sort_date()
-            self.date_year.setCurrentText(old_year)
-            self.date_month.setCurrentText(old_month)
-            self.date_day.setCurrentText(old_day)
-        elif self.group_type.currentText() == 'Соцсети':
-            old_network = self.socnet_choose.currentText()
-            old_status = self.sn_status.currentText()
-            self.fill_sort_socnets()
-            self.socnet_choose.setCurrentText(old_network)
-            self.sn_status.setCurrentText(old_status)
-        elif self.group_type.currentText() == 'Оборудование':
-            old_camera = self.camera_choose.currentText()
-            old_lens = self.lens_choose.currentText()
-            self.fill_sort_equipment()
-            self.camera_choose.setCurrentText(old_camera)
-            self.lens_choose.setCurrentText(old_lens)
+        match self.group_type.currentText():
+            case 'Дата':
+                old_year = self.date_year.currentText()
+                old_month = self.date_month.currentText()
+                old_day = self.date_day.currentText()
+                self.fill_sort_date()
+                self.date_year.setCurrentText(old_year)
+                self.date_month.setCurrentText(old_month)
+                self.date_day.setCurrentText(old_day)
+            case 'Соцсети':
+                old_network = self.socnet_choose.currentText()
+                old_status = self.sn_status.currentText()
+                self.fill_sort_socnets()
+                self.socnet_choose.setCurrentText(old_network)
+                self.sn_status.setCurrentText(old_status)
+            case 'Оборудование':
+                old_camera = self.camera_choose.currentText()
+                old_lens = self.lens_choose.currentText()
+                self.fill_sort_equipment()
+                self.camera_choose.setCurrentText(old_camera)
+                self.lens_choose.setCurrentText(old_lens)
 
     # Действия при изменении размеров окна
     def resizeEvent(self, QResizeEvent) -> None:
@@ -1034,16 +1034,17 @@ class ConstWidgetWindow(QWidget):
         if not os.path.exists(f"{photodirectory}/{photoname}"):
             return
 
-        if self.group_type.currentText() == 'Дата':
-            old_year = self.date_year.currentText()
-            old_month = self.date_month.currentText()
-            old_day = self.date_day.currentText()
-        elif self.group_type.currentText() == 'Соцсети':
-            old_network = self.socnet_choose.currentText()
-            old_status = self.sn_status.currentText()
-        elif self.group_type.currentText() == 'Оборудование':
-            old_camera = self.camera_choose.currentText()
-            old_lens = self.lens_choose.currentText()
+        match self.group_type.currentText():
+            case 'Дата':
+                old_year = self.date_year.currentText()
+                old_month = self.date_month.currentText()
+                old_day = self.date_day.currentText()
+            case 'Соцсети':
+                old_network = self.socnet_choose.currentText()
+                old_status = self.sn_status.currentText()
+            case 'Оборудование':
+                old_camera = self.camera_choose.currentText()
+                old_lens = self.lens_choose.currentText()
 
         def re_show():
             if self.group_type.currentText() == 'Дата':
@@ -1160,14 +1161,15 @@ class ConstWidgetWindow(QWidget):
                 self.sn_tag_choose.addItem('Опубликовать')
                 self.sn_tag_choose.addItem('Опубликовано')
 
-                if sn_tags[f'{name}'] == 'No value':
-                    self.sn_tag_choose.setCurrentText('Не выбрано')
-                elif sn_tags[f'{name}'] == 'No publicate':
-                    self.sn_tag_choose.setCurrentText('Не публиковать')
-                elif sn_tags[f'{name}'] == 'Will publicate':
-                    self.sn_tag_choose.setCurrentText('Опубликовать')
-                elif sn_tags[f'{name}'] == 'Publicated':
-                    self.sn_tag_choose.setCurrentText('Опубликовано')
+                match sn_tags[f'{name}']:
+                    case 'No value':
+                        self.sn_tag_choose.setCurrentText('Не выбрано')
+                    case 'No publicate':
+                        self.sn_tag_choose.setCurrentText('Не публиковать')
+                    case 'Will publicate':
+                        self.sn_tag_choose.setCurrentText('Опубликовать')
+                    case 'Publicated':
+                        self.sn_tag_choose.setCurrentText('Опубликовано')
 
                 self.sn_tag_choose.currentTextChanged.connect(edit_tags)
                 self.sn_tag_choose.currentTextChanged.connect(refresh_thumbs)
@@ -1202,15 +1204,15 @@ class ConstWidgetWindow(QWidget):
             self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
 
         def edit_tags():
-            new_status = self.sender().currentText()
-            if new_status == 'Не выбрано':
-                new_status_bd = 'No value'
-            elif new_status == 'Не публиковать':
-                new_status_bd = 'No publicate'
-            elif new_status == 'Опубликовать':
-                new_status_bd = 'Will publicate'
-            elif new_status == 'Опубликовано':
-                new_status_bd = 'Publicated'
+            match self.sender().currentText():
+                case 'Не выбрано':
+                    new_status_bd = 'No value'
+                case 'Не публиковать':
+                    new_status_bd = 'No publicate'
+                case 'Опубликовать':
+                    new_status_bd = 'Will publicate'
+                case 'Опубликовано':
+                    new_status_bd = 'Publicated'
 
             network = self.sender().objectName()
             PhotoDataDB.edit_sn_tags(photoname, photodirectory, new_status_bd, network)
@@ -1377,20 +1379,18 @@ class ConstWidgetWindow(QWidget):
 
     # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:
-
-        sort_type = self.group_type.currentText()
-
         for i in reversed(range(self.layout_type.count())):
             self.layout_type.itemAt(i).widget().hide()
             self.layout_type.itemAt(i).widget().deleteLater()
             QtCore.QCoreApplication.processEvents()
 
-        if sort_type == 'Дата':
-            self.fill_sort_date()
-        elif sort_type == 'Соцсети':
-            self.fill_sort_socnets()
-        elif sort_type == 'Оборудование':
-            self.fill_sort_equipment()
+        match self.group_type.currentText():
+            case 'Дата':
+                self.fill_sort_date()
+            case 'Соцсети':
+                self.fill_sort_socnets()
+            case 'Оборудование':
+                self.fill_sort_equipment()
 
         self.type_show_thumbnails()
 
@@ -1412,7 +1412,6 @@ class DelPhotoConfirm(QDialog):
 
     def __init__(self, photoname, photodirectory):
         super(DelPhotoConfirm, self).__init__()
-
         self.photoname = photoname
         self.photodirectory = photodirectory
 

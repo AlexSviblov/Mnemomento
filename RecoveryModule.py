@@ -1,6 +1,5 @@
 import os
 import sys
-
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QMovie
@@ -25,7 +24,6 @@ class RecoveryWin(QMainWindow):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.stylesheet_color()
-
         # Создание окна
         self.setWindowTitle('Восстановление')
         self.setStyleSheet(stylesheet2)
@@ -103,20 +101,29 @@ class RecoveryWin(QMainWindow):
                             """
             loading_icon = os.getcwd() + '/icons/loading_dark.gif'
 
+        try:
+            self.setStyleSheet(stylesheet2)
+            self.centralWidget().make_gui()
+        except AttributeError:
+            pass
+
 
 # сам виджет со всем GUI
-# noinspection PyUnresolvedReferences
 class RecoveryWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.setStyleSheet(stylesheet2)
         self.setWindowTitle('Восстановление')
-
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
 
+        self.make_gui()
+
+        self.resize(800, 220)
+
+    def make_gui(self):
         self.lbl_len_photos = QLabel(self)
         self.lbl_len_photos.setText("Записей в таблице данных о фотографиях:")
         self.lbl_len_photos.setFont(font14)
@@ -205,8 +212,6 @@ class RecoveryWidget(QWidget):
         self.btn_recovery.clicked.connect(self.do_recovery_func)
         self.layout.addWidget(self.btn_recovery, 10, 0, 1, 1)
 
-        self.resize(800, 220)
-
     # выполнение восстановления
     def do_recovery_func(self) -> None:
         self.loading_win = RecoveryLoadingWin(self)
@@ -267,7 +272,6 @@ class DoRecovery(QtCore.QThread):
 
     def __init__(self):
         QThread.__init__(self)
-
         self._init = False
 
     def run(self):

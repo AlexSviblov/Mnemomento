@@ -1,8 +1,7 @@
-import logging
-
-from PIL import Image   # type: ignore[import]
 import os
 import shutil
+from PIL import Image
+
 import Settings
 import Metadata
 
@@ -140,8 +139,6 @@ def make_thumbnails_view(photo_file: str) -> None:
     :param photo_file: абсолютный путь к фотографии, для которой надо создать миниатюру.
     :return: миниатюра для переданного фото (а в общем контексте - всем выбранным для разового просмотра файла) создана.
     """
-
-
     destination_thumbs = Settings.get_destination_thumb()
     photo_splitted = photo_file.split('/')
     photo_name = photo_splitted[-1]     # C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/IMG_4090.jpg

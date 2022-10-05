@@ -1,7 +1,11 @@
 import sys
+import os
+import json
+import logging
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import *
+from pathlib import Path
 
 import OnlyShowWidget
 import ShowAloneWindowWidget
@@ -10,13 +14,9 @@ import SocialNetworks
 import Thumbnail
 import ErNamesDB
 import FilesDirs
-import json
-import os
-from pathlib import Path
 import ErrorsAndWarnings
 import Settings
 import RecoveryModule
-import logging
 import GlobalMap
 
 
@@ -416,7 +416,7 @@ class MainWindow(QMainWindow):
             win.show()
             self.start_show()
         else:
-            win = ErrorsAndWarnings.PhotoExists(self, files, "alone")   # type: ignore[assignment]
+            win = ErrorsAndWarnings.PhotoExists(self, files, "alone")
             win.show()
             self.show_main_alone_widget()
         self.add_files_progress = None
@@ -525,8 +525,8 @@ class MainWindow(QMainWindow):
     # после изменения в настройках надо обновить текущий виджет
     def update_settings_widget(self) -> None:
         self.stylesheet_color()
-        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
 
+        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
             chosen_dir = self.centralWidget().directory_choose.currentText()
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(chosen_dir)
@@ -564,6 +564,34 @@ class MainWindow(QMainWindow):
             self.centralWidget().stylesheet_color()
         elif type(self.centralWidget()) == StartShow:
             self.start_show()
+        elif type(self.centralWidget()) == GlobalMap.GlobalMapWidget:
+            chosen_mode = self.centralWidget().group_type.currentText()
+            if chosen_mode == 'Оборудование':
+                chosen_camera = self.centralWidget().camera_choose.currentText()
+                chosen_lens = self.centralWidget().lens_choose.currentText()
+            elif chosen_mode == 'Соцсети':
+                chosen_network = self.centralWidget().socnet_choose.currentText()
+                chosen_status = self.centralWidget().sn_status.currentText()
+            else:  # 'Дата'
+                chosen_year = self.centralWidget().date_year.currentText()
+                chosen_month = self.centralWidget().date_month.currentText()
+                chosen_day = self.centralWidget().date_day.currentText()
+
+            self.centralWidget().stylesheet_color()
+
+            if chosen_mode == 'Оборудование':
+                self.centralWidget().camera_choose.setCurrentText(chosen_camera)
+                self.centralWidget().lens_choose.setCurrentText(chosen_lens)
+            elif chosen_mode == 'Соцсети' and Settings.get_socnet_status():
+                self.centralWidget().socnet_choose.setCurrentText(chosen_network)
+                self.centralWidget().sn_status.setCurrentText(chosen_status)
+            elif chosen_mode == 'Дата':
+                self.centralWidget().date_year.setCurrentText(chosen_year)
+                self.centralWidget().date_month.setCurrentText(chosen_month)
+                self.centralWidget().date_day.setCurrentText(chosen_day)
+            else:
+                # Если были выбраны "Соцсети", но в настройках их отключили
+                pass
         else:
             pass
 
@@ -589,7 +617,6 @@ class MainWindow(QMainWindow):
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:  # Const
             if self.centralWidget().socnet_group.isVisible():
                 self.centralWidget().show_social_networks(self.centralWidget().last_clicked_name, self.centralWidget().last_clicked_dir)
-
             if self.centralWidget().group_type.currentText() == 'Соцсети':
                 self.centralWidget().fill_sort_socnets()
         else:
@@ -636,9 +663,7 @@ class ProgressBar(QWidget):
 
 
 # стартовое окно, при запуске программы
-# noinspection PyArgumentList
 class StartShow(QWidget):
-
     const_show_signal = QtCore.pyqtSignal()
     alone_show_signal = QtCore.pyqtSignal()
     const_add_dir_signal = QtCore.pyqtSignal()
@@ -875,7 +900,6 @@ class ConstMaker(QtCore.QThread):
 
     def __init__(self, file_list):
         QThread.__init__(self)
-
         self._init = False
 
         self.files_list = file_list
@@ -923,7 +947,6 @@ class AloneMaker(QtCore.QThread):
 
     def __init__(self, photo_directory, photo_files_list, mode, exists_dir):
         QThread.__init__(self)
-
         self._init = False
 
         self.photo_directory = photo_directory

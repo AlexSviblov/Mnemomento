@@ -1,11 +1,8 @@
 import datetime
-import logging
 import os
-
-import ErrorsAndWarnings
-import Metadata
 import sqlite3
 
+import Metadata
 import Settings
 
 conn = sqlite3.connect(f'file:{os.getcwd()}\\PhotoDB.db', check_same_thread=False, uri=True)
@@ -19,7 +16,6 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
     :param photodirectory: каталог хранения фотографии.
     :return: добавляются 2 записи в БД (1 в таблице photos, 2 в socialnetworks)
     """
-
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
     # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
@@ -76,35 +72,36 @@ def edit_in_database(photoname: str, photodirectory: str, editing_type: int, new
     :param new_text: новое значение, вносимое в БД.
     :return: изменение записи в соответствии с редактированием метаданных.
     """
-    if editing_type == 1:       # камера
-        sql_str = f'UPDATE photos SET camera = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-        cur.execute(sql_str)
-        conn.commit()
+    match editing_type:
+        case 1:       # камера
+            sql_str = f'UPDATE photos SET camera = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+            cur.execute(sql_str)
+            conn.commit()
 
-    elif editing_type == 2:     # объектив
-        sql_str = f'UPDATE photos SET lens = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-        cur.execute(sql_str)
-        conn.commit()
+        case 2:     # объектив
+            sql_str = f'UPDATE photos SET lens = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+            cur.execute(sql_str)
+            conn.commit()
 
-    elif editing_type == 11:     # дата съёмки
-        shootingdate = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10]
-        shootingdatetime = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10] + new_text[10:]
-        sql_str1 = f'UPDATE photos SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-        sql_str2 = f'UPDATE photos SET shootingdatetime = \'{shootingdatetime}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-        sql_str3 = f'UPDATE socialnetworks SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+        case 11:     # дата съёмки
+            shootingdate = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10]
+            shootingdatetime = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10] + new_text[10:]
+            sql_str1 = f'UPDATE photos SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+            sql_str2 = f'UPDATE photos SET shootingdatetime = \'{shootingdatetime}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+            sql_str3 = f'UPDATE socialnetworks SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
 
-        cur.execute(sql_str1)
-        cur.execute(sql_str2)
-        cur.execute(sql_str3)
-        conn.commit()
+            cur.execute(sql_str1)
+            cur.execute(sql_str2)
+            cur.execute(sql_str3)
+            conn.commit()
 
-    elif editing_type == 7:    # GPS
-        sql_str = f'UPDATE photos SET GPSdata = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-        cur.execute(sql_str)
-        conn.commit()
+        case 7:    # GPS
+            sql_str = f'UPDATE photos SET GPSdata = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+            cur.execute(sql_str)
+            conn.commit()
 
-    else:       # другие данные (которых нет в БД)
-        pass
+        case _:       # другие данные (которых нет в БД)
+            pass
 
 
 # при переносе в другую папку надо переписать её путь в БД
@@ -291,16 +288,17 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
     :param status: 1 из 4 возможных статусов в формате БД.
     :return: абсолютные пути фото с выбранным статусом в выбранной соцсети.
     """
-    if status == 'Не выбрано':
-        status_bd = 'No value'
-    elif status == 'Не публиковать':
-        status_bd = 'No publicate'
-    elif status == 'Опубликовать':
-        status_bd = 'Will publicate'
-    elif status == 'Опубликовано':
-        status_bd = 'Publicated'
-    else:
-        status_bd = 'No value'
+    match status:
+        case 'Не выбрано':
+            status_bd = 'No value'
+        case 'Не публиковать':
+            status_bd = 'No publicate'
+        case 'Опубликовать':
+            status_bd = 'Will publicate'
+        case 'Опубликовано':
+            status_bd = 'Publicated'
+        case _:
+            status_bd = 'No value'
 
     try:
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\''

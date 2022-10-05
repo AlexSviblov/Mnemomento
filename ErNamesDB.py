@@ -1,12 +1,12 @@
 import sqlite3
 import sys
-
 from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 import ErrorsAndWarnings
 import Settings
+
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -365,12 +365,13 @@ class ViewBDDialog(QWidget):
         if self.indicator == 1:
             # изменение в БД
             self.new_element = self.table.currentItem().text()
-            if self.old_element_col == 0:
-                col_name = 'type'
-            elif self.old_element_col == 1:
-                col_name = 'exifname'
-            elif self.old_element_col == 2:
-                col_name = 'normname'
+            match self.new_element:
+                case 0:
+                    col_name = 'type'
+                case 1:
+                    col_name = 'exifname'
+                case 2:
+                    col_name = 'normname'
 
             sql_red_str = f"UPDATE ernames SET {col_name} = '{self.new_element}' WHERE {col_name} = '{self.old_element}'"
             cur.execute(sql_red_str)
@@ -601,19 +602,20 @@ class AddBDDialog(QDialog):
 
     # после подтверждения добавления
     def confirm_func(self) -> None:
-        if self.type_combobox.currentIndex() == 0:
-            type = 'maker'
-        elif self.type_combobox.currentIndex() == 1:
-            type = 'camera'
-        elif self.type_combobox.currentIndex() == 2:
-            type = 'lens'
+        match self.type_combobox.currentIndex():
+            case 0:
+                type = 'maker'
+            case 1:
+                type = 'camera'
+            case 2:
+                type = 'lens'
 
         enter_1 = "INSERT INTO ernames(type,exifname,normname) VALUES(?,?,?)"
         enter_2 = (type, self.error_entered, self.norm_entered)
 
         try:
             cur.execute(enter_1, enter_2)
-        except:
+        except Exception:
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=3)
             warning.show()
             return

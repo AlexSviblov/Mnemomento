@@ -1,24 +1,18 @@
-import logging
-import sys
 import os
 import folium
-
-from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
+import math
+import shutil
+from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
-from pathlib import Path
-import shutil
-import json
+
 import ErrorsAndWarnings
 import OnlyShowWidget
 import PhotoDataDB
-import Screenconfig
 import Metadata
 import Settings
 import ShowConstWindowWidget
 import Thumbnail
-import SocialNetworks
-import math
 
 
 stylesheet1 = str()
@@ -98,7 +92,6 @@ class EditExifData(QDialog):
         global icon_view
         global icon_edit
         global icon_delete
-
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 =   """
@@ -192,9 +185,6 @@ class EditExifData(QDialog):
                                     selection-background-color: #C0C0C0;
                                 }
                             """
-            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
-            icon_view = os.getcwd() + '/icons/view_light.png'
-            icon_edit = os.getcwd() + '/icons/edit_light.png'
             icon_explorer = os.getcwd() + '/icons/explorer_light.png'
             icon_view = os.getcwd() + '/icons/view_light.png'
             icon_edit = os.getcwd() + '/icons/edit_light.png'
@@ -1050,7 +1040,7 @@ class EditExifData(QDialog):
 
     # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
     def block_check_gps(self) -> None:
-        if self.sender().text() == "ШД Г.м.с":    # type: ignore[attr-defined]
+        if self.sender().text() == "ШД Г.м.с":
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
@@ -1271,17 +1261,14 @@ class EditExifData(QDialog):
 
 # совпали имена файлов при переносе по новой дате в exif
 class EqualNames(QDialog):
-
     file_rename_transfer_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent, filesname, old_date, new_date, full_exif_date):
         super(EqualNames, self).__init__(parent)
         self.full_exif_date = full_exif_date
-
         # Создание окна
         self.setWindowTitle('Конфликт имён файлов')
         self.resize(600, 90)
-
         # new - в котором изменили дату
         # old - который уже есть в папке с этой датой
         self.file_full_name = filesname
@@ -1408,7 +1395,7 @@ class EqualNames(QDialog):
             new_new_name = self.new_name.text() + '.' + self.format
 
             if os.path.exists(self.old_photo_dir + new_new_name):
-                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)     # type: ignore[assignment]
+                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
                 err_win.show()
                 return
 
@@ -1424,7 +1411,7 @@ class EqualNames(QDialog):
             new_old_name = self.old_name.text() + '.' + self.format
 
             if os.path.exists(self.old_photo_dir + new_old_name):
-                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)     # type: ignore[assignment]
+                err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
                 err_win.show()
                 return
 
@@ -1443,9 +1430,9 @@ class EqualNames(QDialog):
 class ConfirmClear(QDialog):
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
+
     def __init__(self, parent):
         super(ConfirmClear, self).__init__(parent)
-
         self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle('Подтверждение очистки')

@@ -2,15 +2,15 @@ import logging
 import math
 import folium
 import os
+import json
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
-from PIL import Image       # type: ignore[import]
+
 import Metadata
 import Settings
 import ErrorsAndWarnings
-import json
 
 
 stylesheet1 = str()
@@ -29,7 +29,6 @@ font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
 
-# noinspection PyUnresolvedReferences,PyArgumentList
 class WidgetWindow(QWidget):
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
@@ -403,9 +402,8 @@ class WidgetWindow(QWidget):
 
     # функция показа большой картинки
     def showinfo(self) -> None:
-
         try:
-            self.button_text = self.sender().text() # type: ignore[attr-defined]
+            self.button_text = self.sender().text()
         except AttributeError:
             if self.last_clicked == '':
                 return
@@ -419,8 +417,7 @@ class WidgetWindow(QWidget):
         # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
-        # pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
-        show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)
+        show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)# размещение большой картинки
         pixmap = QtGui.QPixmap(show_photo)
 
         metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
@@ -436,6 +433,7 @@ class WidgetWindow(QWidget):
 
         params = list(metadata.keys())
         params.remove('Rotation')
+
         try:
             self.gps_coordinates = metadata['GPS']
         except KeyError:
@@ -521,7 +519,6 @@ class WidgetWindow(QWidget):
         self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
         self.edit_btn.setIconSize(QtCore.QSize(50, 50))
         self.edit_btn.setToolTip("Редактирование метаданных")
-        # self.edit_btn.setText('RED')
         self.edit_btn.setStyleSheet(stylesheet1)
         self.edit_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.edit_btn, 0, 0, 1, 1)
@@ -532,7 +529,6 @@ class WidgetWindow(QWidget):
         self.explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
         self.explorer_btn.setIconSize(QtCore.QSize(50, 50))
         self.explorer_btn.setToolTip("Показать в проводнике")
-        # self.explorer_btn.setText('EXP')
         self.explorer_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.explorer_btn, 1, 0, 1, 1)
         self.explorer_btn.clicked.connect(self.call_explorer)
@@ -542,7 +538,6 @@ class WidgetWindow(QWidget):
         self.open_file_btn.setIcon(QtGui.QIcon(icon_view))
         self.open_file_btn.setIconSize(QtCore.QSize(50, 50))
         self.open_file_btn.setToolTip("Открыть")
-        # self.open_file_btn.setText('OPN')
         self.open_file_btn.setFixedSize(50, 50)
         self.layout_btns.addWidget(self.open_file_btn, 2, 0, 1, 1)
         self.open_file_btn.clicked.connect(self.open_file_func)
@@ -648,7 +643,6 @@ class EditExifData(QDialog):
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # создание всего GUI в разделе, где можно редактировать метаданные
-    # noinspection PyUnresolvedReferences
     def make_tabs_gui(self) -> None:
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
@@ -1232,13 +1226,13 @@ class EditExifData(QDialog):
 
     # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
     def block_check_gps(self) -> None:
-        if self.sender().text() == "ШД Г.м.с":  # type: ignore[attr-defined]
+        if self.sender().text() == "ШД Г.м.с":
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
                 self.mode_check_fn.setCheckState(Qt.Checked)
 
-        elif self.sender().text() == "Числом":  # type: ignore[attr-defined]
+        elif self.sender().text() == "Числом":
             if self.mode_check_fn.checkState() == 2:
                 self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
@@ -1293,8 +1287,6 @@ class EditExifData(QDialog):
         def check_enter(editing_type: int, new_text: str) -> None:
             Metadata.exif_check_edit(editing_type, new_text)
 
-        own_dir = os.getcwd()
-
         # проверка введённых пользователем метаданных
         try:
             check_enter(editing_type, new_text)
@@ -1329,7 +1321,6 @@ class ConfirmClear(QDialog):
     reject_signal = QtCore.pyqtSignal()
     def __init__(self, parent):
         super(ConfirmClear, self).__init__(parent)
-
         self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle('Подтверждение очистки')

@@ -1,11 +1,10 @@
-import logging
 import os
 import shutil
+
 import Settings
 import Metadata
 import Thumbnail
 import PhotoDataDB
-import ErrorsAndWarnings
 
 
 # Достаёт список файлов расширения jpg из папки
@@ -36,7 +35,6 @@ def transfer_const_photos(file: str) -> str:
     for i in range(len(file_full)-1):
         file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/
                                             # file_full[-1] = IMG_3805.jpg
-
     error, day, month, year = Metadata.date_from_exif(file)
 
     fileexist = ''
@@ -147,9 +145,7 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
         shutil.move(photofile, destination + photo_directory_lastname + '/' + photofile_lastname)
 
     Metadata.check_photo_rotation(destination + photo_directory_lastname + '/' + photofile_lastname)
-
     Thumbnail.make_alone_thumbnails(photo_directory_lastname, destination + photo_directory_lastname + '/' + photofile_lastname, photofile_lastname)
-
     PhotoDataDB.add_to_database(photofile_lastname, destination + photo_directory_lastname)
 
 
@@ -163,7 +159,6 @@ def del_alone_dir(photo_directory: str) -> None:
     photo_list = Thumbnail.get_images_list(photo_directory)
     for file in photo_list:
         os.remove(photo_directory + '/' + file)
-
     os.rmdir(photo_directory)
 
 

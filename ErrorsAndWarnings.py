@@ -1,5 +1,6 @@
-from PyQt5 import QtGui, QtWidgets, QtCore
+from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
+
 import Settings
 
 

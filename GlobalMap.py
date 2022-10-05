@@ -1,21 +1,19 @@
-import sys
 import os
 import folium
-
-from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
-from PyQt5 import QtGui, QtWidgets, QtCore
+import json
+import base64
+from PyQt5 import QtWebEngineWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal
 from pathlib import Path
-import json
+from folium.plugins import MousePosition
+from PIL import Image
+from folium import IFrame
+
 import PhotoDataDB
 import Metadata
 import Settings
-from folium.plugins import MousePosition
-from PIL import Image
 
-import base64
-from folium import IFrame
 
 
 stylesheet1 = str()
@@ -92,57 +90,130 @@ class GlobalMapWidget(QWidget):
         global map_tiles
 
         if Settings.get_theme_color() == 'light':
-            stylesheet1 = "border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0"
-            stylesheet2 = "border: 0px; color: #000000; background-color: #F0F0F0"
-            stylesheet5 = """
-                                        QProgressBar
-                                        {
-                                            border: 1px;
-                                            border-color: #000000;
-                                            border-style: solid;
-                                            background-color: #FFFFFF;
-                                            color: #000000
-                                        }
-                                        QProgressBar::chunk
-                                        {
-                                            background-color: #00FF7F;  
-                                        }
-                                        """
-            stylesheet8 = "QPushButton{border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0}" \
-                          "QPushButton::pressed{border: 2px; background-color: #C0C0C0; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #A9A9A9; border-style: solid; color: #000000; background-color: #F0F0F0;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #C0C0C0;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet5 =   """
+                                QProgressBar
+                                {
+                                    border: 1px;
+                                    border-color: #000000;
+                                    border-style: solid;
+                                    background-color: #FFFFFF;
+                                    color: #000000
+                                }
+                                QProgressBar::chunk
+                                {
+                                    background-color: #00FF7F;  
+                                }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #C0C0C0;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #C0C0C0;
+                                }
+                            """
             loading_icon = os.getcwd() + '/icons/loading_light.gif'
             map_tiles = "OpenStreetMap"
         else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = "border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet2 = "border: 0px; color: #D3D3D3; background-color: #1C1C1C"
-            stylesheet5 = """
-                                        QProgressBar
-                                        {
-                                            border: 1px;
-                                            border-color: #000000;
-                                            border-style: solid;
-                                            background-color: #CCCCCC;
-                                            color: #000000
-                                        }
-                                        QProgressBar::chunk
-                                        {
-                                            background-color: #1F7515;
-                                        }
-                                        """
-            stylesheet8 = "QPushButton{border: 1px; border-color: #696969; border-style: solid; color: #D3D3D3; background-color: #1C1C1C}" \
-                          "QPushButton::pressed{border: 2px; background-color: #2F2F2F; margin-top: -1px}"
-            stylesheet9 = "QComboBox {border: 1px; border-color: #696969; border-style: solid; background-color: #1C1C1C; color: #D3D3D3;}" \
-                          "QComboBox QAbstractItemView {selection-background-color: #4F4F4F;}"
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet5 =   """
+                                QProgressBar
+                                {
+                                    border: 1px;
+                                    border-color: #000000;
+                                    border-style: solid;
+                                    background-color: #CCCCCC;
+                                    color: #000000
+                                }
+                                QProgressBar::chunk
+                                {
+                                    background-color: #1F7515;
+                                }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #2F2F2F;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #4F4F4F;
+                                }
+                            """
             loading_icon = os.getcwd() + '/icons/loading_dark.gif'
             map_tiles = "OpenStreetMap"
 
         try:
             self.groupbox_sort.setStyleSheet(stylesheet2)
             self.setStyleSheet(stylesheet2)
-            self.setStyleSheet(stylesheet2)
             self.set_sort_layout()
+            self.btn_show.setStyleSheet(stylesheet8)
+            self.group_type.setStyleSheet(stylesheet9)
         except AttributeError:
             pass
 
@@ -150,8 +221,7 @@ class GlobalMapWidget(QWidget):
     def make_show_map(self) -> None:
         self.progressbar.show()
         self.progressbar.setMaximum(100)
-        sort_type = self.group_type.currentText()
-        match sort_type:
+        match self.group_type.currentText():
             case 'Дата':
                 year = self.date_year.currentText()
                 month = self.date_month.currentText()
@@ -445,22 +515,20 @@ class GlobalMapWidget(QWidget):
 
     # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:
-        sort_type = self.group_type.currentText()
-
         for i in reversed(range(self.layout_type.count())):
             self.layout_type.itemAt(i).widget().hide()
             self.layout_type.itemAt(i).widget().deleteLater()
             QtCore.QCoreApplication.processEvents()
 
-        if sort_type == 'Дата':
-            self.fill_sort_date()
-        elif sort_type == 'Соцсети':
-            self.fill_sort_socnets()
-        elif sort_type == 'Оборудование':
-            self.fill_sort_equipment()
+        match self.group_type.currentText():
+            case 'Дата':
+                self.fill_sort_date()
+            case 'Соцсети':
+                self.fill_sort_socnets()
+            case 'Оборудование':
+                self.fill_sort_equipment()
 
     def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
-
         if shooting_date != "No data":
             date_splitted = shooting_date.split('.')
             date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
@@ -501,7 +569,6 @@ class GlobalMapWidget(QWidget):
         return iframe
 
     def popup_html_group(self, photo_data_list: list[list[str, str, str, str, bool]]) -> IFrame:
-
         html_result = f"""
                <html>
                    """
@@ -550,12 +617,9 @@ class GlobalMapWidget(QWidget):
             html_result += html_show(encoded.decode('UTF-8'))
             i += 1
 
-
-
         html_result += """</html>
            """
 
         iframe = IFrame(html_result, width=380, height=410)
 
         return iframe
-

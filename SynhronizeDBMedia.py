@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import datetime
+
 import FilesDirs
 import Metadata
 import Settings
@@ -78,11 +79,9 @@ def research_all_media_photos() -> list[list[str]]:
     :return: список абсолютных путей.
     """
     filelist = []
-    # path = Settings.get_destination_media()
     path = Settings.get_destination_media() + '/Media/Photo'
     for root, dirs, files in os.walk(path):
         for file in files:
-            # if (file.endswith(".jpg") or file.endswith(".JPG")) and 'thumbnail_' not in file:
             if file.endswith(".jpg") or file.endswith(".JPG"):
                 filelist.append([root.replace('\\', '/'), file])
 
