@@ -763,8 +763,8 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     """
     Удалить все метаданные из файла.
     :param photoname:  имя файла.
-    :param photodirectory: директори хранения.
-    :return: в отличие от перезаписи или добавления метаданных, не требуется осздание нового файла.
+    :param photodirectory: директория хранения.
+    :return: в отличие от перезаписи или добавления метаданных, не требуется создание нового файла.
     """
     photofile = photodirectory + '/' + photoname
     with open(photofile, 'rb') as img:
