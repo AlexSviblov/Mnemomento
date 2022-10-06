@@ -27,7 +27,7 @@ def read_exif(photofile: str) -> dict[str, str]:
 
 
 # извлечь из фотографии дату съёмки
-def date_from_exif(file: str) -> tuple[int, str, str, str]:
+def date_from_exif(data: dict) -> tuple[int, str, str, str]:
     """
     Для определения папки хранения файла в основном каталоге, необходимо при его добавлении в программу, достать
     дату съёмки из метаданных.
@@ -35,7 +35,6 @@ def date_from_exif(file: str) -> tuple[int, str, str, str]:
     :return: error = 1, если даты нет, и фото следует поместить в No_Date_Info, иначе - day, month, year - строки
     длинами 2, 2, 4 соответственно.
     """
-    data = read_exif(file)
 
     try:  # если дата считывается
         date = data['EXIF:DateTimeOriginal']
@@ -193,14 +192,14 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 
 # данные для вноса в БД photos
-def exif_for_db(photoname: str, photodirectory: str) -> tuple[str, str, str, str]:
+def exif_for_db(photoname: str, photodirectory: str, data: dict) -> tuple[str, str, str, str]:
     """
     Вынуть из фото метаданные для БД: камера, объектив, дата съёмки, дата-время съёмки, GPS.
     :param photoname: имя файла.
     :param photodirectory: директория для хранения фото.
     :return: камера, объектив, дата, GPS.
     """
-    data = read_exif(photodirectory + '/' + photoname)
+    # data = read_exif(photodirectory + '/' + photoname)
 
     try:
         camera = data['EXIF:Model']
@@ -392,15 +391,6 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
     :return: перезаписанные метаданные в файле (по факту создаётся НОВЫЙ ФАЙЛ с тем же именем).
     """
     photofile = photodirectory + '/' + photoname
-
-    # перевод координат из формата вещественного числа в кортеж для записи в exif
-    def exif_coord_to_tuple(coord: float) -> tuple[float, float, float]:
-        deg = float(int(coord))
-        mins_full = (coord - deg) * 60
-        mins = float(int(mins_full))
-        sec_full = (mins_full - mins) * 60
-        sec = round(sec_full, 4)
-        return (deg, mins, sec)
 
     modify_dict = dict()
     modify_dict_gps = dict()
@@ -650,13 +640,13 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
 
 
 # Проверка и исправление ориентации фотографии
-def check_photo_rotation(photo_file: str) -> None:
+def check_photo_rotation(photo_file: str, data: dict) -> None:
     """
     Для добавляемых в каталоги фотографий можно сделать нормальный поворот, чтобы ен крутить их каждый раз
     :param photo_file: абсолютный путь к фотографии
     :return: фотография нормально повёрнута
     """
-    data = read_exif(photo_file)
+    # data = read_exif(photo_file)
     try:
         try:
             width = data['EXIF:ImageWidth']

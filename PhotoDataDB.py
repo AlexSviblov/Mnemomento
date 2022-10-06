@@ -8,8 +8,9 @@ import Settings
 conn = sqlite3.connect(f'file:{os.getcwd()}\\PhotoDB.db', check_same_thread=False, uri=True)
 cur = conn.cursor()
 
+
 # Добавление записи в БД при добавлении фото в каталог
-def add_to_database(photoname: str, photodirectory: str) -> None:
+def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None:
     """
     Добавить запись о фотографии, добавляемой в программу, в базу данных.
     :param photoname: имя фотографии.
@@ -19,7 +20,7 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
     # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
-    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(photoname, photodirectory)
+    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(photoname, photodirectory, metadata)
     if shootingdatetime != "No data":
         shootingdate = shootingdatetime[:10]
     else:
