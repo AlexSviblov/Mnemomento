@@ -192,14 +192,13 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 
 # данные для вноса в БД photos
-def exif_for_db(photoname: str, photodirectory: str, data: dict) -> tuple[str, str, str, str]:
+def exif_for_db(data: dict) -> tuple[str, str, str, str]:
     """
     Вынуть из фото метаданные для БД: камера, объектив, дата съёмки, дата-время съёмки, GPS.
     :param photoname: имя файла.
     :param photodirectory: директория для хранения фото.
     :return: камера, объектив, дата, GPS.
     """
-    # data = read_exif(photodirectory + '/' + photoname)
 
     try:
         camera = data['EXIF:Model']
@@ -646,7 +645,6 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
     :param photo_file: абсолютный путь к фотографии
     :return: фотография нормально повёрнута
     """
-    # data = read_exif(photo_file)
     try:
         try:
             width = data['EXIF:ImageWidth']
