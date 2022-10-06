@@ -10,8 +10,8 @@ class LatLngPopup(MacroElement):
                 function latLngPop(e) {
                     {{this.get_name()}}
                         .setLatLng(e.latlng)
-                        .setContent("Широта: " + e.latlng.lat.toFixed(6) +
-                                    "<br>Долгота: " + e.latlng.lng.toFixed(6))
+                        .setContent("Широта: " + e.latlng.lat.toFixed(4) +
+                                    "<br>Долгота: " + e.latlng.lng.toFixed(4))
                         .openOn({{this._parent.get_name()}});
                     }
                 {{this._parent.get_name()}}.on('click', latLngPop);

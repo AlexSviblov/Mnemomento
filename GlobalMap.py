@@ -15,7 +15,6 @@ import Metadata
 import Settings
 
 
-
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
@@ -280,7 +279,7 @@ class GlobalMapWidget(QWidget):
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
 
-        formatter = "function(num) {return L.Util.formatNum(num, 6) + ' º ';};"
+        formatter = "function(num) {return L.Util.formatNum(num, 4) + ' º ';};"
 
         MousePosition(position="topright", separator=", ", empty_string="NaN",  lng_first=True,
             num_digits=20, prefix="Координаты:", lat_formatter=formatter, lng_formatter=formatter).add_to(self.map_gps)

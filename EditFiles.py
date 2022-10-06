@@ -546,10 +546,10 @@ class EditExifData(QDialog):
 
             self.latitude_fn_line = QLineEdit(self)  # широта
             self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$')))
             self.longitude_fn_line = QLineEdit(self)  # долгота
             self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
-                '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$')))
 
             self.latitude_fn_lbl.setFont(font12)
             self.longitude_fn_lbl.setFont(font12)
@@ -612,7 +612,7 @@ class EditExifData(QDialog):
 
             self.latitude_dmc_sec_line = QLineEdit(self)  # широта
             self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
 
             self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
             self.longitude_dmc_deg_line.setValidator(
@@ -623,7 +623,7 @@ class EditExifData(QDialog):
 
             self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
             self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
 
             self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
             self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
@@ -974,8 +974,8 @@ class EditExifData(QDialog):
             else: # latitude_ref == "Запад"
                 longitude_pm_coe = -1
 
-            latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 6)
-            longitude = round(longitude_pm_coe*(longitude_deg + longitude_min/60 + longitude_sec/3600), 6)
+            latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 4)
+            longitude = round(longitude_pm_coe*(longitude_deg + longitude_min/60 + longitude_sec/3600), 4)
 
             self.latitude_fn_line.setText(str(latitude))
             self.longitude_fn_line.setText(str(longitude))
