@@ -133,6 +133,7 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
     """
     destination = Settings.get_destination_media() + '/Media/Photo/alone/'
     mode = Settings.get_photo_transfer_mode()
+    file_metadata = Metadata.read_exif(photofile)
 
     if type_add != 'files':
         photo_directory_lastname = photo_directory.split('/')[-1]
@@ -146,9 +147,9 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
     else:   # mode == 'cut
         shutil.move(photofile, destination + photo_directory_lastname + '/' + photofile_lastname)
 
-    Metadata.check_photo_rotation(destination + photo_directory_lastname + '/' + photofile_lastname)
+    Metadata.check_photo_rotation(destination + photo_directory_lastname + '/' + photofile_lastname, file_metadata)
     Thumbnail.make_alone_thumbnails(photo_directory_lastname, destination + photo_directory_lastname + '/' + photofile_lastname, photofile_lastname)
-    PhotoDataDB.add_to_database(photofile_lastname, destination + photo_directory_lastname)
+    PhotoDataDB.add_to_database(photofile_lastname, destination + photo_directory_lastname, file_metadata)
 
 
 # удалить все файлы и папку из доп.каталога
@@ -178,4 +179,3 @@ def clear_empty_dirs(path) -> None:
             clear_empty_dirs(a)
             if not os.listdir(a):
                 os.rmdir(a)
-

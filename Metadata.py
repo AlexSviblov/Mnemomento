@@ -199,22 +199,21 @@ def exif_for_db(data: dict) -> tuple[str, str, str, str]:
     :param photodirectory: директория для хранения фото.
     :return: камера, объектив, дата, GPS.
     """
-
     try:
         camera = data['EXIF:Model']
     except KeyError:
-        camera = "No data"
+        camera = ""
 
     try:
         lens = data['EXIF:LensModel']
     except KeyError:
-        lens = "No data"
+        lens = ""
 
     try:
         date = data['EXIF:DateTimeOriginal']  # делаем дату русской, а не пиндосской
         date = date[0:4] + '.' + date[5:7] + '.' + date[8:10] + ' ' + date[11:]
     except KeyError:
-        date = "No data"
+        date = ""
 
     try:
         GPSLatitudeRef = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
@@ -233,7 +232,7 @@ def exif_for_db(data: dict) -> tuple[str, str, str, str]:
             GPSLatitude = GPSLatitude * (-1)
         GPS = str(GPSLatitude) + ', ' + str(GPSLongitude)
     except KeyError:
-        GPS = "No data"
+        GPS = ""
 
     return camera, lens, date, GPS
 
@@ -366,89 +365,71 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
 
 
 # modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
-def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, new_value: str) -> None:
-    """
-    Перезапись exif-метаданных в фотографии. Осуществляется полностью exif, кроме записи GPS в файл, где их до этого
-    не было, для этого используется библиотека GPSPhoto.
-    :param photoname: имя файла.
-    :param photodirectory: директоряи хранения файла.
-    :param editing_type: код изменяемого параметра (
-    0 - производитель;
-    1 - камера;
-    2 - объектив;
-    3 - выдержка;
-    4 - ISO;
-    5 - диафрагма;
-    6 - фокусное расстояние;
-    7 - GPS;
-    8 - часовой пояс съёмки;
-    9 - серийный номер фотоаппарата;
-    10 - серийный номер объектива;
-    11 - дата-время съёмки
-    ).
-    :param new_value: новое значение для параметра.
-    :return: перезаписанные метаданные в файле (по факту создаётся НОВЫЙ ФАЙЛ с тем же именем).
-    """
+def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
     photofile = photodirectory + '/' + photoname
 
     modify_dict = dict()
-    modify_dict_gps = dict()
 
-    match editing_type:
-        case 0:
-            modify_dict = {'EXIF:Make': str(new_value)}
+    editing_types = list(new_value_dict.keys())
 
-        case 1:
-            modify_dict = {'EXIF:Model': str(new_value)}
+    for edit_type in editing_types:
+        match edit_type:
+            case 0:
+                modify_dict['EXIF:Make'] = new_value_dict[0]
 
-        case 2:
-            modify_dict = {'EXIF:LensModel': str(new_value)}
+            case 1:
+                modify_dict['EXIF:Model'] = new_value_dict[1]
 
-        case 3:
-            if '/' in new_value:
-                float_value = 1 / float(new_value.split('/')[1])
-                modify_dict = {'EXIF:ExposureTime': float_value}
-            else:
-                float_value = float(new_value)
-                modify_dict = {'EXIF:ExposureTime': float_value}
+            case 2:
+                modify_dict['EXIF:LensModel'] =new_value_dict[2]
 
-        case 4:
-            modify_dict = {'EXIF:ISO': int(new_value)}
+            case 3:
+                if '/' in new_value_dict[3]:
+                    float_value = 1 / float(new_value_dict[3].split('/')[1])
+                else:
+                    float_value = float(new_value_dict[3])
+                modify_dict['EXIF:ExposureTime'] = float_value
 
-        case 5:
-            modify_dict = {'EXIF:FNumber': float(new_value)}
+            case 4:
+                modify_dict['EXIF:ISO'] = new_value_dict[4]
 
-        case 6:
-            modify_dict = {'EXIF:FocalLength': int(new_value)}
+            case 5:
+                modify_dict['EXIF:FNumber'] = new_value_dict[5]
 
-        case 11:
-            modify_dict = {'EXIF:DateTimeOriginal': str(new_value)}
+            case 6:
+                modify_dict['EXIF:FocalLength'] = new_value_dict[6]
 
-        case 8:
-            modify_dict = {'EXIF:OffsetTime': str(new_value)}
+            case 11:
+                modify_dict['EXIF:DateTimeOriginal'] = new_value_dict[11]
 
-        case 9:
-            modify_dict = {'EXIF:SerialNumber': str(new_value)}
+            case 8:
+                modify_dict['EXIF:OffsetTime'] = new_value_dict[8]
 
-        case 10:
-            modify_dict = {'EXIF:LensSerialNumber': str(new_value)}
+            case 9:
+                modify_dict['EXIF:SerialNumber'] = new_value_dict[9]
 
-        case 7:
-            new_value_splitted = new_value.split(', ')
-            float_value_lat = float(new_value_splitted[0])
-            float_value_long = float(new_value_splitted[1])
+            case 10:
+                modify_dict['EXIF:LensSerialNumber'] = new_value_dict[10]
 
-            if float_value_lat > 0:
-                lat_ref = 'N'
-            else:
-                lat_ref = 'S'
+            case 7:
+                new_value_splitted =  new_value_dict[7].split(', ')
+                float_value_lat = float(new_value_splitted[0])
+                float_value_long = float(new_value_splitted[1])
 
-            if float_value_long > 0:
-                lon_ref = 'E'
-            else:
-                lon_ref = 'W'
+                if float_value_lat > 0:
+                    lat_ref = 'N'
+                else:
+                    lat_ref = 'S'
 
-            modify_dict_gps = [float_value_lat, lat_ref, float_value_long, lon_ref]
+                if float_value_long > 0:
+                    long_ref = 'E'
+                else:
+                    long_ref = 'W'
+
+                modify_dict['GPSLatitudeRef'] = lat_ref
+                modify_dict['GPSLatitude'] = float_value_lat
+                modify_dict['GPSLongitudeRef'] = long_ref
+                modify_dict['GPSLongitude'] = float_value_long
 
     # Сделать сам модифай
     if modify_dict:
@@ -457,12 +438,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, editing_type: int, ne
                         tags=modify_dict,
                         params=["-P", "-overwrite_original"])
 
-    if modify_dict_gps:
-        with exiftool.ExifToolHelper() as et:
-            et.set_tags(photofile,
-                        tags={'GPSLatitudeRef': modify_dict_gps[1], 'GPSLatitude': modify_dict_gps[0],
-                              'GPSLongitudeRef': modify_dict_gps[3], 'GPSLongitude': modify_dict_gps[2]},
-                        params=["-P", "-overwrite_original"])
+
 
 
 # проверка ввода при редактировании exif

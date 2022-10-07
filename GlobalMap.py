@@ -238,12 +238,12 @@ class GlobalMapWidget(QWidget):
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
         self.progressbar.setValue(1)
-        map_points_combo = PhotoDataDB.get_global_map_info(full_paths)
+        map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(full_paths)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         progress = 0
         if map_points_combo:
-            self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14, tiles=map_tiles)
+            self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
             photo_grouped_shown = list()
             for photo in map_points_combo:
                 if not photo[5]:
@@ -528,11 +528,11 @@ class GlobalMapWidget(QWidget):
                 self.fill_sort_equipment()
 
     def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
-        if shooting_date != "No data":
+        if shooting_date != "":
             date_splitted = shooting_date.split('.')
             date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
         else:
-            date_show = "No data"
+            date_show = ""
 
         encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
         html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
@@ -579,11 +579,11 @@ class GlobalMapWidget(QWidget):
             camera = photo[3]
             thumbnail_way = photo[4]
 
-            if shooting_date != "No data":
+            if shooting_date != "":
                 date_splitted = shooting_date.split('.')
                 date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
             else:
-                date_show = "No data"
+                date_show = ""
 
             encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
             if i == 0:

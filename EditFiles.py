@@ -33,7 +33,6 @@ font12 = QtGui.QFont('Times', 12)
 
 
 # редактирование exif
-# noinspection PyUnresolvedReferences
 class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()
@@ -1077,11 +1076,14 @@ class EditExifData(QDialog):
     # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
+        changes_meta_dict = {}
         for i in range(len(all_new_data)):
             if self.indicator[i] == 1:
-                self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
+                changes_meta_dict[i] = all_new_data[i]
             else:
                 pass
+
+        self.write_changes(self.photoname, self.photodirectory, changes_meta_dict)
 
         if self.indicator[-1] == 0: # -1 - изменение даты (возможен перенос)
             self.update_show_data()
@@ -1111,26 +1113,32 @@ class EditExifData(QDialog):
                 self.close()
 
     # записать новые метаданные
-    def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
+    def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
-            PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
+        def rewriting(photoname: str, photodirectory: str, modify_dict) -> None:
+            Metadata.exif_rewrite_edit(photoname, photodirectory, modify_dict)
+            PhotoDataDB.edit_in_database(photoname, photodirectory, modify_dict)
 
         # проверка введённых пользователем метаданных
         def check_enter(editing_type: int, new_text: str) -> None:
             Metadata.exif_check_edit(editing_type, new_text)
 
         # проверка введённых пользователем метаданных
-        try:
-            check_enter(editing_type, new_text)
-        except ErrorsAndWarnings.EditExifError:
-            win_err = ErrorsAndWarnings.EditExifError_win(self)
-            win_err.show()
-            return
+        for editing_type in list(new_value_dict.keys()):
+            new_text = new_value_dict[editing_type]
+            try:
+                check_enter(editing_type, new_text)
+            except ErrorsAndWarnings.EditExifError:
+                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err.show()
+                return
 
+        if 11 in list(new_value_dict.keys()) and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
+            date_dict = {}
+            date_dict[11] = new_value_dict[11]
+            new_value_dict.pop(11)
         # Если меняется дата -> проверка на перенос файла в новую папку
-        if editing_type == 11 and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
+        # if editing_type == 11 and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
             if photodirectory[-12:] == 'No_Date_Info':
                 new_date = photodirectory[-38:]
             else:
@@ -1139,7 +1147,8 @@ class EditExifData(QDialog):
             new_date_splitted = new_date.split('/')
             old_date_splitted = old_date.split(':')
             if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
-                rewriting(photoname, photodirectory, editing_type, new_text)
+                rewriting(photoname, photodirectory, new_value_dict)
+                rewriting(photoname, photodirectory, date_dict)
                 self.edited_signal_no_move.emit()
             else:   # другая дата, требуется перенос файла
                 destination = Settings.get_destination_media() + '/Media/Photo/const'
@@ -1151,7 +1160,6 @@ class EditExifData(QDialog):
                 month_old = old_date_splitted[1]
                 day_old = old_date_splitted[2]
 
-                old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
                 new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
                 if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
                     if not os.path.isdir(destination + '/' + str(year_old)):
@@ -1159,7 +1167,8 @@ class EditExifData(QDialog):
                     if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
                         os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
                     os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                    rewriting(photoname, photodirectory, editing_type, new_text)
+                    rewriting(photoname, photodirectory, new_value_dict)
+                    rewriting(photoname, photodirectory, date_dict)
                     shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
                     PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
                                                        destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
@@ -1173,7 +1182,8 @@ class EditExifData(QDialog):
                     self.close()
                 else:
                     if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
-                        rewriting(photoname, photodirectory, editing_type, new_text)
+                        rewriting(photoname, photodirectory, new_value_dict)
+                        rewriting(photoname, photodirectory, date_dict)
                         shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
                         PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
                                                            destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
@@ -1196,7 +1206,7 @@ class EditExifData(QDialog):
 
                         window_equal.file_rename_transfer_signal.connect(lambda: self.close())
         else:
-            rewriting(photoname, photodirectory, editing_type, new_text)
+            rewriting(photoname, photodirectory, new_value_dict)
             self.edited_signal.emit()
 
     # записать новые метаданные
@@ -1238,6 +1248,7 @@ class EditExifData(QDialog):
 
                 self.get_metadata(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info')
             self.close()
+            self.edited_signal.emit()
 
         def rejected():
             win.close()
@@ -1256,6 +1267,7 @@ class EditExifData(QDialog):
     # обновить данные в таблице/ на карте после записи метаданных
     def update_show_data(self):
         self.get_metadata(self.photoname, self.photodirectory)
+        self.get_file_data(self.photoname, self.photodirectory)
         self.change_tab_gps()
 
 
