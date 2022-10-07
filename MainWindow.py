@@ -65,11 +65,15 @@ class MainWindow(QMainWindow):
         add_const_directory_bar = QAction('Добавить папку в основной каталог', self)
         add_const_directory_bar.triggered.connect(self.func_add_const_dir)
 
+        add_const_megadir_bar = QAction('Добавить папку с вложенными папками в основной каталог', self)
+        add_const_megadir_bar.triggered.connect(self.func_add_const_megadir_const)
+
         add_const_alone_directory = QAction('Добавить папку в дополнительный каталог', self)
         add_const_alone_directory.triggered.connect(self.func_add_alone_dir) 
 
         self.add_menu.addAction(add_const_files_bar)
         self.add_menu.addAction(add_const_directory_bar)
+        self.add_menu.addAction(add_const_megadir_bar)
         self.add_menu.addAction(add_const_alone_directory)
 
         self.view_menu = self.menubar.addMenu('Посмотреть')
@@ -309,6 +313,25 @@ class MainWindow(QMainWindow):
             file_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
         except FileNotFoundError:
             return
+
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
+
+        self.add_files_progress = ConstMaker(file_list=file_list)
+        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(self.finish_thread_add_const)
+        self.add_files_progress.start()
+
+    # добавить в основной каталог папку, все файлы в ней и все файлы во всех подпапках
+    def func_add_const_megadir_const(self):
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        file_list = []
+        for root, dirs, files in os.walk(add_dir_chosen):
+            for file in files:
+                if file.endswith(".jpg") or file.endswith(".JPG"):
+                    file_list.append(root.replace('\\', '/') + '/' + file)
 
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
@@ -624,7 +647,6 @@ class MainWindow(QMainWindow):
 
 
 # при добавлении папки
-# noinspection PyArgumentList
 class ProgressBar(QWidget):
     def __init__(self):
         super().__init__()
@@ -869,7 +891,6 @@ class DB_window(QMainWindow):
 
 
 # просмотр окна соцсетей
-# noinspection PyArgumentList
 class Social_Network_window(QMainWindow):
     social_network_changed = QtCore.pyqtSignal()
     main_resize_signal = QtCore.pyqtSignal()
@@ -891,7 +912,6 @@ class Social_Network_window(QMainWindow):
 
 
 # добавление в основной каталог
-# noinspection PyUnresolvedReferences
 class ConstMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
@@ -938,7 +958,6 @@ class ConstMaker(QtCore.QThread):
 
 
 # добавление в дополнительный каталог
-# noinspection PyUnresolvedReferences
 class AloneMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
@@ -1058,4 +1077,3 @@ if __name__ == "__main__":
         logging.exception(f"ALL PROGRAM ERROR")
 
     sys.exit(app.exec_())
-

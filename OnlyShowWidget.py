@@ -584,7 +584,6 @@ class WidgetWindow(QWidget):
 
 
 # редактирование exif
-# noinspection PyArgumentList
 class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()

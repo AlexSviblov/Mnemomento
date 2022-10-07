@@ -22,7 +22,7 @@ def read_exif(photofile: str) -> dict[str, str]:
     with exiftool.ExifToolHelper() as et:
         for dictionary in et.get_metadata(photofile):
             for tag_key, tag_value in dictionary.items():
-                data[f"{tag_key}"]= tag_value
+                data[f"{tag_key}"] = tag_value
     return data
 
 
@@ -437,8 +437,6 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
             et.set_tags(photofile,
                         tags=modify_dict,
                         params=["-P", "-overwrite_original"])
-
-
 
 
 # проверка ввода при редактировании exif
