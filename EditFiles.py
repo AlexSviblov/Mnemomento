@@ -54,25 +54,72 @@ class EditExifData(QDialog):
         self.chosen_group_type = chosen_group_type
 
         self.layout = QGridLayout(self)
-        self.layout.setSpacing(20)
-        self.setLayout(self.layout)
 
         self.table = QTableWidget(self)
-        self.table.setFont(font12)
-        self.table.setDisabled(True)
-        self.table.verticalHeader().setVisible(False)
-        self.table.horizontalHeader().setStyleSheet(stylesheet3)
-        self.table.setStyleSheet(stylesheet6)
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.btn_ok = QPushButton(self)
+        self.btn_cancel = QPushButton(self)
+        self.btn_clear = QPushButton(self)
+        self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+        self.tab_date_layout = QGridLayout(self)
+        self.date_lbl = QLabel(self)
+        self.date_choose = QDateTimeEdit(self)
+        self.timezone_lbl = QLabel(self)
+        self.timezone_pm_choose = QComboBox(self)
+        self.timezone_num_choose = QTimeEdit(self)
+        self.tab_tt_layout = QGridLayout(self)
+        self.maker_lbl = QLabel(self)
+        self.camera_lbl = QLabel(self)
+        self.lens_lbl = QLabel(self)
+        self.time_lbl = QLabel(self)
+        self.iso_lbl = QLabel(self)
+        self.fnumber_lbl = QLabel(self)
+        self.flength_lbl = QLabel(self)
+        self.serialbody_lbl = QLabel(self)
+        self.seriallens_lbl = QLabel(self)
+        self.maker_line = QLineEdit(self)
+        self.camera_line = QLineEdit(self)
+        self.lens_line = QLineEdit(self)
+        self.time_line = QLineEdit(self)
+        self.iso_line = QLineEdit(self)
+        self.fnumber_line = QLineEdit(self)
+        self.flength_line = QLineEdit(self)
+        self.serialbody_line = QLineEdit(self)
+        self.seriallens_line = QLineEdit(self)
+        self.tab_layout_gps = QGridLayout(self)
+        self.mode_check_dmc = QCheckBox(self)
+        self.mode_check_fn = QCheckBox(self)
+        self.latitude_fn_lbl = QLabel(self)  # широта
+        self.longitude_fn_lbl = QLabel(self)  # долгота
+        self.latitude_fn_line = QLineEdit(self)  # широта
+        self.longitude_fn_line = QLineEdit(self)  # долгота
+        self.latitude_dmc_lbl = QLabel(self)  # широта
+        self.longitude_dmc_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_choose = QComboBox(self)
+        self.longitude_dmc_choose = QComboBox(self)
+        self.latitude_dmc_deg_lbl = QLabel(self)  # широта
+        self.longitude_dmc_min_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_sec_lbl = QLabel(self)  # широта
+        self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_min_lbl = QLabel(self)  # широта
+        self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_deg_line = QLineEdit(self)  # широта
+        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+        self.latitude_dmc_sec_line = QLineEdit(self)  # широта
+        self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+        self.tab_file_layout = QGridLayout(self)
+        self.filename_lbl = QLabel(self)
+        self.filename_line = QLineEdit(self)
+        self.file_size_lbl = QLabel(self)
+        self.file_size_line = QLineEdit(self)
+        self.tabs = QTabWidget(self)
+        self.tab_date = QWidget(self)
+        self.tab_technic_settings = QWidget(self)
+        self.tab_GPS = QWidget(self)
+        self.tab_file = QWidget(self)
 
-        self.layout.addWidget(self.table, 0, 1, 1, 2)
-
-        self.make_buttons()
-
-        self.make_tabs_gui()
-
-        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
+        self.make_gui()
 
         self.get_metadata(photoname, photodirectory)
         self.get_file_data(photoname, photodirectory)
@@ -288,30 +335,64 @@ class EditExifData(QDialog):
 
         try:
             self.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
+
+        try:
             self.table.setStyleSheet(stylesheet6)
+        except AttributeError:
+            pass
+
+        try:
             self.make_buttons()
+        except AttributeError:
+            pass
+
+        try:
             self.make_tabs_gui()
+        except AttributeError:
+            pass
+
+        try:
             self.update_show_data()
         except AttributeError:
             pass
 
+    def make_gui(self):
+        self.layout.setSpacing(20)
+        self.setLayout(self.layout)
+
+        self.table.setFont(font12)
+        self.table.setDisabled(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table.setStyleSheet(stylesheet6)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.layout.addWidget(self.table, 0, 1, 1, 2)
+
+        self.make_buttons()
+
+        self.make_tabs_gui()
+
+        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
+
     # создание кнопок
+
     def make_buttons(self):
-        self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Записать")
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.pre_write_changes)
 
-        self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText("Отмена")
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
         self.btn_cancel.clicked.connect(self.close)
 
-        self.btn_clear = QPushButton(self)
         self.btn_clear.setText("Очистить")
         self.btn_clear.setStyleSheet(stylesheet8)
         self.btn_clear.setFont(font14)
@@ -356,29 +437,23 @@ class EditExifData(QDialog):
     # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
         def make_tab_date():
-            self.tab_date_layout = QGridLayout(self)
-
-            self.date_lbl = QLabel(self)
             self.date_lbl.setStyleSheet(stylesheet2)
             self.date_lbl.setText("Дата съёмки:")
             self.date_lbl.setFont(font14)
             self.date_lbl.setStyleSheet(stylesheet2)
             self.tab_date_layout.addWidget(self.date_lbl, 0, 0, 1, 1)
 
-            self.date_choose = QDateTimeEdit(self)
             self.date_choose.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
             self.date_choose.setFont(font14)
             self.date_choose.setStyleSheet(stylesheet1)
             self.tab_date_layout.addWidget(self.date_choose, 0, 1, 1, 2)
 
-            self.timezone_lbl = QLabel(self)
             self.timezone_lbl.setStyleSheet(stylesheet2)
             self.timezone_lbl.setText("Часовой пояс:")
             self.timezone_lbl.setFont(font14)
             self.timezone_lbl.setStyleSheet(stylesheet2)
             self.tab_date_layout.addWidget(self.timezone_lbl, 1, 0, 1, 1)
 
-            self.timezone_pm_choose = QComboBox(self)
             self.timezone_pm_choose.setFont(font14)
             self.timezone_pm_choose.setStyleSheet(stylesheet9)
             self.timezone_pm_choose.addItem("+")
@@ -386,7 +461,6 @@ class EditExifData(QDialog):
             self.timezone_pm_choose.setFixedWidth(50)
             self.tab_date_layout.addWidget(self.timezone_pm_choose, 1, 1, 1, 1)
 
-            self.timezone_num_choose = QTimeEdit(self)
             self.timezone_num_choose.setFont(font14)
             self.timezone_num_choose.setStyleSheet(stylesheet1)
             self.timezone_num_choose.setDisplayFormat("HH:mm")
@@ -395,33 +469,22 @@ class EditExifData(QDialog):
             self.tab_date.setLayout(self.tab_date_layout)
 
         def make_tab_tt():
-            self.tab_tt_layout = QGridLayout(self)
-
-            self.maker_lbl = QLabel(self)
             self.maker_lbl.setText("Производитель:")
 
-            self.camera_lbl = QLabel(self)
             self.camera_lbl.setText("Камера:")
 
-            self.lens_lbl = QLabel(self)
             self.lens_lbl.setText("Объектив:")
 
-            self.time_lbl = QLabel(self)
             self.time_lbl.setText("Выдержка:")
 
-            self.iso_lbl = QLabel(self)
             self.iso_lbl.setText("ISO:")
 
-            self.fnumber_lbl = QLabel(self)
             self.fnumber_lbl.setText("Диафрагма:")
 
-            self.flength_lbl = QLabel(self)
             self.flength_lbl.setText("Фокусное расстояние:")
 
-            self.serialbody_lbl = QLabel(self)
             self.serialbody_lbl.setText("Серийный номер камеры:")
 
-            self.seriallens_lbl = QLabel(self)
             self.seriallens_lbl.setText("Серийный номер объектива:")
 
             self.maker_lbl.setStyleSheet(stylesheet2)
@@ -461,27 +524,13 @@ class EditExifData(QDialog):
             self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
             self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
-            self.maker_line = QLineEdit(self)
-
-            self.camera_line = QLineEdit(self)
-
-            self.lens_line = QLineEdit(self)
-
-            self.time_line = QLineEdit(self)
             self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[./]\d+')))
 
-            self.iso_line = QLineEdit(self)
             self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
-            self.fnumber_line = QLineEdit(self)
             self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[.]\d+')))
 
-            self.flength_line = QLineEdit(self)
             self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
-
-            self.serialbody_line = QLineEdit(self)
-
-            self.seriallens_line = QLineEdit(self)
 
             self.maker_line.setStyleSheet(stylesheet1)
             self.maker_line.setFont(font12)
@@ -523,30 +572,23 @@ class EditExifData(QDialog):
             self.tab_technic_settings.setLayout(self.tab_tt_layout)
 
         def make_tab_gps():
-            self.tab_layout_gps = QGridLayout(self)
-
-            self.mode_check_dmc = QCheckBox(self)
             self.mode_check_dmc.setText("ШД Г.м.с")
             self.mode_check_dmc.setFont(font12)
             self.mode_check_dmc.setStyleSheet(stylesheet2)
             self.mode_check_dmc.stateChanged.connect(self.block_check_gps)
 
-            self.mode_check_fn = QCheckBox(self)
             self.mode_check_fn.setText("Числом")
             self.mode_check_fn.setFont(font12)
             self.mode_check_fn.setStyleSheet(stylesheet2)
             self.mode_check_fn.stateChanged.connect(self.block_check_gps)
 
-            self.latitude_fn_lbl = QLabel(self)  # широта
             self.latitude_fn_lbl.setText("Широта:")
 
-            self.longitude_fn_lbl = QLabel(self)  # долгота
             self.longitude_fn_lbl.setText("Долгота:")
 
-            self.latitude_fn_line = QLineEdit(self)  # широта
             self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
                 QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$')))
-            self.longitude_fn_line = QLineEdit(self)  # долгота
+
             self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
                 '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$')))
 
@@ -569,58 +611,42 @@ class EditExifData(QDialog):
             self.longitude_fn_line.textChanged.connect(self.updating_other_gps)
             self.latitude_fn_line.textChanged.connect(self.updating_other_gps)
 
-            self.latitude_dmc_lbl = QLabel(self)  # широта
             self.latitude_dmc_lbl.setText("Широта:")
 
-            self.longitude_dmc_lbl = QLabel(self)  # долгота
             self.longitude_dmc_lbl.setText("Долгота:")
 
-            self.latitude_dmc_choose = QComboBox(self)
             self.latitude_dmc_choose.addItem("Север")
             self.latitude_dmc_choose.addItem("Юг")
             self.latitude_dmc_choose.setFixedWidth(80)
 
-            self.longitude_dmc_choose = QComboBox(self)
             self.longitude_dmc_choose.addItem("Восток")
             self.longitude_dmc_choose.addItem("Запад")
             self.longitude_dmc_choose.setFixedWidth(80)
 
-            self.latitude_dmc_deg_lbl = QLabel(self)  # широта
             self.latitude_dmc_deg_lbl.setText("Градусы:")
 
-            self.longitude_dmc_min_lbl = QLabel(self)  # долгота
             self.longitude_dmc_min_lbl.setText("Минуты:")
 
-            self.latitude_dmc_sec_lbl = QLabel(self)  # широта
             self.latitude_dmc_sec_lbl.setText("Секунды:")
 
-            self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
             self.longitude_dmc_deg_lbl.setText("Градусы:")
 
-            self.latitude_dmc_min_lbl = QLabel(self)  # широта
             self.latitude_dmc_min_lbl.setText("Минуты:")
 
-            self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
             self.longitude_dmc_sec_lbl.setText("Секунды:")
 
-            self.latitude_dmc_deg_line = QLineEdit(self)  # широта
             self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:90|[0-9]|[1-8][0-9])')))
 
-            self.latitude_dmc_min_line = QLineEdit(self)  # широта
             self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
-            self.latitude_dmc_sec_line = QLineEdit(self)  # широта
             self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
                 QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
 
-            self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
             self.longitude_dmc_deg_line.setValidator(
                 QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
 
-            self.longitude_dmc_min_line = QLineEdit(self)  # долгота
             self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
-            self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
             self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
                 QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
 
@@ -706,25 +732,19 @@ class EditExifData(QDialog):
             self.mode_check_fn.setCheckState(Qt.Checked)
 
         def make_tab_file():
-            self.tab_file_layout = QGridLayout(self)
-
-            self.filename_lbl = QLabel(self)
             self.filename_lbl.setText("Имя файла:")
             self.filename_lbl.setFont(font14)
             self.filename_lbl.setStyleSheet(stylesheet2)
 
-            self.filename_line = QLineEdit(self)
             self.filename_line.setFont(font14)
             self.filename_line.setStyleSheet(stylesheet1)
             if type(self.parent()) == OnlyShowWidget.WidgetWindow:
                 self.filename_line.setDisabled(True)
 
-            self.file_size_lbl = QLabel(self)
             self.file_size_lbl.setText("Размер файла:")
             self.file_size_lbl.setFont(font14)
             self.file_size_lbl.setStyleSheet(stylesheet2)
 
-            self.file_size_line = QLineEdit(self)
             self.file_size_line.setFont(font14)
             self.file_size_line.setStyleSheet(stylesheet1)
             self.file_size_line.setDisabled(True)
@@ -752,14 +772,8 @@ class EditExifData(QDialog):
             self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
             self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
 
-        self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
-
-        self.tab_date = QWidget(self)
-        self.tab_technic_settings = QWidget(self)
-        self.tab_GPS = QWidget(self)
-        self.tab_file = QWidget(self)
 
         self.tabs.addTab(self.tab_date, 'Дата')
         self.tabs.addTab(self.tab_technic_settings, 'Оборудование и настройки')
