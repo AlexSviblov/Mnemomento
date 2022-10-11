@@ -1417,6 +1417,8 @@ class EqualNames(QDialog):
             err_win.show()
             return
 
+        modify_dict = {13: self.full_exif_date}
+
         if self.new_checkbox.checkState():  # переименовывается переносимый файл
             new_new_name = self.new_name.text() + '.' + self.format
 
@@ -1431,8 +1433,8 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
-            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 13, self.full_exif_date)
-            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
+            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, modify_dict)
+            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], modify_dict)
         else:       # переименовывается файл в папке назначения
             new_old_name = self.old_name.text() + '.' + self.format
 
@@ -1446,8 +1448,8 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
-            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, 13, self.full_exif_date)
-            PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
+            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, modify_dict)
+            PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], modify_dict)
         self.file_rename_transfer_signal.emit()
         self.close()
 

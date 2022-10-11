@@ -398,119 +398,57 @@ class ConstWidgetWindow(QWidget):
             self.date_year.addItem('No_Date_Info')
         else:
             pass
+        self.date_year.addItem('All')
 
     # Получение месяцев в году
     def get_months(self) -> None:
         self.date_month.clear()
         year = self.date_year.currentText()
-        dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
-        all_files_and_dirs = os.listdir(dir_to_find_month)
-        dir_list = list()
-        k = 0
-        for name in all_files_and_dirs:
-            if os.path.isdir(dir_to_find_month + name):
-                if len(os.listdir(dir_to_find_month + name)) >= 1:
-                    for file in Path(dir_to_find_month + name).rglob('*'):
-                        if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
-                            k = 1
-                    if k == 1:
-                        k = 0
-                        dir_list.append(name)
+        if year == 'All':
+            self.date_month.addItem('All')
+        else:
+            dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+            all_files_and_dirs = os.listdir(dir_to_find_month)
+            dir_list = list()
+            k = 0
+            for name in all_files_and_dirs:
+                if os.path.isdir(dir_to_find_month + name):
+                    if len(os.listdir(dir_to_find_month + name)) >= 1:
+                        for file in Path(dir_to_find_month + name).rglob('*'):
+                            if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                k = 1
+                        if k == 1:
+                            k = 0
+                            dir_list.append(name)
 
-        dir_list.sort(reverse=True)
-        for month in dir_list:
-            self.date_month.addItem(str(month))
+            dir_list.sort(reverse=True)
+            for month in dir_list:
+                self.date_month.addItem(str(month))
+            self.date_month.addItem('All')
 
     # Получение дней в месяце
     def get_days(self) -> None:
         self.date_day.clear()
         year = self.date_year.currentText()
         month = self.date_month.currentText()
-        dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
-        all_files_and_dirs = os.listdir(dir_to_find_day)
-        dir_list = list()
-        for name in all_files_and_dirs:
-            if os.path.isdir(dir_to_find_day + name):
-                if len(os.listdir(dir_to_find_day + name)) >= 1:
-                    dir_list.append(name)
+        if year == 'All' or month == 'All':
+            self.date_day.addItem('All')
+        else:
+            dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+            all_files_and_dirs = os.listdir(dir_to_find_day)
+            dir_list = list()
+            for name in all_files_and_dirs:
+                if os.path.isdir(dir_to_find_day + name):
+                    if len(os.listdir(dir_to_find_day + name)) >= 1:
+                        dir_list.append(name)
 
-        dir_list.sort(reverse=True)
-        for day in dir_list:
-            self.date_day.addItem(str(day))
+            dir_list.sort(reverse=True)
+            for day in dir_list:
+                self.date_day.addItem(str(day))
+            self.date_day.addItem('All')
 
-        self.date_show_thumbnails()
-
-    # функция отображения кнопок с миниатюрами при сортировке по датам
-    def date_show_thumbnails(self) -> None:
-        year = self.date_year.currentText()
-        month = self.date_month.currentText()
-        day = self.date_day.currentText()
-
-        thumbnails_list = list()
-
-        self.photo_directory = Settings.get_destination_media() + f'/Media/Photo/const/{year}/{month}/{day}'
-        self.thumbnail_directory = Settings.get_destination_thumb() + f'/thumbnail/const/{year}/{month}/{day}'
-
-        flaw_thumbs, excess_thumbs = Thumbnail.research_flaw_thumbnails(self.photo_directory,
-                                                                               self.thumbnail_directory)
-
-        Thumbnail.make_or_del_thumbnails(flaw_thumbs, excess_thumbs, self.photo_directory,
-                                         self.thumbnail_directory)
-
-        for file in os.listdir(self.thumbnail_directory):  # получение списка созданных миниатюр
-            if file.endswith(".jpg") or file.endswith(".JPG"):
-                thumbnails_list.append(file)
-
-        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
-        self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
-
-        for j in range(0, num_of_j):  # создание кнопок
-            if j == num_of_j - 1:  # последний ряд (может быть неполным)
-                for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
-                    QtCore.QCoreApplication.processEvents()
-                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(
-                        f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
-                    iqon.pixmap(150, 150)  # задание размера картинки
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)  # помещение картинки на кнопку
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
-                    self.button.setObjectName(
-                        f'{Settings.get_destination_media()}/Media/Photo/const/{year}/{month}/{day}/{thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
-            else:
-                for i in range(0, self.thumb_row):
-                    QtCore.QCoreApplication.processEvents()
-                    self.button = QtWidgets.QToolButton(self)
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')
-                    iqon.pixmap(150, 150)
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.button.setObjectName(
-                        f'{Settings.get_destination_media()}/Media/Photo/const/{year}/{month}/{day}/{thumbnails_list[j * self.thumb_row + i][10:]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
-
-    # функция отображения кнопок с миниатюрами при сортировке по оборудованию
-    def eqip_show_thumbnails(self) -> None:
-        camera = self.camera_choose.currentText()
-        lens = self.lens_choose.currentText()
-
-        camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
-        lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
-
-        photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
-
+    # преобразовать пути фотографий из БД в пути миниатюр для отображения
+    def photo_to_thumb_path(self, photo_list):
         thumb_names = list()
         thumbnails_list = list()
         for photo in photo_list:
@@ -528,48 +466,50 @@ class ConstWidgetWindow(QWidget):
                                                  thumb_dir[:-1])
                 thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
 
-        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
-        self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
+        return thumbnails_list
 
-        for j in range(0, num_of_j):  # создание кнопок
-            if j == num_of_j - 1:  # последний ряд (может быть неполным)
-                for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
-                    QtCore.QCoreApplication.processEvents()
-                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
-                    iqon.pixmap(150, 150)  # задание размера картинки
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)  # помещение картинки на кнопку
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')  # добавление названия фото
-                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
-            else:
-                for i in range(0, self.thumb_row):
-                    QtCore.QCoreApplication.processEvents()
-                    self.button = QtWidgets.QToolButton(self)
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')
-                    iqon.pixmap(150, 150)
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')
-                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
+    # функция получения списков фото при сортировке по датам
+    def date_show_thumbnails(self) -> None:
+        year = self.date_year.currentText()
+        month = self.date_month.currentText()
+        day = self.date_day.currentText()
 
+        photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+
+        if not photo_list:
+            return
+
+        thumbnails_list = self.photo_to_thumb_path(photo_list)
+
+        self.fill_scroll_thumbs(thumbnails_list, photo_list)
+
+    # функция получения списков фото при сортировке по оборудованию
+    def eqip_show_thumbnails(self) -> None:
+        camera = self.camera_choose.currentText()
+        lens = self.lens_choose.currentText()
+
+        if camera == 'All':
+            camera_exif = 'All'
+        else:
+            camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+
+        if lens == 'All':
+            lens_exif = 'All'
+        else:
+            lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+
+        photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+        if not photo_list:
+            return
+
+        thumbnails_list = self.photo_to_thumb_path(photo_list)
+
+        self.fill_scroll_thumbs(thumbnails_list, photo_list)
         # фотографии списком выбираются из БД, где есть имя файла и каталог
         # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
         # для showinfo и editexif дата берётся из objectName
 
-    # функция отображения кнопок с миниатюрами при сортировке по соцсетям
+    # функция получения списков фото при сортировке по соцсетям
     def sn_show_thumbnails(self) -> None:
         network = self.socnet_choose.currentText()
         if network == 'Нет данных':
@@ -578,61 +518,12 @@ class ConstWidgetWindow(QWidget):
             pass
 
         photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText())
+        if not photo_list:
+            return
 
-        thumb_names = list()
-        thumbnails_list = list()
-        for photo in photo_list:
-            photo_splitted = photo.split('/')
-            thumb_dir = Settings.get_destination_thumb() + f'/thumbnail/const/{photo_splitted[-4]}/{photo_splitted[-3]}/{photo_splitted[-2]}/'
-            thumb_names.append(photo_splitted[-1])
+        thumbnails_list = self.photo_to_thumb_path(photo_list)
 
-            if os.path.exists(thumb_dir + 'thumbnail_' + photo_splitted[-1]):
-                thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
-            else:
-                photo_dir = ''
-                for i in range(len(photo_splitted) - 1):
-                    photo_dir += photo_splitted[i] + '/'
-                Thumbnail.make_or_del_thumbnails([f'{photo_splitted[-1]}'], [], photo_dir[:-1],
-                                                 thumb_dir[:-1])
-                thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
-
-        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
-        self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
-
-        for j in range(0, num_of_j):  # создание кнопок
-            if j == num_of_j - 1:  # последний ряд (может быть неполным)
-                for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
-                    QtCore.QCoreApplication.processEvents()
-                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
-                    iqon.pixmap(150, 150)  # задание размера картинки
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)  # помещение картинки на кнопку
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')  # добавление названия фото
-                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
-            else:
-                for i in range(0, self.thumb_row):
-                    QtCore.QCoreApplication.processEvents()
-                    self.button = QtWidgets.QToolButton(self)
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')
-                    iqon.pixmap(150, 150)
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumb_names[j * self.thumb_row + i]}')
-                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
-
+        self.fill_scroll_thumbs(thumbnails_list, photo_list)
         # фотографии списком выбираются из БД, где есть имя файла и каталог
         # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
         # для showinfo и editexif дата берётся из objectName
@@ -674,6 +565,47 @@ class ConstWidgetWindow(QWidget):
         for i in reversed(range(self.layout_btns.count())):
             self.layout_btns.itemAt(i).widget().setDisabled(False)
         self.group_type.setDisabled(False)
+
+    # функция отображения кнопок с миниатюрами
+    def fill_scroll_thumbs(self, thumbnails_list, photo_list):
+        num_of_j = math.ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
+        self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
+
+        for j in range(0, num_of_j):  # создание кнопок
+            if j == num_of_j - 1:  # последний ряд (может быть неполным)
+                for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
+                    QtCore.QCoreApplication.processEvents()
+                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
+                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
+                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
+                    iqon.pixmap(150, 150)  # задание размера картинки
+                    self.button.setMinimumHeight(180)
+                    self.button.setFixedWidth(160)
+                    self.button.setIcon(iqon)  # помещение картинки на кнопку
+                    self.button.setIconSize(QtCore.QSize(150, 150))
+                    filename_show = thumbnails_list[j * self.thumb_row + i].split('/')[-1][10:]
+                    self.button.setText(f'{filename_show}')  # добавление названия фото
+                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet(stylesheet1)
+                    self.button.clicked.connect(self.showinfo)
+            else:
+                for i in range(0, self.thumb_row):
+                    QtCore.QCoreApplication.processEvents()
+                    self.button = QtWidgets.QToolButton(self)
+                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')
+                    iqon.pixmap(150, 150)
+                    self.button.setMinimumHeight(180)
+                    self.button.setFixedWidth(160)
+                    self.button.setIcon(iqon)
+                    self.button.setIconSize(QtCore.QSize(150, 150))
+                    filename_show = thumbnails_list[j * self.thumb_row + i].split('/')[-1][10:]
+                    self.button.setText(f'{filename_show}')  # добавление названия фото
+                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
+                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
+                    self.button.setStyleSheet(stylesheet1)
+                    self.button.clicked.connect(self.showinfo)
 
     # создание и отрисовка карты с GPS-меткой
     def make_map(self) -> None:
@@ -1354,11 +1286,13 @@ class ConstWidgetWindow(QWidget):
             self.camera_choose.addItem(f'{camera}')
             if len(camera) > camera_max_len:
                 camera_max_len = len(camera)
+        self.camera_choose.addItem('All')
 
         for lens in lenses:
             self.lens_choose.addItem(f'{lens}')
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
+        self.lens_choose.addItem('All')
 
         self.camera_choose.setFixedWidth(camera_max_len*12)
         self.lens_choose.setFixedWidth(lens_max_len*12)

@@ -233,8 +233,17 @@ class GlobalMapWidget(QWidget):
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
-                camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
-                lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+
+                if camera == 'All':
+                    camera_exif = 'All'
+                else:
+                    camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+
+                if lens == 'All':
+                    lens_exif = 'All'
+                else:
+                    lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
         self.progressbar.setValue(1)
@@ -503,11 +512,13 @@ class GlobalMapWidget(QWidget):
             self.camera_choose.addItem(f'{camera}')
             if len(camera) > camera_max_len:
                 camera_max_len = len(camera)
+        self.camera_choose.addItem('All')
 
         for lens in lenses:
             self.lens_choose.addItem(f'{lens}')
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
+        self.lens_choose.addItem('All')
 
         self.camera_choose.setFixedWidth(camera_max_len * 12)
         self.lens_choose.setFixedWidth(lens_max_len * 12)

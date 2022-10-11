@@ -270,7 +270,15 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
     :param lens: исправленное название объектива (либо повторение exif, если оно не исправляется).
     :return: список абсолютных путей ко всем файлам с выбранными камерой и объективом.
     """
-    sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+    if camera_exif == 'All' and camera == 'All' and lens == 'All' and lens_exif == 'All':
+        sql_str = f'SELECT filename, catalog FROM photos'
+    elif (camera_exif == 'All' and camera == 'All') and (lens != 'All' or lens_exif != 'All'):
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+    elif (camera_exif != 'All' or camera != 'All') and (lens == 'All' and lens_exif == 'All'):
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\')'
+    else:
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+
     cur.execute(sql_str)
 
     photodb_data = cur.fetchall()
@@ -555,8 +563,11 @@ def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float], s
             if lon < most_west_point:
                 most_west_point = lon
 
-    map_center_list = [map_center_buffer[0]/len(names_and_coords), map_center_buffer[1]/len(names_and_coords)]
-    map_center = tuple(map_center_list)
+    try:
+        map_center_list = [map_center_buffer[0]/len(names_and_coords), map_center_buffer[1]/len(names_and_coords)]
+        map_center = tuple(map_center_list)
+    except ZeroDivisionError:
+        map_center = (55.754117, 37.620280)
 
     latitude_size = most_north_point - most_south_point
     longitude_size = most_east_point - most_west_point
