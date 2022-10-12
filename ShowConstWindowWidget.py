@@ -468,6 +468,44 @@ class ConstWidgetWindow(QWidget):
 
         return thumbnails_list
 
+    # выбор функции показа миниатюр в зависимости от выбранной группировки
+    def type_show_thumbnails(self) -> None:
+        self.pic.clear()
+        self.pic.hide()
+        self.metadata_show.clear()
+        self.metadata_show.hide()
+        self.socnet_group.clear()
+        self.socnet_group.hide()
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
+
+        self.group_type.setDisabled(True)
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().setDisabled(True)
+        for i in reversed(range(self.layout_btns.count())):
+            self.layout_btns.itemAt(i).widget().setDisabled(True)
+        # иначе если будет загружаться много фото, а пользователь до окончания их загрузки, сменит тип, то фото
+        # начнут прогружаться в уже несуществующую scroll_area и крашнут программу
+
+        for i in reversed(range(self.layout_inside_thumbs.count())):
+            self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
+
+        match self.group_type.currentText():
+            case 'Дата':
+                self.date_show_thumbnails()
+            case 'Соцсети':
+                self.sn_show_thumbnails()
+            case 'Оборудование':
+                self.eqip_show_thumbnails()
+
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().setDisabled(False)
+        for i in reversed(range(self.layout_btns.count())):
+            self.layout_btns.itemAt(i).widget().setDisabled(False)
+        self.group_type.setDisabled(False)
+
     # функция получения списков фото при сортировке по датам
     def date_show_thumbnails(self) -> None:
         year = self.date_year.currentText()
@@ -527,44 +565,6 @@ class ConstWidgetWindow(QWidget):
         # фотографии списком выбираются из БД, где есть имя файла и каталог
         # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
         # для showinfo и editexif дата берётся из objectName
-
-    # выбор функции показа миниатюр в зависимости от выбранной группировки
-    def type_show_thumbnails(self) -> None:
-        self.pic.clear()
-        self.pic.hide()
-        self.metadata_show.clear()
-        self.metadata_show.hide()
-        self.socnet_group.clear()
-        self.socnet_group.hide()
-        try:
-            self.map_gps_widget.deleteLater()
-        except (RuntimeError, AttributeError):
-            pass
-
-        self.group_type.setDisabled(True)
-        for i in reversed(range(self.layout_type.count())):
-            self.layout_type.itemAt(i).widget().setDisabled(True)
-        for i in reversed(range(self.layout_btns.count())):
-            self.layout_btns.itemAt(i).widget().setDisabled(True)
-        # иначе если будет загружаться много фото, а пользователь до окончания их загрузки, сменит тип, то фото
-        # начнут прогружаться в уже несуществующую scroll_area и крашнут программу
-
-        for i in reversed(range(self.layout_inside_thumbs.count())):
-            self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
-
-        match self.group_type.currentText():
-            case 'Дата':
-                self.date_show_thumbnails()
-            case 'Соцсети':
-                self.sn_show_thumbnails()
-            case 'Оборудование':
-                self.eqip_show_thumbnails()
-
-        for i in reversed(range(self.layout_type.count())):
-            self.layout_type.itemAt(i).widget().setDisabled(False)
-        for i in reversed(range(self.layout_btns.count())):
-            self.layout_btns.itemAt(i).widget().setDisabled(False)
-        self.group_type.setDisabled(False)
 
     # функция отображения кнопок с миниатюрами
     def fill_scroll_thumbs(self, thumbnails_list, photo_list):

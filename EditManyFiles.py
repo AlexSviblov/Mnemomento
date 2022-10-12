@@ -40,8 +40,10 @@ class ManyPhotoEdit(QWidget):
 
         self.layout_outside = QGridLayout(self)
         self.setLayout(self.layout_outside)
+        self.layout_outside.setSpacing(10)
 
         self.layout_type = QGridLayout(self)
+        self.layout_type.setAlignment(Qt.AlignLeft)
 
         self.groupbox_sort = QGroupBox(self)
         self.groupbox_sort.setFixedHeight(50)
@@ -52,24 +54,70 @@ class ManyPhotoEdit(QWidget):
         self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
 
+        self.groupbox_choose = QGroupBox(self)
+        self.layout_choose = QGridLayout(self)
+        self.groupbox_choose.setLayout(self.layout_choose)
+        self.layout_outside.addWidget(self.groupbox_choose, 1, 0, 1, 2)
+        self.make_move_buttons()
+
         self.filtered_photo_table = QTableWidget(self)
+        self.filtered_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.filtered_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.filtered_photo_table.horizontalHeader().setVisible(False)
+        self.filtered_photo_table.verticalHeader().setVisible(False)
+        self.filtered_photo_table.setFixedWidth(270)
 
         self.scroll_filtered_area = QScrollArea(self)  # создание подвижной области
         self.scroll_filtered_area.setWidgetResizable(True)
         self.scroll_filtered_area.setWidget(self.filtered_photo_table)
         self.scroll_filtered_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_filtered_area.setFixedWidth(270)
 
-        self.layout_outside.addWidget(self.scroll_filtered_area, 1, 0, 2, 2)
+        self.layout_choose.addWidget(self.scroll_filtered_area, 0, 0, 6, 1)
 
         self.edit_photo_table = QTableWidget(self)
+        self.edit_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.edit_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.edit_photo_table.horizontalHeader().setVisible(False)
+        self.edit_photo_table.verticalHeader().setVisible(False)
+        self.edit_photo_table.setFixedWidth(134)
 
         self.scroll_edit_area = QScrollArea(self)  # создание подвижной области
         self.scroll_edit_area.setWidgetResizable(True)
         self.scroll_edit_area.setWidget(self.edit_photo_table)
         self.scroll_edit_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_edit_area.setFixedWidth(134)
 
-        self.layout_outside.addWidget(self.scroll_edit_area, 1, 3, 2, 1)
+        self.layout_choose.addWidget(self.scroll_edit_area, 0, 2, 6, 1)
 
+        self.empty = QLabel()
+        self.layout_outside.addWidget(self.empty, 1, 3, 1, 1)
+
+        self.show_filtered_thumbs()
+
+        print(self.filtered_photo_table.width())
+        print(self.scroll_filtered_area.width())
+
+    def make_move_buttons(self):
+        self.btn_move_all_right = QPushButton(self)
+        self.btn_move_all_right.setText(">>")
+        self.btn_move_all_right.setFixedSize(40, 20)
+        self.layout_choose.addWidget(self.btn_move_all_right, 1, 1, 1, 1)
+
+        self.btn_move_one_right = QPushButton(self)
+        self.btn_move_one_right.setText(">")
+        self.btn_move_one_right.setFixedSize(40, 20)
+        self.layout_choose.addWidget(self.btn_move_one_right, 2, 1, 1, 1)
+
+        self.btn_move_one_left = QPushButton(self)
+        self.btn_move_one_left.setText("<")
+        self.btn_move_one_left.setFixedSize(40, 20)
+        self.layout_choose.addWidget(self.btn_move_one_left, 3, 1, 1, 1)
+
+        self.btn_move_all_left = QPushButton(self)
+        self.btn_move_all_left.setText("<<")
+        self.btn_move_all_left.setFixedSize(40, 20)
+        self.layout_choose.addWidget(self.btn_move_all_left, 4, 1, 1, 1)
 
     # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
@@ -323,16 +371,46 @@ class ManyPhotoEdit(QWidget):
 
         coloumns = 2
         rows = math.ceil(len(thumbnails_list) / coloumns)
+        print(len(photo_list))
+        print(len(thumbnails_list))
+        print(coloumns, rows)
+
+
         self.filtered_photo_table.setColumnCount(coloumns)
         self.filtered_photo_table.setRowCount(rows)
+        self.filtered_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.filtered_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         for j in range(0, rows):
             if j == rows - 1:
-                for i in range(0, len(thumbnails_list)- coloumns*(rows-1)):
-                    pass
+                for i in range(0, len(thumbnails_list) - coloumns*(rows-1)):
+                    item = QToolButton()
+                    item.setFixedSize(130, 130)
+                    # item.setDisabled(True)
+                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    iqon = QtGui.QIcon(f'{thumbnails_list[j * coloumns + i]}')  # создание объекта картинки
+                    iqon.pixmap(100, 100)
+                    item.setIcon(iqon)
+                    item.setIconSize(QtCore.QSize(100, 100))
+                    filename_show = thumbnails_list[j * coloumns + i].split('/')[-1][10:]
+                    item.setText(f'{filename_show}')
+                    item.setObjectName(f'{photo_list[j * coloumns + i]}')
+                    self.filtered_photo_table.setCellWidget(j, i, item)
+
             else:
                 for i in range(0, coloumns):
-                    pass
+                    item = QToolButton()
+                    item.setFixedSize(130, 130)
+                    # item.setDisabled(True)
+                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    iqon = QtGui.QIcon(f'{thumbnails_list[j * coloumns + i]}')  # создание объекта картинки
+                    iqon.pixmap(100, 100)
+                    item.setIcon(iqon)
+                    item.setIconSize(QtCore.QSize(100, 100))
+                    filename_show = thumbnails_list[j * coloumns + i].split('/')[-1][10:]
+                    item.setText(f'{filename_show}')
+                    item.setObjectName(f'{photo_list[j * coloumns + i]}')
+                    self.filtered_photo_table.setCellWidget(j, i, item)
 
 
 
