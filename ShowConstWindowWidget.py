@@ -89,7 +89,7 @@ class ConstWidgetWindow(QWidget):
         self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
 
-        self.date_show_thumbnails()
+        self.type_show_thumbnails()
 
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
@@ -368,53 +368,20 @@ class ConstWidgetWindow(QWidget):
         except AttributeError:
             pass
 
-    # Получение годов
-    def get_years(self) -> None:
-        self.date_year.clear()
-        j = 0
-        k = 0
-        dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
-        all_files_and_dirs = os.listdir(dir_to_find_year)
-        dir_list = list()
-        for name in all_files_and_dirs:
-            if os.path.isdir(dir_to_find_year + name):
-                if len(os.listdir(dir_to_find_year + name)) >= 1:
-                    for file in Path(dir_to_find_year + name).rglob('*'):
-                        if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
-                            k = 1
-                    if k == 1:
-                        k = 0
-                        dir_list.append(name)
-
-        dir_list.sort(reverse=True)
-        i = 0
-        for year in dir_list:
-            if dir_list[i] != 'No_Date_Info':
-                self.date_year.addItem(str(year))
-            else:
-                j = 1
-            i += 1
-        if j == 1:
-            self.date_year.addItem('No_Date_Info')
-        else:
-            pass
-        self.date_year.addItem('All')
-
-    # Получение месяцев в году
-    def get_months(self) -> None:
-        self.date_month.clear()
-        year = self.date_year.currentText()
-        if year == 'All':
-            self.date_month.addItem('All')
-        else:
-            dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
-            all_files_and_dirs = os.listdir(dir_to_find_month)
-            dir_list = list()
+    # заполнение полей сортировки по дате
+    def fill_date(self, mode: str) -> None:
+        # Получение годов
+        def get_years() -> None:
+            self.date_year.clear()
+            j = 0
             k = 0
+            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            all_files_and_dirs = os.listdir(dir_to_find_year)
+            dir_list = list()
             for name in all_files_and_dirs:
-                if os.path.isdir(dir_to_find_month + name):
-                    if len(os.listdir(dir_to_find_month + name)) >= 1:
-                        for file in Path(dir_to_find_month + name).rglob('*'):
+                if os.path.isdir(dir_to_find_year + name):
+                    if len(os.listdir(dir_to_find_year + name)) >= 1:
+                        for file in Path(dir_to_find_year + name).rglob('*'):
                             if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
                                 k = 1
                         if k == 1:
@@ -422,30 +389,81 @@ class ConstWidgetWindow(QWidget):
                             dir_list.append(name)
 
             dir_list.sort(reverse=True)
-            for month in dir_list:
-                self.date_month.addItem(str(month))
-            self.date_month.addItem('All')
+            i = 0
+            for year in dir_list:
+                if dir_list[i] != 'No_Date_Info':
+                    self.date_year.addItem(str(year))
+                else:
+                    j = 1
+                i += 1
+            if j == 1:
+                self.date_year.addItem('No_Date_Info')
+            else:
+                pass
+            self.date_year.addItem('All')
 
-    # Получение дней в месяце
-    def get_days(self) -> None:
-        self.date_day.clear()
-        year = self.date_year.currentText()
-        month = self.date_month.currentText()
-        if year == 'All' or month == 'All':
-            self.date_day.addItem('All')
-        else:
-            dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
-            all_files_and_dirs = os.listdir(dir_to_find_day)
-            dir_list = list()
-            for name in all_files_and_dirs:
-                if os.path.isdir(dir_to_find_day + name):
-                    if len(os.listdir(dir_to_find_day + name)) >= 1:
-                        dir_list.append(name)
+        # Получение месяцев в году
+        def get_months() -> None:
+            self.date_month.clear()
+            year = self.date_year.currentText()
+            if year == 'All':
+                self.date_month.addItem('All')
+            else:
+                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_month)
+                dir_list = list()
+                k = 0
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_month + name):
+                        if len(os.listdir(dir_to_find_month + name)) >= 1:
+                            for file in Path(dir_to_find_month + name).rglob('*'):
+                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                    k = 1
+                            if k == 1:
+                                k = 0
+                                dir_list.append(name)
 
-            dir_list.sort(reverse=True)
-            for day in dir_list:
-                self.date_day.addItem(str(day))
-            self.date_day.addItem('All')
+                dir_list.sort(reverse=True)
+                for month in dir_list:
+                    self.date_month.addItem(str(month))
+                self.date_month.addItem('All')
+
+        # Получение дней в месяце
+        def get_days() -> None:
+            self.date_day.clear()
+            year = self.date_year.currentText()
+            month = self.date_month.currentText()
+            if year == 'All' or month == 'All':
+                self.date_day.addItem('All')
+            else:
+                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_day)
+                dir_list = list()
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_day + name):
+                        if len(os.listdir(dir_to_find_day + name)) >= 1:
+                            dir_list.append(name)
+
+                dir_list.sort(reverse=True)
+                for day in dir_list:
+                    self.date_day.addItem(str(day))
+                self.date_day.addItem('All')
+
+        match mode:
+            case 'date':
+                get_years()
+                get_months()
+                get_days()
+            case 'year':
+                get_years()
+            case 'month':
+                get_months()
+            case 'day':
+                get_days()
+            case _:
+                get_years()
+                get_months()
+                get_days()
 
     # преобразовать пути фотографий из БД в пути миниатюр для отображения
     def photo_to_thumb_path(self, photo_list):
@@ -470,101 +488,112 @@ class ConstWidgetWindow(QWidget):
 
     # выбор функции показа миниатюр в зависимости от выбранной группировки
     def type_show_thumbnails(self) -> None:
-        self.pic.clear()
-        self.pic.hide()
-        self.metadata_show.clear()
-        self.metadata_show.hide()
-        self.socnet_group.clear()
-        self.socnet_group.hide()
-        try:
-            self.map_gps_widget.deleteLater()
-        except (RuntimeError, AttributeError):
-            pass
+        def clear_and_lock_show():
+            try:
+                self.pic.clear()
+                self.pic.hide()
+            except AttributeError:
+                pass
 
-        self.group_type.setDisabled(True)
-        for i in reversed(range(self.layout_type.count())):
-            self.layout_type.itemAt(i).widget().setDisabled(True)
-        for i in reversed(range(self.layout_btns.count())):
-            self.layout_btns.itemAt(i).widget().setDisabled(True)
-        # иначе если будет загружаться много фото, а пользователь до окончания их загрузки, сменит тип, то фото
-        # начнут прогружаться в уже несуществующую scroll_area и крашнут программу
+            try:
+                self.metadata_show.clear()
+                self.metadata_show.hide()
+            except AttributeError:
+                pass
 
-        for i in reversed(range(self.layout_inside_thumbs.count())):
-            self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
+            try:
+                self.socnet_group.clear()
+                self.socnet_group.hide()
+            except AttributeError:
+                pass
+
+            try:
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+
+            try:
+                self.group_type.setDisabled(True)
+            except AttributeError:
+                pass
+
+            try:
+                for i in reversed(range(self.layout_type.count())):
+                    self.layout_type.itemAt(i).widget().setDisabled(True)
+            except (RuntimeError, AttributeError):
+                pass
+
+            try:
+                for i in reversed(range(self.layout_btns.count())):
+                    self.layout_btns.itemAt(i).widget().setDisabled(True)
+            except (RuntimeError, AttributeError):
+                pass
+            # иначе если будет загружаться много фото, а пользователь до окончания их загрузки, сменит тип, то фото
+            # начнут прогружаться в уже несуществующую scroll_area и крашнут программу
+            try:
+                for i in reversed(range(self.layout_inside_thumbs.count())):
+                    self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+
+        def unlock_show():
+            try:
+                for i in reversed(range(self.layout_type.count())):
+                    self.layout_type.itemAt(i).widget().setDisabled(False)
+            except (RuntimeError, AttributeError):
+                pass
+
+            try:
+                for i in reversed(range(self.layout_btns.count())):
+                    self.layout_btns.itemAt(i).widget().setDisabled(False)
+            except (RuntimeError, AttributeError):
+                pass
+
+            try:
+                self.group_type.setDisabled(False)
+            except AttributeError:
+                pass
+
+        clear_and_lock_show()
 
         match self.group_type.currentText():
             case 'Дата':
-                self.date_show_thumbnails()
-            case 'Соцсети':
-                self.sn_show_thumbnails()
+                year = self.date_year.currentText()
+                month = self.date_month.currentText()
+                day = self.date_day.currentText()
+
+                photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
             case 'Оборудование':
-                self.eqip_show_thumbnails()
+                camera = self.camera_choose.currentText()
+                lens = self.lens_choose.currentText()
 
-        for i in reversed(range(self.layout_type.count())):
-            self.layout_type.itemAt(i).widget().setDisabled(False)
-        for i in reversed(range(self.layout_btns.count())):
-            self.layout_btns.itemAt(i).widget().setDisabled(False)
-        self.group_type.setDisabled(False)
+                if camera == 'All':
+                    camera_exif = 'All'
+                else:
+                    camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
 
-    # функция получения списков фото при сортировке по датам
-    def date_show_thumbnails(self) -> None:
-        year = self.date_year.currentText()
-        month = self.date_month.currentText()
-        day = self.date_day.currentText()
+                if lens == 'All':
+                    lens_exif = 'All'
+                else:
+                    lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
 
-        photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+                photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+            case 'Соцсети':
+                network = self.socnet_choose.currentText()
+                if network == 'Нет данных':
+                    return
+                else:
+                    pass
+
+                photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText())
 
         if not photo_list:
-            return
-
-        thumbnails_list = self.photo_to_thumb_path(photo_list)
-
-        self.fill_scroll_thumbs(thumbnails_list, photo_list)
-
-    # функция получения списков фото при сортировке по оборудованию
-    def eqip_show_thumbnails(self) -> None:
-        camera = self.camera_choose.currentText()
-        lens = self.lens_choose.currentText()
-
-        if camera == 'All':
-            camera_exif = 'All'
+            self.groupbox_thumbs.setMinimumHeight(self.height() - 100)
         else:
-            camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+            thumbnails_list = self.photo_to_thumb_path(photo_list)
+            self.fill_scroll_thumbs(thumbnails_list, photo_list)
 
-        if lens == 'All':
-            lens_exif = 'All'
-        else:
-            lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
-
-        photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
-        if not photo_list:
-            return
-
-        thumbnails_list = self.photo_to_thumb_path(photo_list)
-
-        self.fill_scroll_thumbs(thumbnails_list, photo_list)
-        # фотографии списком выбираются из БД, где есть имя файла и каталог
-        # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
-        # для showinfo и editexif дата берётся из objectName
-
-    # функция получения списков фото при сортировке по соцсетям
-    def sn_show_thumbnails(self) -> None:
-        network = self.socnet_choose.currentText()
-        if network == 'Нет данных':
-            return
-        else:
-            pass
-
-        photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText())
-        if not photo_list:
-            return
-
-        thumbnails_list = self.photo_to_thumb_path(photo_list)
-
-        self.fill_scroll_thumbs(thumbnails_list, photo_list)
-        # фотографии списком выбираются из БД, где есть имя файла и каталог
-        # при создании кнопки - миниатюры на неё вешается setObjectName с полным путём до фотографии
-        # для showinfo и editexif дата берётся из objectName
+        unlock_show()
 
     # функция отображения кнопок с миниатюрами
     def fill_scroll_thumbs(self, thumbnails_list, photo_list):
@@ -783,7 +812,6 @@ class ConstWidgetWindow(QWidget):
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
-        self.type_show_thumbnails()
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
@@ -795,6 +823,7 @@ class ConstWidgetWindow(QWidget):
         except (RuntimeError, AttributeError):
             pass
 
+        self.type_show_thumbnails()
         match self.group_type.currentText():
             case 'Дата':
                 old_year = self.date_year.currentText()
@@ -978,12 +1007,12 @@ class ConstWidgetWindow(QWidget):
                 if self.group_type.currentText() == 'Соцсети':
                     self.socnet_choose.setCurrentText(old_network)
                     self.sn_status.setCurrentText(old_status)
-                    self.sn_show_thumbnails()
+                    self.type_show_thumbnails()
                 elif self.group_type.currentText() == 'Оборудование':
                     self.fill_sort_equipment()
                     self.camera_choose.setCurrentText(old_camera)
                     self.lens_choose.setCurrentText(old_lens)
-                    self.eqip_show_thumbnails()
+                    self.type_show_thumbnails()
 
         def renamed_re_show():
             self.pic.clear()
@@ -1001,17 +1030,17 @@ class ConstWidgetWindow(QWidget):
             if self.group_type.currentText() == 'Соцсети':
                 self.socnet_choose.setCurrentText(old_network)
                 self.sn_status.setCurrentText(old_status)
-                self.sn_show_thumbnails()
+                self.type_show_thumbnails()
             elif self.group_type.currentText() == 'Оборудование':
                 self.fill_sort_equipment()
                 self.camera_choose.setCurrentText(old_camera)
                 self.lens_choose.setCurrentText(old_lens)
-                self.eqip_show_thumbnails()
+                self.type_show_thumbnails()
             else:
                 self.date_year.setCurrentText(old_year)
                 self.date_month.setCurrentText(old_month)
                 self.date_day.setCurrentText(old_day)
-                self.date_show_thumbnails()
+                self.type_show_thumbnails()
 
         dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
                                    chosen_group_type=self.group_type.currentText())
@@ -1031,14 +1060,12 @@ class ConstWidgetWindow(QWidget):
         self.socnet_group.clear()
         self.socnet_group.hide()
         self.group_type.setCurrentText('Дата')
-        self.get_years()
-        self.get_months()
-        self.get_days()
+        self.fill_date('date')
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
         self.metadata_show.hide()
-        self.date_show_thumbnails()
+        self.type_show_thumbnails()
         self.date_year.setCurrentText(year)
         self.date_month.setCurrentText(month)
         self.date_day.setCurrentText(day)
@@ -1178,7 +1205,6 @@ class ConstWidgetWindow(QWidget):
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_years()
         self.date_year.setFixedWidth(140)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
@@ -1191,7 +1217,6 @@ class ConstWidgetWindow(QWidget):
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_months()
         self.date_month.setFixedWidth(140)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
@@ -1204,7 +1229,6 @@ class ConstWidgetWindow(QWidget):
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_days()
         self.date_day.setFixedWidth(140)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
@@ -1220,9 +1244,11 @@ class ConstWidgetWindow(QWidget):
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
 
-        self.date_year.currentTextChanged.connect(self.get_months)
-        self.date_month.currentTextChanged.connect(self.get_days)
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
         self.date_day.currentTextChanged.connect(self.type_show_thumbnails)
+
+        self.fill_date('date')
 
     # заполнить поле группировки по соцсетям
     def fill_sort_socnets(self) -> None:

@@ -50,8 +50,6 @@ class ManyPhotoEdit(QWidget):
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layout_outside.addWidget(self.groupbox_sort, 0, 1, 1, 4)
 
-        self.fill_sort_groupbox()
-        self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
 
         self.groupbox_choose = QGroupBox(self)
@@ -65,13 +63,15 @@ class ManyPhotoEdit(QWidget):
         self.filtered_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.filtered_photo_table.horizontalHeader().setVisible(False)
         self.filtered_photo_table.verticalHeader().setVisible(False)
-        self.filtered_photo_table.setFixedWidth(270)
+        self.filtered_photo_table.setFixedWidth(264)
+        self.filtered_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.filtered_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.scroll_filtered_area = QScrollArea(self)  # создание подвижной области
         self.scroll_filtered_area.setWidgetResizable(True)
         self.scroll_filtered_area.setWidget(self.filtered_photo_table)
         self.scroll_filtered_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_filtered_area.setFixedWidth(270)
+        self.scroll_filtered_area.setFixedWidth(264)
 
         self.layout_choose.addWidget(self.scroll_filtered_area, 0, 0, 6, 1)
 
@@ -80,34 +80,39 @@ class ManyPhotoEdit(QWidget):
         self.edit_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.edit_photo_table.horizontalHeader().setVisible(False)
         self.edit_photo_table.verticalHeader().setVisible(False)
-        self.edit_photo_table.setFixedWidth(134)
+        self.edit_photo_table.setFixedWidth(132)
+        self.edit_photo_table.setColumnCount(1)
+        self.edit_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.edit_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.scroll_edit_area = QScrollArea(self)  # создание подвижной области
         self.scroll_edit_area.setWidgetResizable(True)
         self.scroll_edit_area.setWidget(self.edit_photo_table)
         self.scroll_edit_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_edit_area.setFixedWidth(134)
+        self.scroll_edit_area.setFixedWidth(132)
 
         self.layout_choose.addWidget(self.scroll_edit_area, 0, 2, 6, 1)
 
         self.empty = QLabel()
         self.layout_outside.addWidget(self.empty, 1, 3, 1, 1)
 
-        self.show_filtered_thumbs()
+        self.fill_sort_groupbox()
+        self.fill_sort_date()
 
-        print(self.filtered_photo_table.width())
-        print(self.scroll_filtered_area.width())
+        self.show_filtered_thumbs()
 
     def make_move_buttons(self):
         self.btn_move_all_right = QPushButton(self)
         self.btn_move_all_right.setText(">>")
         self.btn_move_all_right.setFixedSize(40, 20)
         self.layout_choose.addWidget(self.btn_move_all_right, 1, 1, 1, 1)
+        self.btn_move_all_right.clicked.connect(self.transfer_all_to_edit)
 
         self.btn_move_one_right = QPushButton(self)
         self.btn_move_one_right.setText(">")
         self.btn_move_one_right.setFixedSize(40, 20)
         self.layout_choose.addWidget(self.btn_move_one_right, 2, 1, 1, 1)
+        self.btn_move_one_right.clicked.connect(self.transfer_one_to_edit)
 
         self.btn_move_one_left = QPushButton(self)
         self.btn_move_one_left.setText("<")
@@ -118,6 +123,7 @@ class ManyPhotoEdit(QWidget):
         self.btn_move_all_left.setText("<<")
         self.btn_move_all_left.setFixedSize(40, 20)
         self.layout_choose.addWidget(self.btn_move_all_left, 4, 1, 1, 1)
+        self.btn_move_all_left.clicked.connect(self.transfer_all_to_filtered)
 
     # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
@@ -143,7 +149,6 @@ class ManyPhotoEdit(QWidget):
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_years()
         self.date_year.setFixedWidth(140)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
@@ -156,7 +161,6 @@ class ManyPhotoEdit(QWidget):
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_months()
         self.date_month.setFixedWidth(140)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
@@ -169,7 +173,6 @@ class ManyPhotoEdit(QWidget):
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_days()
         self.date_day.setFixedWidth(140)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
@@ -185,57 +188,26 @@ class ManyPhotoEdit(QWidget):
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
 
-        self.date_year.currentTextChanged.connect(self.get_months)
-        self.date_month.currentTextChanged.connect(self.get_days)
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
         self.date_day.currentTextChanged.connect(self.show_filtered_thumbs)
 
-    # Получение годов
-    def get_years(self) -> None:
-        self.date_year.clear()
-        j = 0
-        k = 0
-        dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
-        all_files_and_dirs = os.listdir(dir_to_find_year)
-        dir_list = list()
-        for name in all_files_and_dirs:
-            if os.path.isdir(dir_to_find_year + name):
-                if len(os.listdir(dir_to_find_year + name)) >= 1:
-                    for file in Path(dir_to_find_year + name).rglob('*'):
-                        if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
-                            k = 1
-                    if k == 1:
-                        k = 0
-                        dir_list.append(name)
+        self.fill_date('date')
 
-        dir_list.sort(reverse=True)
-        i = 0
-        for year in dir_list:
-            if dir_list[i] != 'No_Date_Info':
-                self.date_year.addItem(str(year))
-            else:
-                j = 1
-            i += 1
-        if j == 1:
-            self.date_year.addItem('No_Date_Info')
-        else:
-            pass
-        self.date_year.addItem('All')
-
-    # Получение месяцев в году
-    def get_months(self) -> None:
-        self.date_month.clear()
-        year = self.date_year.currentText()
-        if year == 'All':
-            self.date_month.addItem('All')
-        else:
-            dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
-            all_files_and_dirs = os.listdir(dir_to_find_month)
-            dir_list = list()
+    # заполнение полей сортировки по дате
+    def fill_date(self, mode: str) -> None:
+        # Получение годов
+        def get_years() -> None:
+            self.date_year.clear()
+            j = 0
             k = 0
+            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            all_files_and_dirs = os.listdir(dir_to_find_year)
+            dir_list = list()
             for name in all_files_and_dirs:
-                if os.path.isdir(dir_to_find_month + name):
-                    if len(os.listdir(dir_to_find_month + name)) >= 1:
-                        for file in Path(dir_to_find_month + name).rglob('*'):
+                if os.path.isdir(dir_to_find_year + name):
+                    if len(os.listdir(dir_to_find_year + name)) >= 1:
+                        for file in Path(dir_to_find_year + name).rglob('*'):
                             if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
                                 k = 1
                         if k == 1:
@@ -243,30 +215,81 @@ class ManyPhotoEdit(QWidget):
                             dir_list.append(name)
 
             dir_list.sort(reverse=True)
-            for month in dir_list:
-                self.date_month.addItem(str(month))
-            self.date_month.addItem('All')
+            i = 0
+            for year in dir_list:
+                if dir_list[i] != 'No_Date_Info':
+                    self.date_year.addItem(str(year))
+                else:
+                    j = 1
+                i += 1
+            if j == 1:
+                self.date_year.addItem('No_Date_Info')
+            else:
+                pass
+            self.date_year.addItem('All')
 
-    # Получение дней в месяце
-    def get_days(self) -> None:
-        self.date_day.clear()
-        year = self.date_year.currentText()
-        month = self.date_month.currentText()
-        if year == 'All' or month == 'All':
-            self.date_day.addItem('All')
-        else:
-            dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
-            all_files_and_dirs = os.listdir(dir_to_find_day)
-            dir_list = list()
-            for name in all_files_and_dirs:
-                if os.path.isdir(dir_to_find_day + name):
-                    if len(os.listdir(dir_to_find_day + name)) >= 1:
-                        dir_list.append(name)
+        # Получение месяцев в году
+        def get_months() -> None:
+            self.date_month.clear()
+            year = self.date_year.currentText()
+            if year == 'All':
+                self.date_month.addItem('All')
+            else:
+                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_month)
+                dir_list = list()
+                k = 0
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_month + name):
+                        if len(os.listdir(dir_to_find_month + name)) >= 1:
+                            for file in Path(dir_to_find_month + name).rglob('*'):
+                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                    k = 1
+                            if k == 1:
+                                k = 0
+                                dir_list.append(name)
 
-            dir_list.sort(reverse=True)
-            for day in dir_list:
-                self.date_day.addItem(str(day))
-            self.date_day.addItem('All')
+                dir_list.sort(reverse=True)
+                for month in dir_list:
+                    self.date_month.addItem(str(month))
+                self.date_month.addItem('All')
+
+        # Получение дней в месяце
+        def get_days() -> None:
+            self.date_day.clear()
+            year = self.date_year.currentText()
+            month = self.date_month.currentText()
+            if year == 'All' or month == 'All':
+                self.date_day.addItem('All')
+            else:
+                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_day)
+                dir_list = list()
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_day + name):
+                        if len(os.listdir(dir_to_find_day + name)) >= 1:
+                            dir_list.append(name)
+
+                dir_list.sort(reverse=True)
+                for day in dir_list:
+                    self.date_day.addItem(str(day))
+                self.date_day.addItem('All')
+
+        match mode:
+            case 'date':
+                get_years()
+                get_months()
+                get_days()
+            case 'year':
+                get_years()
+            case 'month':
+                get_months()
+            case 'day':
+                get_days()
+            case _:
+                get_years()
+                get_months()
+                get_days()
 
     # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
@@ -369,52 +392,130 @@ class ManyPhotoEdit(QWidget):
 
         thumbnails_list = self.photo_to_thumb_path(photo_list)
 
-        coloumns = 2
-        rows = math.ceil(len(thumbnails_list) / coloumns)
-        print(len(photo_list))
-        print(len(thumbnails_list))
-        print(coloumns, rows)
+        columns = 2
+        rows = math.ceil(len(thumbnails_list) / columns)
 
-
-        self.filtered_photo_table.setColumnCount(coloumns)
+        self.filtered_photo_table.setColumnCount(columns)
         self.filtered_photo_table.setRowCount(rows)
-        self.filtered_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.filtered_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         for j in range(0, rows):
             if j == rows - 1:
-                for i in range(0, len(thumbnails_list) - coloumns*(rows-1)):
-                    item = QToolButton()
-                    item.setFixedSize(130, 130)
-                    # item.setDisabled(True)
-                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * coloumns + i]}')  # создание объекта картинки
+                for i in range(0, len(thumbnails_list) - columns*(rows-1)):
+                    self.item = QToolButton()
+                    self.item.setFixedSize(130, 130)
+                    self.item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    iqon = QtGui.QIcon(f'{thumbnails_list[j * columns + i]}')  # создание объекта картинки
                     iqon.pixmap(100, 100)
-                    item.setIcon(iqon)
-                    item.setIconSize(QtCore.QSize(100, 100))
-                    filename_show = thumbnails_list[j * coloumns + i].split('/')[-1][10:]
-                    item.setText(f'{filename_show}')
-                    item.setObjectName(f'{photo_list[j * coloumns + i]}')
-                    self.filtered_photo_table.setCellWidget(j, i, item)
-
+                    self.item.setIcon(iqon)
+                    self.item.setIconSize(QtCore.QSize(100, 100))
+                    filename_show = thumbnails_list[j * columns + i].split('/')[-1][10:]
+                    self.item.setText(f'{filename_show}')
+                    self.item.setObjectName(f'{photo_list[j * columns + i]}')
+                    self.filtered_photo_table.setCellWidget(j, i, self.item)
+                    # self.item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
+                    self.item.clicked.connect(self.transfer_one_to_edit)
             else:
-                for i in range(0, coloumns):
-                    item = QToolButton()
-                    item.setFixedSize(130, 130)
-                    # item.setDisabled(True)
-                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * coloumns + i]}')  # создание объекта картинки
+                for i in range(0, columns):
+                    self.item = QToolButton()
+                    self.item.setFixedSize(130, 130)
+                    self.item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    iqon = QtGui.QIcon(f'{thumbnails_list[j * columns + i]}')  # создание объекта картинки
                     iqon.pixmap(100, 100)
-                    item.setIcon(iqon)
+                    self.item.setIcon(iqon)
+                    self.item.setIconSize(QtCore.QSize(100, 100))
+                    filename_show = thumbnails_list[j * columns + i].split('/')[-1][10:]
+                    self.item.setText(f'{filename_show}')
+                    self.item.setObjectName(f'{photo_list[j * columns + i]}')
+                    self.filtered_photo_table.setCellWidget(j, i, self.item)
+                    # self.item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
+                    self.item.clicked.connect(self.transfer_one_to_edit)
+
+    def transfer_all_to_edit(self):
+        for i in range(self.filtered_photo_table.rowCount()):
+            for j in range(self.filtered_photo_table.columnCount()):
+                try:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
+                    photo_path = self.filtered_photo_table.cellWidget(i, j).objectName()
+                    self.filtered_photo_table.cellWidget(i, j).setDisabled(True)
+                    item = QToolButton(self)
+                    item.setFixedSize(130, 130)
+                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+                    item_iqon = QtGui.QIcon(self.photo_to_thumb_path([photo_path])[0])
+                    item_text = photo_path.split('/')[-1]
+                    item_objectname = photo_path
+
+                    item.setIcon(item_iqon)
                     item.setIconSize(QtCore.QSize(100, 100))
-                    filename_show = thumbnails_list[j * coloumns + i].split('/')[-1][10:]
-                    item.setText(f'{filename_show}')
-                    item.setObjectName(f'{photo_list[j * coloumns + i]}')
-                    self.filtered_photo_table.setCellWidget(j, i, item)
+                    item.setText(item_text)
+                    item.setObjectName(item_objectname)
 
+                    self.edit_photo_table.setRowCount(self.edit_photo_table.rowCount() + 1)
+                    self.edit_photo_table.setCellWidget(self.edit_photo_table.rowCount() - 1, 0, item)
 
+                    item.clicked.connect(self.transfer_one_to_filtered)
+                except AttributeError:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
+                    pass
 
+    def transfer_all_to_filtered(self):
+        for k in range(self.edit_photo_table.rowCount()):
+            photo_path = self.edit_photo_table.cellWidget(k, 0).objectName()
+            x = 0
+            for i in range(self.filtered_photo_table.rowCount()):
+                for j in range(self.filtered_photo_table.columnCount()):
+                    try:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
+                        if self.filtered_photo_table.cellWidget(i, j).objectName() == photo_path:
+                            self.filtered_photo_table.cellWidget(i, j).setDisabled(False)
+                            self.edit_photo_table.cellWidget(k, 0).deleteLater()
+                            x = 1
+                            break
+                    except AttributeError:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
+                        pass
+                if x:
+                    break
 
+        self.edit_photo_table.setRowCount(0)
+
+    def transfer_one_to_edit(self):
+        photo_path = self.sender().objectName()
+        self.sender().setDisabled(True)
+        item = QToolButton(self)
+        item.setFixedSize(130, 130)
+        item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+
+        item_iqon = QtGui.QIcon(self.photo_to_thumb_path([photo_path])[0])
+        item_text = photo_path.split('/')[-1]
+        item_objectname = photo_path
+
+        item.setIcon(item_iqon)
+        item.setIconSize(QtCore.QSize(100, 100))
+        item.setText(item_text)
+        item.setObjectName(item_objectname)
+
+        self.edit_photo_table.setRowCount(self.edit_photo_table.rowCount() + 1)
+        self.edit_photo_table.setCellWidget(self.edit_photo_table.rowCount() - 1, 0, item)
+
+        item.clicked.connect(self.transfer_one_to_filtered)
+
+    def transfer_one_to_filtered(self):
+        photo_path = self.sender().objectName()
+        x = 0
+        for i in range(self.filtered_photo_table.rowCount()):
+            for j in range(self.filtered_photo_table.columnCount()):
+                try:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
+                    if self.filtered_photo_table.cellWidget(i, j).objectName() == photo_path:
+                        self.filtered_photo_table.cellWidget(i, j).setDisabled(False)
+                        x = 1
+                        break
+                except AttributeError:
+                    pass
+            if x:
+                break
+
+        for k in range(self.edit_photo_table.rowCount()):
+            if self.edit_photo_table.cellWidget(k,0).objectName() == photo_path:
+                self.edit_photo_table.cellWidget(k, 0).deleteLater()
+                self.edit_photo_table.removeRow(k)
+                break
 
 
 
