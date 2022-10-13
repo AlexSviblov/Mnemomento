@@ -606,3 +606,12 @@ def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
     cur.execute(sql_str2)
 
     conn.commit()
+
+
+# обновить в БД много записей одновременно
+def massive_edit_metadata(photo_list, modify_dict):
+    for file in photo_list:
+        file_name = file.split('/')[-1]
+        file_dir = file[:(-1) * (len(file_name) + 1)]
+        edit_in_database(file_name, file_dir, modify_dict)
+

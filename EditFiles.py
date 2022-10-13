@@ -379,7 +379,6 @@ class EditExifData(QDialog):
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
     # создание кнопок
-
     def make_buttons(self):
         self.btn_ok.setText("Записать")
         self.btn_ok.setStyleSheet(stylesheet8)
@@ -670,6 +669,9 @@ class EditExifData(QDialog):
 
             self.mode_check_dmc.setFont(font12)
             self.mode_check_dmc.setStyleSheet(stylesheet2)
+
+            self.mode_check_fn.setFont(font12)
+            self.mode_check_fn.setStyleSheet(stylesheet2)
 
             self.latitude_dmc_lbl.setFont(font12)
             self.latitude_dmc_lbl.setStyleSheet(stylesheet2)

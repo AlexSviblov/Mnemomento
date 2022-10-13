@@ -31,12 +31,16 @@ icon_delete = str()
 
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
+font10 = QtGui.QFont('Times', 10)
+font8 = QtGui.QFont('Times', 8)
 
 
 class ManyPhotoEdit(QWidget):
 
     def __init__(self):
         super().__init__()
+        self.stylesheet_color()
+        self.table_positions = dict()
 
         self.layout_outside = QGridLayout(self)
         self.setLayout(self.layout_outside)
@@ -55,8 +59,7 @@ class ManyPhotoEdit(QWidget):
         self.groupbox_choose = QGroupBox(self)
         self.layout_choose = QGridLayout(self)
         self.groupbox_choose.setLayout(self.layout_choose)
-        self.layout_outside.addWidget(self.groupbox_choose, 1, 0, 1, 2)
-        self.make_move_buttons()
+        self.layout_outside.addWidget(self.groupbox_choose, 1, 0, 4, 2)
 
         self.filtered_photo_table = QTableWidget(self)
         self.filtered_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -72,8 +75,9 @@ class ManyPhotoEdit(QWidget):
         self.scroll_filtered_area.setWidget(self.filtered_photo_table)
         self.scroll_filtered_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_filtered_area.setFixedWidth(264)
+        self.scroll_filtered_area.setStyleSheet(stylesheet1)
 
-        self.layout_choose.addWidget(self.scroll_filtered_area, 0, 0, 6, 1)
+        self.layout_choose.addWidget(self.scroll_filtered_area, 0, 0, 4, 1)
 
         self.edit_photo_table = QTableWidget(self)
         self.edit_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -90,40 +94,476 @@ class ManyPhotoEdit(QWidget):
         self.scroll_edit_area.setWidget(self.edit_photo_table)
         self.scroll_edit_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.scroll_edit_area.setFixedWidth(132)
+        self.scroll_edit_area.setStyleSheet(stylesheet1)
 
-        self.layout_choose.addWidget(self.scroll_edit_area, 0, 2, 6, 1)
+        self.layout_choose.addWidget(self.scroll_edit_area, 0, 2, 4, 1)
 
-        self.empty = QLabel()
-        self.layout_outside.addWidget(self.empty, 1, 3, 1, 1)
+        self.new_data_groupbox = QGroupBox(self)
+        self.layout_new_data = QGridLayout(self)
+        self.new_data_groupbox.setLayout(self.layout_new_data)
+        self.layout_outside.addWidget(self.new_data_groupbox, 1, 2, 1, 1)
+        self.new_data_groupbox.setStyleSheet(stylesheet1)
+
+        self.empty2 = QLabel(self)
+        self.layout_outside.addWidget(self.empty2, 2, 2, 1, 2)
+        
+        self.write_buttons_groupbox = QGroupBox(self)
+        self.layout_btns = QGridLayout(self)
+        self.write_buttons_groupbox.setLayout(self.layout_btns)
+        self.layout_outside.addWidget(self.write_buttons_groupbox, 4, 2, 1, 2)
+        self.write_buttons_groupbox.setFixedHeight(80)
+
+        # self.compare_scroll = QScrollArea(self)
+        self.table_compare = QTableWidget(self)
+        self.table_compare.setFixedHeight(254)
+        # self.compare_scroll.setWidget(self.table_compare)
+        # self.layout_outside.addWidget(self.compare_scroll, 2, 2, 1, 2)
+        self.layout_outside.addWidget(self.table_compare, 3, 2, 1, 2)
+        self.make_compare_table()
 
         self.fill_sort_groupbox()
         self.fill_sort_date()
 
         self.show_filtered_thumbs()
+        self.make_new_data_enter()
+        self.make_buttons()
 
-    def make_move_buttons(self):
+    # задать стили для всего модуля в зависимости от выбранной темы
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet3
+        global stylesheet6
+        global stylesheet7
+        global stylesheet8
+        global stylesheet9
+        global icon_explorer
+        global icon_view
+        global icon_edit
+        global icon_delete
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet3 =   """
+                                QHeaderView::section
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    background-color: #F0F0F0;
+                                    color: #000000;
+                                }
+                            """
+            stylesheet6 =   """
+                                QTableWidget
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                    gridline-color: #A9A9A9;
+                                }
+                                QTableCornerButton::section 
+                                {
+                                    background-color: #F0F0F0;
+                                }
+                            """
+            stylesheet7 =   """
+                            QTabWidget::pane
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                background-color: #F0F0F0;
+                                color: #000000;
+                            }
+                            QTabBar::tab
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                padding: 5px;
+                                color: #000000;
+                                min-width: 12em;
+                            }
+                            QTabBar::tab:selected
+                            {
+                                border: 2px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                margin-top: -1px;
+                                background-color: #C0C0C0;
+                                color: #000000;
+                            }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #C0C0C0;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #C0C0C0;
+                                }
+                            """
+            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
+            icon_view = os.getcwd() + '/icons/view_light.png'
+            icon_edit = os.getcwd() + '/icons/edit_light.png'
+            icon_delete = os.getcwd() + '/icons/delete_light.png'
+        else:  # Settings.get_theme_color() == 'dark'
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet3 =   """
+                                QHeaderView::section
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3;
+                                }
+                            """
+            stylesheet6 =   """
+                                QTableView
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1c1c1c;
+                                    gridline-color: #696969;
+                                }
+                                QTableCornerButton::section 
+                                {
+                                    background-color: #1c1c1c;
+                                }
+
+                            """
+            stylesheet7 =   """
+                                QTabWidget::pane
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C;
+                                    color: #D3D3D3
+                                }
+                                QTabBar::tab
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    padding: 5px;
+                                    color: #D3D3D3;
+                                    min-width: 12em;
+                                } 
+                                QTabBar::tab:selected
+                                {
+                                    border: 2px;
+                                    border-color: #6A6A6A;
+                                    border-style: solid;
+                                    margin-top: -1px;
+                                    background-color: #1F1F1F;
+                                    color: #D3D3D3
+                                }
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #2F2F2F;
+                                    margin-top: -1px
+                                }
+                            """
+            stylesheet9 =   """
+                                QComboBox
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C;
+                                }
+                                QComboBox QAbstractItemView
+                                {
+                                    selection-background-color: #4F4F4F;
+                                }
+                            """
+            icon_explorer = os.getcwd() + '/icons/explorer_dark.png'
+            icon_view = os.getcwd() + '/icons/view_dark.png'
+            icon_edit = os.getcwd() + '/icons/edit_dark.png'
+            icon_delete = os.getcwd() + '/icons/delete_dark.png'
+
+        try:
+            self.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
+
+    def make_new_data_enter(self):
+        self.new_make_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_make_check, 0, 0, 1, 1)
+        self.new_make_check.setStyleSheet(stylesheet2)
+        self.new_make_check.setFont(font12)
+
+        self.new_make_line = QLineEdit(self)
+        self.layout_new_data.addWidget(self.new_make_line, 0, 1, 1, 2)
+        self.new_make_line.setStyleSheet(stylesheet1)
+        self.new_make_line.setFont(font12)
+
+        self.new_model_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_model_check, 1, 0, 1, 1)
+        self.new_model_check.setStyleSheet(stylesheet2)
+        self.new_model_check.setFont(font12)
+
+        self.new_model_line = QLineEdit(self)
+        self.layout_new_data.addWidget(self.new_model_line, 1, 1, 1, 2)
+        self.new_model_line.setStyleSheet(stylesheet1)
+        self.new_model_line.setFont(font12)
+
+        self.new_lens_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_lens_check, 2, 0, 1, 1)
+        self.new_lens_check.setStyleSheet(stylesheet2)
+        self.new_lens_check.setFont(font12)
+
+        self.new_lens_line = QLineEdit(self)
+        self.layout_new_data.addWidget(self.new_lens_line, 2, 1, 1, 2)
+        self.new_lens_line.setStyleSheet(stylesheet1)
+        self.new_lens_line.setFont(font12)
+
+        self.new_bodynum_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_bodynum_check, 3, 0, 1, 1)
+        self.new_bodynum_check.setStyleSheet(stylesheet2)
+        self.new_bodynum_check.setFont(font12)
+
+        self.new_bodynum_line = QLineEdit(self)
+        self.layout_new_data.addWidget(self.new_bodynum_line, 3, 1, 1, 2)
+        self.new_bodynum_line.setStyleSheet(stylesheet1)
+        self.new_bodynum_line.setFont(font12)
+
+        self.new_lensnum_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_lensnum_check, 4, 0, 1, 1)
+        self.new_lensnum_check.setStyleSheet(stylesheet2)
+        self.new_lensnum_check.setFont(font12)
+
+        self.new_lensnum_line = QLineEdit(self)
+        self.layout_new_data.addWidget(self.new_lensnum_line, 4, 1, 1, 2)
+        self.new_lensnum_line.setStyleSheet(stylesheet1)
+        self.new_lensnum_line.setFont(font12)
+
+        self.new_datetime_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_datetime_check, 5, 0, 1, 1)
+        self.new_datetime_check.setStyleSheet(stylesheet2)
+        self.new_datetime_check.setFont(font12)
+
+        self.new_datetime_line = QDateTimeEdit(self)
+        self.layout_new_data.addWidget(self.new_datetime_line, 5, 1, 1, 2)
+        self.new_datetime_line.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
+        self.new_datetime_line.setStyleSheet(stylesheet1)
+        self.new_datetime_line.setFont(font12)
+
+        self.new_offset_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_offset_check, 6, 0, 1, 1)
+        self.new_offset_check.setStyleSheet(stylesheet2)
+        self.new_offset_check.setFont(font12)
+
+        self.new_offset_pm_line = QComboBox(self)
+        self.layout_new_data.addWidget(self.new_offset_pm_line, 6, 1, 1, 1, alignment=Qt.AlignRight)
+        self.new_offset_pm_line.setStyleSheet(stylesheet9)
+        self.new_offset_pm_line.setFont(font12)
+        self.new_offset_pm_line.addItem('+')
+        self.new_offset_pm_line.addItem('-')
+        self.new_offset_pm_line.setFixedWidth(80)
+        self.new_offset_line = QTimeEdit(self)
+        self.layout_new_data.addWidget(self.new_offset_line, 6, 2, 1, 1)
+        self.new_offset_line.setStyleSheet(stylesheet1)
+        self.new_offset_line.setFont(font12)
+
+        self.new_gps_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_gps_check, 7, 0, 1, 1)
+        self.new_gps_check.setStyleSheet(stylesheet2)
+        self.new_gps_check.setFont(font12)
+
+        self.new_gps_lat_line = QLineEdit(self) # широта
+        self.layout_new_data.addWidget(self.new_gps_lat_line, 7, 1, 1, 1)
+        self.new_gps_lat_line.setValidator(QtGui.QRegExpValidator(
+                QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$')))
+        self.new_gps_lat_line.setStyleSheet(stylesheet1)
+        self.new_gps_lat_line.setFont(font12)
+
+        self.new_gps_lon_line = QLineEdit(self) # долгота
+        self.layout_new_data.addWidget(self.new_gps_lon_line, 7, 2, 1, 1)
+        self.new_gps_lon_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
+                '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$')))
+        self.new_gps_lon_line.setStyleSheet(stylesheet1)
+        self.new_gps_lon_line.setFont(font12)
+
+        self.new_make_check.setText('Производитель')
+        self.new_model_check.setText('Модель')
+        self.new_lens_check.setText('Объектив')
+        self.new_bodynum_check.setText('Серийный номер камеры')
+        self.new_lensnum_check.setText('Серийный номер объектива')
+        self.new_datetime_check.setText('Дата и время')
+        self.new_offset_check.setText('Часовой пояс')
+        self.new_gps_check.setText('Координаты')
+
+        self.new_make_line.setDisabled(True)
+        self.new_model_line.setDisabled(True)
+        self.new_lens_line.setDisabled(True)
+        self.new_bodynum_line.setDisabled(True)
+        self.new_lensnum_line.setDisabled(True)
+        self.new_datetime_line.setDisabled(True)
+        self.new_offset_line.setDisabled(True)
+        self.new_offset_pm_line.setDisabled(True)
+        self.new_gps_lat_line.setDisabled(True)
+        self.new_gps_lon_line.setDisabled(True)
+
+        self.new_make_check.stateChanged.connect(self.new_line_locker)
+        self.new_model_check.stateChanged.connect(self.new_line_locker)
+        self.new_lens_check.stateChanged.connect(self.new_line_locker)
+        self.new_bodynum_check.stateChanged.connect(self.new_line_locker)
+        self.new_lensnum_check.stateChanged.connect(self.new_line_locker)
+        self.new_datetime_check.stateChanged.connect(self.new_line_locker)
+        self.new_offset_check.stateChanged.connect(self.new_line_locker)
+        self.new_gps_check.stateChanged.connect(self.new_line_locker)
+
+    def new_line_locker(self):
+        match self.sender().text():
+            case "Производитель":
+                lines = [self.new_make_line]
+            case "Модель":
+                lines = [self.new_model_line]
+            case "Объектив":
+                lines = [self.new_lens_line]
+            case "Серийный номер камеры":
+                lines = [self.new_bodynum_line]
+            case "Серийный номер объектива":
+                lines = [self.new_lensnum_line]
+            case "Дата и время":
+                lines = [self.new_datetime_line]
+            case "Часовой пояс":
+                lines = [self.new_offset_line, self.new_offset_pm_line]
+            case "Координаты":
+                lines = [self.new_gps_lat_line, self.new_gps_lon_line]
+
+        if self.sender().checkState():
+            for line in lines:
+                line.setDisabled(False)
+        else:
+            for line in lines:
+                line.setDisabled(True)
+
+        if self.sender().text() == "Координаты":
+            if self.sender().checkState():
+                self.make_map(1)
+            else:
+                self.make_map(0)
+
+    # создание карты и метки на ней
+    def make_map(self, status):
+        if not status:
+            try:
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError):
+                pass
+
+        else:
+            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+
+            self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
+
+            self.popup = folium.LatLngPopup()
+            self.map_gps.add_child(self.popup)
+            self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+
+            self.layout_outside.addWidget(self.map_gps_widget, 1, 3, 1, 1)
+
+    # кнопки переноса всех фото между таблицами
+    def make_buttons(self):
         self.btn_move_all_right = QPushButton(self)
         self.btn_move_all_right.setText(">>")
         self.btn_move_all_right.setFixedSize(40, 20)
         self.layout_choose.addWidget(self.btn_move_all_right, 1, 1, 1, 1)
         self.btn_move_all_right.clicked.connect(self.transfer_all_to_edit)
-
-        self.btn_move_one_right = QPushButton(self)
-        self.btn_move_one_right.setText(">")
-        self.btn_move_one_right.setFixedSize(40, 20)
-        self.layout_choose.addWidget(self.btn_move_one_right, 2, 1, 1, 1)
-        self.btn_move_one_right.clicked.connect(self.transfer_one_to_edit)
-
-        self.btn_move_one_left = QPushButton(self)
-        self.btn_move_one_left.setText("<")
-        self.btn_move_one_left.setFixedSize(40, 20)
-        self.layout_choose.addWidget(self.btn_move_one_left, 3, 1, 1, 1)
+        self.btn_move_all_right.setStyleSheet(stylesheet8)
+        self.btn_move_all_right.setFont(font12)
 
         self.btn_move_all_left = QPushButton(self)
         self.btn_move_all_left.setText("<<")
         self.btn_move_all_left.setFixedSize(40, 20)
-        self.layout_choose.addWidget(self.btn_move_all_left, 4, 1, 1, 1)
+        self.layout_choose.addWidget(self.btn_move_all_left, 2, 1, 1, 1)
         self.btn_move_all_left.clicked.connect(self.transfer_all_to_filtered)
+        self.btn_move_all_left.setStyleSheet(stylesheet8)
+        self.btn_move_all_left.setFont(font12)
+        
+        self.btn_clear_all = QPushButton(self)
+        self.btn_clear_all.setText('Очистить')
+        self.layout_btns.addWidget(self.btn_clear_all, 0, 2, 1, 1)
+        self.btn_clear_all.clicked.connect(self.func_clear)
+        self.btn_clear_all.setStyleSheet(stylesheet8)
+        self.btn_clear_all.setFont(font12)
+        self.btn_clear_all.setFixedHeight(50)
+
+        self.btn_write = QPushButton(self)
+        self.btn_write.setText('Записать')
+        self.layout_btns.addWidget(self.btn_write, 0, 0, 1, 1)
+        self.btn_write.clicked.connect(self.write_data)
+        self.btn_write.setStyleSheet(stylesheet8)
+        self.btn_write.setFont(font12)
+        self.btn_write.setFixedHeight(50)
+
+        self.empty1= QLabel(self)
+        self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
 
     # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
@@ -362,7 +802,36 @@ class ManyPhotoEdit(QWidget):
 
         return thumbnails_list
 
+    # показывать в левой таблице фото по группировке
     def show_filtered_thumbs(self):
+        try:
+            self.btn_move_all_left.setDisabled(True)
+            self.btn_move_all_right.setDisabled(True)
+            self.btn_clear_all.setDisabled(True)
+            self.btn_write.setDisabled(True)
+            for i in reversed(range(self.layout_type.count())):
+                self.layout_type.itemAt(i).widget().setDisabled(True)
+        except AttributeError:
+            pass
+
+        for i in range(self.table_compare.columnCount()):
+            self.table_compare.removeColumn(i)
+
+        for i in range(self.filtered_photo_table.rowCount()):
+            for j in range(self.filtered_photo_table.columnCount()):
+                try:
+                    self.filtered_photo_table.cellWidget(i, j).deleteLater()
+                except (AttributeError, RuntimeError):
+                    pass
+        self.filtered_photo_table.setRowCount(0)
+
+        for k in range(self.edit_photo_table.rowCount()):
+            try:
+                self.edit_photo_table.cellWidget(k, 0).deleteLater()
+            except (AttributeError, RuntimeError):
+                pass
+        self.edit_photo_table.setRowCount(0)
+
         match self.group_type.currentText():
             case 'Дата':
                 year = self.date_year.currentText()
@@ -414,6 +883,7 @@ class ManyPhotoEdit(QWidget):
                     self.filtered_photo_table.setCellWidget(j, i, self.item)
                     # self.item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
                     self.item.clicked.connect(self.transfer_one_to_edit)
+                    QtCore.QCoreApplication.processEvents()
             else:
                 for i in range(0, columns):
                     self.item = QToolButton()
@@ -429,33 +899,65 @@ class ManyPhotoEdit(QWidget):
                     self.filtered_photo_table.setCellWidget(j, i, self.item)
                     # self.item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
                     self.item.clicked.connect(self.transfer_one_to_edit)
+                    QtCore.QCoreApplication.processEvents()
 
+        try:
+            self.btn_move_all_left.setDisabled(False)
+            self.btn_move_all_right.setDisabled(False)
+            self.btn_clear_all.setDisabled(False)
+            self.btn_write.setDisabled(False)
+            for i in reversed(range(self.layout_type.count())):
+                self.layout_type.itemAt(i).widget().setDisabled(False)
+        except AttributeError:
+            pass
+
+    # перенос всех отфильтрованных фото в таблицу редактирования
     def transfer_all_to_edit(self):
+        self.btn_move_all_left.setDisabled(True)
+        self.btn_move_all_right.setDisabled(True)
+        self.btn_clear_all.setDisabled(True)
+        self.btn_write.setDisabled(True)
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().setDisabled(True)
+
         for i in range(self.filtered_photo_table.rowCount()):
             for j in range(self.filtered_photo_table.columnCount()):
                 try:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
-                    photo_path = self.filtered_photo_table.cellWidget(i, j).objectName()
-                    self.filtered_photo_table.cellWidget(i, j).setDisabled(True)
-                    item = QToolButton(self)
-                    item.setFixedSize(130, 130)
-                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    if not self.filtered_photo_table.cellWidget(i, j).isEnabled():
+                        pass
+                    else:
+                        photo_path = self.filtered_photo_table.cellWidget(i, j).objectName()
+                        self.filtered_photo_table.cellWidget(i, j).setDisabled(True)
+                        item = QToolButton(self)
+                        item.setFixedSize(130, 130)
+                        item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
 
-                    item_iqon = QtGui.QIcon(self.photo_to_thumb_path([photo_path])[0])
-                    item_text = photo_path.split('/')[-1]
-                    item_objectname = photo_path
+                        item_iqon = QtGui.QIcon(self.photo_to_thumb_path([photo_path])[0])
+                        item_text = photo_path.split('/')[-1]
+                        item_objectname = photo_path
 
-                    item.setIcon(item_iqon)
-                    item.setIconSize(QtCore.QSize(100, 100))
-                    item.setText(item_text)
-                    item.setObjectName(item_objectname)
+                        item.setIcon(item_iqon)
+                        item.setIconSize(QtCore.QSize(100, 100))
+                        item.setText(item_text)
+                        item.setObjectName(item_objectname)
 
-                    self.edit_photo_table.setRowCount(self.edit_photo_table.rowCount() + 1)
-                    self.edit_photo_table.setCellWidget(self.edit_photo_table.rowCount() - 1, 0, item)
+                        self.edit_photo_table.setRowCount(self.edit_photo_table.rowCount() + 1)
+                        self.edit_photo_table.setCellWidget(self.edit_photo_table.rowCount() - 1, 0, item)
 
-                    item.clicked.connect(self.transfer_one_to_filtered)
+                        QtCore.QCoreApplication.processEvents()
+                        self.table_one_add(photo_path)
+                        item.clicked.connect(self.transfer_one_to_filtered)
+                        QtCore.QCoreApplication.processEvents()
                 except AttributeError:  # в последнем слоте может ничего не быть - всегда если количество фоток нечётное
                     pass
+        self.btn_move_all_left.setDisabled(False)
+        self.btn_move_all_right.setDisabled(False)
+        self.btn_clear_all.setDisabled(False)
+        self.btn_write.setDisabled(False)
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().setDisabled(False)
 
+    # перенос всех фото из таблицы редактирования в таблицу просто отфильтрованных
     def transfer_all_to_filtered(self):
         for k in range(self.edit_photo_table.rowCount()):
             photo_path = self.edit_photo_table.cellWidget(k, 0).objectName()
@@ -472,9 +974,11 @@ class ManyPhotoEdit(QWidget):
                         pass
                 if x:
                     break
+            self.table_one_del(photo_path)
 
         self.edit_photo_table.setRowCount(0)
 
+    # перенос одного фото в редактирование
     def transfer_one_to_edit(self):
         photo_path = self.sender().objectName()
         self.sender().setDisabled(True)
@@ -494,8 +998,11 @@ class ManyPhotoEdit(QWidget):
         self.edit_photo_table.setRowCount(self.edit_photo_table.rowCount() + 1)
         self.edit_photo_table.setCellWidget(self.edit_photo_table.rowCount() - 1, 0, item)
 
+        self.table_one_add(photo_path)
+
         item.clicked.connect(self.transfer_one_to_filtered)
 
+    # перенос одного фото из редактирования
     def transfer_one_to_filtered(self):
         photo_path = self.sender().objectName()
         x = 0
@@ -517,8 +1024,185 @@ class ManyPhotoEdit(QWidget):
                 self.edit_photo_table.removeRow(k)
                 break
 
+        self.table_one_del(photo_path)
+
+    # получить список всех файлов, выбранных для редактирования метаданных
+    def get_edit_list(self):
+        photo_list = []
+        for k in range(self.edit_photo_table.rowCount()):
+            try:
+                photo_list.append(self.edit_photo_table.cellWidget(k, 0).objectName())
+            except AttributeError:
+                pass
+        return photo_list
+
+    # очистка метаданных
+    def func_clear(self):
+        def accepted():
+            for file in self.get_edit_list():
+                name = file.split('/')[-1]
+                directory = file[:(-1) * (len(name) + 1)]
+                Metadata.clear_exif(name, directory)
+                PhotoDataDB.clear_metadata(name, directory)
+
+        def rejected():
+            win.close()
+
+        win = ConfirmClear(self.parent())
+        win.show()
+        win.accept_signal.connect(accepted)
+        win.reject_signal.connect(rejected)
+
+    # считать все новые вводимые данные
+    def get_all_new_data(self):
+        modify_dict = dict()
+
+        if self.new_make_check.checkState():
+            if self.new_make_line.text():
+                modify_dict[0] = self.new_make_line.text()
+        if self.new_model_check.checkState():
+            if self.new_model_line.text():
+                modify_dict[1] = self.new_model_line.text()
+        if self.new_lens_check.checkState():
+            if self.new_lens_line.text():
+                modify_dict[2] = self.new_lens_line.text()
+        if self.new_bodynum_check.checkState():
+            if self.new_bodynum_line.text():
+                modify_dict[9] = self.new_bodynum_line.text()
+        if self.new_lensnum_check.checkState():
+            if self.new_lensnum_line.text():
+                modify_dict[10] = self.new_lensnum_line.text()
+        if self.new_datetime_check.checkState():
+            modify_dict[11] = self.new_datetime_line.text().replace(".", ":")
+        if self.new_offset_check.checkState():
+            modify_dict[8] = self.new_offset_pm_line.currentText() + self.new_offset_line.text()
+        if self.new_gps_check.checkState():
+            if self.new_gps_lat_line.text() and self.new_gps_lon_line.text():
+                modify_dict[7] = self.new_gps_lat_line.text() + ', ' + self.new_gps_lon_line.text()
+
+        return modify_dict
+
+    # запись новых метаданных
+    def write_data(self):
+        photo_list = self.get_edit_list()
+        modify_dict = self.get_all_new_data()
+        Metadata.massive_exif_edit(photo_list, modify_dict)
+        PhotoDataDB.massive_edit_metadata(photo_list, modify_dict)
+
+    # Создать таблицу сравнения (+ скролл область)
+    def make_compare_table(self):
+        self.table_compare.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.table_compare.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.table_compare.setFont(font14)
+        self.table_compare.setRowCount(8)
+        self.table_compare.setStyleSheet(stylesheet6)
+        self.table_compare.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table_compare.verticalHeader().setStyleSheet(stylesheet3)
+        self.table_compare.horizontalHeader().setFont(font10)
+        self.table_compare.verticalHeader().setFont(font10)
+        self.table_compare.setVerticalHeaderLabels(["Производитель", "Модель", "Объектив", "Серийный номер камеры",
+                                                    "Серийный номер объектива", "Дата и Время", "Часовой пояс",
+                                                    "Координаты"])
+        self.table_compare.findChild(QAbstractButton).setStyleSheet(stylesheet2)
 
 
+    # +1 фото в редактирование
+    def table_one_add(self, photo):
+        self.table_compare.setColumnCount(self.table_compare.columnCount() + 1)
+        column = self.table_compare.columnCount() - 1
+        self.table_positions[photo] = column
+        self.table_compare.setHorizontalHeaderItem(column, QTableWidgetItem(photo.split('/')[-1]))
+        current_data = Metadata.massive_table_data(photo)
+        lbl_1 = QLabel(self)
+        lbl_1.setText(str(current_data['Производитель']))
+        lbl_1.setFont(font10)
+        lbl_1.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(0, column, lbl_1)
+        lbl_2 = QLabel(self)
+        lbl_2.setText(str(current_data['Камера']))
+        lbl_2.setFont(font10)
+        lbl_2.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(1, column, lbl_2)
+        lbl_3 = QLabel(self)
+        lbl_3.setText(str(current_data['Объектив']))
+        lbl_3.setFont(font10)
+        lbl_3.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(2, column, lbl_3)
+        lbl_4 = QLabel(self)
+        lbl_4.setText(str(current_data['Серийный номер камеры']))
+        lbl_4.setFont(font10)
+        lbl_4.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(3, column, lbl_4)
+        lbl_5 = QLabel(self)
+        lbl_5.setText(str(current_data['Серийный номер объектива']))
+        lbl_5.setFont(font10)
+        lbl_5.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(4, column, lbl_5)
+        lbl_6 = QLabel(self)
+        lbl_6.setText(str(current_data['Время съёмки']))
+        lbl_6.setFont(font10)
+        lbl_6.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(5, column, lbl_6)
+        lbl_7 = QLabel(self)
+        lbl_7.setText(str(current_data['Часовой пояс']))
+        lbl_7.setFont(font10)
+        lbl_7.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(6, column, lbl_7)
+        lbl_8 = QLabel(self)
+        lbl_8.setText(str(current_data['Координаты']))
+        lbl_8.setFont(font10)
+        lbl_8.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(7, column, lbl_8)
+
+    # -1 фото из редактирования
+    def table_one_del(self, photo):
+        column = self.table_positions[photo]
+        self.table_compare.removeColumn(column)
+        for key in list(self.table_positions.keys()):
+            if self.table_positions[key] > column:
+                self.table_positions[key] = self.table_positions[key] - 1
+        self.table_positions.pop(photo)
+
+
+# Окошко подтверждения желания очистить метаданные
+class ConfirmClear(QDialog):
+    accept_signal = QtCore.pyqtSignal()
+    reject_signal = QtCore.pyqtSignal()
+
+    def __init__(self, parent):
+        super(ConfirmClear, self).__init__(parent)
+        self.setStyleSheet(stylesheet2)
+
+        self.setWindowTitle('Подтверждение очистки')
+        self.resize(400, 100)
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+
+        self.layout = QGridLayout()
+        self.setLayout(self.layout)
+
+        self.lbl = QLabel()
+        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setFont(font12)
+        self.lbl.setStyleSheet(stylesheet2)
+        self.lbl.setAlignment(Qt.AlignCenter)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 2)
+
+        btn_ok = QPushButton(self)
+        btn_ok.setText('Подтверждение')
+        btn_ok.setFont(font12)
+        btn_ok.setStyleSheet(stylesheet8)
+        btn_cancel = QPushButton(self)
+        btn_cancel.setText('Отмена')
+        btn_cancel.setFont(font12)
+        btn_cancel.setStyleSheet(stylesheet8)
+
+        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
+
+        btn_ok.clicked.connect(self.accept_signal.emit)
+        btn_ok.clicked.connect(self.close)
+        btn_cancel.clicked.connect(self.reject_signal.emit)
+        btn_cancel.clicked.connect(self.close)
 
 
 if __name__ == "__main__":

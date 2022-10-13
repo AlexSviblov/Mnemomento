@@ -875,3 +875,71 @@ def massive_exif_edit(photolist, new_value_dict):
             et.set_tags(photolist,
                         tags=modify_dict,
                         params=["-P", "-overwrite_original"])
+
+
+def massive_table_data(file):
+    all_data = read_exif(file)
+    useful_data = dict()
+
+    try:
+        useful_data['Производитель'] = all_data['EXIF:Make']
+    except KeyError:
+        useful_data['Производитель'] = ''
+
+    try:
+        useful_data['Камера'] = all_data['EXIF:Model']
+    except KeyError:
+        useful_data['Камера'] = ''
+
+    try:
+        useful_data['Объектив'] = all_data['EXIF:LensModel']
+    except KeyError:
+        useful_data['Объектив'] = ''
+
+    try:
+        useful_data['Время съёмки'] = all_data['EXIF:DateTimeOriginal']
+    except KeyError:
+        useful_data['Время съёмки'] = ''
+
+    try:
+        useful_data['Часовой пояс'] = all_data['EXIF:OffsetTime']
+    except KeyError:
+        useful_data['Часовой пояс'] = ''
+
+    try:
+        useful_data['Серийный номер камеры'] = all_data['EXIF:SerialNumber']
+    except KeyError:
+        useful_data['Серийный номер камеры'] = ''
+
+    try:
+        useful_data['Серийный номер объектива'] = all_data['EXIF:LensSerialNumber']
+    except KeyError:
+        useful_data['Серийный номер объектива'] = ''
+
+    try:
+        GPSLatitudeRef = all_data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
+        GPSLatitude = all_data['EXIF:GPSLatitude']
+        GPSLongitudeRef = all_data['EXIF:GPSLongitudeRef']
+        GPSLongitude = all_data['EXIF:GPSLongitude']
+
+        GPSLatitude_float = float(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+        GPSLongitude_float = float(GPSLongitude)
+
+        GPSLongitude_value = round(GPSLongitude_float, 4)
+        GPSLatitude_value = round(GPSLatitude_float, 4)
+
+        if GPSLongitudeRef == 'E':
+            pass
+        else:
+            GPSLongitude_value = GPSLongitude_value * (-1)
+
+        if GPSLatitudeRef == 'N':
+            pass
+        else:
+            GPSLatitude_value = GPSLatitude_value * (-1)
+
+        useful_data['Координаты'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
+    except KeyError:
+        useful_data['Координаты'] = ''
+
+    return useful_data
