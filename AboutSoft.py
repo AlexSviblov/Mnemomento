@@ -80,8 +80,8 @@ def stylesheet_color():
 
 # добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
 class AboutInfo(QDialog):
-    def __init__(self):
-        super(AboutInfo, self).__init__()
+    def __init__(self, parent):
+        super(AboutInfo, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Обнаружены совпадения')

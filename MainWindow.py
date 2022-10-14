@@ -125,6 +125,10 @@ class MainWindow(QMainWindow):
         self.menubar.addAction(recovery)
         recovery.triggered.connect(self.recovery_func)
 
+        about = QAction('О программе', self)
+        self.menubar.addAction(about)
+        about.triggered.connect(self.func_about)
+
         self.setMenuBar(self.menubar)
 
         self.start_show()
@@ -657,7 +661,8 @@ class MainWindow(QMainWindow):
         self.window_me.resize(self.window_me.size())
         self.window_me.show()
 
-
+    def func_about(self):
+        pass
 
 # при добавлении папки
 class ProgressBar(QWidget):
