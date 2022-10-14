@@ -476,7 +476,7 @@ class AddBDDialog(QDialog):
     def __init__(self):
         super(AddBDDialog, self).__init__()
         # Создание окна
-        self.setWindowTitle('Исправление неправильного считывания')
+        self.setWindowTitle('Исправление неправильных названий')
         self.resize(600, 90)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)

@@ -23,10 +23,7 @@ stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
-icon_explorer = str()
-icon_view = str()
-icon_edit = str()
-icon_delete = str()
+loading_icon = str()
 
 
 font14 = QtGui.QFont('Times', 14)
@@ -41,6 +38,7 @@ class ManyPhotoEdit(QWidget):
         super().__init__()
         self.stylesheet_color()
         self.table_positions = dict()
+        self.setWindowTitle("Редактирование метаданных")
 
         self.layout_outside = QGridLayout(self)
         self.setLayout(self.layout_outside)
@@ -129,7 +127,7 @@ class ManyPhotoEdit(QWidget):
         self.make_buttons()
 
     # задать стили для всего модуля в зависимости от выбранной темы
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
         global stylesheet3
@@ -137,10 +135,7 @@ class ManyPhotoEdit(QWidget):
         global stylesheet7
         global stylesheet8
         global stylesheet9
-        global icon_explorer
-        global icon_view
-        global icon_edit
-        global icon_delete
+        global loading_icon
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 =   """
@@ -238,10 +233,7 @@ class ManyPhotoEdit(QWidget):
                                     selection-background-color: #C0C0C0;
                                 }
                             """
-            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
-            icon_view = os.getcwd() + '/icons/view_light.png'
-            icon_edit = os.getcwd() + '/icons/edit_light.png'
-            icon_delete = os.getcwd() + '/icons/delete_light.png'
+            loading_icon = os.getcwd() + '/icons/loading_light.gif'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 =   """
                                 border: 1px;
@@ -340,17 +332,15 @@ class ManyPhotoEdit(QWidget):
                                     selection-background-color: #4F4F4F;
                                 }
                             """
-            icon_explorer = os.getcwd() + '/icons/explorer_dark.png'
-            icon_view = os.getcwd() + '/icons/view_dark.png'
-            icon_edit = os.getcwd() + '/icons/edit_dark.png'
-            icon_delete = os.getcwd() + '/icons/delete_dark.png'
+            loading_icon = os.getcwd() + '/icons/loading_dark.gif'
 
         try:
             self.setStyleSheet(stylesheet2)
         except AttributeError:
             pass
 
-    def make_new_data_enter(self):
+    # создание элементов ввода новых данных
+    def make_new_data_enter(self) -> None:
         self.new_make_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_make_check, 0, 0, 1, 1)
         self.new_make_check.setStyleSheet(stylesheet2)
@@ -477,7 +467,8 @@ class ManyPhotoEdit(QWidget):
         self.new_offset_check.stateChanged.connect(self.new_line_locker)
         self.new_gps_check.stateChanged.connect(self.new_line_locker)
 
-    def new_line_locker(self):
+    # блокировать/разрешать ввод в поле ввода, если не нажата/нажата галочка в чекбоксе
+    def new_line_locker(self) -> None:
         match self.sender().text():
             case "Производитель":
                 lines = [self.new_make_line]
@@ -510,13 +501,12 @@ class ManyPhotoEdit(QWidget):
                 self.make_map(0)
 
     # создание карты и метки на ней
-    def make_map(self, status):
+    def make_map(self, status: int) -> None:
         if not status:
             try:
                 self.map_gps_widget.deleteLater()
             except (RuntimeError, AttributeError):
                 pass
-
         else:
             self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
@@ -529,7 +519,7 @@ class ManyPhotoEdit(QWidget):
             self.layout_outside.addWidget(self.map_gps_widget, 1, 3, 1, 1)
 
     # кнопки переноса всех фото между таблицами
-    def make_buttons(self):
+    def make_buttons(self) -> None:
         self.btn_move_all_right = QPushButton(self)
         self.btn_move_all_right.setText(">>")
         self.btn_move_all_right.setFixedSize(40, 20)
@@ -562,8 +552,15 @@ class ManyPhotoEdit(QWidget):
         self.btn_write.setFont(font12)
         self.btn_write.setFixedHeight(50)
 
-        self.empty1= QLabel(self)
+        self.empty1 = QLabel(self)
         self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
+
+        self.loading_lbl = QLabel()
+        self.movie = QtGui.QMovie(loading_icon)
+        self.loading_lbl.setMovie(self.movie)
+        self.loading_lbl.setStyleSheet(stylesheet2)
+        self.movie.start()
+        self.loading_lbl.hide()
 
     # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
@@ -782,7 +779,7 @@ class ManyPhotoEdit(QWidget):
         self.show_filtered_thumbs()
 
     # преобразовать пути фотографий из БД в пути миниатюр для отображения
-    def photo_to_thumb_path(self, photo_list):
+    def photo_to_thumb_path(self, photo_list: list[str]) -> list[str]:
         thumb_names = list()
         thumbnails_list = list()
         for photo in photo_list:
@@ -803,7 +800,7 @@ class ManyPhotoEdit(QWidget):
         return thumbnails_list
 
     # показывать в левой таблице фото по группировке
-    def show_filtered_thumbs(self):
+    def show_filtered_thumbs(self) -> None:
         try:
             self.btn_move_all_left.setDisabled(True)
             self.btn_move_all_right.setDisabled(True)
@@ -912,7 +909,7 @@ class ManyPhotoEdit(QWidget):
             pass
 
     # перенос всех отфильтрованных фото в таблицу редактирования
-    def transfer_all_to_edit(self):
+    def transfer_all_to_edit(self) -> None:
         self.btn_move_all_left.setDisabled(True)
         self.btn_move_all_right.setDisabled(True)
         self.btn_clear_all.setDisabled(True)
@@ -958,7 +955,7 @@ class ManyPhotoEdit(QWidget):
             self.layout_type.itemAt(i).widget().setDisabled(False)
 
     # перенос всех фото из таблицы редактирования в таблицу просто отфильтрованных
-    def transfer_all_to_filtered(self):
+    def transfer_all_to_filtered(self) -> None:
         for k in range(self.edit_photo_table.rowCount()):
             photo_path = self.edit_photo_table.cellWidget(k, 0).objectName()
             x = 0
@@ -979,7 +976,7 @@ class ManyPhotoEdit(QWidget):
         self.edit_photo_table.setRowCount(0)
 
     # перенос одного фото в редактирование
-    def transfer_one_to_edit(self):
+    def transfer_one_to_edit(self) -> None:
         photo_path = self.sender().objectName()
         self.sender().setDisabled(True)
         item = QToolButton(self)
@@ -1003,7 +1000,7 @@ class ManyPhotoEdit(QWidget):
         item.clicked.connect(self.transfer_one_to_filtered)
 
     # перенос одного фото из редактирования
-    def transfer_one_to_filtered(self):
+    def transfer_one_to_filtered(self) -> None:
         photo_path = self.sender().objectName()
         x = 0
         for i in range(self.filtered_photo_table.rowCount()):
@@ -1027,7 +1024,7 @@ class ManyPhotoEdit(QWidget):
         self.table_one_del(photo_path)
 
     # получить список всех файлов, выбранных для редактирования метаданных
-    def get_edit_list(self):
+    def get_edit_list(self) -> list[str]:
         photo_list = []
         for k in range(self.edit_photo_table.rowCount()):
             try:
@@ -1037,13 +1034,24 @@ class ManyPhotoEdit(QWidget):
         return photo_list
 
     # очистка метаданных
-    def func_clear(self):
+    def func_clear(self) -> None:
         def accepted():
+            self.empty1.hide()
+            self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
+            self.loading_lbl.show()
+            QtCore.QCoreApplication.processEvents()
+
             for file in self.get_edit_list():
                 name = file.split('/')[-1]
                 directory = file[:(-1) * (len(name) + 1)]
                 Metadata.clear_exif(name, directory)
                 PhotoDataDB.clear_metadata(name, directory)
+
+            self.empty1.show()
+            self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
+            self.loading_lbl.hide()
+            QtCore.QCoreApplication.processEvents()
+            self.update_table()
 
         def rejected():
             win.close()
@@ -1054,7 +1062,7 @@ class ManyPhotoEdit(QWidget):
         win.reject_signal.connect(rejected)
 
     # считать все новые вводимые данные
-    def get_all_new_data(self):
+    def get_all_new_data(self) -> dict[int, str]:
         modify_dict = dict()
 
         if self.new_make_check.checkState():
@@ -1083,14 +1091,29 @@ class ManyPhotoEdit(QWidget):
         return modify_dict
 
     # запись новых метаданных
-    def write_data(self):
+    def write_data(self) -> None:
+        def finished():
+            self.empty1.show()
+            self.layout_btns.removeWidget(self.loading_lbl)
+            self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
+            self.loading_lbl.hide()
+            QtCore.QCoreApplication.processEvents()
+            self.update_table()
+
+        self.empty1.hide()
+        self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
+        self.loading_lbl.show()
+        QtCore.QCoreApplication.processEvents()
+
         photo_list = self.get_edit_list()
         modify_dict = self.get_all_new_data()
-        Metadata.massive_exif_edit(photo_list, modify_dict)
-        PhotoDataDB.massive_edit_metadata(photo_list, modify_dict)
 
-    # Создать таблицу сравнения (+ скролл область)
-    def make_compare_table(self):
+        self.editing_process = DoEditing(photo_list, modify_dict)
+        self.editing_process.finished.connect(finished)
+        self.editing_process.start()
+
+    # Создать таблицу сравнения
+    def make_compare_table(self) -> None:
         self.table_compare.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_compare.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_compare.setFont(font14)
@@ -1103,11 +1126,11 @@ class ManyPhotoEdit(QWidget):
         self.table_compare.setVerticalHeaderLabels(["Производитель", "Модель", "Объектив", "Серийный номер камеры",
                                                     "Серийный номер объектива", "Дата и Время", "Часовой пояс",
                                                     "Координаты"])
+        # закрасить левый верхний угол, которые иначе - белый-белый
         self.table_compare.findChild(QAbstractButton).setStyleSheet(stylesheet2)
 
-
     # +1 фото в редактирование
-    def table_one_add(self, photo):
+    def table_one_add(self, photo: str) -> None:
         self.table_compare.setColumnCount(self.table_compare.columnCount() + 1)
         column = self.table_compare.columnCount() - 1
         self.table_positions[photo] = column
@@ -1155,13 +1178,20 @@ class ManyPhotoEdit(QWidget):
         self.table_compare.setCellWidget(7, column, lbl_8)
 
     # -1 фото из редактирования
-    def table_one_del(self, photo):
+    def table_one_del(self, photo: str) -> None:
         column = self.table_positions[photo]
         self.table_compare.removeColumn(column)
         for key in list(self.table_positions.keys()):
             if self.table_positions[key] > column:
                 self.table_positions[key] = self.table_positions[key] - 1
         self.table_positions.pop(photo)
+
+    # заново заполнить таблицу после очистки/редактирования
+    def update_table(self) -> None:
+        self.table_compare.setColumnCount(0)
+        for photo in self.get_edit_list():
+            self.table_one_add(photo)
+            QtCore.QCoreApplication.processEvents()
 
 
 # Окошко подтверждения желания очистить метаданные
@@ -1203,6 +1233,31 @@ class ConfirmClear(QDialog):
         btn_ok.clicked.connect(self.close)
         btn_cancel.clicked.connect(self.reject_signal.emit)
         btn_cancel.clicked.connect(self.close)
+
+
+# Процесс редактирования метаданных и записей в БД
+# Пришлось сделать редактирование данных не всему списку разом, так как выполнение массового редактирования при 4+ фото
+# длится больше 5 секунд и ломает поток. Поток выполняется, но не отправляет сигнал на изменение интерфейса (убрать
+# загрузку и обновить таблицу).
+class DoEditing(QtCore.QThread):
+    finished = QtCore.pyqtSignal()
+
+    def __init__(self, photo_list, modify_dict):
+        QtCore.QThread.__init__(self)
+        self.modify_dict = modify_dict
+        self.photo_list = photo_list
+
+        self._init = False
+
+    def run(self):
+        # Metadata.massive_exif_edit(self.photo_list, self.modify_dict)
+        for file in self.photo_list:
+            name = file.split('/')[-1]
+            dir = file[:(-1)*(len(name)+1)]
+            Metadata.exif_rewrite_edit(name, dir, self.modify_dict)
+        PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
+
+        self.finished.emit()
 
 
 if __name__ == "__main__":

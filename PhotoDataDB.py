@@ -452,8 +452,15 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     conn.commit()
 
 
-# достать из БД список фото сделанных в определённый день (используется только в GlobalMap)
+# достать из БД список фото сделанных в определённый день
 def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
+    """
+    В БД записывается дата съёмки, тут достаются из БД все записи о фото, сделанных в указанную дату
+    :param year: год съёмки
+    :param month: месяц съёмки
+    :param day: день съёмки
+    :return: список полных путей к фотографиям
+    """
     photodb_data = list()
     if year == 'No_Date_Info':
         date_to_search = ''
@@ -517,6 +524,13 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
 
 # достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
 def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float], str, str, str, bool], int, tuple[float, float]]:
+    """
+    Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
+    метаданных каждый раз. Заодно здесь же вычисляется, как центрировать и отдалять карту OSM.
+    :param fullpaths: абсолютные пути к фото
+    :return: сочетание имени файла, его координат, даты съёмки, камеры, пути к миниатюре и группировки, отдаление карты,
+    центральные координаты карты.
+    """
     names_and_coords = list()
     map_center_buffer = [0.0, 0.0]
 
@@ -598,8 +612,15 @@ def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float], s
     return names_and_coords, zoom_level, map_center
 
 
-# переименовать файлы в Б при смене имени
+# переименовать файлы в БД при смене имени
 def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
+    """
+    Переименование файла при его перименовнании в специальной графе окошка редактирования метаданных
+    :param catalog: каталог хранения
+    :param old_file_name: старое имя файла
+    :param new_file_name: новое имя файла
+    :return: в БД обновляется запись
+    """
     sql_str1 = f"UPDATE photos SET filename = \'{new_file_name}\' WHERE filename = \'{old_file_name}\' AND catalog = \'{catalog}\'"
     sql_str2 = f"UPDATE socialnetworks SET filename = \'{new_file_name}\' WHERE filename = \'{old_file_name}\' AND catalog = \'{catalog}\'"
     cur.execute(sql_str1)
@@ -609,9 +630,14 @@ def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
 
 
 # обновить в БД много записей одновременно
-def massive_edit_metadata(photo_list, modify_dict):
+def massive_edit_metadata(photo_list: list[str], modify_dict: list[str]) -> None:
+    """
+    При массовом редактировании камеры, объектив, даты съёмки или координат, надо обновить и записи в БД
+    :param photo_list: список абсолютных путей файлов
+    :param modify_dict: словарь с новыми данными
+    :return: обновлённые записи в БД
+    """
     for file in photo_list:
         file_name = file.split('/')[-1]
         file_dir = file[:(-1) * (len(file_name) + 1)]
         edit_in_database(file_name, file_dir, modify_dict)
-

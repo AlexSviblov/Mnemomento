@@ -804,80 +804,15 @@ def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None
     thum_flipped.save(thumbnail_file, 'jpeg', quality=95, subsampling=0)
 
 
-# modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
-def massive_exif_edit(photolist, new_value_dict):
-    modify_dict = dict()
-
-    editing_types = list(new_value_dict.keys())
-
-    for edit_type in editing_types:
-        match edit_type:
-            case 0:
-                modify_dict['EXIF:Make'] = new_value_dict[0]
-
-            case 1:
-                modify_dict['EXIF:Model'] = new_value_dict[1]
-
-            case 2:
-                modify_dict['EXIF:LensModel'] =new_value_dict[2]
-
-            case 3:
-                if '/' in new_value_dict[3]:
-                    float_value = 1 / float(new_value_dict[3].split('/')[1])
-                else:
-                    float_value = float(new_value_dict[3])
-                modify_dict['EXIF:ExposureTime'] = float_value
-
-            case 4:
-                modify_dict['EXIF:ISO'] = new_value_dict[4]
-
-            case 5:
-                modify_dict['EXIF:FNumber'] = new_value_dict[5]
-
-            case 6:
-                modify_dict['EXIF:FocalLength'] = new_value_dict[6]
-
-            case 11:
-                modify_dict['EXIF:DateTimeOriginal'] = new_value_dict[11]
-
-            case 8:
-                modify_dict['EXIF:OffsetTime'] = new_value_dict[8]
-
-            case 9:
-                modify_dict['EXIF:SerialNumber'] = new_value_dict[9]
-
-            case 10:
-                modify_dict['EXIF:LensSerialNumber'] = new_value_dict[10]
-
-            case 7:
-                new_value_splitted =  new_value_dict[7].split(', ')
-                float_value_lat = float(new_value_splitted[0])
-                float_value_long = float(new_value_splitted[1])
-
-                if float_value_lat > 0:
-                    lat_ref = 'N'
-                else:
-                    lat_ref = 'S'
-
-                if float_value_long > 0:
-                    long_ref = 'E'
-                else:
-                    long_ref = 'W'
-
-                modify_dict['GPSLatitudeRef'] = lat_ref
-                modify_dict['GPSLatitude'] = float_value_lat
-                modify_dict['GPSLongitudeRef'] = long_ref
-                modify_dict['GPSLongitude'] = float_value_long
-
-    # Сделать сам модифай
-    if modify_dict:
-        with exiftool.ExifToolHelper() as et:
-            et.set_tags(photolist,
-                        tags=modify_dict,
-                        params=["-P", "-overwrite_original"])
-
-
-def massive_table_data(file):
+# получить метаданные, отображаемые в таблице массового редактирования
+def massive_table_data(file: str) -> dict[str, str]:
+    """
+    Данные в таблице массового редактирования отличаются от таблиц при просмотре в каталоге или в режиме редактирования
+    одиночных файлов
+    :param file: абсолютный путь к файлу
+    :return: словарь с нужными значениями, по факту значением может быть не строка, 100% конвертация в строки идёт уже
+    при заполнении таблицы в интерфейсе
+    """
     all_data = read_exif(file)
     useful_data = dict()
 
