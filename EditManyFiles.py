@@ -1260,8 +1260,3 @@ class DoEditing(QtCore.QThread):
         self.finished.emit()
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = ManyPhotoEdit()
-    win.show()
-    sys.exit(app.exec_())

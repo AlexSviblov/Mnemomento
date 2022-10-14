@@ -22,10 +22,6 @@ stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
-icon_explorer = str()
-icon_view = str()
-icon_edit = str()
-icon_delete = str()
 
 
 font14 = QtGui.QFont('Times', 14)
@@ -134,10 +130,6 @@ class EditExifData(QDialog):
         global stylesheet7
         global stylesheet8
         global stylesheet9
-        global icon_explorer
-        global icon_view
-        global icon_edit
-        global icon_delete
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 =   """
@@ -231,10 +223,6 @@ class EditExifData(QDialog):
                                     selection-background-color: #C0C0C0;
                                 }
                             """
-            icon_explorer = os.getcwd() + '/icons/explorer_light.png'
-            icon_view = os.getcwd() + '/icons/view_light.png'
-            icon_edit = os.getcwd() + '/icons/edit_light.png'
-            icon_delete = os.getcwd() + '/icons/delete_light.png'
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 =   """
                                 border: 1px;
@@ -328,10 +316,6 @@ class EditExifData(QDialog):
                                     selection-background-color: #4F4F4F;
                                 }
                             """
-            icon_explorer = os.getcwd() + '/icons/explorer_dark.png'
-            icon_view = os.getcwd() + '/icons/view_dark.png'
-            icon_edit = os.getcwd() + '/icons/edit_dark.png'
-            icon_delete = os.getcwd() + '/icons/delete_dark.png'
 
         try:
             self.setStyleSheet(stylesheet2)

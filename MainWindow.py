@@ -47,7 +47,7 @@ class MainWindow(QMainWindow):
         self.stylesheet_color()
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle("ТЕСТ ПРОГРАММЫ")
+        self.setWindowTitle("Мнемоменто")
         # Меньше невозможно сделать окно
         self.setMinimumSize(1366, 768)
         # раскрыть на весь экран
@@ -708,8 +708,6 @@ class StartShow(QWidget):
     def __init__(self):
 
         super().__init__()
-        self.setWindowTitle("TEST")
-
         self.layout_outside = QGridLayout(self)
 
         self.layout_buttons = QGridLayout(self)
