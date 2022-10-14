@@ -32,18 +32,27 @@ class ViewBDDialog(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.stylesheet_color()
-
         # Создание окна
         self.setWindowTitle('База исправлений')
-
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-
         self.setStyleSheet(stylesheet2)
 
         self.layout = QGridLayout(self)
+        self.table = QTableWidget(self)
+        self.add_btn = QPushButton(self)
+        self.del_btn = QPushButton(self)
+        self.edit_btn = QPushButton(self)
+        self.edit_mode = QLabel(self)
+
+        self.make_gui()
+
+        self.indicator = 0
+
+        self.my_size()
+
+    def make_gui(self):
         self.setLayout(self.layout)
 
-        self.table = QTableWidget(self)
         self.table.setFont(font12)
         self.table.setColumnCount(3)
         self.table.verticalHeader().setVisible(False)
@@ -54,13 +63,11 @@ class ViewBDDialog(QWidget):
         self.get_bd_info()
         self.layout.addWidget(self.table, 1, 0, 1, 3, alignment=Qt.AlignCenter)
 
-        self.add_btn = QPushButton(self)
         self.add_btn.setText('Добавить')
         self.add_btn.setFont(font12)
         self.add_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
 
-        self.del_btn = QPushButton(self)
         self.del_btn.setText('Удалить')
         self.del_btn.setFont(font12)
         self.del_btn.setStyleSheet(stylesheet8)
@@ -69,25 +76,19 @@ class ViewBDDialog(QWidget):
         self.add_btn.clicked.connect(self.call_add)
         self.del_btn.clicked.connect(self.call_del)
 
-        self.edit_btn = QPushButton(self)
         self.edit_btn.setText('Редактировать')
         self.edit_btn.setFont(font12)
         self.edit_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.edit_btn, 0, 2, 1, 1)
 
-        self.edit_mode = QLabel(self)
         self.edit_mode.setText('Режим редактирования')
         self.edit_mode.setFont(font12)
         self.layout.addWidget(self.edit_mode, 2, 0, 1, 1)
         self.edit_mode.hide()
 
-        self.indicator = 0
-
         self.table.doubleClicked.connect(self.edit_func)
         self.table.itemChanged.connect(self.edit_element)
         self.edit_btn.clicked.connect(self.edit_indicator)
-
-        self.my_size()
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -345,12 +346,29 @@ class ViewBDDialog(QWidget):
                                 }
                             """
 
+        self.setStyleSheet(stylesheet2)
+
         try:
-            self.setStyleSheet(stylesheet2)
             self.table.setStyleSheet(stylesheet6)
+        except AttributeError:
+            pass
+
+        try:
             self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        except AttributeError:
+            pass
+
+        try:
             self.add_btn.setStyleSheet(stylesheet8)
+        except AttributeError:
+            pass
+
+        try:
             self.del_btn.setStyleSheet(stylesheet8)
+        except AttributeError:
+            pass
+
+        try:
             self.edit_btn.setStyleSheet(stylesheet8)
         except AttributeError:
             pass
@@ -458,7 +476,7 @@ class AddBDDialog(QDialog):
     def __init__(self):
         super(AddBDDialog, self).__init__()
         # Создание окна
-        self.setWindowTitle('Исправление неправильного считывания')
+        self.setWindowTitle('Исправление неправильных названий')
         self.resize(600, 90)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -466,15 +484,24 @@ class AddBDDialog(QDialog):
         self.setStyleSheet(stylesheet2)
 
         self.layout_win = QGridLayout(self)
-
         self.btn_ok = QPushButton(self)
+        self.btn_cancel = QPushButton(self)
+        self.type_lbl = QtWidgets.QLabel()
+        self.error_label = QtWidgets.QLabel()
+        self.norm_label = QtWidgets.QLabel()
+        self.type_combobox = QtWidgets.QComboBox()
+        self.error_text = QtWidgets.QLineEdit()
+        self.norm_text = QtWidgets.QLineEdit()
+
+        self.make_gui()
+
+    def make_gui(self):
         self.btn_ok.setText('Ввод')
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font12)
         self.btn_ok.setFixedHeight(30)
         self.layout_win.addWidget(self.btn_ok, 3, 0, 1, 1)
 
-        self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText('Отмена')
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font12)
@@ -484,22 +511,18 @@ class AddBDDialog(QDialog):
         self.btn_ok.clicked.connect(self.check_empty)
         self.btn_cancel.clicked.connect(self.reject)
 
-        self.type_lbl = QtWidgets.QLabel()
         self.type_lbl.setText('Тип неправильно отображаемого названия:')
         self.type_lbl.setFont(font12)
         self.layout_win.addWidget(self.type_lbl, 0, 0, 1, 1)
 
-        self.error_label = QtWidgets.QLabel()
         self.error_label.setText('Неправильное название:')
         self.error_label.setFont(font12)
         self.layout_win.addWidget(self.error_label, 1, 0, 1, 1)
 
-        self.norm_label = QtWidgets.QLabel()
         self.norm_label.setText('Правильное название:')
         self.norm_label.setFont(font12)
         self.layout_win.addWidget(self.norm_label, 2, 0, 1, 1)
 
-        self.type_combobox = QtWidgets.QComboBox()
         self.type_combobox.addItem('Производитель')
         self.type_combobox.addItem('Камера')
         self.type_combobox.addItem('Объектив')
@@ -508,13 +531,11 @@ class AddBDDialog(QDialog):
         self.type_combobox.setStyleSheet(stylesheet9)
         self.layout_win.addWidget(self.type_combobox, 0, 1, 1, 1)
 
-        self.error_text = QtWidgets.QLineEdit()
         self.error_text.setFont(font12)
         self.error_text.setStyleSheet(stylesheet1)
         self.error_text.setFixedHeight(30)
         self.layout_win.addWidget(self.error_text, 1, 1, 1, 1)
 
-        self.norm_text = QtWidgets.QLineEdit()
         self.norm_text.setFont(font12)
         self.norm_text.setFixedHeight(30)
         self.norm_text.setStyleSheet(stylesheet1)

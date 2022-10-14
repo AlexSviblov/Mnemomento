@@ -111,9 +111,9 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
 
         if not answer_photo or not answer_socnets:
             additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
-            # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
+            # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', ""
             camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(photoname, photodirectory)
-            if shootingdatetime != "No data":
+            if shootingdatetime != "":
                 shootingdate = shootingdatetime[:10]
             else:
                 shootingdate = shootingdatetime
@@ -165,7 +165,14 @@ def check_destination_corr_db() -> tuple[int, int]:
     return photo_conflicts, socnet_conflicts
 
 
-# TODO: пизда долгая хуйня, надо ускорять
+# получить все каталоги+файлы из ФотоДБ (таблица фото)
+def get_photo_db_ways():
+    sql_str = "SELECT catalog, filename FROM photos"
+    cur.execute(sql_str)
+    all_photos_db = cur.fetchall()
+    return all_photos_db
+
+
 # соотнести миниатюры в папке хранения и фотографии, лишние миниатюры удалить, недостающие добавить
 def thumbnail_photo_conformity() -> None:
     """
@@ -173,8 +180,8 @@ def thumbnail_photo_conformity() -> None:
     :return: создаются или удаляются миниатюры
     """
     thumb_list = research_all_thumbnails()
-    for file_l in thumb_list:
-        file = file_l[0]
+    destination_media = Settings.get_destination_media() + '/Media/Photo/'
+    for file in thumb_list:
         if 'thumbnail_' not in file:
             os.remove(file)
         else:
@@ -182,14 +189,14 @@ def thumbnail_photo_conformity() -> None:
             file_name = path_splitted[-1][10:]
             if 'const' in path_splitted:
                 date_part = f"{path_splitted[-4]}/{path_splitted[-3]}/{path_splitted[-2]}/"
-                photo_way = Settings.get_destination_media() + '/Media/Photo/const/' + date_part + file_name
+                photo_way = destination_media + 'const/' + date_part + file_name
                 if os.path.exists(photo_way):
                     pass
                 else:
                     os.remove(file)
             elif 'alone' in path_splitted:
                 dir_name_part = path_splitted[-2]
-                photo_way = Settings.get_destination_media() + '/Media/Photo/alone/' + dir_name_part + '/' + file_name
+                photo_way = destination_media + 'alone/' + dir_name_part + '/' + file_name
                 if os.path.exists(photo_way):
                     pass
                 else:
@@ -199,21 +206,21 @@ def thumbnail_photo_conformity() -> None:
             else:
                 os.remove(file)
 
-    photo_paths = get_all_db_ways()[0]
+    destination_thumbs = Settings.get_destination_thumb() + '/thumbnail/'
+    photo_paths = get_photo_db_ways()
     for combo in photo_paths:
         catalog_splitted = combo[0].split('/')
         if 'const' in catalog_splitted:
             date_part = f"{catalog_splitted[-3]}/{catalog_splitted[-2]}/{catalog_splitted[-1]}/"
-            destination = Settings.get_destination_thumb() + '/thumbnail/const/'
-            thumbnail_way = destination + date_part + combo[1]
+            thumbnail_way = destination_thumbs + 'const/' + date_part + 'thumbnail_' + combo[1]
             if os.path.exists(thumbnail_way):
                 pass
             else:
                 Thumbnail.make_const_thumbnails(combo[0], combo[1])
+
         elif 'alone' in catalog_splitted:
             catalog_name = combo[0].split('/')[-1]
-            destination = Settings.get_destination_thumb() + '/thumbnail/alone/'
-            thumbnail_way = destination + catalog_name + '/' + combo[1]
+            thumbnail_way = destination_thumbs + 'alone/' + catalog_name + '/' + 'thumbnail_' +combo[1]
             if os.path.exists(thumbnail_way):
                 pass
             else:
@@ -231,6 +238,6 @@ def research_all_thumbnails() -> list[list[str]]:
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.endswith(".jpg") or file.endswith(".JPG"):
-                filelist.append([root.replace('\\', '/') + '/' + file])
+                filelist.append(root.replace('\\', '/') + '/' + file)
 
     return filelist

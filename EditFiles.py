@@ -33,7 +33,6 @@ font12 = QtGui.QFont('Times', 12)
 
 
 # редактирование exif
-# noinspection PyUnresolvedReferences
 class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()
@@ -55,25 +54,72 @@ class EditExifData(QDialog):
         self.chosen_group_type = chosen_group_type
 
         self.layout = QGridLayout(self)
-        self.layout.setSpacing(20)
-        self.setLayout(self.layout)
 
         self.table = QTableWidget(self)
-        self.table.setFont(font12)
-        self.table.setDisabled(True)
-        self.table.verticalHeader().setVisible(False)
-        self.table.horizontalHeader().setStyleSheet(stylesheet3)
-        self.table.setStyleSheet(stylesheet6)
-        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.btn_ok = QPushButton(self)
+        self.btn_cancel = QPushButton(self)
+        self.btn_clear = QPushButton(self)
+        self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+        self.tab_date_layout = QGridLayout(self)
+        self.date_lbl = QLabel(self)
+        self.date_choose = QDateTimeEdit(self)
+        self.timezone_lbl = QLabel(self)
+        self.timezone_pm_choose = QComboBox(self)
+        self.timezone_num_choose = QTimeEdit(self)
+        self.tab_tt_layout = QGridLayout(self)
+        self.maker_lbl = QLabel(self)
+        self.camera_lbl = QLabel(self)
+        self.lens_lbl = QLabel(self)
+        self.time_lbl = QLabel(self)
+        self.iso_lbl = QLabel(self)
+        self.fnumber_lbl = QLabel(self)
+        self.flength_lbl = QLabel(self)
+        self.serialbody_lbl = QLabel(self)
+        self.seriallens_lbl = QLabel(self)
+        self.maker_line = QLineEdit(self)
+        self.camera_line = QLineEdit(self)
+        self.lens_line = QLineEdit(self)
+        self.time_line = QLineEdit(self)
+        self.iso_line = QLineEdit(self)
+        self.fnumber_line = QLineEdit(self)
+        self.flength_line = QLineEdit(self)
+        self.serialbody_line = QLineEdit(self)
+        self.seriallens_line = QLineEdit(self)
+        self.tab_layout_gps = QGridLayout(self)
+        self.mode_check_dmc = QCheckBox(self)
+        self.mode_check_fn = QCheckBox(self)
+        self.latitude_fn_lbl = QLabel(self)  # широта
+        self.longitude_fn_lbl = QLabel(self)  # долгота
+        self.latitude_fn_line = QLineEdit(self)  # широта
+        self.longitude_fn_line = QLineEdit(self)  # долгота
+        self.latitude_dmc_lbl = QLabel(self)  # широта
+        self.longitude_dmc_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_choose = QComboBox(self)
+        self.longitude_dmc_choose = QComboBox(self)
+        self.latitude_dmc_deg_lbl = QLabel(self)  # широта
+        self.longitude_dmc_min_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_sec_lbl = QLabel(self)  # широта
+        self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_min_lbl = QLabel(self)  # широта
+        self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_deg_line = QLineEdit(self)  # широта
+        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+        self.latitude_dmc_sec_line = QLineEdit(self)  # широта
+        self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+        self.tab_file_layout = QGridLayout(self)
+        self.filename_lbl = QLabel(self)
+        self.filename_line = QLineEdit(self)
+        self.file_size_lbl = QLabel(self)
+        self.file_size_line = QLineEdit(self)
+        self.tabs = QTabWidget(self)
+        self.tab_date = QWidget(self)
+        self.tab_technic_settings = QWidget(self)
+        self.tab_GPS = QWidget(self)
+        self.tab_file = QWidget(self)
 
-        self.layout.addWidget(self.table, 0, 1, 1, 2)
-
-        self.make_buttons()
-
-        self.make_tabs_gui()
-
-        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
+        self.make_gui()
 
         self.get_metadata(photoname, photodirectory)
         self.get_file_data(photoname, photodirectory)
@@ -289,30 +335,63 @@ class EditExifData(QDialog):
 
         try:
             self.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
+
+        try:
             self.table.setStyleSheet(stylesheet6)
+        except AttributeError:
+            pass
+
+        try:
             self.make_buttons()
+        except AttributeError:
+            pass
+
+        try:
             self.make_tabs_gui()
+        except AttributeError:
+            pass
+
+        try:
             self.update_show_data()
         except AttributeError:
             pass
 
+    def make_gui(self):
+        self.layout.setSpacing(20)
+        self.setLayout(self.layout)
+
+        self.table.setFont(font12)
+        self.table.setDisabled(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.horizontalHeader().setStyleSheet(stylesheet3)
+        self.table.setStyleSheet(stylesheet6)
+        self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
+        self.layout.addWidget(self.table, 0, 1, 1, 2)
+
+        self.make_buttons()
+
+        self.make_tabs_gui()
+
+        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
+
     # создание кнопок
     def make_buttons(self):
-        self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Записать")
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.pre_write_changes)
 
-        self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText("Отмена")
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
         self.btn_cancel.clicked.connect(self.close)
 
-        self.btn_clear = QPushButton(self)
         self.btn_clear.setText("Очистить")
         self.btn_clear.setStyleSheet(stylesheet8)
         self.btn_clear.setFont(font14)
@@ -357,29 +436,23 @@ class EditExifData(QDialog):
     # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
         def make_tab_date():
-            self.tab_date_layout = QGridLayout(self)
-
-            self.date_lbl = QLabel(self)
             self.date_lbl.setStyleSheet(stylesheet2)
             self.date_lbl.setText("Дата съёмки:")
             self.date_lbl.setFont(font14)
             self.date_lbl.setStyleSheet(stylesheet2)
             self.tab_date_layout.addWidget(self.date_lbl, 0, 0, 1, 1)
 
-            self.date_choose = QDateTimeEdit(self)
             self.date_choose.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
             self.date_choose.setFont(font14)
             self.date_choose.setStyleSheet(stylesheet1)
             self.tab_date_layout.addWidget(self.date_choose, 0, 1, 1, 2)
 
-            self.timezone_lbl = QLabel(self)
             self.timezone_lbl.setStyleSheet(stylesheet2)
             self.timezone_lbl.setText("Часовой пояс:")
             self.timezone_lbl.setFont(font14)
             self.timezone_lbl.setStyleSheet(stylesheet2)
             self.tab_date_layout.addWidget(self.timezone_lbl, 1, 0, 1, 1)
 
-            self.timezone_pm_choose = QComboBox(self)
             self.timezone_pm_choose.setFont(font14)
             self.timezone_pm_choose.setStyleSheet(stylesheet9)
             self.timezone_pm_choose.addItem("+")
@@ -387,7 +460,6 @@ class EditExifData(QDialog):
             self.timezone_pm_choose.setFixedWidth(50)
             self.tab_date_layout.addWidget(self.timezone_pm_choose, 1, 1, 1, 1)
 
-            self.timezone_num_choose = QTimeEdit(self)
             self.timezone_num_choose.setFont(font14)
             self.timezone_num_choose.setStyleSheet(stylesheet1)
             self.timezone_num_choose.setDisplayFormat("HH:mm")
@@ -396,33 +468,22 @@ class EditExifData(QDialog):
             self.tab_date.setLayout(self.tab_date_layout)
 
         def make_tab_tt():
-            self.tab_tt_layout = QGridLayout(self)
-
-            self.maker_lbl = QLabel(self)
             self.maker_lbl.setText("Производитель:")
 
-            self.camera_lbl = QLabel(self)
             self.camera_lbl.setText("Камера:")
 
-            self.lens_lbl = QLabel(self)
             self.lens_lbl.setText("Объектив:")
 
-            self.time_lbl = QLabel(self)
             self.time_lbl.setText("Выдержка:")
 
-            self.iso_lbl = QLabel(self)
             self.iso_lbl.setText("ISO:")
 
-            self.fnumber_lbl = QLabel(self)
             self.fnumber_lbl.setText("Диафрагма:")
 
-            self.flength_lbl = QLabel(self)
             self.flength_lbl.setText("Фокусное расстояние:")
 
-            self.serialbody_lbl = QLabel(self)
             self.serialbody_lbl.setText("Серийный номер камеры:")
 
-            self.seriallens_lbl = QLabel(self)
             self.seriallens_lbl.setText("Серийный номер объектива:")
 
             self.maker_lbl.setStyleSheet(stylesheet2)
@@ -462,27 +523,13 @@ class EditExifData(QDialog):
             self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
             self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
-            self.maker_line = QLineEdit(self)
-
-            self.camera_line = QLineEdit(self)
-
-            self.lens_line = QLineEdit(self)
-
-            self.time_line = QLineEdit(self)
             self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[./]\d+')))
 
-            self.iso_line = QLineEdit(self)
             self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
-            self.fnumber_line = QLineEdit(self)
             self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[.]\d+')))
 
-            self.flength_line = QLineEdit(self)
             self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
-
-            self.serialbody_line = QLineEdit(self)
-
-            self.seriallens_line = QLineEdit(self)
 
             self.maker_line.setStyleSheet(stylesheet1)
             self.maker_line.setFont(font12)
@@ -524,32 +571,25 @@ class EditExifData(QDialog):
             self.tab_technic_settings.setLayout(self.tab_tt_layout)
 
         def make_tab_gps():
-            self.tab_layout_gps = QGridLayout(self)
-
-            self.mode_check_dmc = QCheckBox(self)
             self.mode_check_dmc.setText("ШД Г.м.с")
             self.mode_check_dmc.setFont(font12)
             self.mode_check_dmc.setStyleSheet(stylesheet2)
             self.mode_check_dmc.stateChanged.connect(self.block_check_gps)
 
-            self.mode_check_fn = QCheckBox(self)
             self.mode_check_fn.setText("Числом")
             self.mode_check_fn.setFont(font12)
             self.mode_check_fn.setStyleSheet(stylesheet2)
             self.mode_check_fn.stateChanged.connect(self.block_check_gps)
 
-            self.latitude_fn_lbl = QLabel(self)  # широта
             self.latitude_fn_lbl.setText("Широта:")
 
-            self.longitude_fn_lbl = QLabel(self)  # долгота
             self.longitude_fn_lbl.setText("Долгота:")
 
-            self.latitude_fn_line = QLineEdit(self)  # широта
             self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
-            self.longitude_fn_line = QLineEdit(self)  # долгота
+                QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$')))
+
             self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
-                '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$')))
 
             self.latitude_fn_lbl.setFont(font12)
             self.longitude_fn_lbl.setFont(font12)
@@ -570,60 +610,44 @@ class EditExifData(QDialog):
             self.longitude_fn_line.textChanged.connect(self.updating_other_gps)
             self.latitude_fn_line.textChanged.connect(self.updating_other_gps)
 
-            self.latitude_dmc_lbl = QLabel(self)  # широта
             self.latitude_dmc_lbl.setText("Широта:")
 
-            self.longitude_dmc_lbl = QLabel(self)  # долгота
             self.longitude_dmc_lbl.setText("Долгота:")
 
-            self.latitude_dmc_choose = QComboBox(self)
             self.latitude_dmc_choose.addItem("Север")
             self.latitude_dmc_choose.addItem("Юг")
             self.latitude_dmc_choose.setFixedWidth(80)
 
-            self.longitude_dmc_choose = QComboBox(self)
             self.longitude_dmc_choose.addItem("Восток")
             self.longitude_dmc_choose.addItem("Запад")
             self.longitude_dmc_choose.setFixedWidth(80)
 
-            self.latitude_dmc_deg_lbl = QLabel(self)  # широта
             self.latitude_dmc_deg_lbl.setText("Градусы:")
 
-            self.longitude_dmc_min_lbl = QLabel(self)  # долгота
             self.longitude_dmc_min_lbl.setText("Минуты:")
 
-            self.latitude_dmc_sec_lbl = QLabel(self)  # широта
             self.latitude_dmc_sec_lbl.setText("Секунды:")
 
-            self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
             self.longitude_dmc_deg_lbl.setText("Градусы:")
 
-            self.latitude_dmc_min_lbl = QLabel(self)  # широта
             self.latitude_dmc_min_lbl.setText("Минуты:")
 
-            self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
             self.longitude_dmc_sec_lbl.setText("Секунды:")
 
-            self.latitude_dmc_deg_line = QLineEdit(self)  # широта
             self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:90|[0-9]|[1-8][0-9])')))
 
-            self.latitude_dmc_min_line = QLineEdit(self)  # широта
             self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
-            self.latitude_dmc_sec_line = QLineEdit(self)  # широта
             self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
 
-            self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
             self.longitude_dmc_deg_line.setValidator(
                 QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
 
-            self.longitude_dmc_min_line = QLineEdit(self)  # долгота
             self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
-            self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
             self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
 
             self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
             self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
@@ -645,6 +669,9 @@ class EditExifData(QDialog):
 
             self.mode_check_dmc.setFont(font12)
             self.mode_check_dmc.setStyleSheet(stylesheet2)
+
+            self.mode_check_fn.setFont(font12)
+            self.mode_check_fn.setStyleSheet(stylesheet2)
 
             self.latitude_dmc_lbl.setFont(font12)
             self.latitude_dmc_lbl.setStyleSheet(stylesheet2)
@@ -707,25 +734,19 @@ class EditExifData(QDialog):
             self.mode_check_fn.setCheckState(Qt.Checked)
 
         def make_tab_file():
-            self.tab_file_layout = QGridLayout(self)
-
-            self.filename_lbl = QLabel(self)
             self.filename_lbl.setText("Имя файла:")
             self.filename_lbl.setFont(font14)
             self.filename_lbl.setStyleSheet(stylesheet2)
 
-            self.filename_line = QLineEdit(self)
             self.filename_line.setFont(font14)
             self.filename_line.setStyleSheet(stylesheet1)
             if type(self.parent()) == OnlyShowWidget.WidgetWindow:
                 self.filename_line.setDisabled(True)
 
-            self.file_size_lbl = QLabel(self)
             self.file_size_lbl.setText("Размер файла:")
             self.file_size_lbl.setFont(font14)
             self.file_size_lbl.setStyleSheet(stylesheet2)
 
-            self.file_size_line = QLineEdit(self)
             self.file_size_line.setFont(font14)
             self.file_size_line.setStyleSheet(stylesheet1)
             self.file_size_line.setDisabled(True)
@@ -753,14 +774,8 @@ class EditExifData(QDialog):
             self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
             self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
 
-        self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
-
-        self.tab_date = QWidget(self)
-        self.tab_technic_settings = QWidget(self)
-        self.tab_GPS = QWidget(self)
-        self.tab_file = QWidget(self)
 
         self.tabs.addTab(self.tab_date, 'Дата')
         self.tabs.addTab(self.tab_technic_settings, 'Оборудование и настройки')
@@ -974,8 +989,8 @@ class EditExifData(QDialog):
             else: # latitude_ref == "Запад"
                 longitude_pm_coe = -1
 
-            latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 6)
-            longitude = round(longitude_pm_coe*(longitude_deg + longitude_min/60 + longitude_sec/3600), 6)
+            latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 4)
+            longitude = round(longitude_pm_coe*(longitude_deg + longitude_min/60 + longitude_sec/3600), 4)
 
             self.latitude_fn_line.setText(str(latitude))
             self.longitude_fn_line.setText(str(longitude))
@@ -1077,11 +1092,14 @@ class EditExifData(QDialog):
     # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
+        changes_meta_dict = {}
         for i in range(len(all_new_data)):
             if self.indicator[i] == 1:
-                self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
+                changes_meta_dict[i] = all_new_data[i]
             else:
                 pass
+
+        self.write_changes(self.photoname, self.photodirectory, changes_meta_dict)
 
         if self.indicator[-1] == 0: # -1 - изменение даты (возможен перенос)
             self.update_show_data()
@@ -1111,26 +1129,32 @@ class EditExifData(QDialog):
                 self.close()
 
     # записать новые метаданные
-    def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
+    def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
-            PhotoDataDB.edit_in_database(photoname, photodirectory, editing_type, new_text)
+        def rewriting(photoname: str, photodirectory: str, modify_dict) -> None:
+            Metadata.exif_rewrite_edit(photoname, photodirectory, modify_dict)
+            PhotoDataDB.edit_in_database(photoname, photodirectory, modify_dict)
 
         # проверка введённых пользователем метаданных
         def check_enter(editing_type: int, new_text: str) -> None:
             Metadata.exif_check_edit(editing_type, new_text)
 
         # проверка введённых пользователем метаданных
-        try:
-            check_enter(editing_type, new_text)
-        except ErrorsAndWarnings.EditExifError:
-            win_err = ErrorsAndWarnings.EditExifError_win(self)
-            win_err.show()
-            return
+        for editing_type in list(new_value_dict.keys()):
+            new_text = new_value_dict[editing_type]
+            try:
+                check_enter(editing_type, new_text)
+            except ErrorsAndWarnings.EditExifError:
+                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err.show()
+                return
 
+        if 11 in list(new_value_dict.keys()) and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
+            date_dict = {}
+            date_dict[11] = new_value_dict[11]
+            new_value_dict.pop(11)
         # Если меняется дата -> проверка на перенос файла в новую папку
-        if editing_type == 11 and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
+        # if editing_type == 11 and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
             if photodirectory[-12:] == 'No_Date_Info':
                 new_date = photodirectory[-38:]
             else:
@@ -1139,7 +1163,8 @@ class EditExifData(QDialog):
             new_date_splitted = new_date.split('/')
             old_date_splitted = old_date.split(':')
             if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
-                rewriting(photoname, photodirectory, editing_type, new_text)
+                rewriting(photoname, photodirectory, new_value_dict)
+                rewriting(photoname, photodirectory, date_dict)
                 self.edited_signal_no_move.emit()
             else:   # другая дата, требуется перенос файла
                 destination = Settings.get_destination_media() + '/Media/Photo/const'
@@ -1151,7 +1176,6 @@ class EditExifData(QDialog):
                 month_old = old_date_splitted[1]
                 day_old = old_date_splitted[2]
 
-                old_file_dir = destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)
                 new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
                 if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
                     if not os.path.isdir(destination + '/' + str(year_old)):
@@ -1159,7 +1183,8 @@ class EditExifData(QDialog):
                     if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
                         os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
                     os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                    rewriting(photoname, photodirectory, editing_type, new_text)
+                    rewriting(photoname, photodirectory, new_value_dict)
+                    rewriting(photoname, photodirectory, date_dict)
                     shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
                     PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
                                                        destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
@@ -1173,7 +1198,8 @@ class EditExifData(QDialog):
                     self.close()
                 else:
                     if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
-                        rewriting(photoname, photodirectory, editing_type, new_text)
+                        rewriting(photoname, photodirectory, new_value_dict)
+                        rewriting(photoname, photodirectory, date_dict)
                         shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
                         PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
                                                            destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
@@ -1196,7 +1222,7 @@ class EditExifData(QDialog):
 
                         window_equal.file_rename_transfer_signal.connect(lambda: self.close())
         else:
-            rewriting(photoname, photodirectory, editing_type, new_text)
+            rewriting(photoname, photodirectory, new_value_dict)
             self.edited_signal.emit()
 
     # записать новые метаданные
@@ -1238,6 +1264,7 @@ class EditExifData(QDialog):
 
                 self.get_metadata(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info')
             self.close()
+            self.edited_signal.emit()
 
         def rejected():
             win.close()
@@ -1256,6 +1283,7 @@ class EditExifData(QDialog):
     # обновить данные в таблице/ на карте после записи метаданных
     def update_show_data(self):
         self.get_metadata(self.photoname, self.photodirectory)
+        self.get_file_data(self.photoname, self.photodirectory)
         self.change_tab_gps()
 
 
@@ -1391,6 +1419,8 @@ class EqualNames(QDialog):
             err_win.show()
             return
 
+        modify_dict = {13: self.full_exif_date}
+
         if self.new_checkbox.checkState():  # переименовывается переносимый файл
             new_new_name = self.new_name.text() + '.' + self.format
 
@@ -1405,8 +1435,8 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
-            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, 13, self.full_exif_date)
-            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
+            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, modify_dict)
+            PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], modify_dict)
         else:       # переименовывается файл в папке назначения
             new_old_name = self.old_name.text() + '.' + self.format
 
@@ -1420,8 +1450,8 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
-            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, 13, self.full_exif_date)
-            PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], 13, self.full_exif_date)
+            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, modify_dict)
+            PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], modify_dict)
         self.file_rename_transfer_signal.emit()
         self.close()
 

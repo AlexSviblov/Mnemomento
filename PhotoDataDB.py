@@ -8,8 +8,9 @@ import Settings
 conn = sqlite3.connect(f'file:{os.getcwd()}\\PhotoDB.db', check_same_thread=False, uri=True)
 cur = conn.cursor()
 
+
 # Добавление записи в БД при добавлении фото в каталог
-def add_to_database(photoname: str, photodirectory: str) -> None:
+def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None:
     """
     Добавить запись о фотографии, добавляемой в программу, в базу данных.
     :param photoname: имя фотографии.
@@ -19,8 +20,8 @@ def add_to_database(photoname: str, photodirectory: str) -> None:
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
     # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
-    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(photoname, photodirectory)
-    if shootingdatetime != "No data":
+    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(metadata)
+    if shootingdatetime != "":
         shootingdate = shootingdatetime[:10]
     else:
         shootingdate = shootingdatetime
@@ -63,7 +64,7 @@ def del_from_database(photoname: str, photodirectory: str) -> None:
 
 
 # Запись изменений, внесённых пользователем при редактировании метаданных, которые есть в БД
-def edit_in_database(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
+def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> None:
     """
     Редактированию подлежат поля таблицы photos камера, объектив, дата съёмки,координаты GPS.
     :param photoname: имя файла.
@@ -72,36 +73,39 @@ def edit_in_database(photoname: str, photodirectory: str, editing_type: int, new
     :param new_text: новое значение, вносимое в БД.
     :return: изменение записи в соответствии с редактированием метаданных.
     """
-    match editing_type:
-        case 1:       # камера
-            sql_str = f'UPDATE photos SET camera = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-            cur.execute(sql_str)
-            conn.commit()
+    for editing_type in list(new_value_dict.keys()):
+        new_text = new_value_dict[editing_type]
 
-        case 2:     # объектив
-            sql_str = f'UPDATE photos SET lens = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-            cur.execute(sql_str)
-            conn.commit()
+        match editing_type:
+            case 1:       # камера
+                sql_str = f'UPDATE photos SET camera = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+                cur.execute(sql_str)
+                conn.commit()
 
-        case 11:     # дата съёмки
-            shootingdate = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10]
-            shootingdatetime = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10] + new_text[10:]
-            sql_str1 = f'UPDATE photos SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-            sql_str2 = f'UPDATE photos SET shootingdatetime = \'{shootingdatetime}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-            sql_str3 = f'UPDATE socialnetworks SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+            case 2:     # объектив
+                sql_str = f'UPDATE photos SET lens = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+                cur.execute(sql_str)
+                conn.commit()
 
-            cur.execute(sql_str1)
-            cur.execute(sql_str2)
-            cur.execute(sql_str3)
-            conn.commit()
+            case 11:     # дата съёмки
+                shootingdate = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10]
+                shootingdatetime = new_text[:4] + '.' + new_text[5:7] + '.' + new_text[8:10] + new_text[10:]
+                sql_str1 = f'UPDATE photos SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+                sql_str2 = f'UPDATE photos SET shootingdatetime = \'{shootingdatetime}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+                sql_str3 = f'UPDATE socialnetworks SET shootingdate = \'{shootingdate}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
 
-        case 7:    # GPS
-            sql_str = f'UPDATE photos SET GPSdata = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
-            cur.execute(sql_str)
-            conn.commit()
+                cur.execute(sql_str1)
+                cur.execute(sql_str2)
+                cur.execute(sql_str3)
+                conn.commit()
 
-        case _:       # другие данные (которых нет в БД)
-            pass
+            case 7:    # GPS
+                sql_str = f'UPDATE photos SET GPSdata = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+                cur.execute(sql_str)
+                conn.commit()
+
+            case _:       # другие данные (которых нет в БД)
+                pass
 
 
 # при переносе в другую папку надо переписать её путь в БД
@@ -266,7 +270,15 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
     :param lens: исправленное название объектива (либо повторение exif, если оно не исправляется).
     :return: список абсолютных путей ко всем файлам с выбранными камерой и объективом.
     """
-    sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+    if camera_exif == 'All' and camera == 'All' and lens == 'All' and lens_exif == 'All':
+        sql_str = f'SELECT filename, catalog FROM photos'
+    elif (camera_exif == 'All' and camera == 'All') and (lens != 'All' or lens_exif != 'All'):
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+    elif (camera_exif != 'All' or camera != 'All') and (lens == 'All' and lens_exif == 'All'):
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\')'
+    else:
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+
     cur.execute(sql_str)
 
     photodb_data = cur.fetchall()
@@ -414,7 +426,7 @@ def transfer_media(new_catalog: str, old_catalog: str) -> None:
     conn.commit()
 
 
-# при очистке метаданных - обнулить значения в 'No data' в БД
+# при очистке метаданных - обнулить значения в '' в БД
 def clear_metadata(photo_name: str, photo_directory: str) -> None:
     """
     Очистка столбцов метаданных в БД (камера, объектив, дата съёмки, дата и время съёмки, GPS в таблице photos и
@@ -423,12 +435,12 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     :param photo_directory:
     :return: у файла с очищенными метаданными в БД заменить значения метаданных на No data.
     """
-    sql_str1 = f"UPDATE photos SET camera = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
-    sql_str2 = f"UPDATE photos SET lens = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
-    sql_str3 = f"UPDATE photos SET shootingdate = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
-    sql_str4 = f"UPDATE photos SET shootingdatetime = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
-    sql_str5 = f"UPDATE photos SET GPSdata = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
-    sql_str6 = f"UPDATE socialnetworks SET shootingdate = \'No data\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str1 = f"UPDATE photos SET camera = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str2 = f"UPDATE photos SET lens = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str3 = f"UPDATE photos SET shootingdate = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str4 = f"UPDATE photos SET shootingdatetime = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str5 = f"UPDATE photos SET GPSdata = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str6 = f"UPDATE socialnetworks SET shootingdate = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
 
     cur.execute(sql_str1)
     cur.execute(sql_str2)
@@ -440,14 +452,23 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     conn.commit()
 
 
-# достать из БД список фото сделанных в определённый день (используется только в GlobalMap)
+# достать из БД список фото сделанных в определённый день
 def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
+    """
+    В БД записывается дата съёмки, тут достаются из БД все записи о фото, сделанных в указанную дату
+    :param year: год съёмки
+    :param month: месяц съёмки
+    :param day: день съёмки
+    :return: список полных путей к фотографиям
+    """
     photodb_data = list()
     if year == 'No_Date_Info':
-        date_to_search = 'No data'
+        date_to_search = ''
         sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
         cur.execute(sql_str)
         date_info = cur.fetchall()
+        for photo_data in date_info:
+            photodb_data.append(photo_data)
     else:
         if year != 'All' and month != 'All' and day == 'All':
             for i in range(1, 32):
@@ -502,8 +523,22 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
 
 
 # достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
-def get_global_map_info(fullpaths: list[str]) -> list[str, tuple[float], str, str, str, bool]:
+def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float], str, str, str, bool], int, tuple[float, float]]:
+    """
+    Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
+    метаданных каждый раз. Заодно здесь же вычисляется, как центрировать и отдалять карту OSM.
+    :param fullpaths: абсолютные пути к фото
+    :return: сочетание имени файла, его координат, даты съёмки, камеры, пути к миниатюре и группировки, отдаление карты,
+    центральные координаты карты.
+    """
     names_and_coords = list()
+    map_center_buffer = [0.0, 0.0]
+
+    most_north_point = -200.0
+    most_south_point = 200.0
+    most_west_point = 200.0
+    most_east_point = -200.0
+
     for photofile in fullpaths:
         filename = photofile.split('/')[-1]
         catalog = photofile[:(-1)*len(filename)-1]
@@ -515,7 +550,7 @@ def get_global_map_info(fullpaths: list[str]) -> list[str, tuple[float], str, st
         camera_db = all_db_data[1]
         camera = Metadata.equip_name_check([camera_db], 'camera')[0]
         shootingdate = all_db_data[2]
-        if gps_from_db == 'No data':
+        if gps_from_db == '':
             pass
         else:
             catalog_splitted = catalog.split('/')
@@ -530,14 +565,79 @@ def get_global_map_info(fullpaths: list[str]) -> list[str, tuple[float], str, st
                     group_by = True
             names_and_coords.append([filename, coords, shootingdate, camera, thumbnail_way, group_by])
 
-    return names_and_coords
+            map_center_buffer[0] = map_center_buffer[0] + lat
+            map_center_buffer[1] = map_center_buffer[1] + lon
+
+            if lat > most_north_point:
+                most_north_point = lat
+            if lat < most_south_point:
+                most_south_point = lat
+            if lon > most_east_point:
+                most_east_point = lon
+            if lon < most_west_point:
+                most_west_point = lon
+
+    try:
+        map_center_list = [map_center_buffer[0]/len(names_and_coords), map_center_buffer[1]/len(names_and_coords)]
+        map_center = tuple(map_center_list)
+    except ZeroDivisionError:
+        map_center = (55.754117, 37.620280)
+
+    latitude_size = most_north_point - most_south_point
+    longitude_size = most_east_point - most_west_point
+
+    if latitude_size > 90 or longitude_size > 180:
+        zoom_level = 1
+    elif latitude_size > 22.5 or longitude_size > 45:
+        zoom_level = 3
+    elif latitude_size > 2.813 or longitude_size > 5.625:
+        zoom_level = 5
+    elif latitude_size > 0.703 or longitude_size > 1.406:
+        zoom_level = 7
+    elif latitude_size > 0.176 or longitude_size > 0.352:
+        zoom_level = 9
+    elif latitude_size > 0.044 or longitude_size > 0.088:
+        zoom_level = 11
+    elif latitude_size > 0.011 or longitude_size > 0.022:
+        zoom_level = 13
+    elif latitude_size > 0.003 or longitude_size > 0.005:
+        zoom_level = 15
+    elif latitude_size > 0.0005 or longitude_size > 0.001:
+        zoom_level = 17
+    elif latitude_size > 0.0001 or longitude_size > 0.0003:
+        zoom_level = 19
+    else:
+        zoom_level = 14
+
+    return names_and_coords, zoom_level, map_center
 
 
-# переименовать файлы в Б при смене имени
+# переименовать файлы в БД при смене имени
 def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
+    """
+    Переименование файла при его перименовнании в специальной графе окошка редактирования метаданных
+    :param catalog: каталог хранения
+    :param old_file_name: старое имя файла
+    :param new_file_name: новое имя файла
+    :return: в БД обновляется запись
+    """
     sql_str1 = f"UPDATE photos SET filename = \'{new_file_name}\' WHERE filename = \'{old_file_name}\' AND catalog = \'{catalog}\'"
     sql_str2 = f"UPDATE socialnetworks SET filename = \'{new_file_name}\' WHERE filename = \'{old_file_name}\' AND catalog = \'{catalog}\'"
     cur.execute(sql_str1)
     cur.execute(sql_str2)
 
     conn.commit()
+
+
+# обновить в БД много записей одновременно
+def massive_edit_metadata(photo_list: list[str], modify_dict: list[str]) -> None:
+    """
+    При массовом редактировании камеры, объектив, даты съёмки или координат, надо обновить и записи в БД
+    :param photo_list: список абсолютных путей файлов
+    :param modify_dict: словарь с новыми данными
+    :return: обновлённые записи в БД
+    """
+    for file in photo_list:
+        file_name = file.split('/')[-1]
+        file_dir = file[:(-1) * (len(file_name) + 1)]
+        edit_in_database(file_name, file_dir, modify_dict)

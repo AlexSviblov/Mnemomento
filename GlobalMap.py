@@ -15,7 +15,6 @@ import Metadata
 import Settings
 
 
-
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
@@ -234,17 +233,26 @@ class GlobalMapWidget(QWidget):
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
-                camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
-                lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+
+                if camera == 'All':
+                    camera_exif = 'All'
+                else:
+                    camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+
+                if lens == 'All':
+                    lens_exif = 'All'
+                else:
+                    lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
         self.progressbar.setValue(1)
-        map_points_combo = PhotoDataDB.get_global_map_info(full_paths)
+        map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(full_paths)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         progress = 0
         if map_points_combo:
-            self.map_gps = folium.Map(location=map_points_combo[0][1], zoom_start=14, tiles=map_tiles)
+            self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
             photo_grouped_shown = list()
             for photo in map_points_combo:
                 if not photo[5]:
@@ -280,7 +288,7 @@ class GlobalMapWidget(QWidget):
         else:
             self.map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
 
-        formatter = "function(num) {return L.Util.formatNum(num, 6) + ' º ';};"
+        formatter = "function(num) {return L.Util.formatNum(num, 4) + ' º ';};"
 
         MousePosition(position="topright", separator=", ", empty_string="NaN",  lng_first=True,
             num_digits=20, prefix="Координаты:", lat_formatter=formatter, lng_formatter=formatter).add_to(self.map_gps)
@@ -294,53 +302,20 @@ class GlobalMapWidget(QWidget):
         self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 3)
         self.progressbar.hide()
 
-    # Получение годов
-    def get_years(self) -> None:
-        self.date_year.clear()
-        j = 0
-        k = 0
-        dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
-        all_files_and_dirs = os.listdir(dir_to_find_year)
-        dir_list = list()
-        for name in all_files_and_dirs:
-            if os.path.isdir(dir_to_find_year + name):
-                if len(os.listdir(dir_to_find_year + name)) >= 1:
-                    for file in Path(dir_to_find_year + name).rglob('*'):
-                        if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
-                            k = 1
-                    if k == 1:
-                        k = 0
-                        dir_list.append(name)
-
-        dir_list.sort(reverse=True)
-        i = 0
-        for year in dir_list:
-            if dir_list[i] != 'No_Date_Info':
-                self.date_year.addItem(str(year))
-            else:
-                j = 1
-            i += 1
-        if j == 1:
-            self.date_year.addItem('No_Date_Info')
-        else:
-            pass
-        self.date_year.addItem('All')
-
-    # Получение месяцев в году
-    def get_months(self) -> None:
-        self.date_month.clear()
-        year = self.date_year.currentText()
-        if year == 'All':
-            self.date_month.addItem('All')
-        else:
-            dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
-            all_files_and_dirs = os.listdir(dir_to_find_month)
-            dir_list = list()
+    # заполнение полей сортировки по дате
+    def fill_date(self, mode: str) -> None:
+        # Получение годов
+        def get_years() -> None:
+            self.date_year.clear()
+            j = 0
             k = 0
+            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            all_files_and_dirs = os.listdir(dir_to_find_year)
+            dir_list = list()
             for name in all_files_and_dirs:
-                if os.path.isdir(dir_to_find_month + name):
-                    if len(os.listdir(dir_to_find_month + name)) >= 1:
-                        for file in Path(dir_to_find_month + name).rglob('*'):
+                if os.path.isdir(dir_to_find_year + name):
+                    if len(os.listdir(dir_to_find_year + name)) >= 1:
+                        for file in Path(dir_to_find_year + name).rglob('*'):
                             if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
                                 k = 1
                         if k == 1:
@@ -348,32 +323,81 @@ class GlobalMapWidget(QWidget):
                             dir_list.append(name)
 
             dir_list.sort(reverse=True)
-            for month in dir_list:
-                self.date_month.addItem(str(month))
-            self.date_month.addItem('All')
+            i = 0
+            for year in dir_list:
+                if dir_list[i] != 'No_Date_Info':
+                    self.date_year.addItem(str(year))
+                else:
+                    j = 1
+                i += 1
+            if j == 1:
+                self.date_year.addItem('No_Date_Info')
+            else:
+                pass
+            self.date_year.addItem('All')
 
-    # Получение дней в месяце
-    def get_days(self) -> None:
-        self.date_day.clear()
-        year = self.date_year.currentText()
-        month = self.date_month.currentText()
-        if not month:
-            return
-        if month == 'All':
-            self.date_day.addItem('All')
-        else:
-            dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
-            all_files_and_dirs = os.listdir(dir_to_find_day)
-            dir_list = list()
-            for name in all_files_and_dirs:
-                if os.path.isdir(dir_to_find_day + name):
-                    if len(os.listdir(dir_to_find_day + name)) >= 1:
-                        dir_list.append(name)
+        # Получение месяцев в году
+        def get_months() -> None:
+            self.date_month.clear()
+            year = self.date_year.currentText()
+            if year == 'All':
+                self.date_month.addItem('All')
+            else:
+                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_month)
+                dir_list = list()
+                k = 0
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_month + name):
+                        if len(os.listdir(dir_to_find_month + name)) >= 1:
+                            for file in Path(dir_to_find_month + name).rglob('*'):
+                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                    k = 1
+                            if k == 1:
+                                k = 0
+                                dir_list.append(name)
 
-            dir_list.sort(reverse=True)
-            for day in dir_list:
-                self.date_day.addItem(str(day))
-            self.date_day.addItem('All')
+                dir_list.sort(reverse=True)
+                for month in dir_list:
+                    self.date_month.addItem(str(month))
+                self.date_month.addItem('All')
+
+        # Получение дней в месяце
+        def get_days() -> None:
+            self.date_day.clear()
+            year = self.date_year.currentText()
+            month = self.date_month.currentText()
+            if year == 'All' or month == 'All':
+                self.date_day.addItem('All')
+            else:
+                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_day)
+                dir_list = list()
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_day + name):
+                        if len(os.listdir(dir_to_find_day + name)) >= 1:
+                            dir_list.append(name)
+
+                dir_list.sort(reverse=True)
+                for day in dir_list:
+                    self.date_day.addItem(str(day))
+                self.date_day.addItem('All')
+
+        match mode:
+            case 'date':
+                get_years()
+                get_months()
+                get_days()
+            case 'year':
+                get_years()
+            case 'month':
+                get_months()
+            case 'day':
+                get_days()
+            case _:
+                get_years()
+                get_months()
+                get_days()
 
     # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
@@ -401,7 +425,6 @@ class GlobalMapWidget(QWidget):
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_years()
         self.date_year.setFixedWidth(140)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
@@ -414,7 +437,6 @@ class GlobalMapWidget(QWidget):
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_months()
         self.date_month.setFixedWidth(140)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
@@ -427,9 +449,10 @@ class GlobalMapWidget(QWidget):
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.get_days()
         self.date_day.setFixedWidth(140)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1, alignment=QtCore.Qt.AlignVCenter)
+
+        self.fill_date('date')
 
         if not self.year_lbl.text():
             self.year_lbl.setText('Год:')
@@ -443,8 +466,8 @@ class GlobalMapWidget(QWidget):
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
 
-        self.date_year.currentTextChanged.connect(self.get_months)
-        self.date_month.currentTextChanged.connect(self.get_days)
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
 
     # заполнить поле группировки по соцсетям
     def fill_sort_socnets(self) -> None:
@@ -504,11 +527,13 @@ class GlobalMapWidget(QWidget):
             self.camera_choose.addItem(f'{camera}')
             if len(camera) > camera_max_len:
                 camera_max_len = len(camera)
+        self.camera_choose.addItem('All')
 
         for lens in lenses:
             self.lens_choose.addItem(f'{lens}')
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
+        self.lens_choose.addItem('All')
 
         self.camera_choose.setFixedWidth(camera_max_len * 12)
         self.lens_choose.setFixedWidth(lens_max_len * 12)
@@ -529,11 +554,11 @@ class GlobalMapWidget(QWidget):
                 self.fill_sort_equipment()
 
     def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
-        if shooting_date != "No data":
+        if shooting_date != "":
             date_splitted = shooting_date.split('.')
             date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
         else:
-            date_show = "No data"
+            date_show = ""
 
         encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
         html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
@@ -580,11 +605,11 @@ class GlobalMapWidget(QWidget):
             camera = photo[3]
             thumbnail_way = photo[4]
 
-            if shooting_date != "No data":
+            if shooting_date != "":
                 date_splitted = shooting_date.split('.')
                 date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
             else:
-                date_show = "No data"
+                date_show = ""
 
             encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
             if i == 0:

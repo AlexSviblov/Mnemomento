@@ -584,7 +584,6 @@ class WidgetWindow(QWidget):
 
 
 # редактирование exif
-# noinspection PyArgumentList
 class EditExifData(QDialog):
 
     edited_signal = QtCore.pyqtSignal()
@@ -1301,11 +1300,14 @@ class EditExifData(QDialog):
     # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
         all_new_data = self.read_enter()
+        changes_meta_dict = {}
         for i in range(len(all_new_data)):
             if self.indicator[i] == 1:
-                self.write_changes(self.photoname, self.photodirectory, i, all_new_data[i])
+                changes_meta_dict[i] = all_new_data[i]
             else:
                 pass
+
+        self.write_changes(self.photoname, self.photodirectory, changes_meta_dict)
 
         if self.indicator[-1] == 0:
             self.get_metadata(self.photoname, self.photodirectory)
@@ -1315,25 +1317,27 @@ class EditExifData(QDialog):
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # записать новые метаданные
-    def write_changes(self, photoname: str, photodirectory: str, editing_type, new_text) -> None:
+    def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, editing_type: int, new_text: str) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, editing_type, new_text)
+        def rewriting(photoname: str, photodirectory: str, modify_dict) -> None:
+            Metadata.exif_rewrite_edit(photoname, photodirectory, modify_dict)
 
         # проверка введённых пользователем метаданных
         def check_enter(editing_type: int, new_text: str) -> None:
             Metadata.exif_check_edit(editing_type, new_text)
 
         # проверка введённых пользователем метаданных
-        try:
-            check_enter(editing_type, new_text)
-        except ErrorsAndWarnings.EditExifError:
-            logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
-            win_err = ErrorsAndWarnings.EditExifError_win(self)
-            win_err.show()
-            return
+        for editing_type in list(new_value_dict.keys()):
+            new_text = new_value_dict[editing_type]
+            try:
+                check_enter(editing_type, new_text)
+            except ErrorsAndWarnings.EditExifError:
+                logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
+                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err.show()
+                return
 
-        rewriting(photoname, photodirectory, editing_type, new_text)
+        rewriting(photoname, photodirectory, new_value_dict)
         self.edited_signal.emit()
 
     # очистка exif

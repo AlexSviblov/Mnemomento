@@ -7,6 +7,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import *
 from pathlib import Path
 
+import EditManyFiles
 import OnlyShowWidget
 import ShowAloneWindowWidget
 import ShowConstWindowWidget
@@ -65,11 +66,15 @@ class MainWindow(QMainWindow):
         add_const_directory_bar = QAction('Добавить папку в основной каталог', self)
         add_const_directory_bar.triggered.connect(self.func_add_const_dir)
 
+        add_const_megadir_bar = QAction('Добавить папку с вложенными папками в основной каталог', self)
+        add_const_megadir_bar.triggered.connect(self.func_add_const_megadir_const)
+
         add_const_alone_directory = QAction('Добавить папку в дополнительный каталог', self)
         add_const_alone_directory.triggered.connect(self.func_add_alone_dir) 
 
         self.add_menu.addAction(add_const_files_bar)
         self.add_menu.addAction(add_const_directory_bar)
+        self.add_menu.addAction(add_const_megadir_bar)
         self.add_menu.addAction(add_const_alone_directory)
 
         self.view_menu = self.menubar.addMenu('Посмотреть')
@@ -95,14 +100,18 @@ class MainWindow(QMainWindow):
         self.bases_menu = self.menubar.addMenu('Данные')
         self.bases_menu.setStyleSheet(stylesheet10)
 
-        database_ernames_menu = QAction('Исправления метаданных', self)
+        database_ernames_menu = QAction('Исправление именований оборудования', self)
         database_ernames_menu.triggered.connect(self.db_ernames_view_func)
 
         social_networks_menu = QAction('Социальные сети', self)
         social_networks_menu.triggered.connect(self.social_networks_func)
 
+        massive_edit_menu = QAction('Множественное редактирование метаданных', self)
+        massive_edit_menu.triggered.connect(self.massive_edit_func)
+
         self.bases_menu.addAction(database_ernames_menu)
         self.bases_menu.addAction(social_networks_menu)
+        self.bases_menu.addAction(massive_edit_menu)
 
         global_map = QAction('Карта', self)
         self.menubar.addAction(global_map)
@@ -309,6 +318,25 @@ class MainWindow(QMainWindow):
             file_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
         except FileNotFoundError:
             return
+
+        self.progressbar = ProgressBar()
+        self.setCentralWidget(self.progressbar)
+
+        self.add_files_progress = ConstMaker(file_list=file_list)
+        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
+        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
+        self.add_files_progress.finished.connect(self.finish_thread_add_const)
+        self.add_files_progress.start()
+
+    # добавить в основной каталог папку, все файлы в ней и все файлы во всех подпапках
+    def func_add_const_megadir_const(self):
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        file_list = []
+        for root, dirs, files in os.walk(add_dir_chosen):
+            for file in files:
+                if file.endswith(".jpg") or file.endswith(".JPG"):
+                    file_list.append(root.replace('\\', '/') + '/' + file)
 
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
@@ -610,7 +638,8 @@ class MainWindow(QMainWindow):
         except AttributeError:
             pass
 
-    def update_network_changes(self):
+    # обновить основной виджет при редактировании соцсетей
+    def update_network_changes(self) -> None:
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:  # Alone
             if self.centralWidget().socnet_group.isVisible():
                 self.centralWidget().show_social_networks(self.centralWidget().last_clicked, self.centralWidget().photo_directory)
@@ -622,9 +651,15 @@ class MainWindow(QMainWindow):
         else:
             pass
 
+    # окно массового редактирования метаданных
+    def massive_edit_func(self) -> None:
+        self.window_me = Massive_Edit_window(self)
+        self.window_me.resize(self.window_me.size())
+        self.window_me.show()
+
+
 
 # при добавлении папки
-# noinspection PyArgumentList
 class ProgressBar(QWidget):
     def __init__(self):
         super().__init__()
@@ -869,7 +904,6 @@ class DB_window(QMainWindow):
 
 
 # просмотр окна соцсетей
-# noinspection PyArgumentList
 class Social_Network_window(QMainWindow):
     social_network_changed = QtCore.pyqtSignal()
     main_resize_signal = QtCore.pyqtSignal()
@@ -890,8 +924,25 @@ class Social_Network_window(QMainWindow):
         self.main_resize_signal.emit()
 
 
+# окно массового редактирования метаданных
+class Massive_Edit_window(QMainWindow):
+    main_resize_signal = QtCore.pyqtSignal()
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setWindowTitle("Редактирование метаданных")
+        self.widget_me = EditManyFiles.ManyPhotoEdit()
+        self.setCentralWidget(self.widget_me)
+        self.setStyleSheet(stylesheet2)
+
+        self.resize(self.widget_me.size())
+
+    def self_resize(self) -> None:
+        self.resize(self.widget_me.size())
+        self.main_resize_signal.emit()
+
+
 # добавление в основной каталог
-# noinspection PyUnresolvedReferences
 class ConstMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
@@ -938,7 +989,6 @@ class ConstMaker(QtCore.QThread):
 
 
 # добавление в дополнительный каталог
-# noinspection PyUnresolvedReferences
 class AloneMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
@@ -1058,4 +1108,3 @@ if __name__ == "__main__":
         logging.exception(f"ALL PROGRAM ERROR")
 
     sys.exit(app.exec_())
-
