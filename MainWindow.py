@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import logging
+import datetime
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import *
@@ -35,7 +36,7 @@ font12 = QtGui.QFont('Times', 12)
 font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 
-logging.basicConfig(filename="logs.txt", format='%(asctime)s - %(levelname)s - %(message)s',
+logging.basicConfig(filename=f"logs/log{str(datetime.datetime.now())[:10]}.txt", format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
 
 
@@ -443,6 +444,7 @@ class MainWindow(QMainWindow):
     def finish_thread_add_alone(self, files: str) -> None:
         if files[0] == 'finish':
             self.show_main_alone_widget()
+            self.centralWidget().directory_choose.setCurrentText(files[1])
         elif files[0] == "error":
             win = ErrorsAndWarnings.ExistAloneDir(self)
             win.show()
@@ -490,6 +492,18 @@ class MainWindow(QMainWindow):
         widget.alone_add_dir_signal.connect(self.func_add_alone_dir)
         widget.const_add_files_signal.connect(self.func_add_const_files)
         widget.const_add_dir_signal.connect(self.func_add_const_dir)
+        widget.last_opened_clicked.connect(lambda file: self.last_opened_show(file))
+
+    def last_opened_show(self, photofile):
+        file_splitted = photofile.split('/')
+        if 'const' in file_splitted:
+            self.show_main_const_widget()
+            self.centralWidget().date_year.setCurrentText(file_splitted[-4])
+            self.centralWidget().date_month.setCurrentText(file_splitted[-3])
+            self.centralWidget().date_day.setCurrentText(file_splitted[-2])
+        else:  # alone
+            self.show_main_alone_widget()
+            self.centralWidget().directory_choose.setCurrentText(file_splitted[-2])
 
     # Таблица с изменёнными именами
     def db_ernames_view_func(self) -> None:
@@ -664,6 +678,7 @@ class MainWindow(QMainWindow):
     def func_about(self):
         pass
 
+
 # при добавлении папки
 class ProgressBar(QWidget):
     def __init__(self):
@@ -709,6 +724,7 @@ class StartShow(QWidget):
     const_add_dir_signal = QtCore.pyqtSignal()
     const_add_files_signal = QtCore.pyqtSignal()
     alone_add_dir_signal = QtCore.pyqtSignal()
+    last_opened_clicked = QtCore.pyqtSignal(str)
 
     def __init__(self):
 
@@ -788,14 +804,14 @@ class StartShow(QWidget):
         self.btn_alone_add_dir.setStyleSheet(stylesheet8)
 
         self.layout_last = QGridLayout(self)
-        self.last_photo = QLabel()
-        self.last_photo.setAlignment(QtCore.Qt.AlignTop)
+        self.last_photo = QToolButton(self)
+        # self.last_photo.setAlignment(QtCore.Qt.AlignTop)
         self.layout_last.addWidget(self.last_photo, 1, 0, 1, 1)
         self.last_text = QLabel()
         self.last_text.setText('Последнее просмотренное фото:\n')
         self.last_text.setFont(font12)
         self.last_text.setFixedHeight(20)
-        self.last_text.setAlignment(QtCore.Qt.AlignTop)
+        self.last_text.setAlignment(QtCore.Qt.AlignHCenter)
         self.layout_last.addWidget(self.last_text, 0, 0, 1, 1)
 
         self.group_last = QGroupBox(self)
@@ -804,13 +820,14 @@ class StartShow(QWidget):
         self.group_last.setStyleSheet(stylesheet2)
         self.layout_outside.addWidget(self.group_last, 1, 2, 1, 1)
 
-        try:
-            with open('last_opened.json', 'r') as json_file:
-                photofile = json.load(json_file)['last_opened_photo']
-            pixmap = QtGui.QPixmap(photofile)
-            pixmap2 = pixmap.scaled(400, 400, QtCore.Qt.KeepAspectRatio)
-            self.last_photo.setPixmap(pixmap2)
-        except FileNotFoundError:
+        with open('last_opened.json', 'r') as json_file:
+            photofile = json.load(json_file)['last_opened_photo']
+        if os.path.exists(photofile):
+            pixmap = QtGui.QIcon(photofile)
+            self.last_photo.setIconSize(QtCore.QSize(400, 400))
+            self.last_photo.setIcon(pixmap)
+            self.last_photo.clicked.connect(lambda: self.last_opened_clicked.emit(photofile))
+        else:
             self.last_photo.setText("Фото было перемещено или удалено")
 
         self.btn_const_cat.setMinimumSize(400, 80)
@@ -1018,6 +1035,7 @@ class AloneMaker(QtCore.QThread):
             os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
 
             j = 0
+            self.progress.emit(0)
             for file in self.files_list:
                 self.info_text.emit(f"Идёт обработка файла {file}")
                 FilesDirs.transfer_alone_photos(self.photo_directory, file)
@@ -1033,7 +1051,7 @@ class AloneMaker(QtCore.QThread):
                 else:
                     self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
 
-            self.finished.emit(['finish'])
+            self.finished.emit(['finish', self.photo_directory.split('/')[-1]])
 
         elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
             self.finished.emit(['error'])
