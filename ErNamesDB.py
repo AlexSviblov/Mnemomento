@@ -5,6 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 import ErrorsAndWarnings
+import Screenconfig
 import Settings
 
 
@@ -23,6 +24,8 @@ conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)  # соедин
 cur = conn.cursor()
 
 font12 = QtGui.QFont('Times', 12)
+
+system_scale = Screenconfig.monitor_info()[1]
 
 
 # просмотр базы исправлений
@@ -499,13 +502,13 @@ class AddBDDialog(QDialog):
         self.btn_ok.setText('Ввод')
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font12)
-        self.btn_ok.setFixedHeight(30)
+        self.btn_ok.setFixedHeight(int(30*system_scale)+1)
         self.layout_win.addWidget(self.btn_ok, 3, 0, 1, 1)
 
         self.btn_cancel.setText('Отмена')
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font12)
-        self.btn_cancel.setFixedHeight(30)
+        self.btn_cancel.setFixedHeight(int(30*system_scale)+1)
         self.layout_win.addWidget(self.btn_cancel, 3, 1, 1, 1)
 
         self.btn_ok.clicked.connect(self.check_empty)
@@ -527,7 +530,7 @@ class AddBDDialog(QDialog):
         self.type_combobox.addItem('Камера')
         self.type_combobox.addItem('Объектив')
         self.type_combobox.setFont(font12)
-        self.type_combobox.setFixedHeight(30)
+        self.type_combobox.setFixedHeight(int(40*system_scale)+1)
         self.type_combobox.setStyleSheet(stylesheet9)
         self.layout_win.addWidget(self.type_combobox, 0, 1, 1, 1)
 

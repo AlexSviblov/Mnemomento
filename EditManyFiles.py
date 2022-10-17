@@ -32,6 +32,9 @@ font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 
 
+system_scale = Screenconfig.monitor_info()[1]
+
+
 class ManyPhotoEdit(QWidget):
 
     def __init__(self):
@@ -48,7 +51,7 @@ class ManyPhotoEdit(QWidget):
         self.layout_type.setAlignment(Qt.AlignLeft)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(50)
+        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layout_outside.addWidget(self.groupbox_sort, 0, 1, 1, 4)
 
@@ -569,8 +572,8 @@ class ManyPhotoEdit(QWidget):
         self.group_type.addItem('Оборудование')
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)
-        self.group_type.setFixedWidth(152)
-        self.group_type.setFixedHeight(30)
+        self.group_type.setFixedWidth(int(152*system_scale)+1)
+        self.group_type.setFixedHeight(int(30*system_scale)+1)
         self.group_type.setStyleSheet(stylesheet9)
 
         self.layout_outside.addWidget(self.group_type, 0, 0, 1, 1)
@@ -586,7 +589,7 @@ class ManyPhotoEdit(QWidget):
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_year.setFixedWidth(140)
+        self.date_year.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
         self.month_lbl = QLabel(self)
@@ -598,7 +601,7 @@ class ManyPhotoEdit(QWidget):
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_month.setFixedWidth(140)
+        self.date_month.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
         self.day_lbl = QLabel(self)
@@ -610,7 +613,7 @@ class ManyPhotoEdit(QWidget):
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_day.setFixedWidth(140)
+        self.date_day.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
         if not self.year_lbl.text():
@@ -618,9 +621,9 @@ class ManyPhotoEdit(QWidget):
             self.month_lbl.setText('    Месяц:')
             self.day_lbl.setText('    День:')
 
-        self.date_day.setFixedHeight(30)
-        self.date_month.setFixedHeight(30)
-        self.date_year.setFixedHeight(30)
+        self.date_day.setFixedHeight(int(30*system_scale)+1)
+        self.date_month.setFixedHeight(int(30*system_scale)+1)
+        self.date_year.setFixedHeight(int(30*system_scale)+1)
         self.day_lbl.setFixedHeight(30)
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
@@ -732,11 +735,11 @@ class ManyPhotoEdit(QWidget):
     def fill_sort_equipment(self) -> None:
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
-        self.camera_choose.setFixedHeight(30)
+        self.camera_choose.setFixedHeight(int(30*system_scale)+1)
         self.camera_choose.setStyleSheet(stylesheet9)
         self.lens_choose = QComboBox(self)
         self.lens_choose.setFont(font14)
-        self.lens_choose.setFixedHeight(30)
+        self.lens_choose.setFixedHeight(int(30*system_scale)+1)
         self.lens_choose.setStyleSheet(stylesheet9)
         self.layout_type.addWidget(self.camera_choose, 0, 1, 1, 1)
         self.layout_type.addWidget(self.lens_choose, 0, 2, 1, 1)
@@ -757,8 +760,8 @@ class ManyPhotoEdit(QWidget):
                 lens_max_len = len(lens)
         self.lens_choose.addItem('All')
 
-        self.camera_choose.setFixedWidth(camera_max_len*12)
-        self.lens_choose.setFixedWidth(lens_max_len*12)
+        self.camera_choose.setFixedWidth(int(camera_max_len*12*system_scale)+1)
+        self.lens_choose.setFixedWidth(int(camera_max_len*12*system_scale)+1)
 
         self.camera_choose.currentTextChanged.connect(self.show_filtered_thumbs)
         self.lens_choose.currentTextChanged.connect(self.show_filtered_thumbs)

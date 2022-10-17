@@ -1,3 +1,4 @@
+import logging
 import os
 import folium
 import json
@@ -10,6 +11,7 @@ import EditFiles
 import FilesDirs
 import PhotoDataDB
 import Metadata
+import Screenconfig
 import Settings
 import Thumbnail
 
@@ -29,6 +31,9 @@ icon_delete = str()
 
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
+
+
+system_scale = Screenconfig.monitor_info()[1]
 
 
 class AloneWidgetWindow(QWidget):
@@ -81,7 +86,7 @@ class AloneWidgetWindow(QWidget):
 
         self.directory_lbl = QLabel(self)
         self.directory_lbl.setText('Папка для просмотра:')
-        self.directory_lbl.setFixedWidth(200)
+        self.directory_lbl.setFixedWidth(int(200*system_scale)+1)
         self.directory_lbl.setFont(font14)
         self.directory_lbl.setStyleSheet(stylesheet2)
         self.layout_directory_choose.addWidget(self.directory_lbl, 0, 0, 1, 1)
@@ -91,8 +96,8 @@ class AloneWidgetWindow(QWidget):
         self.directory_choose.setStyleSheet(stylesheet9)
         self.directory_choose.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.fill_directory_combobox()
-        self.directory_choose.setFixedHeight(30)
-        self.directory_choose.setFixedWidth(self.max_dir_name_len*12 + 40)
+        self.directory_choose.setFixedHeight(int(30*system_scale)+1)
+        self.directory_choose.setFixedWidth(int((self.max_dir_name_len*12 + 40)*system_scale))
         self.layout_directory_choose.addWidget(self.directory_choose, 0, 1, 1, 1)
 
         self.directory_delete = QPushButton(self)
@@ -101,7 +106,7 @@ class AloneWidgetWindow(QWidget):
         self.directory_delete.setStyleSheet(stylesheet8)
         self.layout_directory_choose.addWidget(self.directory_delete, 0, 2, 1, 1)
         self.directory_delete.clicked.connect(self.del_dir_func)
-        self.directory_delete.setFixedWidth(200)
+        self.directory_delete.setFixedWidth(int(200*system_scale)+1)
 
         self.photo_filter = QCheckBox(self)
         self.photo_filter.setText('Фильтр')
@@ -125,7 +130,7 @@ class AloneWidgetWindow(QWidget):
         self.sn_status.addItem('Не публиковать')
         self.sn_status.addItem('Опубликовать')
         self.sn_status.addItem('Опубликовано')
-        self.sn_status.setFixedWidth(164)
+        self.sn_status.setFixedWidth(int(164*system_scale)+1)
         self.layout_directory_choose.addWidget(self.sn_status, 0, 5, 1, 1)
         self.socnet_choose.currentTextChanged.connect(self.show_thumbnails)
         self.sn_status.currentTextChanged.connect(self.show_thumbnails)
@@ -134,7 +139,7 @@ class AloneWidgetWindow(QWidget):
 
         self.groupbox_directory_choose = QGroupBox(self)
         self.groupbox_directory_choose.setLayout(self.layout_directory_choose)
-        self.groupbox_directory_choose.setMaximumHeight(50)
+        self.groupbox_directory_choose.setMaximumHeight(int(50*system_scale)+1)
         self.groupbox_directory_choose.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_directory_choose, 0, 0, 1, 4)
 
@@ -195,7 +200,7 @@ class AloneWidgetWindow(QWidget):
         self.btn_add_photos.setStyleSheet(stylesheet8)
         self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
         self.btn_add_photos.clicked.connect(self.add_files_to_dir)
-        self.btn_add_photos.setFixedWidth(200)
+        self.btn_add_photos.setFixedWidth(int(200*system_scale)+1)
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self) -> None:
@@ -448,7 +453,7 @@ class AloneWidgetWindow(QWidget):
                         self.socnet_choose.addItem(f'{net[9:]}')
                         if len(net) - 9 > net_max_length:
                             net_max_length = len(net) - 9
-                    self.socnet_choose.setFixedWidth(net_max_length*12+30)
+                    self.socnet_choose.setFixedWidth(int((net_max_length*12+30)*system_scale)+1)
             self.socnet_choose.show()
             self.sn_status.show()
 
@@ -917,7 +922,7 @@ class AloneWidgetWindow(QWidget):
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
 
-                self.sn_lbl.setFixedWidth(len(name) * 12)
+                self.sn_lbl.setFixedWidth(int((len(name) * 12)*system_scale)+1)
                 self.socnet_group.setCellWidget(i, 0, self.sn_lbl)
 
                 self.sn_tag_choose = QComboBox(self)
@@ -1048,6 +1053,7 @@ class DelPhotoConfirm(QDialog):
 
     # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
+        logging.info(f"Удаление файла {photodirectory + '/' + photoname}")
         os.remove(photodirectory + '/' + photoname)
         Thumbnail.delete_thumbnail_alone(photoname, photodirectory)
         PhotoDataDB.del_from_database(photoname, photodirectory)
@@ -1097,6 +1103,7 @@ class DelDirConfirm(QDialog):
 
     # при подтверждении - удалить всех фото из папки, его миниатюру и записи в БД
     def do_del(self) -> None:
+        logging.info(f"Удаление папки {self.photodirectory}")
         Thumbnail.delete_thumb_dir(self.photodirectory)
         PhotoDataDB.del_alone_dir(self.photodirectory)
         FilesDirs.del_alone_dir(self.photodirectory)

@@ -12,6 +12,7 @@ from folium import IFrame
 
 import PhotoDataDB
 import Metadata
+import Screenconfig
 import Settings
 
 
@@ -27,6 +28,9 @@ map_tiles = str()
 
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
+
+
+system_scale = Screenconfig.monitor_info()[1]
 
 
 class GlobalMapWidget(QWidget):
@@ -51,7 +55,7 @@ class GlobalMapWidget(QWidget):
         self.layout_type.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(50)
+        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
         self.groupbox_sort.setAlignment(QtCore.Qt.AlignVCenter)
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.groupbox_sort.setLayout(self.layout_type)
@@ -75,7 +79,7 @@ class GlobalMapWidget(QWidget):
         self.btn_show.setText('Показать')
         self.btn_show.setFont(font14)
         self.btn_show.setStyleSheet(stylesheet8)
-        self.btn_show.setFixedSize(100, 31)
+        self.btn_show.setFixedSize(int(100*system_scale)+1, int(30*system_scale)+1)
         self.layout_outside.addWidget(self.btn_show, 0, 2, 1, 1)
         self.btn_show.clicked.connect(self.make_show_map)
 
@@ -408,8 +412,8 @@ class GlobalMapWidget(QWidget):
         self.group_type.addItem('Оборудование')
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)
-        self.group_type.setFixedWidth(152)
-        self.group_type.setFixedHeight(30)
+        self.group_type.setFixedWidth(int(152*system_scale)+1)
+        self.group_type.setFixedHeight(int(30*system_scale)+1)
         self.group_type.setStyleSheet(stylesheet9)
 
         self.layout_outside.addWidget(self.group_type, 0, 0, 1, 1)
@@ -419,37 +423,37 @@ class GlobalMapWidget(QWidget):
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
+        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.date_year = QComboBox(self)
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_year.setFixedWidth(140)
-        self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
+        self.date_year.setFixedWidth(int(140*system_scale)+1)
+        self.layout_type.addWidget(self.date_year, 0, 2, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.month_lbl = QLabel(self)
         self.month_lbl.setFont(font14)
         self.month_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
+        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.date_month = QComboBox(self)
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_month.setFixedWidth(140)
-        self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
+        self.date_month.setFixedWidth(int(140*system_scale)+1)
+        self.layout_type.addWidget(self.date_month, 0, 4, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.day_lbl = QLabel(self)
         self.day_lbl.setFont(font14)
         self.day_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
+        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.date_day = QComboBox(self)
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_day.setFixedWidth(140)
+        self.date_day.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1, alignment=QtCore.Qt.AlignVCenter)
 
         self.fill_date('date')
@@ -459,9 +463,9 @@ class GlobalMapWidget(QWidget):
             self.month_lbl.setText('    Месяц:')
             self.day_lbl.setText('    День:')
 
-        self.date_day.setFixedHeight(30)
-        self.date_month.setFixedHeight(30)
-        self.date_year.setFixedHeight(30)
+        self.date_day.setFixedHeight(int(30*system_scale)+1)
+        self.date_month.setFixedHeight(int(30*system_scale)+1)
+        self.date_year.setFixedHeight(int(30*system_scale)+1)
         self.day_lbl.setFixedHeight(30)
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
@@ -473,14 +477,14 @@ class GlobalMapWidget(QWidget):
     def fill_sort_socnets(self) -> None:
         self.socnet_choose = QComboBox(self)
         self.socnet_choose.setFont(font14)
-        self.socnet_choose.setFixedHeight(30)
+        self.socnet_choose.setFixedHeight(int(30*system_scale)+1)
         self.socnet_choose.setStyleSheet(stylesheet9)
         self.layout_type.addWidget(self.socnet_choose, 0, 1, 1, 1)
         socnets = PhotoDataDB.get_socialnetworks()
 
         if not socnets:
             self.socnet_choose.addItem('Нет данных')
-            self.socnet_choose.setFixedWidth(150)
+            self.socnet_choose.setFixedWidth(int(150*system_scale)+1)
         else:
             socnet_max_len = 0
             for net in socnets:
@@ -493,28 +497,28 @@ class GlobalMapWidget(QWidget):
                     if len(net) - 9 > socnet_max_len:
                         socnet_max_len = len(net) - 9
 
-            self.socnet_choose.setFixedWidth(socnet_max_len * 12 + 30)
+            self.socnet_choose.setFixedWidth(int((socnet_max_len * 12 + 30)*system_scale)+1)
 
             self.sn_status = QComboBox(self)
             self.sn_status.setFont(font14)
-            self.sn_status.setFixedHeight(30)
+            self.sn_status.setFixedHeight(int(30*system_scale)+1)
             self.sn_status.setStyleSheet(stylesheet9)
             self.sn_status.addItem('Не выбрано')
             self.sn_status.addItem('Не публиковать')
             self.sn_status.addItem('Опубликовать')
             self.sn_status.addItem('Опубликовано')
-            self.sn_status.setFixedWidth(164)
+            self.sn_status.setFixedWidth(int(164*system_scale)+1)
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
     # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
-        self.camera_choose.setFixedHeight(30)
+        self.camera_choose.setFixedHeight(int(30*system_scale)+1)
         self.camera_choose.setStyleSheet(stylesheet9)
         self.lens_choose = QComboBox(self)
         self.lens_choose.setFont(font14)
-        self.lens_choose.setFixedHeight(30)
+        self.lens_choose.setFixedHeight(int(30*system_scale)+1)
         self.lens_choose.setStyleSheet(stylesheet9)
         self.layout_type.addWidget(self.camera_choose, 0, 1, 1, 1)
         self.layout_type.addWidget(self.lens_choose, 0, 2, 1, 1)
@@ -535,8 +539,8 @@ class GlobalMapWidget(QWidget):
                 lens_max_len = len(lens)
         self.lens_choose.addItem('All')
 
-        self.camera_choose.setFixedWidth(camera_max_len * 12)
-        self.lens_choose.setFixedWidth(lens_max_len * 12)
+        self.camera_choose.setFixedWidth(int((camera_max_len * 12)*system_scale)+1)
+        self.lens_choose.setFixedWidth(int((lens_max_len * 12)*system_scale)+1)
 
     # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:

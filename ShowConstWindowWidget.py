@@ -32,6 +32,9 @@ font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 
 
+system_scale = Screenconfig.monitor_info()[1]
+
+
 class ConstWidgetWindow(QWidget):
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
@@ -41,9 +44,9 @@ class ConstWidgetWindow(QWidget):
         self.stylesheet_color()
 
         self.own_dir = os.getcwd()
-        resolution = Screenconfig.monitor_info()
-        self.monitor_width = resolution[0]
-        self.monitor_height = resolution[1]
+        # resolution = Screenconfig.monitor_info()
+        # self.monitor_width = resolution[0]
+        # self.monitor_height = resolution[1]
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
@@ -81,7 +84,7 @@ class ConstWidgetWindow(QWidget):
         self.scroll_area.setFixedWidth(200*self.thumb_row)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(50)
+        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
@@ -1097,7 +1100,7 @@ class ConstWidgetWindow(QWidget):
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
 
-                self.sn_lbl.setFixedWidth(len(name)*12)
+                self.sn_lbl.setFixedWidth(int((len(name)*12)*system_scale)+1)
                 self.socnet_group.setCellWidget(i, 0, self.sn_lbl)
 
                 self.sn_tag_choose = QComboBox(self)
@@ -1188,8 +1191,8 @@ class ConstWidgetWindow(QWidget):
         self.group_type.addItem('Оборудование')
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)
-        self.group_type.setFixedWidth(152)
-        self.group_type.setFixedHeight(30)
+        self.group_type.setFixedWidth(int(152*system_scale)+1)
+        self.group_type.setFixedHeight(int(30*system_scale)+1)
         self.group_type.setStyleSheet(stylesheet9)
 
         self.layoutoutside.addWidget(self.group_type, 0, 0, 1, 1)
@@ -1205,7 +1208,7 @@ class ConstWidgetWindow(QWidget):
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_year.setFixedWidth(140)
+        self.date_year.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
         self.month_lbl = QLabel(self)
@@ -1217,7 +1220,7 @@ class ConstWidgetWindow(QWidget):
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_month.setFixedWidth(140)
+        self.date_month.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
         self.day_lbl = QLabel(self)
@@ -1229,7 +1232,7 @@ class ConstWidgetWindow(QWidget):
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.date_day.setFixedWidth(140)
+        self.date_day.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
         if not self.year_lbl.text():
@@ -1237,9 +1240,9 @@ class ConstWidgetWindow(QWidget):
             self.month_lbl.setText('    Месяц:')
             self.day_lbl.setText('    День:')
 
-        self.date_day.setFixedHeight(30)
-        self.date_month.setFixedHeight(30)
-        self.date_year.setFixedHeight(30)
+        self.date_day.setFixedHeight(int(30*system_scale)+1)
+        self.date_month.setFixedHeight(int(30*system_scale)+1)
+        self.date_year.setFixedHeight(int(30*system_scale)+1)
         self.day_lbl.setFixedHeight(30)
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
@@ -1254,14 +1257,14 @@ class ConstWidgetWindow(QWidget):
     def fill_sort_socnets(self) -> None:
         self.socnet_choose = QComboBox(self)
         self.socnet_choose.setFont(font14)
-        self.socnet_choose.setFixedHeight(30)
+        self.socnet_choose.setFixedHeight(int(30*system_scale)+1)
         self.socnet_choose.setStyleSheet(stylesheet9)
         self.layout_type.addWidget(self.socnet_choose, 0, 1, 1, 1)
         socnets = PhotoDataDB.get_socialnetworks()
 
         if not socnets:
             self.socnet_choose.addItem('Нет данных')
-            self.socnet_choose.setFixedWidth(150)
+            self.socnet_choose.setFixedWidth(int(150*system_scale)+1)
         else:
             socnet_max_len = 0
             for net in socnets:
@@ -1274,19 +1277,19 @@ class ConstWidgetWindow(QWidget):
                     if len(net) - 9 > socnet_max_len:
                         socnet_max_len = len(net) - 9
 
-            self.socnet_choose.setFixedWidth(socnet_max_len*12+30)
+            self.socnet_choose.setFixedWidth(int((socnet_max_len*12+30)*system_scale)+1)
 
             self.socnet_choose.currentTextChanged.connect(self.type_show_thumbnails)
 
             self.sn_status = QComboBox(self)
             self.sn_status.setFont(font14)
-            self.sn_status.setFixedHeight(30)
+            self.sn_status.setFixedHeight(int(30*system_scale)+1)
             self.sn_status.setStyleSheet(stylesheet9)
             self.sn_status.addItem('Не выбрано')
             self.sn_status.addItem('Не публиковать')
             self.sn_status.addItem('Опубликовать')
             self.sn_status.addItem('Опубликовано')
-            self.sn_status.setFixedWidth(164)
+            self.sn_status.setFixedWidth(int(164*system_scale)+1)
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
             self.sn_status.currentTextChanged.connect(self.type_show_thumbnails)
@@ -1295,11 +1298,11 @@ class ConstWidgetWindow(QWidget):
     def fill_sort_equipment(self) -> None:
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
-        self.camera_choose.setFixedHeight(30)
+        self.camera_choose.setFixedHeight(int(30*system_scale)+1)
         self.camera_choose.setStyleSheet(stylesheet9)
         self.lens_choose = QComboBox(self)
         self.lens_choose.setFont(font14)
-        self.lens_choose.setFixedHeight(30)
+        self.lens_choose.setFixedHeight(int(30*system_scale)+1)
         self.lens_choose.setStyleSheet(stylesheet9)
         self.layout_type.addWidget(self.camera_choose, 0, 1, 1, 1)
         self.layout_type.addWidget(self.lens_choose, 0, 2, 1, 1)
@@ -1320,8 +1323,8 @@ class ConstWidgetWindow(QWidget):
                 lens_max_len = len(lens)
         self.lens_choose.addItem('All')
 
-        self.camera_choose.setFixedWidth(camera_max_len*12)
-        self.lens_choose.setFixedWidth(lens_max_len*12)
+        self.camera_choose.setFixedWidth(int((camera_max_len*12)*system_scale)+1)
+        self.lens_choose.setFixedWidth(int((lens_max_len*12)*system_scale)+1)
 
         self.camera_choose.currentTextChanged.connect(self.type_show_thumbnails)
         self.lens_choose.currentTextChanged.connect(self.type_show_thumbnails)
@@ -1397,6 +1400,7 @@ class DelPhotoConfirm(QDialog):
 
     # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
+        logging.info(f"Удаление файла {photodirectory + '/' + photoname}")
         os.remove(photodirectory + '/' + photoname)
         Thumbnail.delete_thumbnail_const(photoname, photodirectory)
         PhotoDataDB.del_from_database(photoname, photodirectory)

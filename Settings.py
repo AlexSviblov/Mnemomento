@@ -8,7 +8,7 @@ from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QThread, pyqtSignal
 
 import PhotoDataDB
-
+import Screenconfig
 
 font14 = QtGui.QFont('Times', 14)
 
@@ -18,6 +18,9 @@ stylesheet2 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 loading_icon = str()
+
+
+system_scale = Screenconfig.monitor_info()[1]
 
 
 # объект окна настроек
@@ -151,6 +154,7 @@ class SettingWidget(QWidget):
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
+        self.layout.setSpacing(5)
 
         self.media_space_lbl = QLabel(self)
         self.media_space_lbl.setText('Хранилище фотографий:')
@@ -237,6 +241,20 @@ class SettingWidget(QWidget):
         self.socnet_choose = QCheckBox(self)
         self.socnet_choose.setFont(font14)
         self.layout.addWidget(self.socnet_choose, 5, 1, 1, 1)
+
+        self.logs_lbl = QLabel(self)
+        self.logs_lbl.setStyleSheet(stylesheet2)
+        self.logs_lbl.setFont(font14)
+        self.logs_lbl.setText("Логи")
+        self.layout.addWidget(self.logs_lbl, 6, 0, 1, 1)
+
+
+
+        self.logs_btn = QPushButton(self)
+        self.logs_btn.setStyleSheet(stylesheet1)
+        self.logs_btn.setFont(font14)
+        self.logs_btn.setText('Очистить логи')
+        self.layout.addWidget(self.logs_btn, 6, 2, 1, 1)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Сохранить')

@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 
 import PhotoDataDB
+import Screenconfig
 import Settings
 
 
@@ -20,6 +21,9 @@ conn = sqlite3.connect('PhotoDB.db')  # соединение с БД
 cur = conn.cursor()
 
 font14 = QtGui.QFont('Times', 14)
+
+
+system_scale = Screenconfig.monitor_info()[1]
 
 
 class SocialNetworks(QWidget):
@@ -165,7 +169,7 @@ class SocialNetworks(QWidget):
 
             self.btn_red = QToolButton(self)
             self.btn_red.setStyleSheet(stylesheet1)
-            self.btn_red.setFixedSize(50, 50)
+            self.btn_red.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
             self.btn_red.setIcon(QtGui.QIcon(icon_edit))
             self.btn_red.setToolTip('Редактировать название')
             self.btn_red.setObjectName(networks[i])
@@ -174,7 +178,7 @@ class SocialNetworks(QWidget):
 
             self.btn_del = QToolButton(self)
             self.btn_del.setStyleSheet(stylesheet1)
-            self.btn_del.setFixedSize(50, 50)
+            self.btn_del.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
             self.btn_del.setIcon(QtGui.QIcon(icon_delete))
             self.btn_del.setToolTip('Удалить соцсеть')
             self.btn_del.setObjectName(networks[i])
@@ -182,7 +186,7 @@ class SocialNetworks(QWidget):
             self.group_layout.addWidget(self.btn_del, i, 2, 1, 1)
 
         try:
-            self.soc_net_lbl.setFixedWidth(max_sn_name*15)
+            self.soc_net_lbl.setFixedWidth(int((max_sn_name*15)*system_scale)+1)
             self.networks_group.setFixedWidth(self.soc_net_lbl.width()+self.btn_del.width()+self.btn_red.width()+self.group_layout.spacing()*4 + 10)
             self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
         except (AttributeError, RuntimeError):

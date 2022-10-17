@@ -9,6 +9,7 @@ from math import ceil
 from PyQt5.QtCore import Qt
 
 import Metadata
+import Screenconfig
 import Settings
 import ErrorsAndWarnings
 
@@ -27,6 +28,9 @@ icon_edit = str()
 
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
+
+
+system_scale = Screenconfig.monitor_info()[1]
 
 
 class WidgetWindow(QWidget):
@@ -719,7 +723,7 @@ class EditExifData(QDialog):
         self.timezone_pm_choose.setStyleSheet(stylesheet9)
         self.timezone_pm_choose.addItem("+")
         self.timezone_pm_choose.addItem("-")
-        self.timezone_pm_choose.setFixedWidth(50)
+        self.timezone_pm_choose.setFixedWidth(int(50*system_scale))
         self.tab_date_layout.addWidget(self.timezone_pm_choose, 1, 1, 1, 1)
 
         self.timezone_num_choose = QTimeEdit(self)
@@ -911,12 +915,12 @@ class EditExifData(QDialog):
         self.latitude_dmc_choose = QComboBox(self)
         self.latitude_dmc_choose.addItem("Север")
         self.latitude_dmc_choose.addItem("Юг")
-        self.latitude_dmc_choose.setFixedWidth(80)
+        self.latitude_dmc_choose.setFixedWidth(int(80*system_scale))
 
         self.longitude_dmc_choose = QComboBox(self)
         self.longitude_dmc_choose.addItem("Восток")
         self.longitude_dmc_choose.addItem("Запад")
-        self.longitude_dmc_choose.setFixedWidth(80)
+        self.longitude_dmc_choose.setFixedWidth(int(80*system_scale))
 
         self.latitude_dmc_deg_lbl = QLabel(self)  # широта
         self.latitude_dmc_deg_lbl.setText("Градусы:")
