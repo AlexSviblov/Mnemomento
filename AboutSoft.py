@@ -119,7 +119,6 @@ class AboutInfo(QDialog):
         self.lbl.setFont(font10)
         self.layout.addWidget(self.lbl, 0, 0, 1, 1)
 
-
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Ок')
         self.btn_ok.setStyleSheet(stylesheet8)

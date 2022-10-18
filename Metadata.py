@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import piexif
 import exiftool
@@ -438,6 +439,8 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                         tags=modify_dict,
                         params=["-P", "-overwrite_original"])
 
+    logging.info(f"Metadata - Новые метаданные файла {photofile} - {modify_dict}")
+
 
 # проверка ввода при редактировании exif
 def exif_check_edit(editing_type: int, new_value: str) -> None:
@@ -611,6 +614,8 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
 
     piexif.remove(photofile)
 
+    logging.info(f"Metadata - У файла {photofile} очищены метаданные")
+
 
 # Проверка и исправление ориентации фотографии
 def check_photo_rotation(photo_file: str, data: dict) -> None:
@@ -699,6 +704,8 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
         et.set_tags(photo_file,
                     tags={'EXIF:ImageWidth': width, 'EXIF:ImageHeight': height, 'EXIF:Orientation': 1},
                     params=["-P", "-overwrite_original"])
+
+    logging.info(f"Metadata - В файл {photo_file} записаны ширина-{width} и высота-{height}")
 
 
 # Ориантация файла при разовом просмотре

@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 import sys
 import shutil
@@ -34,6 +35,7 @@ class SettingWin(QMainWindow):
         self.setWindowTitle('Настройки')
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setMinimumSize(1000, 300)
 
         settings = SettingWidget()
         settings.update_main_widget.connect(self.update_main_widget.emit)
@@ -151,6 +153,7 @@ class SettingWidget(QWidget):
         super().__init__()
         self.setWindowTitle('Настройки')
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setMinimumSize(1000, 300)
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -248,13 +251,19 @@ class SettingWidget(QWidget):
         self.logs_lbl.setText("Логи")
         self.layout.addWidget(self.logs_lbl, 6, 0, 1, 1)
 
-
+        self.logs_show = QPushButton(self)
+        self.logs_show.setStyleSheet(stylesheet1)
+        self.logs_show.setFont(font14)
+        self.logs_show.setText("Просмотреть логи")
+        self.layout.addWidget(self.logs_show, 6, 1, 1, 1)
+        self.logs_show.clicked.connect(self.call_explorer_logs)
 
         self.logs_btn = QPushButton(self)
         self.logs_btn.setStyleSheet(stylesheet1)
         self.logs_btn.setFont(font14)
         self.logs_btn.setText('Очистить логи')
         self.layout.addWidget(self.logs_btn, 6, 2, 1, 1)
+        self.logs_btn.clicked.connect(self.clear_logs)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Сохранить')
@@ -344,7 +353,6 @@ class SettingWidget(QWidget):
         theme_color = self.theme_choose.currentText()
         socnet_status = self.socnet_choose.checkState()
 
-
         jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
                        'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color,
                        'social_networks_status': socnet_status}
@@ -352,6 +360,7 @@ class SettingWidget(QWidget):
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
 
+        logging.info(f"Settings - Изменены настройки - {jsondata_wr}")
         self.parent().stylesheet_color()
 
         notice_win = Notification(self)
@@ -381,6 +390,24 @@ class SettingWidget(QWidget):
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.socnet_lbl.setStyleSheet(stylesheet2)
+
+    # открыть папку с логами, 1 файл указывается в пути, чтобы открыть уже саму папку, а не рабочую папку программы с выделенной папкой "логи"
+    def call_explorer_logs(self):
+        path = os.getcwd() + r'\logs'
+        file = os.listdir(path)[0]
+        full_path = path + '\\' + file
+        os.system(f'explorer /select,\"{full_path}\"')
+
+    # очистка папки логов, лог сегодняшнего дня не очищается, так как используется самой программой во время работы
+    def clear_logs(self):
+        path = os.getcwd() + r'\logs'
+        files = os.listdir(path)
+        for file in files:
+            try:
+                os.remove(path + '\\' + file)
+            except PermissionError:
+                pass
+        logging.info(f"Settings - Логи очищены")
 
 
 # перенос папок, если изменился путь
@@ -449,6 +476,8 @@ class TransferFiles(QDialog):
 
         self.proccess = DoTransfer(self.code, self.old_media, self.new_media, self.old_thumb, self.new_thumb)
         self.proccess.finished.connect(self.func_finished)
+
+        logging.info(f"Settings - Инициализирован перенос файлов в новую папку")
 
         self.proccess.start()
 

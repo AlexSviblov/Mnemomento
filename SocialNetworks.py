@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import sqlite3
@@ -295,8 +296,9 @@ class AddSN(QDialog):
             sql_str = f'ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\''
             cur.execute(sql_str)
         conn.commit()
-        self.social_network_changed.emit()
+        logging.info(f"Добавлена новая соцсеть {self.enter_name.text()}")
 
+        self.social_network_changed.emit()
         self.accept()
 
 
@@ -377,8 +379,9 @@ class RedSN(QDialog):
             sql_str = f'ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {textwithnum}'
             cur.execute(sql_str)
         conn.commit()
-        self.social_network_changed.emit()
+        logging.info(f"Соцсеть {self.net_oldname} переименована в {self.new_name.text()}")
 
+        self.social_network_changed.emit()
         self.accept()
 
 
@@ -432,8 +435,9 @@ class DelSN(QDialog):
     def do_func(self) -> None:
         sql_str = f'ALTER TABLE socialnetworks DROP COLUMN {self.net_name}'
         cur.execute(sql_str)
-
         conn.commit()
+
+        logging.info(f"Соцсеть {self.net_name} удалена")
 
         self.social_network_changed.emit()
         self.accept()

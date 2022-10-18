@@ -1,3 +1,4 @@
+import logging
 import sqlite3
 import sys
 from PyQt5 import QtWidgets, QtCore, QtGui
@@ -398,6 +399,8 @@ class ViewBDDialog(QWidget):
             cur.execute(sql_red_str)
             conn.commit()
 
+            logging.info(f"ErNamesDB - Отредактировано значение {col_name} с {self.old_element} на {self.new_element}")
+
             self.indicator = 0
             self.edit_btn.setDisabled(False)
             self.edit_mode.hide()
@@ -646,6 +649,8 @@ class AddBDDialog(QDialog):
 
         conn.commit()
 
+        logging.info(f"ErNamesDB - Добавлено исправление {type} - {self.error_entered} - {self.norm_entered}")
+
         ready = SuccessWindowClass(self)
         ready.show()
 
@@ -693,6 +698,8 @@ class DelBDDialog(QDialog):
         sql_del_str = f"DELETE FROM ernames WHERE exifname LIKE '{self.del_obj_ername}'"
         cur.execute(sql_del_str)
         conn.commit()
+
+        logging.info(f"ErNamesDB - Удалена запись исправления для {self.del_obj_ername}")
         self.accept()
 
 

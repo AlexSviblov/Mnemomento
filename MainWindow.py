@@ -41,7 +41,7 @@ font8 = QtGui.QFont('Times', 8)
 system_scale = Screenconfig.monitor_info()[1]
 
 logging.basicConfig(filename=f"logs/log-{str(datetime.datetime.now())[:10]}.txt", format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
+                    datefmt='%d-%b-%y %H:%M:%S', level=logging.WARNING)
 
 
 class MainWindow(QMainWindow):
@@ -147,7 +147,15 @@ class MainWindow(QMainWindow):
         global stylesheet8
         global stylesheet10
 
-        if Settings.get_theme_color() == 'light':
+        try:
+            theme_color = Settings.get_theme_color()
+        except (FileNotFoundError, PermissionError, FileExistsError):
+            theme_color = 'light'
+            logging.error(f"MainWindow - Не удалось считать файл настроек")
+            win = ErrorsAndWarnings.SettingsReadError(self)
+            win.show()
+
+        if theme_color == 'light':
             stylesheet1 =   """
                              border: 1px;
                              border-color: #A9A9A9;
@@ -317,7 +325,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda h: self.finish_thread_add_const(h))
+        self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
 
     # добавить в основной каталог на постоянку папку
@@ -335,7 +343,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(self.finish_thread_add_const)
+        self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
 
     # добавить в основной каталог папку, все файлы в ней и все файлы во всех подпапках
@@ -354,7 +362,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(self.finish_thread_add_const)
+        self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
 
     # добавить в дополнительный каталог папку на постоянку
@@ -436,11 +444,15 @@ class MainWindow(QMainWindow):
         self.view_files_progress.start()
 
     # По окончании добавления файлов в основной каталог, запустить виджет его показа
-    def finish_thread_add_const(self, files: list) -> None:
+    def finish_thread_add_const(self, files_exists: list, files_permissions) -> None:
         # win = PhotoExistsWarning(self, files)
-        if files:
-            win = ErrorsAndWarnings.PhotoExists(self, files, "const")
-            win.show()
+        if files_exists:
+            win1 = ErrorsAndWarnings.PhotoExists(self, files_exists, "const")
+            win1.show()
+
+        if files_permissions:
+            win2 = ErrorsAndWarnings.FilesPermissionMoveError(self, files_permissions)
+            win2.show()
         self.show_main_const_widget()
         self.add_files_progress = None
 
@@ -514,7 +526,7 @@ class MainWindow(QMainWindow):
         try:
             self.window_db = DB_window(self)
         except Exception:
-            logging.exception(f"Error in {type(self)} - Cannot open ErrorNames.db")
+            logging.exception(f"MainWindow - Error in {type(self)} - Cannot open ErrorNames.db")
             er_win = ErrorsAndWarnings.ErNamesDBErrorWin(self)
             er_win.show()
             return
@@ -531,6 +543,7 @@ class MainWindow(QMainWindow):
     # закрытие программы -> удалить созданное для разового просмотра
     def closeEvent(self, event) -> None:
         self.clear_view_close()
+        logging.info("MainWindow - Корректное завершение работы программы")
 
     # удалить созданное для разового просмотра
     def clear_view_close(self) -> None:
@@ -538,6 +551,7 @@ class MainWindow(QMainWindow):
             Thumbnail.delete_exists()
             path = Settings.get_destination_media() + "/Media/Photo/const/"
             FilesDirs.clear_empty_dirs(path)
+            logging.info("MainWindow - Очищены пустые папки основного каталога")
         except FileNotFoundError:
             pass
 
@@ -545,6 +559,7 @@ class MainWindow(QMainWindow):
             Thumbnail.delete_exists()
             path = Settings.get_destination_thumb() + "/thumbnail/const/"
             FilesDirs.clear_empty_dirs(path)
+            logging.info("MainWindow - Очищена папка разового просмотра")
         except FileNotFoundError:
             pass
 
@@ -971,7 +986,7 @@ class ConstMaker(QtCore.QThread):
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
-    finished = pyqtSignal(list)
+    finished = pyqtSignal(list, list)
 
     def __init__(self, file_list):
         QThread.__init__(self)
@@ -985,18 +1000,26 @@ class ConstMaker(QtCore.QThread):
     def run(self):
         j = 0
         files_exist = list()
-        logging.info(f"В программу передан список файлов для добавления в основной каталог: {self.files_list}")
+        files_permission = list()
+        logging.info(f"MainWindow - В программу передан список файлов для добавления в основной каталог: {self.files_list}")
         for file in self.files_list:
             self.info_text.emit(f"Идёт обработка файла {file}")
-            logging.info(f"Начало обработки {file}")
-            fileexists = FilesDirs.transfer_const_photos(file)
+            logging.info(f"MainWindow - Начало обработки {file}")
+            fileexists, filepermissions = FilesDirs.transfer_const_photos(file)
             j += 1
             self.progress.emit(round(100*(j/self.len_file_list)))
             self.info_text.emit(f"Обработка файла {file} завершена")
-            logging.info(f"Обработка файла {file} завершена")
+            logging.info(f"MainWindow - Обработка файла {file} завершена")
+
             if fileexists:
                 files_exist.append(fileexists)
                 self.info_text.emit(f"Файл {file} уже существует")
+            else:
+                pass
+
+            if filepermissions:
+                files_permission.append(filepermissions)
+                self.info_text.emit(f"Файл {file} не может быть обработан")
             else:
                 pass
 
@@ -1009,17 +1032,17 @@ class ConstMaker(QtCore.QThread):
             if not os.listdir(file_dir):
                 try:
                     os.rmdir(file_dir)
-                    logging.info(f"Опустевшая папка {file_dir} удалена")
+                    logging.info(f"MainWindow - Опустевшая папка {file_dir} удалена")
                     self.info_text.emit(f"Опустевшая папка {file_dir} удалена")
                 except PermissionError as e:
-                    logging.WARNING(f"Папка {self.photo_directory} не может быть удалена: {e}")
+                    logging.WARNING(f"MainWindow - Папка {self.photo_directory} не может быть удалена: {e}")
                     self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
 
             else:
-                logging.info(f"Папка {file_dir} не была удалена, так как не опустела")
+                logging.info(f"MainWindow - Папка {file_dir} не была удалена, так как не опустела")
                 self.info_text.emit(f"Папка {file_dir} не была удалена, так как не опустела")
-        logging.info(f"Файлы уже существовали в программе - {files_exist}")
-        self.finished.emit(files_exist)
+        logging.info(f"MainWindow - Файлы уже существовали в программе - {files_exist}")
+        self.finished.emit(files_exist, files_permission)
 
 
 # добавление в дополнительный каталог
@@ -1044,52 +1067,52 @@ class AloneMaker(QtCore.QThread):
         self.preprogress.emit(self.len_file_list)
 
     def run(self):
-        logging.info(f"В программу передан список файлов для добавления в дополнительный каталог: {self.files_list}")
+        logging.info(f"MainWindow - В программу передан список файлов для добавления в дополнительный каталог: {self.files_list}")
         if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
             self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
-            logging.info(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
+            logging.info(f"MainWindow - Создание директории {self.photo_directory.split('/')[-1]} в программе")
             os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
 
             j = 0
             self.progress.emit(0)
             for file in self.files_list:
                 self.info_text.emit(f"Идёт обработка файла {file}")
-                logging.info(f"Начало обработки {file}")
+                logging.info(f"MainWindow - Начало обработки {file}")
                 FilesDirs.transfer_alone_photos(self.photo_directory, file)
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
                 self.info_text.emit(f"Обработка файла {file} завершена")
-                logging.info(f"Обработка файла {file} завершена")
+                logging.info(f"MainWindow - Обработка файла {file} завершена")
 
             if Settings.get_photo_transfer_mode() == "cut":
                 self.info_text.emit(f"Определение статуса папки")
-                logging.info(f"Определение статуса папки")
+                logging.info(f"MainWindow - Определение статуса папки")
                 if not os.listdir(self.photo_directory):
                     self.info_text.emit(f"Опустевшая папка {self.photo_directory} удаляется")
-                    logging.info(f"Опустевшая папка {self.photo_directory} - попытка удаления")
+                    logging.info(f"MainWindow - Опустевшая папка {self.photo_directory} - попытка удаления")
                     try:
                         os.rmdir(self.photo_directory)
-                        logging.info(f"Папка {self.photo_directory} удалена")
-                        self.info_text.emit(f"Папка {self.photo_directory} была удалена")
+                        logging.info(f"MainWindow - Папка {self.photo_directory} удалена")
+                        self.info_text.emit(f"MainWindow - Папка {self.photo_directory} была удалена")
                     except PermissionError as e:
-                        logging.WARNING(f"Папка {self.photo_directory} не может быть удалена: {e}")
+                        logging.WARNING(f"MainWindow - Папка {self.photo_directory} не может быть удалена: {e}")
                         self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
                 else:
                     self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
-                    logging.info(f"Папка {self.photo_directory} не была удалена, так как не опустела")
+                    logging.info(f"MainWindow - Папка {self.photo_directory} не была удалена, так как не опустела")
 
             self.finished.emit(['finish', self.photo_directory.split('/')[-1]])
 
         elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
-            logging.info(f"Папка {self.photo_directory.split('/')[-1]} уже существует в программе")
+            logging.info(f"MainWindow - Папка {self.photo_directory.split('/')[-1]} уже существует в программе")
             self.finished.emit(['error'])
         else: # self.mode == "files"
-            logging.info(f"В программу передан список файлов для добавления в дополнительный каталог: {self.files_list}")
+            logging.info(f"MainWindow - В программу передан список файлов для добавления в дополнительный каталог: {self.files_list}")
             j = 0
             file_exists = []
             for file in self.files_list:
                 self.info_text.emit(f"Обработка файла {file} завершена")
-                logging.info(f"Обработка файла {file} завершена")
+                logging.info(f"MainWindow - Обработка файла {file} завершена")
                 desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.exists_dir.split('/')[-1]
                 file_name = file.split('/')[-1]
                 if os.path.exists(desination_dir + '/' + file_name):
@@ -1099,9 +1122,9 @@ class AloneMaker(QtCore.QThread):
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
                 self.info_text.emit(f"Обработка файла {file} завершена")
-                logging.info(f"Обработка файла {file} завершена")
+                logging.info(f"MainWindow - Обработка файла {file} завершена")
             if file_exists:
-                logging.info(f"Файлы уже существовали в программе {file_exists}")
+                logging.info(f"MainWindow - Файлы уже существовали в программе {file_exists}")
                 self.finished.emit(file_exists)
             else:
                 self.finished.emit(['finish'])

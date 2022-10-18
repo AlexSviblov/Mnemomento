@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import sqlite3
 
@@ -44,6 +45,7 @@ def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None
 
     cur.execute(sql_str2)
     conn.commit()
+    logging.info(f'В БД добавлена запись о {photodirectory}/{photoname}')
 
 
 # Удаление записи из БД при удалении фото из основного каталога
@@ -61,6 +63,7 @@ def del_from_database(photoname: str, photodirectory: str) -> None:
     cur.execute(sql_str)
 
     conn.commit()
+    logging.info(f'Из БД удалена запись о {photodirectory}/{photoname}')
 
 
 # Запись изменений, внесённых пользователем при редактировании метаданных, которые есть в БД
@@ -107,6 +110,8 @@ def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> Non
             case _:       # другие данные (которых нет в БД)
                 pass
 
+        logging.info(f"PhotoDataDB - В БД изменена запись о файле {photodirectory}/{photoname} - {editing_type} = {new_text}")
+
 
 # при переносе в другую папку надо переписать её путь в БД
 def catalog_after_transfer(photoname: str, old_directory: str, new_directory: str) -> None:
@@ -124,6 +129,8 @@ def catalog_after_transfer(photoname: str, old_directory: str, new_directory: st
     cur.execute(sql_str1)
     cur.execute(sql_str2)
     conn.commit()
+
+    logging.info(f"PhotoDataDB - После переноса в другую папку, обновлена запись в БД, файл {photoname} перенесён из {old_directory} в {new_directory}")
 
 
 # записать в БД новое имя при переименовании при переносе
@@ -163,6 +170,8 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
         sql_str4 = f"UPDATE socialnetworks SET catalog = \'{oldcatalog}\' WHERE filename = \'{prewname}\' AND catalog = \'{newcatalog}\'"
         cur.execute(sql_str4)
     conn.commit()
+
+    logging.info(f"PhotoDataDB - Файл {newcatalog}/{prewname} перенесён в {oldcatalog}/{rename}")
 
 
 # достать вбитые в БД теги соцсетей
@@ -451,6 +460,8 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
 
     conn.commit()
 
+    logging.info(f"PhotoDataDB - В БД очищены метаданные файла {photo_directory}/{photo_name}")
+
 
 # достать из БД список фото сделанных в определённый день
 def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
@@ -627,6 +638,8 @@ def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
     cur.execute(sql_str2)
 
     conn.commit()
+
+    logging.info(f"PhotoDataDB - В БД переименован файл из каталога {catalog}, старое имя - {old_file_name}, новое имя - {new_file_name}")
 
 
 # обновить в БД много записей одновременно

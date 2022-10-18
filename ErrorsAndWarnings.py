@@ -285,6 +285,57 @@ class RenameTransferingPhoto(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
+class SettingsReadError(QDialog):
+    def __init__(self, parent=None):
+        super(SettingsReadError, self).__init__(parent)
+        stylesheet_color()
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle('ОШИБКА')
+
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText('Не удалось считать файл с настройками.')
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet2)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet8)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)
+
+
+class FilesPermissionMoveError(QDialog):
+    def __init__(self, parent, files):
+        super(FilesPermissionMoveError, self).__init__(parent)
+        stylesheet_color()
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle('ОШИБКА')
+
+        str_show = 'Данные файлы не удалось перенести, возможно они открыты в дурггой программе:'
+        for file in files:
+            str_show += f'\n{file}'
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText(str_show)
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet2)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet8)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)
+
+
 # при любой ошибки в процессе modify_exif вызывается ошибка
 class EditExifError(Exception):
     pass
@@ -296,3 +347,4 @@ class PhotoDBConnectionError(Exception):
 
 class ErnamesDBConnectionError(Exception):
     pass
+
