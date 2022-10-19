@@ -252,46 +252,24 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
     useful_data = dict()
 
     try:
-        maker = all_data['EXIF:Make']
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
-        cur.execute(sql_str)
-        try:
-            maker = cur.fetchone()[0]
-        except TypeError:
-            pass
-        useful_data['Производитель'] = maker
+        useful_data['Производитель'] = all_data['EXIF:Make']
     except KeyError:
         useful_data['Производитель'] = ''
 
     try:
-        camera = all_data['EXIF:Model']
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
-        cur.execute(sql_str)
-        try:
-            camera = cur.fetchone()[0]
-        except TypeError:
-            pass
-        useful_data['Камера'] = camera
+        useful_data['Камера'] = all_data['EXIF:Model']
     except KeyError:
         useful_data['Камера'] = ''
 
     try:
-        lens = all_data['EXIF:LensModel']
-
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
-        cur.execute(sql_str)
-        try:
-            lens = cur.fetchone()[0]
-        except TypeError:
-            pass
-        useful_data['Объектив'] = lens
+        useful_data['Объектив'] = all_data['EXIF:LensModel']
     except KeyError:
         useful_data['Объектив'] = ''
 
     try:
-        if all_data['EXIF:ExposureTime'] < 0.1:
+        if float(all_data['EXIF:ExposureTime']) < 0.1:
             try:
-                denominator = 1 / all_data['EXIF:ExposureTime']
+                denominator = 1 / float(all_data['EXIF:ExposureTime'])
                 expo_time_show = f"1/{int(denominator)}"
             except ZeroDivisionError:
                 expo_time_show = '0'
@@ -439,7 +417,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                         tags=modify_dict,
                         params=["-P", "-overwrite_original"])
 
-    logging.info(f"Metadata - Новые метаданные файла {photofile} - {modify_dict}")
+    logging.info(f"Metadata - New file metadata {photofile} - {modify_dict}")
 
 
 # проверка ввода при редактировании exif
@@ -614,7 +592,7 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
 
     piexif.remove(photofile)
 
-    logging.info(f"Metadata - У файла {photofile} очищены метаданные")
+    logging.info(f"Metadata - {photofile} metadata cleared")
 
 
 # Проверка и исправление ориентации фотографии
@@ -705,7 +683,7 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
                     tags={'EXIF:ImageWidth': width, 'EXIF:ImageHeight': height, 'EXIF:Orientation': 1},
                     params=["-P", "-overwrite_original"])
 
-    logging.info(f"Metadata - В файл {photo_file} записаны ширина-{width} и высота-{height}")
+    logging.info(f"Metadata - In file {photo_file} were written width -{width} and height-{height}")
 
 
 # Ориантация файла при разовом просмотре

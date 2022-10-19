@@ -45,7 +45,7 @@ def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None
 
     cur.execute(sql_str2)
     conn.commit()
-    logging.info(f'В БД добавлена запись о {photodirectory}/{photoname}')
+    logging.info(f'In DB added record about {photodirectory}/{photoname}')
 
 
 # Удаление записи из БД при удалении фото из основного каталога
@@ -63,7 +63,7 @@ def del_from_database(photoname: str, photodirectory: str) -> None:
     cur.execute(sql_str)
 
     conn.commit()
-    logging.info(f'Из БД удалена запись о {photodirectory}/{photoname}')
+    logging.info(f'From DB removed record about {photodirectory}/{photoname}')
 
 
 # Запись изменений, внесённых пользователем при редактировании метаданных, которые есть в БД
@@ -110,7 +110,7 @@ def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> Non
             case _:       # другие данные (которых нет в БД)
                 pass
 
-        logging.info(f"PhotoDataDB - В БД изменена запись о файле {photodirectory}/{photoname} - {editing_type} = {new_text}")
+        logging.info(f"PhotoDataDB - In DB edited record about {photodirectory}/{photoname} - {editing_type} = {new_text}")
 
 
 # при переносе в другую папку надо переписать её путь в БД
@@ -130,7 +130,7 @@ def catalog_after_transfer(photoname: str, old_directory: str, new_directory: st
     cur.execute(sql_str2)
     conn.commit()
 
-    logging.info(f"PhotoDataDB - После переноса в другую папку, обновлена запись в БД, файл {photoname} перенесён из {old_directory} в {new_directory}")
+    logging.info(f"PhotoDataDB - After transfer to another directory, updated record in DB, file {photoname} moved from {old_directory} to {new_directory}")
 
 
 # записать в БД новое имя при переименовании при переносе
@@ -279,14 +279,15 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
     :param lens: исправленное название объектива (либо повторение exif, если оно не исправляется).
     :return: список абсолютных путей ко всем файлам с выбранными камерой и объективом.
     """
+
     if camera_exif == 'All' and camera == 'All' and lens == 'All' and lens_exif == 'All':
-        sql_str = f'SELECT filename, catalog FROM photos'
+        sql_str = f'SELECT filename, catalog FROM photos {db_order_settings()}'
     elif (camera_exif == 'All' and camera == 'All') and (lens != 'All' or lens_exif != 'All'):
-        sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\') {db_order_settings()}'
     elif (camera_exif != 'All' or camera != 'All') and (lens == 'All' and lens_exif == 'All'):
-        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\')'
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') {db_order_settings()}'
     else:
-        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')'
+        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\') {db_order_settings()}'
 
     cur.execute(sql_str)
 
@@ -321,11 +322,11 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
             status_bd = 'No value'
 
     try:
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\''
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\'  {db_order_settings()}'
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
     except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\''
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\'  {db_order_settings()}'
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 
@@ -475,25 +476,27 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
     photodb_data = list()
     if year == 'No_Date_Info':
         date_to_search = ''
-        sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+        sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' {db_order_settings()}"
         cur.execute(sql_str)
-        date_info = cur.fetchall()
-        for photo_data in date_info:
-            photodb_data.append(photo_data)
+        photodb_data = cur.fetchall()
     else:
         if year != 'All' and month != 'All' and day == 'All':
+            date_part = ''
             for i in range(1, 32):
                 str_i = str(i)
                 if len(str_i) == 1:
                     str_i = '0' + str_i
                 date_to_search = f"{year}.{month}.{str_i}"
-                sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
-                cur.execute(sql_str)
-                date_info = cur.fetchall()
-                if date_info:
-                    for photo_data in date_info:
-                        photodb_data.append(photo_data)
+                date_part += f"(shootingdate = \'{date_to_search}\')"
+                if i != 31:
+                    date_part += f" OR "
+
+            sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
+
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
         elif year != 'All' and month == 'All' and day == 'All':
+            date_part = ''
             for j in range(1, 13):
                 str_j = str(j)
                 if len(str_j) == 1:
@@ -503,27 +506,25 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
                     if len(str_i) == 1:
                         str_i = '0' + str_i
                     date_to_search = f"{year}.{str_j}.{str_i}"
-                    sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
-                    cur.execute(sql_str)
-                    date_info = cur.fetchall()
-                    if date_info:
-                        for photo_data in date_info:
-                            photodb_data.append(photo_data)
-        elif year == 'All' and month == 'All' and day == 'All':
-            sql_str = f"SELECT filename, catalog FROM photos"
+                    date_part += f"(shootingdate = \'{date_to_search}\')"
+                    if j != 12:
+                        date_part += f" OR "
+                    elif j == 12 and i != 31:
+                        date_part += f" OR "
+                    else:
+                        pass
+            sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
             cur.execute(sql_str)
-            date_info = cur.fetchall()
-            if date_info:
-                for photo_data in date_info:
-                    photodb_data.append(photo_data)
+            photodb_data = cur.fetchall()
+        elif year == 'All' and month == 'All' and day == 'All':
+            sql_str = f"SELECT filename, catalog FROM photos {db_order_settings()}"
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
         else:
             date_to_search = f"{year}.{month}.{day}"
-            sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\'"
+            sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' {db_order_settings()}"
             cur.execute(sql_str)
-            date_info = cur.fetchall()
-            if date_info:
-                for photo_data in date_info:
-                    photodb_data.append(photo_data)
+            photodb_data = cur.fetchall()
 
     fullpaths = list()
     for photo in photodb_data:
@@ -654,3 +655,25 @@ def massive_edit_metadata(photo_list: list[str], modify_dict: list[str]) -> None
         file_name = file.split('/')[-1]
         file_dir = file[:(-1) * (len(file_name) + 1)]
         edit_in_database(file_name, file_dir, modify_dict)
+
+
+def db_order_settings():
+    setting = Settings.get_sort_type()
+
+    match setting:
+        case "name-up":
+            sort_str = "ORDER BY filename"
+        case "name-down":
+            sort_str = "ORDER BY filename DESC"
+        case "made-up":
+            sort_str = "ORDER BY shootingdatetime"
+        case "made-down":
+            sort_str = "ORDER BY shootingdatetime DESC"
+        case "add-up":
+            sort_str = "ORDER BY additiondate"
+        case "add-down":
+            sort_str = "ORDER BY additiondate DESC"
+        case _:
+            sort_str = "ORDER BY filename"
+
+    return sort_str

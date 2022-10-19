@@ -399,7 +399,7 @@ class ViewBDDialog(QWidget):
             cur.execute(sql_red_str)
             conn.commit()
 
-            logging.info(f"ErNamesDB - Отредактировано значение {col_name} с {self.old_element} на {self.new_element}")
+            logging.info(f"ErNamesDB - Edited value {col_name} from {self.old_element} to {self.new_element}")
 
             self.indicator = 0
             self.edit_btn.setDisabled(False)
@@ -649,7 +649,7 @@ class AddBDDialog(QDialog):
 
         conn.commit()
 
-        logging.info(f"ErNamesDB - Добавлено исправление {type} - {self.error_entered} - {self.norm_entered}")
+        logging.info(f"ErNamesDB - Added correction {type} - {self.error_entered} - {self.norm_entered}")
 
         ready = SuccessWindowClass(self)
         ready.show()
@@ -699,7 +699,7 @@ class DelBDDialog(QDialog):
         cur.execute(sql_del_str)
         conn.commit()
 
-        logging.info(f"ErNamesDB - Удалена запись исправления для {self.del_obj_ername}")
+        logging.info(f"ErNamesDB - Removed correction for {self.del_obj_ername}")
         self.accept()
 
 

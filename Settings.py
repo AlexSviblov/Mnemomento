@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QThread, pyqtSignal
 
+import ErrorsAndWarnings
 import PhotoDataDB
 import Screenconfig
 
@@ -245,24 +246,41 @@ class SettingWidget(QWidget):
         self.socnet_choose.setFont(font14)
         self.layout.addWidget(self.socnet_choose, 5, 1, 1, 1)
 
+        self.sort_type = QLabel(self)
+        self.sort_type.setFont(font14)
+        self.sort_type.setStyleSheet(stylesheet2)
+        self.sort_type.setText("Сортировка фото")
+        self.layout.addWidget(self.sort_type, 6, 0, 1, 1)
+
+        self.sort_choose = QComboBox(self)
+        self.sort_choose.setFont(font14)
+        self.sort_choose.setStyleSheet(stylesheet9)
+        self.sort_choose.addItem("Имя файла /\\")
+        self.sort_choose.addItem("Имя файла \\/")
+        self.sort_choose.addItem("Дата съёмки /\\")
+        self.sort_choose.addItem("Дата съёмки \\/")
+        self.sort_choose.addItem("Дата добавления /\\")
+        self.sort_choose.addItem("Дата добавления \\/")
+        self.layout.addWidget(self.sort_choose, 6, 1, 1, 1)
+
         self.logs_lbl = QLabel(self)
         self.logs_lbl.setStyleSheet(stylesheet2)
         self.logs_lbl.setFont(font14)
         self.logs_lbl.setText("Логи")
-        self.layout.addWidget(self.logs_lbl, 6, 0, 1, 1)
+        self.layout.addWidget(self.logs_lbl, 7, 0, 1, 1)
 
         self.logs_show = QPushButton(self)
         self.logs_show.setStyleSheet(stylesheet1)
         self.logs_show.setFont(font14)
         self.logs_show.setText("Просмотреть логи")
-        self.layout.addWidget(self.logs_show, 6, 1, 1, 1)
+        self.layout.addWidget(self.logs_show, 7, 1, 1, 1)
         self.logs_show.clicked.connect(self.call_explorer_logs)
 
         self.logs_btn = QPushButton(self)
         self.logs_btn.setStyleSheet(stylesheet1)
         self.logs_btn.setFont(font14)
         self.logs_btn.setText('Очистить логи')
-        self.layout.addWidget(self.logs_btn, 6, 2, 1, 1)
+        self.layout.addWidget(self.logs_btn, 7, 2, 1, 1)
         self.logs_btn.clicked.connect(self.clear_logs)
 
         self.btn_ok = QPushButton(self)
@@ -301,18 +319,40 @@ class SettingWidget(QWidget):
 
     # показать записанный сейчас настройки
     def show_settings(self) -> None:
+        def show_sort_type(chosen):
+            match chosen:
+                case "name-up":
+                    self.sort_choose.setCurrentText("Имя файла /\\")
+                case "name-down":
+                    self.sort_choose.setCurrentText("Имя файла \\/")
+                case "made-up":
+                    self.sort_choose.setCurrentText("Дата съёмки /\\")
+                case "made-down":
+                    self.sort_choose.setCurrentText("Дата съёмки \\/")
+                case "add-up":
+                    self.sort_choose.setCurrentText("Дата добавления /\\")
+                case "add-down":
+                    self.sort_choose.setCurrentText("Дата добавления \\/")
+                case _:
+                    self.sort_choose.setCurrentText("Имя файла /\\")
+
         try:
             with open('settings.json', 'r') as json_file:
                 settings = json.load(json_file)
         except FileNotFoundError:
+            win = ErrorsAndWarnings.SettingsReadError(self)
+            win.show()
+            return
 
-            pass
         self.old_media_dir = settings['destination_dir']
         self.old_thumb_dir = settings['thumbs_dir']
         mode = settings['transfer_mode']
         self.old_num_thumbs = settings["thumbs_row"]
         self.old_theme_color = settings["color_theme"]
         self.old_socnet_status = settings["social_networks_status"]
+        self.old_sort_type = settings["sort_type"]
+        show_sort_type(settings["sort_type"])
+
         self.media_space_line.setText(self.old_media_dir)
         self.thumbs_space_line.setText(self.old_thumb_dir)
         self.transfer_mode_choose.setCurrentText(mode)
@@ -346,19 +386,37 @@ class SettingWidget(QWidget):
 
     # перезаписать настройки на новые введённые
     def write_settings(self) -> None:
+        def write_sort_type():
+            match self.sort_choose.currentText():
+                case "Имя файла /\\":
+                    return "name-up"
+                case "Имя файла \\/":
+                    return "name-down"
+                case "Дата съёмки /\\":
+                    return "made-up"
+                case "Дата съёмки \\/":
+                    return "made-down"
+                case "Дата добавления /\\":
+                    return "add-up"
+                case "Дата добавления \\/":
+                    return "add-down"
+                case _:
+                    return "name-up"
+
         dir_media_chosen = self.media_space_line.text()
         dir_thumb_chosen = self.thumbs_space_line.text()
         transfer_mode = self.transfer_mode_choose.currentText()
         num_thumbs = self.num_thumbs_choose.currentText()
         theme_color = self.theme_choose.currentText()
         socnet_status = self.socnet_choose.checkState()
+        sort_type = write_sort_type()
 
         jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
                        'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color,
-                       'social_networks_status': socnet_status}
+                       'social_networks_status': socnet_status, "sort_type": sort_type}
 
         with open('settings.json', 'w') as json_file:
-            json.dump(jsondata_wr, json_file)
+            json.dump(jsondata_wr, json_file, sort_keys=True, indent=4, separators=(',', ': '))
 
         logging.info(f"Settings - Изменены настройки - {jsondata_wr}")
         self.parent().stylesheet_color()
@@ -368,7 +426,7 @@ class SettingWidget(QWidget):
 
         if dir_thumb_chosen != self.old_thumb_dir or dir_media_chosen != self.old_media_dir or \
                 num_thumbs != self.old_num_thumbs or theme_color != self.old_theme_color or \
-                socnet_status != self.old_socnet_status:
+                socnet_status != self.old_socnet_status or sort_type != self.old_sort_type:
             self.update_main_widget.emit()
 
         self.show_settings()
@@ -609,6 +667,13 @@ def get_socnet_status() -> str:
         settings = json.load(json_file)
     socnet_status = int(settings['social_networks_status'])
     return socnet_status
+
+
+def get_sort_type():
+    with open('settings.json', 'r') as json_file:
+        settings = json.load(json_file)
+    sort_type = settings['sort_type']
+    return sort_type
 
 
 if __name__ == "__main__":

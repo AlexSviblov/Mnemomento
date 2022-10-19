@@ -1053,7 +1053,7 @@ class DelPhotoConfirm(QDialog):
 
     # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
-        logging.info(f"Удаление файла {photodirectory + '/' + photoname}")
+        logging.info(f"File removing {photodirectory + '/' + photoname}")
         os.remove(photodirectory + '/' + photoname)
         Thumbnail.delete_thumbnail_alone(photoname, photodirectory)
         PhotoDataDB.del_from_database(photoname, photodirectory)
@@ -1103,7 +1103,7 @@ class DelDirConfirm(QDialog):
 
     # при подтверждении - удалить всех фото из папки, его миниатюру и записи в БД
     def do_del(self) -> None:
-        logging.info(f"Удаление папки {self.photodirectory}")
+        logging.info(f"Directory removing {self.photodirectory}")
         Thumbnail.delete_thumb_dir(self.photodirectory)
         PhotoDataDB.del_alone_dir(self.photodirectory)
         FilesDirs.del_alone_dir(self.photodirectory)

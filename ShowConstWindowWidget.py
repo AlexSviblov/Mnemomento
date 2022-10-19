@@ -84,7 +84,7 @@ class ConstWidgetWindow(QWidget):
         self.scroll_area.setFixedWidth(200*self.thumb_row)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
+        self.groupbox_sort.setFixedHeight(int(50*system_scale))
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 

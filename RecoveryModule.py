@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from PyQt5 import QtGui, QtCore
@@ -275,6 +276,7 @@ class DoRecovery(QtCore.QThread):
         self._init = False
 
     def run(self):
+        logging.info("RecoveryModule - Recovery process started")
         self.loading_text_show.emit("Получение информации из базы данных")
         all_photos_db, all_socnets_db = SynhronizeDBMedia.get_all_db_ways()
         self.loading_text_show.emit("Проверка существования файлов, записанных в базе данных")
@@ -285,6 +287,7 @@ class DoRecovery(QtCore.QThread):
         SynhronizeDBMedia.add_flaw_to_db(filelist_exist)
         self.loading_text_show.emit("Синхронизация фотографий и миниатюр")
         SynhronizeDBMedia.thumbnail_photo_conformity()
+        logging.info("RecoveryModule - Recovery process finished")
         self.finished.emit()
 
 
