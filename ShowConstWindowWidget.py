@@ -716,7 +716,7 @@ class ConstWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name, self.photo_directory)
+        metadata = Metadata.filter_exif(Metadata.fast_read_exif(self.photo_file), self.last_clicked_name, self.photo_directory)
         self.photo_rotation = metadata['Rotation']
 
         try:
@@ -1400,7 +1400,7 @@ class DelPhotoConfirm(QDialog):
 
     # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
-        logging.info(f"Удаление файла {photodirectory + '/' + photoname}")
+        logging.info(f"Removing file {photodirectory + '/' + photoname}")
         os.remove(photodirectory + '/' + photoname)
         Thumbnail.delete_thumbnail_const(photoname, photodirectory)
         PhotoDataDB.del_from_database(photoname, photodirectory)

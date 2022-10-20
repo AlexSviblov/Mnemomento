@@ -418,7 +418,7 @@ class SettingWidget(QWidget):
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file, sort_keys=True, indent=4, separators=(',', ': '))
 
-        logging.info(f"Settings - Изменены настройки - {jsondata_wr}")
+        logging.info(f"Settings - Settings changed - {jsondata_wr}")
         self.parent().stylesheet_color()
 
         notice_win = Notification(self)
@@ -465,7 +465,7 @@ class SettingWidget(QWidget):
                 os.remove(path + '\\' + file)
             except PermissionError:
                 pass
-        logging.info(f"Settings - Логи очищены")
+        logging.info(f"Settings - Logs cleared")
 
 
 # перенос папок, если изменился путь
@@ -535,7 +535,7 @@ class TransferFiles(QDialog):
         self.proccess = DoTransfer(self.code, self.old_media, self.new_media, self.old_thumb, self.new_thumb)
         self.proccess.finished.connect(self.func_finished)
 
-        logging.info(f"Settings - Инициализирован перенос файлов в новую папку")
+        logging.info(f"Settings - Started files transfer to new directory")
 
         self.proccess.start()
 

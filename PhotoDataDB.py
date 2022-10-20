@@ -171,7 +171,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
         cur.execute(sql_str4)
     conn.commit()
 
-    logging.info(f"PhotoDataDB - Файл {newcatalog}/{prewname} перенесён в {oldcatalog}/{rename}")
+    logging.info(f"PhotoDataDB - File {newcatalog}/{prewname} transfered to {oldcatalog}/{rename}")
 
 
 # достать вбитые в БД теги соцсетей
@@ -461,7 +461,7 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
 
     conn.commit()
 
-    logging.info(f"PhotoDataDB - В БД очищены метаданные файла {photo_directory}/{photo_name}")
+    logging.info(f"PhotoDataDB - Metadata of {photo_directory}/{photo_name} cleared in DB")
 
 
 # достать из БД список фото сделанных в определённый день
@@ -640,7 +640,7 @@ def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
 
     conn.commit()
 
-    logging.info(f"PhotoDataDB - В БД переименован файл из каталога {catalog}, старое имя - {old_file_name}, новое имя - {new_file_name}")
+    logging.info(f"PhotoDataDB - Renaming file in database, catalog - {catalog}, old name - {old_file_name}, new name - {new_file_name}")
 
 
 # обновить в БД много записей одновременно

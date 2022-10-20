@@ -27,6 +27,17 @@ def read_exif(photofile: str) -> dict[str, str]:
     return data
 
 
+def fast_read_exif(photofile: str) -> dict[str, str]:
+    """
+    Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
+    :param photofile: абсолютный путь к файлу фотографии.
+    :return: словарь всех вытащенных библиотекой exif метаданных.
+    """
+    data = piexif.load(photofile)
+
+    return data
+
+
 # извлечь из фотографии дату съёмки
 def date_from_exif(data: dict) -> tuple[int, str, str, str]:
     """
@@ -58,14 +69,14 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     :param data: словарь, содержащий все метаданные.
     :param photofile: имя файла.
     :param photo_directory: директория хранения файла.
-    :return: словарь с 11 значениями (Разрешение, ориентация, производитель, камера, объектив, дата съёмки,
+    :return: словарь с 11 значениями (разрешение, ориентация, производитель, камера, объектив, дата съёмки,
     фокусное расстояние, ISO, диафрагма, выдержка, координаты GPS.
     """
     metadata = dict()
 
     try:
-        width = str(data['File:ImageWidth'])
-        height = str(data['File:ImageHeight'])
+        width = str(data['0th'][257])
+        height = str(data['0th'][256])
         metadata['Разрешение'] = width + 'x' + height
     except KeyError:
         im = Image.open(photo_directory + '/' + photofile)
@@ -79,14 +90,14 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Rotation'] = 'ver'
 
     try:
-        date = data['EXIF:DateTimeOriginal']  # делаем дату русской, а не пиндосской
+        date = data['Exif'][36867].decode('utf-8')  # делаем дату русской, а не пиндосской
         date_show = date[11:] + ' ' + date[8:10] + '.' + date[5:7] + '.' + date[0:4]
         metadata['Дата съёмки'] = date_show
     except KeyError:
         metadata['Дата съёмки'] = ''
 
     try:
-        maker = data['EXIF:Make']
+        maker = data['0th'][271].decode('utf-8')
         sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
         cur.execute(sql_str)
         try:
@@ -99,7 +110,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Производитель'] = ''
 
     try:
-        camera = data['EXIF:Model']
+        camera = data['0th'][272].decode('utf-8')
 
         sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
         cur.execute(sql_str)
@@ -113,7 +124,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Камера'] = ''
 
     try:
-        lens = data['EXIF:LensModel']
+        lens = data['Exif'][42036].decode('utf-8')
 
         sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
         cur.execute(sql_str)
@@ -127,19 +138,19 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Объектив'] = ''
 
     try:
-        FocalLength_float = data['EXIF:FocalLength']
+        FocalLength_float = data['Exif'][37386][0]/data['Exif'][37386][1]
         metadata['Фокусное расстояние'] = str(int(FocalLength_float))
     except KeyError:
         metadata['Фокусное расстояние'] = ''
 
     try:
-        FNumber_float = data['EXIF:FNumber']
+        FNumber_float = data['Exif'][33437][0]/data['Exif'][33437][1]
         metadata['Диафрагма'] = str(FNumber_float)
     except KeyError:
         metadata['Диафрагма'] = ''
 
     try:
-        expo_time = data['EXIF:ExposureTime']
+        expo_time = data['Exif'][33434][0]/data['Exif'][33434][1]
         if expo_time >= 0.1:
             expo_time_str = str(expo_time)
             metadata['Выдержка'] = expo_time_str
@@ -154,21 +165,21 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Выдержка'] = ''
 
     try:
-        iso = data['EXIF:ISO']
+        iso = data['Exif'][34855]
         metadata['ISO'] = str(iso)
     except KeyError:
         metadata['ISO'] = ''
 
     try:
-        GPSLatitudeRef = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = data['EXIF:GPSLatitude']
-        GPSLongitudeRef = data['EXIF:GPSLongitudeRef']
-        GPSLongitude = data['EXIF:GPSLongitude']
+        GPSLatitudeRef = data['GPS'][1].decode('utf-8')  # Считывание GPS из метаданных
+        GPSLatitude = data['GPS'][2]
+        GPSLongitudeRef = data['GPS'][3].decode('utf-8')
+        GPSLongitude = data['GPS'][4]
 
         if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
 
-            GPSLongitude_float = float(GPSLongitude)  # Приведение координат к десятичным числам, как на Я.Картах
-            GPSLatitude_float = float(GPSLatitude)
+            GPSLongitude_float = (GPSLongitude[0][0]/GPSLongitude[0][1]) + (GPSLongitude[1][0]/GPSLongitude[1][1])/60 + (GPSLongitude[2][0]/GPSLongitude[2][1])/3600  # Приведение координат к десятичным числам, как на Я.Картах
+            GPSLatitude_float = (GPSLatitude[0][0]/GPSLatitude[0][1]) + (GPSLatitude[1][0]/GPSLatitude[1][1])/60 + (GPSLatitude[2][0]/GPSLatitude[2][1])/3600
 
             GPSLongitude_value = round(GPSLongitude_float, 4)
             GPSLatitude_value = round(GPSLatitude_float, 4)
@@ -410,14 +421,19 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                 modify_dict['GPSLongitudeRef'] = long_ref
                 modify_dict['GPSLongitude'] = float_value_long
 
-    # Сделать сам модифай
-    if modify_dict:
-        with exiftool.ExifToolHelper() as et:
-            et.set_tags(photofile,
-                        tags=modify_dict,
-                        params=["-P", "-overwrite_original"])
+    try:
+        # Сделать сама перезапись
+        if modify_dict:
+            with exiftool.ExifToolHelper() as et:
+                et.set_tags(photofile,
+                            tags=modify_dict,
+                            params=["-P", "-overwrite_original"])
 
-    logging.info(f"Metadata - New file metadata {photofile} - {modify_dict}")
+        logging.info(f"Metadata - New file metadata {photofile} - {modify_dict}")
+    except exiftool.exceptions.ExifToolExecuteError:
+        win = ErrorsAndWarnings.EditExifError_win(parent=None)
+        win.show()
+        logging.warning(f"Metadata - Metadata rewrite error {photofile} - {modify_dict}")
 
 
 # проверка ввода при редактировании exif
@@ -560,6 +576,24 @@ def equip_name_check(equip_list: list[str], type: str) -> list[str]:
         equip_list_final = list(equip_set)
     return equip_list_final
 
+
+# проверка, является ли переданное имя - исправлением неправильного
+def equip_solo_name_check(exifname: str, type: str) -> str:
+    """
+    Для поиска в БД необходимо искать не только отображаемое значение и неправильное, которое могло быть
+    исправлено.
+    :param normname: корректное исправленное имя.
+    :param type: тип устройства.
+    :return: как оборудование автоматически пишется в exif.
+    """
+    sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{exifname}\''
+    cur.execute(sql_str)
+    try:
+        normname = cur.fetchone()[0]
+    except TypeError:
+        normname = exifname
+
+    return normname
 
 # проверка, является ли переданное имя - исправлением неправильного
 def equip_name_check_reverse(normname: str, type: str) -> str:

@@ -296,7 +296,7 @@ class AddSN(QDialog):
             sql_str = f'ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\''
             cur.execute(sql_str)
         conn.commit()
-        logging.info(f"Добавлена новая соцсеть {self.enter_name.text()}")
+        logging.info(f"New social network added {self.enter_name.text()}")
 
         self.social_network_changed.emit()
         self.accept()
@@ -379,7 +379,7 @@ class RedSN(QDialog):
             sql_str = f'ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {textwithnum}'
             cur.execute(sql_str)
         conn.commit()
-        logging.info(f"Соцсеть {self.net_oldname} переименована в {self.new_name.text()}")
+        logging.info(f"Social network {self.net_oldname} renamed into {self.new_name.text()}")
 
         self.social_network_changed.emit()
         self.accept()
@@ -437,7 +437,7 @@ class DelSN(QDialog):
         cur.execute(sql_str)
         conn.commit()
 
-        logging.info(f"Соцсеть {self.net_name} удалена")
+        logging.info(f"Social network {self.net_name} deleted")
 
         self.social_network_changed.emit()
         self.accept()

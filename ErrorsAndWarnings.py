@@ -113,7 +113,7 @@ class EditExifError_win(QDialog):
         layout = QGridLayout(self)
         self.setLayout(layout)
         lbl = QLabel(self)
-        lbl.setText('Недопустимый формат ввода')
+        lbl.setText('Ошибка ввода метаданных')
         lbl.setFont(font14)
         lbl.setStyleSheet(stylesheet2)
 
