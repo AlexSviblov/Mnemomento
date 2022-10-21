@@ -367,7 +367,7 @@ class StatisticsWidget(QWidget):
                 float_value = float(t)
             float_times.append(float_value)
 
-        picture.bar(float_times, sizes, width=0.1, color='blue', label=times)
+        picture.bar(float_times, sizes, width=0.01, color='blue', label=times)
         picture.set_xlim(0, int(max(float_times)*1.1))
         picture.set_ylim(0, max(sizes))
         # picture.set_xscale('log')
