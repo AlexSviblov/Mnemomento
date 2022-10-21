@@ -12,7 +12,7 @@ conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
 cur = conn.cursor()
 
 
-# считать весь exif из фотографии
+# считать весь exif из фотографии с помощью внешнего exe exiftool
 def read_exif(photofile: str) -> dict[str, str]:
     """
     Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
@@ -27,6 +27,7 @@ def read_exif(photofile: str) -> dict[str, str]:
     return data
 
 
+# считать весь exif из фотографии быстро с помощью piexif
 def fast_read_exif(photofile: str) -> dict[str, str]:
     """
     Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
