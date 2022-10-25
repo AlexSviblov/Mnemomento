@@ -286,7 +286,7 @@ class StatisticsWidget(QWidget):
         for root, dirs, files in os.walk(main_catalog):
             for file in files:
                 if file.endswith(".jpg") or file.endswith(".JPG"):
-                    name = root.replace('\\', '/') + '/' + file
+                    name = root.replace(r'\\', '/') + '/' + file
                     all_files.append(name)
         return all_files
 
