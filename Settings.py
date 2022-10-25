@@ -448,6 +448,11 @@ class SettingWidget(QWidget):
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.socnet_lbl.setStyleSheet(stylesheet2)
+        self.sort_type.setStyleSheet(stylesheet2)
+        self.sort_choose.setStyleSheet(stylesheet9)
+        self.logs_lbl.setStyleSheet(stylesheet2)
+        self.logs_show.setStyleSheet(stylesheet1)
+        self.logs_btn.setStyleSheet(stylesheet1)
 
     # открыть папку с логами, 1 файл указывается в пути, чтобы открыть уже саму папку, а не рабочую папку программы с выделенной папкой "логи"
     def call_explorer_logs(self):

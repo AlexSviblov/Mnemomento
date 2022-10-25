@@ -14,6 +14,7 @@ import Screenconfig
 import ShowAloneWindowWidget
 import ShowConstWindowWidget
 import SocialNetworks
+import StatisticsModule
 import Thumbnail
 import ErNamesDB
 import FilesDirs
@@ -117,6 +118,10 @@ class MainWindow(QMainWindow):
         self.bases_menu.addAction(database_ernames_menu)
         self.bases_menu.addAction(social_networks_menu)
         self.bases_menu.addAction(massive_edit_menu)
+
+        statistics_menu = QAction('Статистика', self)
+        self.menubar.addAction(statistics_menu)
+        statistics_menu.triggered.connect(self.statistics_func)
 
         global_map = QAction('Карта', self)
         self.menubar.addAction(global_map)
@@ -581,6 +586,10 @@ class MainWindow(QMainWindow):
         window_set = Settings.SettingWin(self)
         window_set.update_main_widget.connect(self.update_settings_widget)
         window_set.show()
+
+    def statistics_func(self):
+        window_stat = StatisticsModule.StatisticsWin(self)
+        window_stat.show()
 
     # восстановление
     def recovery_func(self) -> None:

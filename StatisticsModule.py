@@ -28,7 +28,6 @@ stylesheet1 = str()
 stylesheet2 = str()
 stylesheet8 = str()
 stylesheet9 = str()
-loading_icon = str()
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -155,9 +154,11 @@ class StatisticsWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle('Статистика основного каталога')
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1366, 720)
+        self.stylesheet_color()
+        self.setStyleSheet(stylesheet2)
 
         self.all_files = self.get_all_main_catalog_files()
 
@@ -187,15 +188,17 @@ class StatisticsWidget(QWidget):
 
         self.figure_shuttertime = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
         self.canvas_shuttertime  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_shuttertime )
-        self.layout.addWidget(self.canvas_shuttertime, 1, 2, 1, 1)
+        self.layout.addWidget(self.canvas_shuttertime, 1, 2, 1, 2)
 
         self.figure_fl = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
         self.canvas_fl  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fl )
-        self.layout.addWidget(self.canvas_fl, 1, 3, 1, 1)
+        self.layout.addWidget(self.canvas_fl, 0, 3, 1, 1)
 
         self.start_btn = QPushButton(self)
-        self.start_btn.setText('Start')
+        self.start_btn.setText('Пересчитать')
         self.layout.addWidget(self.start_btn, 2, 0, 1, 1)
+        self.start_btn.setStyleSheet(stylesheet8)
+        self.start_btn.setFont(font14)
         self.start_btn.clicked.connect(self.take_hour_dict)
         self.start_btn.clicked.connect(self.take_iso_dict)
         self.start_btn.clicked.connect(self.take_camera_dict)
@@ -203,6 +206,79 @@ class StatisticsWidget(QWidget):
         self.start_btn.clicked.connect(self.take_fnumber_dict)
         self.start_btn.clicked.connect(self.take_shuttertime_dict)
         self.start_btn.clicked.connect(self.take_fl_dict)
+
+        self.start_btn.click()
+
+    def stylesheet_color(self):
+        global stylesheet1
+        global stylesheet2
+        global stylesheet8
+        global icon_edit
+        global icon_delete
+
+        if Settings.get_theme_color() == 'light':
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #000000;
+                                background-color: #F0F0F0
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #C0C0C0;
+                                    margin-top: -1px
+                                }
+                            """
+        else:  # Settings.get_theme_color() == 'dark'
+            stylesheet1 =   """
+                                border: 1px;
+                                border-color: #696969;
+                                border-style: solid;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet2 =   """
+                                border: 0px;
+                                color: #D3D3D3;
+                                background-color: #1C1C1C
+                            """
+            stylesheet8 =   """
+                                QPushButton
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1C1C1C
+                                }
+                                QPushButton::pressed
+                                {
+                                    border: 2px;
+                                    background-color: #2F2F2F;
+                                    margin-top: -1px
+                                }
+                            """
+
+        try:
+            self.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
 
     def get_all_main_catalog_files(self):
         all_files = []
@@ -321,6 +397,10 @@ class StatisticsWidget(QWidget):
         self.make_fnumber_graphic(result)
 
     def make_fnumber_graphic(self, hd):
+        def func_pct(pct, allvals):
+            absolute = int(round((pct/100)*sum(allvals)))
+            return "{:.1f}%\n({:d})".format(pct, absolute)
+
         self.figure_fnumber.clear()
         picture = self.figure_fnumber.add_subplot(111)
         sizes = list(hd.values())
@@ -328,7 +408,8 @@ class StatisticsWidget(QWidget):
         labels = []
         for i in range(len(sizes)):
             labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
+        # wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
+        wedges = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))[0]
         picture.legend(wedges, labels, loc='best')
 
         picture.set_title('Диафрагма')
@@ -345,6 +426,21 @@ class StatisticsWidget(QWidget):
         self.make_shuttertime_graphic(result)
 
     def make_shuttertime_graphic(self, hd):
+        def clear_labels(float_times, labels):
+            near_cleared = []
+            for i in range(len(float_times)):
+                for j in range(len(float_times)):
+                    if i == j:
+                        pass
+                    else:
+                        if abs(float_times[i] - float_times[j]) < 2:
+                            if float_times[j] in near_cleared:
+                                pass
+                            else:
+                                near_cleared.append(float_times[i])
+                                labels[j] = ''
+            return labels
+
         self.figure_shuttertime.clear()
         # picture = self.figure_shuttertime.add_subplot(111)
         # sizes = list(hd.values())
@@ -356,21 +452,23 @@ class StatisticsWidget(QWidget):
         # picture.legend(wedges, labels, loc='best')
 
         picture = self.figure_shuttertime.add_subplot(111)
-        picture.grid(True)
+        # picture.grid(True)
         sizes = list(hd.values())
         times = list(hd.keys())
         float_times = []
         for t in times:
             if len(t.split('/')) == 2:
-                float_value = float(int(t.split('/')[0])/int(t.split('/')[1]))
+                float_value_buf = float(int(t.split('/')[0])/int(t.split('/')[1]))
+                float_value = float((-1)*(1/float_value_buf)/50)
             else:
                 float_value = float(t)
             float_times.append(float_value)
 
-        picture.bar(float_times, sizes, width=0.01, color='blue', label=times)
-        picture.set_xlim(0, int(max(float_times)*1.1))
+
+        picture.bar(float_times, sizes, width=1, color='blue', tick_label=clear_labels(float_times, times), align='center')
+        picture.set_xlim(int(min(float_times)*1.1), int(max(float_times)*1.1))
         picture.set_ylim(0, max(sizes))
-        # picture.set_xscale('log')
+        matplotlib.artist.setp(picture.get_xticklabels(), rotation=90, horizontalalignment='center')
 
         self.figure_shuttertime.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
@@ -390,10 +488,10 @@ class StatisticsWidget(QWidget):
     def make_fl_graphic(self, hd):
         self.figure_fl.clear()
         picture = self.figure_fl.add_subplot(111)
-        picture.grid(True)
+        # picture.grid(True)
         sizes = list(hd.values())
         length = list(hd.keys())
-        picture.bar(length, sizes, width=1, align='edge', color='blue')
+        picture.bar(length, sizes, width=1, align='center', color='blue')
         picture.set_xlim(0, int(max(length)*1.1))
         picture.set_ylim(0, max(sizes))
 
