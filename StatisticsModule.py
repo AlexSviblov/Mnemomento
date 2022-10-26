@@ -7,6 +7,7 @@ import matplotlib
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, pyqtSignal
+import exiftool
 
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
 from matplotlib.ticker import MaxNLocator
@@ -656,8 +657,19 @@ class FnumberLooter(QtCore.QThread):
                     self.fnumber_dict[fnumber] += 1
                 except KeyError:
                     self.fnumber_dict[fnumber] = 1
-            except KeyError:
-                pass
+            except (KeyError, ValueError):
+                try:
+                    with exiftool.ExifToolHelper() as et:
+                        fnumber = et.execute("-EXIF:FNumber", file)
+                        if fnumber:
+                            try:
+                                self.fnumber_dict[fnumber] += 1
+                            except KeyError:
+                                self.fnumber_dict[fnumber] = 1
+                        else:
+                            pass
+                except exiftool.exceptions.ExifToolExecuteError:
+                    pass
 
         result = dict(sorted(self.fnumber_dict.items()))
 
