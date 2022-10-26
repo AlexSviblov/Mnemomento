@@ -166,7 +166,7 @@ class StatisticsWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(5)
 
-        self.figure_hours = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
+        self.figure_hours = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
         self.canvas_hours = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_hours)
         self.layout.addWidget(self.canvas_hours, 0, 0, 1, 1)
 
@@ -282,11 +282,15 @@ class StatisticsWidget(QWidget):
 
     def get_all_main_catalog_files(self):
         all_files = []
-        main_catalog = Settings.get_destination_media() + r'\\Media\\Photo\\const'
+        main_catalog = Settings.get_destination_media() + r'/Media/Photo/const'
         for root, dirs, files in os.walk(main_catalog):
             for file in files:
                 if file.endswith(".jpg") or file.endswith(".JPG"):
-                    name = root.replace(r'\\', '/') + '/' + file
+                    root_name = str(root)
+                    root_name = root_name.replace(r'\\', '/')
+                    root_name = root_name.replace('\\', '/')
+                    root_name = root_name.replace('//', '/')
+                    name = root_name + '/' + file
                     all_files.append(name)
         return all_files
 
