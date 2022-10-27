@@ -633,7 +633,10 @@ class AloneWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text, self.photo_directory)
+        try:
+            metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text, self.photo_directory)
+        except ValueError:
+            metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']
 

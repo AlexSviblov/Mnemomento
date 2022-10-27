@@ -29,6 +29,10 @@ stylesheet1 = str()
 stylesheet2 = str()
 stylesheet8 = str()
 stylesheet9 = str()
+text_color = str()
+plot_back_color = str()
+bar_color = str()
+area_color = str()
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -56,7 +60,10 @@ class StatisticsWin(QMainWindow):
         global stylesheet2
         global stylesheet8
         global stylesheet9
-        global loading_icon
+        global text_color
+        global plot_back_color
+        global bar_color
+        global area_color
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = """
@@ -101,7 +108,10 @@ class StatisticsWin(QMainWindow):
                                     selection-background-color: #C0C0C0;
                                 }
                             """
-            loading_icon = os.getcwd() + '/icons/loading_light.gif'
+            text_color = "black"
+            plot_back_color = "white"
+            bar_color = "blue"
+            area_color = "#F4F4F4"
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = """
                                 border: 1px;
@@ -145,7 +155,10 @@ class StatisticsWin(QMainWindow):
                                     selection-background-color: #4F4F4F;
                                 }
                             """
-            loading_icon = os.getcwd() + '/icons/loading_dark.gif'
+            text_color = "white"
+            plot_back_color = "grey"
+            bar_color = "yellow"
+            area_color = "#181818"
 
 
 # сами настройки (виджет)
@@ -158,7 +171,6 @@ class StatisticsWidget(QWidget):
         self.setWindowTitle('Статистика основного каталога')
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1366, 720)
-        self.stylesheet_color()
         self.setStyleSheet(stylesheet2)
 
         self.all_files = self.get_all_main_catalog_files()
@@ -171,28 +183,28 @@ class StatisticsWidget(QWidget):
         self.canvas_hours = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_hours)
         self.layout.addWidget(self.canvas_hours, 0, 0, 1, 1)
 
-        self.figure_camera = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
+        self.figure_camera = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
         self.canvas_camera = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_camera)
         self.layout.addWidget(self.canvas_camera, 0, 1, 1, 1)
 
-        self.figure_lens = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
+        self.figure_lens = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
         self.canvas_lens = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_lens)
         self.layout.addWidget(self.canvas_lens, 0, 2, 1, 1)
 
-        self.figure_iso = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
+        self.figure_iso = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
         self.canvas_iso = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_iso)
         self.layout.addWidget(self.canvas_iso, 1, 0, 1, 1)
 
-        self.figure_fnumber = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
+        self.figure_fnumber = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
         self.canvas_fnumber = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fnumber)
         self.layout.addWidget(self.canvas_fnumber, 1, 1, 1, 1)
 
-        self.figure_shuttertime = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
-        self.canvas_shuttertime  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_shuttertime )
-        self.layout.addWidget(self.canvas_shuttertime, 1, 2, 1, 2)
+        self.figure_exposuretime = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_exposuretime  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_exposuretime )
+        self.layout.addWidget(self.canvas_exposuretime, 1, 2, 1, 2)
 
-        self.figure_fl = matplotlib.pyplot.figure(figsize=(7, 7), dpi=80)
-        self.canvas_fl  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fl )
+        self.figure_fl = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_fl = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fl)
         self.layout.addWidget(self.canvas_fl, 0, 3, 1, 1)
 
         self.start_btn = QPushButton(self)
@@ -205,81 +217,10 @@ class StatisticsWidget(QWidget):
         self.start_btn.clicked.connect(self.take_camera_dict)
         self.start_btn.clicked.connect(self.take_lens_dict)
         self.start_btn.clicked.connect(self.take_fnumber_dict)
-        self.start_btn.clicked.connect(self.take_shuttertime_dict)
+        self.start_btn.clicked.connect(self.take_exposuretime_dict)
         self.start_btn.clicked.connect(self.take_fl_dict)
 
         self.start_btn.click()
-
-    def stylesheet_color(self):
-        global stylesheet1
-        global stylesheet2
-        global stylesheet8
-        global icon_edit
-        global icon_delete
-
-        if Settings.get_theme_color() == 'light':
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet8 =   """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #C0C0C0;
-                                    margin-top: -1px
-                                }
-                            """
-        else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet8 =   """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1C1C1C
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #2F2F2F;
-                                    margin-top: -1px
-                                }
-                            """
-
-        try:
-            self.setStyleSheet(stylesheet2)
-        except AttributeError:
-            pass
 
     def get_all_main_catalog_files(self):
         all_files = []
@@ -302,21 +243,29 @@ class StatisticsWidget(QWidget):
 
     def take_hour_ready(self, result):
         self.time_looter = None
-        self.make_time_graphic(result)
+        self.make_hour_graphic(result)
 
-    def make_time_graphic(self, hd):
+    def make_hour_graphic(self, hd):
         self.figure_hours.clear()
+        self.figure_hours.patch.set_facecolor(area_color)
         picture = self.figure_hours.add_subplot(111)
         sizes = list(hd.values())
         values = list(hd.keys())
         picture.grid(True)
-        picture.bar(values, sizes, width=1, align='edge', color='blue')
+        picture.bar(values, sizes, width=1, align='edge', color=bar_color)
         picture.set_xlim(0, 24)
         picture.set_ylim(0, hd[max(hd, key=hd.get)])
         self.figure_hours.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
         picture.set_yticks([i for i in range(0, hd[max(hd, key=hd.get)]+1)])
 
-        picture.set_title('Время съёмки')
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('Время съёмки', color=text_color)
+        picture.set_xlabel('часы', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
 
         self.figure_hours.tight_layout()
         self.canvas_hours.draw()
@@ -332,17 +281,22 @@ class StatisticsWidget(QWidget):
 
     def make_camera_graphic(self, hd):
         self.figure_camera.clear()
+        self.figure_camera.patch.set_facecolor(area_color)
         picture = self.figure_camera.add_subplot(111)
         sizes = list(hd.values())
         hd_keys = list(hd.keys())
         labels = []
         for i in range(len(sizes)):
             labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
-        picture.legend(wedges, labels, loc='best')
-        picture.set_title('Камеры')
+        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
+        for autotext in autotexts:
+            autotext.set_color(text_color)
+        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+        picture.set_title('Камеры', color=text_color)
         self.figure_camera.tight_layout()
         self.canvas_camera.draw()
+
+        picture.set_facecolor(plot_back_color)
 
     def take_lens_dict(self):
         self.lens_looter = LensLooter(self.all_files)
@@ -355,18 +309,22 @@ class StatisticsWidget(QWidget):
 
     def make_lens_graphic(self, hd):
         self.figure_lens.clear()
+        self.figure_lens.patch.set_facecolor(area_color)
         picture = self.figure_lens.add_subplot(111)
         sizes = list(hd.values())
         hd_keys = list(hd.keys())
         labels = []
         for i in range(len(sizes)):
             labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
-        picture.legend(wedges, labels, loc='best')
-
-        picture.set_title('Объективы')
+        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
+        for autotext in autotexts:
+            autotext.set_color(text_color)
+        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+        picture.set_title('Объективы', color=text_color)
         self.figure_lens.tight_layout()
         self.canvas_lens.draw()
+
+        picture.set_facecolor(plot_back_color)
 
     def take_iso_dict(self):
         self.iso_looter = IsoLooter(self.all_files)
@@ -379,18 +337,23 @@ class StatisticsWidget(QWidget):
 
     def make_iso_graphic(self, hd):
         self.figure_iso.clear()
+        self.figure_iso.patch.set_facecolor(area_color)
         picture = self.figure_iso.add_subplot(111)
         sizes = list(hd.values())
         hd_keys = list(hd.keys())
         labels = []
         for i in range(len(sizes)):
             labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
-        picture.legend(wedges, labels, loc='best')
+        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
+        for autotext in autotexts:
+            autotext.set_color(text_color)
+        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
 
-        picture.set_title('ISO')
+        picture.set_title('ISO', color=text_color)
         self.figure_iso.tight_layout()
         self.canvas_iso.draw()
+
+        picture.set_facecolor(plot_back_color)
 
     def take_fnumber_dict(self):
         self.fnumber_looter = FnumberLooter(self.all_files)
@@ -407,30 +370,34 @@ class StatisticsWidget(QWidget):
             return "{:.1f}%\n({:d})".format(pct, absolute)
 
         self.figure_fnumber.clear()
+        self.figure_fnumber.patch.set_facecolor(area_color)
         picture = self.figure_fnumber.add_subplot(111)
         sizes = list(hd.values())
         hd_keys = list(hd.keys())
         labels = []
         for i in range(len(sizes)):
             labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        # wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
-        wedges = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))[0]
-        picture.legend(wedges, labels, loc='best')
+        wedges, _, autotexts = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))
+        for autotext in autotexts:
+            autotext.set_color(text_color)
+        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
 
-        picture.set_title('Диафрагма')
+        picture.set_title('Диафрагма', color=text_color)
         self.figure_fnumber.tight_layout()
         self.canvas_fnumber.draw()
 
-    def take_shuttertime_dict(self):
-        self.shuttertime_looter = ShutterTimeLooter(self.all_files)
-        self.shuttertime_looter.start()
-        self.shuttertime_looter.finished.connect(lambda result: self.take_shuttertime_ready(result))
+        picture.set_facecolor(plot_back_color)
 
-    def take_shuttertime_ready(self, result):
-        self.shuttertime_looter = None
-        self.make_shuttertime_graphic(result)
+    def take_exposuretime_dict(self):
+        self.exposuretime_looter = ExposureTimeLooter(self.all_files)
+        self.exposuretime_looter.start()
+        self.exposuretime_looter.finished.connect(lambda result: self.take_exposuretime_ready(result))
 
-    def make_shuttertime_graphic(self, hd):
+    def take_exposuretime_ready(self, result):
+        self.exposuretime_looter = None
+        self.make_exposuretime_graphic(result)
+
+    def make_exposuretime_graphic(self, hd):
         def clear_labels(float_times, labels):
             near_cleared = []
             for i in range(len(float_times)):
@@ -446,18 +413,11 @@ class StatisticsWidget(QWidget):
                                 labels[j] = ''
             return labels
 
-        self.figure_shuttertime.clear()
-        # picture = self.figure_shuttertime.add_subplot(111)
-        # sizes = list(hd.values())
-        # hd_keys = list(hd.keys())
-        # labels = []
-        # for i in range(len(sizes)):
-        #     labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        # wedges = picture.pie(sizes, autopct='%1.1f%%')[0]
-        # picture.legend(wedges, labels, loc='best')
+        self.figure_exposuretime.clear()
+        self.figure_exposuretime.patch.set_facecolor(area_color)
 
-        picture = self.figure_shuttertime.add_subplot(111)
-        # picture.grid(True)
+        picture = self.figure_exposuretime.add_subplot(111)
+        picture.grid(False)
         sizes = list(hd.values())
         times = list(hd.keys())
         float_times = []
@@ -470,16 +430,24 @@ class StatisticsWidget(QWidget):
             float_times.append(float_value)
 
 
-        picture.bar(float_times, sizes, width=1, color='blue', tick_label=clear_labels(float_times, times), align='center')
+        picture.bar(float_times, sizes, width=1, color=bar_color, tick_label=clear_labels(float_times, times), align='center')
         picture.set_xlim(int(min(float_times)*1.1), int(max(float_times)*1.1))
         picture.set_ylim(0, max(sizes))
         matplotlib.artist.setp(picture.get_xticklabels(), rotation=90, horizontalalignment='center')
 
-        self.figure_shuttertime.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+        self.figure_exposuretime.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
-        picture.set_title('Выдержка')
-        self.figure_shuttertime.tight_layout()
-        self.canvas_shuttertime.draw()
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('Выдержка', color=text_color)
+        picture.set_xlabel('секунды', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_exposuretime.tight_layout()
+        self.canvas_exposuretime.draw()
 
     def take_fl_dict(self):
         self.fl_looter = FocalLengthLooter(self.all_files)
@@ -492,17 +460,27 @@ class StatisticsWidget(QWidget):
 
     def make_fl_graphic(self, hd):
         self.figure_fl.clear()
+        self.figure_fl.patch.set_facecolor(area_color)
+
         picture = self.figure_fl.add_subplot(111)
-        # picture.grid(True)
+        picture.grid(False)
         sizes = list(hd.values())
         length = list(hd.keys())
-        picture.bar(length, sizes, width=1, align='center', color='blue')
+        picture.bar(length, sizes, width=1, align='center', color=bar_color)
         picture.set_xlim(0, int(max(length)*1.1))
         picture.set_ylim(0, max(sizes))
 
         self.figure_fl.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
-        picture.set_title('Фокусное расстояние')
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('Фокусное расстояние', color=text_color)
+        picture.set_xlabel('миллиметры', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
         self.figure_fl.tight_layout()
         self.canvas_fl.draw()
 
@@ -523,8 +501,22 @@ class HoursLooter(QtCore.QThread):
             try:
                 hour = piexif.load(file)['Exif'][36867].decode('utf-8')[-8:-6]
                 self.hours_dict[int(hour)] += 1
-            except KeyError:
-                pass
+            except (ValueError, KeyError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            hour = int(et.execute("-EXIF:DateTimeOriginal", file)[-8:-6])
+                            if hour:
+                                try:
+                                    self.hours_dict[hour] += 1
+                                except KeyError:
+                                    self.hours_dict[hour] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
+                    pass
 
         self.finished.emit(self.hours_dict)
 
@@ -543,12 +535,28 @@ class CameraLooter(QtCore.QThread):
         for file in self.all_files:
             try:
                 camera = piexif.load(file)['0th'][272].decode('utf-8')
-                try:
-                    self.camera_dict[camera] += 1
-                except KeyError:
-                    self.camera_dict[camera] = 1
-            except KeyError:
-                pass
+                if camera:
+                    try:
+                        self.camera_dict[camera] += 1
+                    except KeyError:
+                        self.camera_dict[camera] = 1
+            except (ValueError, KeyError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            camera_exif = et.execute("-EXIF:Model", file)
+                            if camera_exif:
+                                camera = camera_exif.split(':')[-1]
+                                try:
+                                    self.camera_dict[camera] += 1
+                                except KeyError:
+                                    self.camera_dict[camera] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
+                    pass
 
         result ={}
         for camera in list(self.camera_dict.keys()):
@@ -585,12 +593,28 @@ class LensLooter(QtCore.QThread):
         for file in self.all_files:
             try:
                 lens = piexif.load(file)['Exif'][42036].decode('utf-8')
-                try:
-                    self.lens_dict[lens] += 1
-                except KeyError:
-                    self.lens_dict[lens] = 1
-            except KeyError:
-                pass
+                if lens:
+                    try:
+                        self.lens_dict[lens] += 1
+                    except KeyError:
+                        self.lens_dict[lens] = 1
+            except (ValueError, KeyError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            lens_exif = et.execute("-EXIF:LensModel", file)
+                            if lens_exif:
+                                lens = lens_exif.split(':')[-1]
+                                try:
+                                    self.lens_dict[lens] += 1
+                                except KeyError:
+                                    self.lens_dict[lens] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
+                    pass
 
         result ={}
         for lens in list(self.lens_dict.keys()):
@@ -627,12 +651,28 @@ class IsoLooter(QtCore.QThread):
         for file in self.all_files:
             try:
                 iso = piexif.load(file)['Exif'][34855]
-                try:
-                    self.iso_dict[int(iso)] += 1
-                except KeyError:
-                    self.iso_dict[int(iso)] = 1
-            except KeyError:
-                pass
+                if iso:
+                    try:
+                        self.iso_dict[int(iso)] += 1
+                    except KeyError:
+                        self.iso_dict[int(iso)] = 1
+            except (KeyError, ValueError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            iso_exif = et.execute("-EXIF:ISO", file)
+                            if iso_exif:
+                                iso = int(iso_exif.split(':')[-1])
+                                try:
+                                    self.iso_dict[iso] += 1
+                                except KeyError:
+                                    self.iso_dict[iso] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
+                    pass
 
         result = dict(sorted(self.iso_dict.items()))
 
@@ -653,22 +693,27 @@ class FnumberLooter(QtCore.QThread):
         for file in self.all_files:
             try:
                 fnumber = piexif.load(file)['Exif'][33437][0]/piexif.load(file)['Exif'][33437][1]
-                try:
-                    self.fnumber_dict[fnumber] += 1
-                except KeyError:
-                    self.fnumber_dict[fnumber] = 1
-            except (KeyError, ValueError):
-                try:
-                    with exiftool.ExifToolHelper() as et:
-                        fnumber = et.execute("-EXIF:FNumber", file)
-                        if fnumber:
-                            try:
-                                self.fnumber_dict[fnumber] += 1
-                            except KeyError:
-                                self.fnumber_dict[fnumber] = 1
-                        else:
-                            pass
-                except exiftool.exceptions.ExifToolExecuteError:
+                if fnumber:
+                    try:
+                        self.fnumber_dict[fnumber] += 1
+                    except KeyError:
+                        self.fnumber_dict[fnumber] = 1
+            except (ValueError, KeyError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            fnumber_exif = et.execute("-EXIF:FNumber", file)
+                            if fnumber_exif:
+                                fnumber = float(fnumber_exif.split(':')[-1])
+                                try:
+                                    self.fnumber_dict[fnumber] += 1
+                                except KeyError:
+                                    self.fnumber_dict[fnumber] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
                     pass
 
         result = dict(sorted(self.fnumber_dict.items()))
@@ -676,7 +721,7 @@ class FnumberLooter(QtCore.QThread):
         self.finished.emit(result)
         
 
-class ShutterTimeLooter(QtCore.QThread):
+class ExposureTimeLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
 
     def __init__(self, files):
@@ -690,20 +735,40 @@ class ShutterTimeLooter(QtCore.QThread):
         for file in self.all_files:
             try:
                 time = piexif.load(file)['Exif'][33434][0]/piexif.load(file)['Exif'][33434][1]
-                if time >= 0.1:
-                    expo_time = str(time)
-                else:
+                if time:
+                    if time >= 0.1:
+                        expo_time = str(time)
+                    else:
+                        try:
+                            denominator = 1 / time
+                            expo_time = f"1/{int(denominator)}"
+                        except ZeroDivisionError:
+                            expo_time = 0
                     try:
-                        denominator = 1 / time
-                        expo_time = f"1/{int(denominator)}"
-                    except ZeroDivisionError:
-                        expo_time = 0
-                try:
-                    self.time_dict[expo_time] += 1
-                except KeyError:
-                    self.time_dict[expo_time] = 1
-            except KeyError:
-                pass
+                        self.time_dict[expo_time] += 1
+                    except KeyError:
+                        self.time_dict[expo_time] = 1
+            except (KeyError, ValueError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            time_exif = et.execute("-EXIF:ExposureTime", file)
+                            if time_exif:
+                                time_raw = float(time_exif.split(':')[-1])
+                                if time_raw > 0.1:
+                                    time = str(time_raw)
+                                else:
+                                    time = f"1/{int(1/time_raw)}"
+                                try:
+                                    self.time_dict[time] += 1
+                                except KeyError:
+                                    self.time_dict[time] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
+                    pass
 
         result = dict(sorted(self.time_dict.items()))
 
@@ -724,12 +789,28 @@ class FocalLengthLooter(QtCore.QThread):
         for file in self.all_files:
             try:
                 fl = piexif.load(file)['Exif'][37386][0]/piexif.load(file)['Exif'][37386][1]
-                try:
-                    self.fl_dict[fl] += 1
-                except KeyError:
-                    self.fl_dict[fl] = 1
-            except KeyError:
-                pass
+                if fl:
+                    try:
+                        self.fl_dict[fl] += 1
+                    except KeyError:
+                        self.fl_dict[fl] = 1
+            except (KeyError, ValueError) as error:
+                if type(error) == ValueError:
+                    try:
+                        with exiftool.ExifToolHelper() as et:
+                            fl_exif = et.execute("-EXIF:FocalLength", file)
+                            if fl_exif:
+                                fl = int(fl_exif.split(':')[-1])
+                                try:
+                                    self.fl_dict[fl] += 1
+                                except KeyError:
+                                    self.fl_dict[fl] = 1
+                            else:
+                                pass
+                    except exiftool.exceptions.ExifToolExecuteError:
+                        pass
+                else:
+                    pass
 
         result = dict(sorted(self.fl_dict.items()))
 

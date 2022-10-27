@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from pathlib import Path
+import logging
 
 import PhotoDataDB
 import Screenconfig
@@ -474,7 +475,8 @@ class ConstWidgetWindow(QWidget):
         thumbnails_list = list()
         for photo in photo_list:
             photo_splitted = photo.split('/')
-            thumb_dir = Settings.get_destination_thumb() + f'/thumbnail/const/{photo_splitted[-4]}/{photo_splitted[-3]}/{photo_splitted[-2]}/'
+            thumb_dir = Settings.get_destination_thumb() + \
+                        f'/thumbnail/const/{photo_splitted[-4]}/{photo_splitted[-3]}/{photo_splitted[-2]}/'
             thumb_names.append(photo_splitted[-1])
 
             if os.path.exists(thumb_dir + 'thumbnail_' + photo_splitted[-1]):
@@ -716,7 +718,13 @@ class ConstWidgetWindow(QWidget):
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
-        metadata = Metadata.filter_exif(Metadata.fast_read_exif(self.photo_file), self.last_clicked_name, self.photo_directory)
+        try:
+            metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.last_clicked_name,
+                                                 self.photo_directory)
+        except ValueError:
+            metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name,
+                                                 self.photo_directory)
+
         self.photo_rotation = metadata['Rotation']
 
         try:

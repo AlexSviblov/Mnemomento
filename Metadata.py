@@ -64,7 +64,7 @@ def date_from_exif(data: dict) -> tuple[int, str, str, str]:
 
 
 # из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
-def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
+def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
     """
     Фильтрация всех метаданных, оставляет только те, что показываются при просмотре фотографии в таблице.
     :param data: словарь, содержащий все метаданные.
@@ -181,6 +181,146 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
             GPSLongitude_float = (GPSLongitude[0][0]/GPSLongitude[0][1]) + (GPSLongitude[1][0]/GPSLongitude[1][1])/60 + (GPSLongitude[2][0]/GPSLongitude[2][1])/3600  # Приведение координат к десятичным числам, как на Я.Картах
             GPSLatitude_float = (GPSLatitude[0][0]/GPSLatitude[0][1]) + (GPSLatitude[1][0]/GPSLatitude[1][1])/60 + (GPSLatitude[2][0]/GPSLatitude[2][1])/3600
+
+            GPSLongitude_value = round(GPSLongitude_float, 4)
+            GPSLatitude_value = round(GPSLatitude_float, 4)
+
+            if GPSLongitudeRef == 'E':
+                pass
+            else:
+                GPSLongitude_value = GPSLongitude_value * (-1)
+
+            if GPSLatitudeRef == 'N':
+                pass
+            else:
+                GPSLatitude_value = GPSLatitude_value * (-1)
+
+            metadata['GPS'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
+        else:
+            metadata['GPS'] = ''
+    except KeyError:
+        metadata['GPS'] = ''
+
+    return metadata
+
+
+# из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
+def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
+    """
+    Фильтрация всех метаданных, оставляет только те, что показываются при просмотре фотографии в таблице.
+    :param data: словарь, содержащий все метаданные.
+    :param photofile: имя файла.
+    :param photo_directory: директория хранения файла.
+    :return: словарь с 11 значениями (разрешение, ориентация, производитель, камера, объектив, дата съёмки,
+    фокусное расстояние, ISO, диафрагма, выдержка, координаты GPS.
+    """
+    metadata = dict()
+
+    try:
+        width = str(data['File:ImageWidth'])
+        height = str(data['File:ImageHeight'])
+        metadata['Разрешение'] = width + 'x' + height
+    except KeyError:
+        im = Image.open(photo_directory + '/' + photofile)
+        width, height = im.size
+        metadata['Разрешение'] = str(width) + 'x' + str(height)
+        im.close()
+
+    if width > height:  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
+        metadata['Rotation'] = 'gor'
+    else:
+        metadata['Rotation'] = 'ver'
+
+    try:
+        date = data['EXIF:DateTimeOriginal']  # делаем дату русской, а не пиндосской
+        date_show = date[11:] + ' ' + date[8:10] + '.' + date[5:7] + '.' + date[0:4]
+        metadata['Дата съёмки'] = date_show
+    except KeyError:
+        metadata['Дата съёмки'] = ''
+
+    try:
+        maker = data['EXIF:Make']
+        sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
+        cur.execute(sql_str)
+        try:
+            maker = cur.fetchone()[0]
+        except TypeError:
+            pass
+        metadata['Производитель'] = maker
+    except KeyError:
+        metadata['Производитель'] = ''
+
+    try:
+        camera = data['EXIF:Model']
+
+        sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
+        cur.execute(sql_str)
+        try:
+            camera = cur.fetchone()[0]
+        except TypeError:
+            pass
+
+        metadata['Камера'] = camera
+    except KeyError:
+        metadata['Камера'] = ''
+
+    try:
+        lens = data['EXIF:LensModel']
+
+        sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
+        cur.execute(sql_str)
+        try:
+            lens = cur.fetchone()[0]
+        except TypeError:
+            pass
+
+        metadata['Объектив'] = lens
+    except KeyError:
+        metadata['Объектив'] = ''
+
+    try:
+        FocalLength_float = data['FocalLength']
+        metadata['Фокусное расстояние'] = str(int(FocalLength_float))
+    except KeyError:
+        metadata['Фокусное расстояние'] = ''
+
+    try:
+        FNumber_float = data['EXIF:FNumber']
+        metadata['Диафрагма'] = str(FNumber_float)
+    except KeyError:
+        metadata['Диафрагма'] = ''
+
+    try:
+        expo_time = float(data['EXIF:ExposureTime'])
+        if expo_time >= 0.1:
+            expo_time_str = str(expo_time)
+            metadata['Выдержка'] = expo_time_str
+        else:
+            try:
+                denominator = 1 / expo_time
+                expo_time_fraction = f"1/{int(denominator)}"
+            except ZeroDivisionError:
+                expo_time_fraction = 0
+            metadata['Выдержка'] = expo_time_fraction
+    except KeyError:
+        metadata['Выдержка'] = ''
+
+    try:
+        iso = data['EXIF:ISO']
+        metadata['ISO'] = str(iso)
+    except KeyError:
+        metadata['ISO'] = ''
+
+    try:
+        GPSLatitudeRef = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
+        GPSLatitude = data['EXIF:GPSLatitude']
+        GPSLongitudeRef = data['EXIF:GPSLongitudeRef']
+        GPSLongitude = data['EXIF:GPSLongitude']
+
+        if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
+
+            GPSLatitude_float = float(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
+            GPSLongitude_float = float(GPSLongitude)
 
             GPSLongitude_value = round(GPSLongitude_float, 4)
             GPSLatitude_value = round(GPSLatitude_float, 4)
@@ -596,6 +736,7 @@ def equip_solo_name_check(exifname: str, type: str) -> str:
 
     return normname
 
+
 # проверка, является ли переданное имя - исправлением неправильного
 def equip_name_check_reverse(normname: str, type: str) -> str:
     """
@@ -637,70 +778,58 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
     :param photo_file: абсолютный путь к фотографии
     :return: фотография нормально повёрнута
     """
-    try:
-        try:
-            width = data['EXIF:ImageWidth']
-            height = data['EXIF:ImageHeight']
-        except KeyError:
-            meta_orientation = data['EXIF:Orientation']
-            im = Image.open(photo_file)
-            exif_dict = piexif.load(im.info["exif"])
-            exif_bytes = piexif.dump(exif_dict)
-            match meta_orientation:
-                case 1:
-                    im_flipped = im
-                    width = data['File:ImageWidth']
-                    height = data['File:ImageHeight']
-                case 2:
-                    im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                    width = data['File:ImageWidth']
-                    height = data['File:ImageHeight']
-                case 3:
-                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
-                    width = data['File:ImageWidth']
-                    height = data['File:ImageHeight']
-                case 4:
-                    im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-                    width = data['File:ImageWidth']
-                    height = data['File:ImageHeight']
-                case 5:
-                    im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                    # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-                    im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-                    width = data['File:ImageHeight']
-                    height = data['File:ImageWidth']
-                case 6:
-                    # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-                    width = data['File:ImageHeight']
-                    height = data['File:ImageWidth']
-                case 7:
-                    im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                    # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-                    im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-                    width = data['File:ImageHeight']
-                    height = data['File:ImageWidth']
-                case 8:
-                    # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-                    im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-                    width = data['File:ImageHeight']
-                    height = data['File:ImageWidth']
-                case _:
-                    im_flipped = im
-                    width = data['File:ImageWidth']
-                    height = data['File:ImageHeight']
+    meta_orientation = data['EXIF:Orientation']
+    im = Image.open(photo_file)
+    file_exif = data
+    for key in list(file_exif.keys()):
+        if 'EXIF' in key or 'Composite' in key:
+            pass
+        else:
+            file_exif.pop(key)
 
-            im_flipped.save(photo_file, 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+    match meta_orientation:
+        case 1:
+            im_flipped = im
+        case 2:
+            im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+        case 3:
+            im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
+        case 4:
+            im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+        case 5:
+            im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+            # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+            im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+        case 6:
+            # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+            im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+        case 7:
+            im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+            # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+            im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+        case 8:
+            # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+            im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+        case _:
+            im_flipped = im
 
-            im.close()
-            im_flipped.close()
-            write_normal_photo_size(photo_file, int(width), int(height))
-    except KeyError:
-        im = Image.open(photo_file)
-        width = im.width
-        height = im.height
-        im.close()
-        write_normal_photo_size(photo_file, int(width), int(height))
+    # im_flipped.save(photo_file, 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+    im_flipped.save(photo_file, 'jpeg', quality=95, subsampling=0)
+
+    im.close()
+    im_flipped.close()
+
+    im = Image.open(photo_file)
+    width = im.width
+    height = im.height
+    im.close()
+
+    with exiftool.ExifToolHelper() as et:
+        et.set_tags(photo_file,
+                            tags=file_exif,
+                            params=["-P", "-overwrite_original"])
+
+    write_normal_photo_size(photo_file, int(width), int(height))
 
 
 # записать в метаданные нормально ширину и высоту картинки
