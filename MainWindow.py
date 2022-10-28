@@ -8,7 +8,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import *
 from pathlib import Path
 
-
+import AboutSoft
 import EditManyFiles
 import OnlyShowWidget
 import Screenconfig
@@ -55,6 +55,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle("Мнемоменто")
+        # TODO: запулить сюда эмблему
         self.setWindowIcon(QtGui.QIcon(""))
 
         # Меньше невозможно сделать окно
@@ -394,7 +395,7 @@ class MainWindow(QMainWindow):
         self.add_files_progress.start()
 
     # добавить в доп.каталог файлы
-    def func_add_alone_files(self, dir_to_add) -> None:
+    def func_add_alone_files(self, dir_to_add: str) -> None:
         self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
         file_list = self.add_files_chosen[0]
         if not file_list:
@@ -453,7 +454,7 @@ class MainWindow(QMainWindow):
         self.view_files_progress.start()
 
     # По окончании добавления файлов в основной каталог, запустить виджет его показа
-    def finish_thread_add_const(self, files_exists: list, files_permissions) -> None:
+    def finish_thread_add_const(self, files_exists: list[str], files_permissions: list[str]) -> None:
         # win = PhotoExistsWarning(self, files)
         if files_exists:
             win1 = ErrorsAndWarnings.PhotoExists(self, files_exists, "const")
@@ -504,7 +505,8 @@ class MainWindow(QMainWindow):
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         self.setCentralWidget(widget)
 
-    def show_global_map(self):
+    # карта снимков
+    def show_global_map(self) -> None:
         widget = GlobalMap.GlobalMapWidget()
         self.setCentralWidget(widget)
 
@@ -519,7 +521,8 @@ class MainWindow(QMainWindow):
         widget.const_add_dir_signal.connect(self.func_add_const_dir)
         widget.last_opened_clicked.connect(lambda file: self.last_opened_show(file))
 
-    def last_opened_show(self, photofile):
+    # открыть дату с последней открытой фотографией
+    def last_opened_show(self, photofile: str) -> None:
         file_splitted = photofile.split('/')
         if 'const' in file_splitted:
             self.show_main_const_widget()
@@ -591,7 +594,8 @@ class MainWindow(QMainWindow):
         window_set.update_main_widget.connect(self.update_settings_widget)
         window_set.show()
 
-    def statistics_func(self):
+    # статистика
+    def statistics_func(self) -> None:
         self.window_stat = StatisticsModule.StatisticsWin(self)
         self.window_stat.show()
 
@@ -714,8 +718,10 @@ class MainWindow(QMainWindow):
         self.window_me.resize(self.window_me.size())
         self.window_me.show()
 
-    def func_about(self):
-        pass
+    # о программе
+    def func_about(self) -> None:
+        win_about = AboutSoft.AboutInfo(self)
+        win_about.show()
 
 
 # при добавлении папки

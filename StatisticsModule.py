@@ -45,7 +45,7 @@ class StatisticsWin(QMainWindow):
         super().__init__(parent)
         self.stylesheet_color()
         # Создание окна
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle('Статистика основного каталога')
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1000, 300)
@@ -55,7 +55,7 @@ class StatisticsWin(QMainWindow):
         self.resize(widget.size())
 
     # задать стили для всего модуля в зависимости от выбранной темы
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
         global stylesheet8
@@ -224,7 +224,7 @@ class StatisticsWidget(QWidget):
 
         self.start_btn.click()
 
-    def get_all_main_catalog_files(self):
+    def get_all_main_catalog_files(self) -> list[str]:
         all_files = []
         main_catalog = Settings.get_destination_media() + r'/Media/Photo/const'
         for root, dirs, files in os.walk(main_catalog):
@@ -238,17 +238,17 @@ class StatisticsWidget(QWidget):
                     all_files.append(name)
         return all_files
 
-    def take_hour_dict(self):
+    def take_hour_dict(self) -> None:
         self.time_looter = HoursLooter(self.all_files)
         self.time_looter.start()
         self.time_looter.finished.connect(lambda result: self.take_hour_ready(result))
 
-    def take_hour_ready(self, result):
+    def take_hour_ready(self, result: dict) -> None:
         self.time_looter = None
         self.result_hour = result
         self.make_hour_graphic(result)
 
-    def make_hour_graphic(self, hd):
+    def make_hour_graphic(self, hd: dict) -> None:
         self.figure_hours.clear()
         self.figure_hours.patch.set_facecolor(area_color)
         picture = self.figure_hours.add_subplot(111)
@@ -273,17 +273,17 @@ class StatisticsWidget(QWidget):
         self.figure_hours.tight_layout()
         self.canvas_hours.draw()
 
-    def take_camera_dict(self):
+    def take_camera_dict(self) -> None:
         self.camera_looter = CameraLooter(self.all_files)
         self.camera_looter.start()
         self.camera_looter.finished.connect(lambda result: self.take_camera_ready(result))
 
-    def take_camera_ready(self, result):
+    def take_camera_ready(self, result: dict) -> None:
         self.camera_looter = None
         self.result_camera = result
         self.make_camera_graphic(result)
 
-    def make_camera_graphic(self, hd):
+    def make_camera_graphic(self, hd: dict) -> None:
         self.figure_camera.clear()
         self.figure_camera.patch.set_facecolor(area_color)
         picture = self.figure_camera.add_subplot(111)
@@ -302,17 +302,17 @@ class StatisticsWidget(QWidget):
 
         picture.set_facecolor(plot_back_color)
 
-    def take_lens_dict(self):
+    def take_lens_dict(self) -> None:
         self.lens_looter = LensLooter(self.all_files)
         self.lens_looter.start()
         self.lens_looter.finished.connect(lambda result: self.take_lens_ready(result))
 
-    def take_lens_ready(self, result):
+    def take_lens_ready(self, result: dict) -> None:
         self.lens_looter = None
         self.result_lens = result
         self.make_lens_graphic(result)
 
-    def make_lens_graphic(self, hd):
+    def make_lens_graphic(self, hd: dict) -> None:
         self.figure_lens.clear()
         self.figure_lens.patch.set_facecolor(area_color)
         picture = self.figure_lens.add_subplot(111)
@@ -331,17 +331,17 @@ class StatisticsWidget(QWidget):
 
         picture.set_facecolor(plot_back_color)
 
-    def take_iso_dict(self):
+    def take_iso_dict(self) -> None:
         self.iso_looter = IsoLooter(self.all_files)
         self.iso_looter.start()
         self.iso_looter.finished.connect(lambda result: self.take_iso_ready(result))
 
-    def take_iso_ready(self, result):
+    def take_iso_ready(self, result: dict) -> None:
         self.iso_looter = None
         self.result_iso = result
         self.make_iso_graphic(result)
 
-    def make_iso_graphic(self, hd):
+    def make_iso_graphic(self, hd: dict) -> None:
         self.figure_iso.clear()
         self.figure_iso.patch.set_facecolor(area_color)
         picture = self.figure_iso.add_subplot(111)
@@ -361,17 +361,17 @@ class StatisticsWidget(QWidget):
 
         picture.set_facecolor(plot_back_color)
 
-    def take_fnumber_dict(self):
+    def take_fnumber_dict(self) -> None:
         self.fnumber_looter = FnumberLooter(self.all_files)
         self.fnumber_looter.start()
         self.fnumber_looter.finished.connect(lambda result: self.take_fnumber_ready(result))
 
-    def take_fnumber_ready(self, result):
+    def take_fnumber_ready(self, result: dict) -> None:
         self.fnumber_looter = None
         self.result_fnumber = result
         self.make_fnumber_graphic(result)
 
-    def make_fnumber_graphic(self, hd):
+    def make_fnumber_graphic(self, hd: dict) -> None:
         def func_pct(pct, allvals):
             absolute = int(round((pct/100)*sum(allvals)))
             return "{:.1f}%\n({:d})".format(pct, absolute)
@@ -395,17 +395,17 @@ class StatisticsWidget(QWidget):
 
         picture.set_facecolor(plot_back_color)
 
-    def take_exposuretime_dict(self):
+    def take_exposuretime_dict(self) -> None:
         self.exposuretime_looter = ExposureTimeLooter(self.all_files)
         self.exposuretime_looter.start()
         self.exposuretime_looter.finished.connect(lambda result: self.take_exposuretime_ready(result))
 
-    def take_exposuretime_ready(self, result):
+    def take_exposuretime_ready(self, result: dict) -> None:
         self.exposuretime_looter = None
         self.result_exposuretime = result
         self.make_exposuretime_graphic(result)
 
-    def make_exposuretime_graphic(self, hd):
+    def make_exposuretime_graphic(self, hd: dict) -> None:
         def clear_labels(float_times, labels):
             near_cleared = []
             for i in range(len(float_times)):
@@ -457,17 +457,17 @@ class StatisticsWidget(QWidget):
         self.figure_exposuretime.tight_layout()
         self.canvas_exposuretime.draw()
 
-    def take_fl_dict(self):
+    def take_fl_dict(self) -> None:
         self.fl_looter = FocalLengthLooter(self.all_files)
         self.fl_looter.start()
         self.fl_looter.finished.connect(lambda result: self.take_fl_ready(result))
 
-    def take_fl_ready(self, result):
+    def take_fl_ready(self, result: dict) -> None:
         self.fl_looter = None
         self.result_fl = result
         self.make_fl_graphic(result)
 
-    def make_fl_graphic(self, hd):
+    def make_fl_graphic(self, hd: dict) -> None:
         self.figure_fl.clear()
         self.figure_fl.patch.set_facecolor(area_color)
 
@@ -493,7 +493,7 @@ class StatisticsWidget(QWidget):
         self.figure_fl.tight_layout()
         self.canvas_fl.draw()
 
-    def update_colors(self):
+    def update_colors(self) -> None:
         self.parent().stylesheet_color()
 
         self.make_hour_graphic(self.result_hour)
@@ -844,11 +844,3 @@ if __name__ == "__main__":
     win = StatisticsWin()
     win.show()
     sys.exit(app.exec_())
-
-# ISO +
-# Время суток съёмки +
-# фокусное расстояние
-# выдержка
-# Диафрагма
-# на какую камеру +
-# на какой объектив
