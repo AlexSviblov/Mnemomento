@@ -160,6 +160,8 @@ class StatisticsWin(QMainWindow):
             bar_color = "yellow"
             area_color = "#181818"
 
+        self.setStyleSheet(stylesheet2)
+
 
 # сами настройки (виджет)
 class StatisticsWidget(QWidget):
@@ -243,6 +245,7 @@ class StatisticsWidget(QWidget):
 
     def take_hour_ready(self, result):
         self.time_looter = None
+        self.result_hour = result
         self.make_hour_graphic(result)
 
     def make_hour_graphic(self, hd):
@@ -277,6 +280,7 @@ class StatisticsWidget(QWidget):
 
     def take_camera_ready(self, result):
         self.camera_looter = None
+        self.result_camera = result
         self.make_camera_graphic(result)
 
     def make_camera_graphic(self, hd):
@@ -305,6 +309,7 @@ class StatisticsWidget(QWidget):
 
     def take_lens_ready(self, result):
         self.lens_looter = None
+        self.result_lens = result
         self.make_lens_graphic(result)
 
     def make_lens_graphic(self, hd):
@@ -333,6 +338,7 @@ class StatisticsWidget(QWidget):
 
     def take_iso_ready(self, result):
         self.iso_looter = None
+        self.result_iso = result
         self.make_iso_graphic(result)
 
     def make_iso_graphic(self, hd):
@@ -362,6 +368,7 @@ class StatisticsWidget(QWidget):
 
     def take_fnumber_ready(self, result):
         self.fnumber_looter = None
+        self.result_fnumber = result
         self.make_fnumber_graphic(result)
 
     def make_fnumber_graphic(self, hd):
@@ -395,6 +402,7 @@ class StatisticsWidget(QWidget):
 
     def take_exposuretime_ready(self, result):
         self.exposuretime_looter = None
+        self.result_exposuretime = result
         self.make_exposuretime_graphic(result)
 
     def make_exposuretime_graphic(self, hd):
@@ -456,6 +464,7 @@ class StatisticsWidget(QWidget):
 
     def take_fl_ready(self, result):
         self.fl_looter = None
+        self.result_fl = result
         self.make_fl_graphic(result)
 
     def make_fl_graphic(self, hd):
@@ -483,6 +492,19 @@ class StatisticsWidget(QWidget):
 
         self.figure_fl.tight_layout()
         self.canvas_fl.draw()
+
+    def update_colors(self):
+        self.parent().stylesheet_color()
+
+        self.make_hour_graphic(self.result_hour)
+        self.make_camera_graphic(self.result_camera)
+        self.make_lens_graphic(self.result_lens)
+        self.make_fl_graphic(self.result_fl)
+        self.make_fnumber_graphic(self.result_fnumber)
+        self.make_iso_graphic(self.result_iso)
+        self.make_exposuretime_graphic(self.result_exposuretime)
+
+        self.start_btn.setStyleSheet(stylesheet8)
 
 
 class HoursLooter(QtCore.QThread):

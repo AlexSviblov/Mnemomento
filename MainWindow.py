@@ -8,6 +8,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import *
 from pathlib import Path
 
+
 import EditManyFiles
 import OnlyShowWidget
 import Screenconfig
@@ -54,10 +55,13 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle("Мнемоменто")
+        self.setWindowIcon(QtGui.QIcon(""))
+
         # Меньше невозможно сделать окно
         self.setMinimumSize(1366, 768)
         # раскрыть на весь экран
         self.showMaximized()
+
 
         self.menubar = QMenuBar(self)
         self.menubar.setFont(font8)
@@ -588,8 +592,8 @@ class MainWindow(QMainWindow):
         window_set.show()
 
     def statistics_func(self):
-        window_stat = StatisticsModule.StatisticsWin(self)
-        window_stat.show()
+        self.window_stat = StatisticsModule.StatisticsWin(self)
+        self.window_stat.show()
 
     # восстановление
     def recovery_func(self) -> None:
@@ -674,13 +678,20 @@ class MainWindow(QMainWindow):
             self.window_sn.centralWidget().stylesheet_color()
         except AttributeError:
             pass
+
         try:
             self.window_db.setStyleSheet(stylesheet2)
             self.window_db.centralWidget().stylesheet_color()
         except AttributeError:
             pass
+
         try:
             self.recovery_win.stylesheet_color()
+        except AttributeError:
+            pass
+
+        try:
+            self.window_stat.centralWidget().update_colors()
         except AttributeError:
             pass
 
@@ -1170,6 +1181,7 @@ class TimeMaker(QtCore.QThread):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    # app.setStyleSheet('TitleBar {background-color: #1C1C1C;}')
 
     do = 0
     with open('settings.json', 'r') as json_file:
