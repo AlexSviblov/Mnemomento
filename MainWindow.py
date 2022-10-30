@@ -55,8 +55,7 @@ class MainWindow(QMainWindow):
         self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle("Мнемоменто")
-        # TODO: запулить сюда эмблему
-        self.setWindowIcon(QtGui.QIcon(""))
+        self.setWindowIcon(QtGui.QIcon(f"{os.getcwd()}/icons/ooo.png"))
 
         # Меньше невозможно сделать окно
         self.setMinimumSize(1366, 768)
@@ -1200,7 +1199,7 @@ if __name__ == "__main__":
     if do:
         with open('settings.json', 'w') as json_file:
             bsl = '\\'
-            new_set = {"destination_dir": f"{os.getcwd().replace(bsl, '/')}", "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}", "transfer_mode": "copy", "thumbs_row": "2", "color_theme": "light", "social_networks_status": 2}
+            new_set = {"destination_dir": f"{os.getcwd().replace(bsl, '/')}", "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}", "transfer_mode": "copy", "thumbs_row": "2", "color_theme": "light", "social_networks_status": 2, "sort_type": "name-up"}
             json.dump(new_set, json_file)
 
     try:

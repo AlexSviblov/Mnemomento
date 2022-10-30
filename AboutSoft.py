@@ -111,7 +111,7 @@ class AboutInfo(QDialog):
                                 <li><a href="http://python-visualization.github.io/folium/">Folium</a></li>
                                 <li><a href="https://pillow.readthedocs.io/en/stable/">Pillow</a></li>
                                 <li><a href="https://piexif.readthedocs.io/en/latest/">piexif</a></li>
-                                li><a href="https://matplotlib.org/">matplotlib</a></li>
+                                <li><a href="https://matplotlib.org/">matplotlib</a></li>
                             </ul>
                             
                             <p>Программа распространяется по лицензии GPLv3</p>

@@ -345,21 +345,38 @@ class StatisticsWidget(QWidget):
         self.figure_iso.clear()
         self.figure_iso.patch.set_facecolor(area_color)
         picture = self.figure_iso.add_subplot(111)
-        sizes = list(hd.values())
-        hd_keys = list(hd.keys())
-        labels = []
-        for i in range(len(sizes)):
-            labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
-        for autotext in autotexts:
-            autotext.set_color(text_color)
-        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
 
+        sizes = list(hd.values())
+        labels = list(hd.keys())
+        iso_values = [i for i in range(0, len(labels))]
+        for i in range(0, len(labels)):
+            show_value = [0, int((len(labels)/5)*1), int((len(labels)/5)*2), int((len(labels)/5)*3), int((len(labels)/5)*4), len(labels)-1]
+            if i not in show_value:
+                labels[i] = ""
+
+
+        picture.bar(iso_values, sizes, width=1, align='center', color=bar_color, tick_label=labels)
+        picture.set_xlim(0, int(max(iso_values)*1.1))
+        picture.set_ylim(0, max(sizes))
+
+        self.figure_iso.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        picture.grid(False)
+        picture.set_facecolor(plot_back_color)
         picture.set_title('ISO', color=text_color)
+        picture.set_xlabel('ISO', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
         self.figure_iso.tight_layout()
         self.canvas_iso.draw()
 
         picture.set_facecolor(plot_back_color)
+
+
 
     def take_fnumber_dict(self) -> None:
         self.fnumber_looter = FnumberLooter(self.all_files)
@@ -372,28 +389,40 @@ class StatisticsWidget(QWidget):
         self.make_fnumber_graphic(result)
 
     def make_fnumber_graphic(self, hd: dict) -> None:
-        def func_pct(pct, allvals):
-            absolute = int(round((pct/100)*sum(allvals)))
-            return "{:.1f}%\n({:d})".format(pct, absolute)
+        # def func_pct(pct, allvals):
+        #     absolute = int(round((pct/100)*sum(allvals)))
+        #     return "{:.1f}%\n({:d})".format(pct, absolute)
 
         self.figure_fnumber.clear()
         self.figure_fnumber.patch.set_facecolor(area_color)
         picture = self.figure_fnumber.add_subplot(111)
         sizes = list(hd.values())
         hd_keys = list(hd.keys())
-        labels = []
-        for i in range(len(sizes)):
-            labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges, _, autotexts = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))
-        for autotext in autotexts:
-            autotext.set_color(text_color)
-        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+        # labels = []
+        # for i in range(len(sizes)):
+        #     labels.append(f"{hd_keys[i]} ({sizes[i]})")
+        # wedges, _, autotexts = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))
+        # for autotext in autotexts:
+        #     autotext.set_color(text_color)
+        # picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+
+        picture.bar(hd_keys, sizes, width=0.5, align='center', color=bar_color)
+        picture.set_xlim(1, int(max(hd_keys)*1.1))
+        picture.set_ylim(0, max(sizes))
+
+        self.figure_fnumber.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
 
         picture.set_title('Диафрагма', color=text_color)
-        self.figure_fnumber.tight_layout()
-        self.canvas_fnumber.draw()
 
         picture.set_facecolor(plot_back_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_fnumber.tight_layout()
+        self.canvas_fnumber.draw()
 
     def take_exposuretime_dict(self) -> None:
         self.exposuretime_looter = ExposureTimeLooter(self.all_files)
@@ -413,10 +442,12 @@ class StatisticsWidget(QWidget):
                     if i == j:
                         pass
                     else:
-                        if abs(float_times[i] - float_times[j]) < 2:
+                        if abs(float_times[i] - float_times[j]) < 0.5:
                             if float_times[j] in near_cleared:
                                 pass
                             else:
+                                if float_times[i] >= 0.1 and labels[i]:
+                                    labels[i] = str(round(float(labels[i]), 2))
                                 near_cleared.append(float_times[i])
                                 labels[j] = ''
             return labels
@@ -437,8 +468,7 @@ class StatisticsWidget(QWidget):
                 float_value = float(t)
             float_times.append(float_value)
 
-
-        picture.bar(float_times, sizes, width=1, color=bar_color, tick_label=clear_labels(float_times, times), align='center')
+        picture.bar(float_times, sizes, width=0.1, color=bar_color, tick_label=clear_labels(float_times, times), align='center')
         picture.set_xlim(int(min(float_times)*1.1), int(max(float_times)*1.1))
         picture.set_ylim(0, max(sizes))
         matplotlib.artist.setp(picture.get_xticklabels(), rotation=90, horizontalalignment='center')
@@ -470,8 +500,8 @@ class StatisticsWidget(QWidget):
     def make_fl_graphic(self, hd: dict) -> None:
         self.figure_fl.clear()
         self.figure_fl.patch.set_facecolor(area_color)
-
         picture = self.figure_fl.add_subplot(111)
+
         picture.grid(False)
         sizes = list(hd.values())
         length = list(hd.keys())
@@ -527,12 +557,16 @@ class HoursLooter(QtCore.QThread):
                 if type(error) == ValueError:
                     try:
                         with exiftool.ExifToolHelper() as et:
-                            hour = int(et.execute("-EXIF:DateTimeOriginal", file)[-8:-6])
-                            if hour:
+                            hour_exif = et.execute("-EXIF:DateTimeOriginal", file)
+                            if hour_exif:
                                 try:
-                                    self.hours_dict[hour] += 1
-                                except KeyError:
-                                    self.hours_dict[hour] = 1
+                                    hour = int(hour_exif.split(':')[-2])
+                                    try:
+                                        self.hours_dict[hour] += 1
+                                    except KeyError:
+                                        self.hours_dict[hour] = 1
+                                except ValueError:
+                                    pass
                             else:
                                 pass
                     except exiftool.exceptions.ExifToolExecuteError:
@@ -684,11 +718,14 @@ class IsoLooter(QtCore.QThread):
                         with exiftool.ExifToolHelper() as et:
                             iso_exif = et.execute("-EXIF:ISO", file)
                             if iso_exif:
-                                iso = int(iso_exif.split(':')[-1])
                                 try:
-                                    self.iso_dict[iso] += 1
-                                except KeyError:
-                                    self.iso_dict[iso] = 1
+                                    iso = int(iso_exif.split(':')[-1])
+                                    try:
+                                        self.iso_dict[iso] += 1
+                                    except KeyError:
+                                        self.iso_dict[iso] = 1
+                                except ValueError:
+                                    pass
                             else:
                                 pass
                     except exiftool.exceptions.ExifToolExecuteError:
@@ -726,11 +763,14 @@ class FnumberLooter(QtCore.QThread):
                         with exiftool.ExifToolHelper() as et:
                             fnumber_exif = et.execute("-EXIF:FNumber", file)
                             if fnumber_exif:
-                                fnumber = float(fnumber_exif.split(':')[-1])
                                 try:
-                                    self.fnumber_dict[fnumber] += 1
-                                except KeyError:
-                                    self.fnumber_dict[fnumber] = 1
+                                    fnumber = float(fnumber_exif.split(':')[-1])
+                                    try:
+                                        self.fnumber_dict[fnumber] += 1
+                                    except KeyError:
+                                        self.fnumber_dict[fnumber] = 1
+                                except ValueError:
+                                    pass
                             else:
                                 pass
                     except exiftool.exceptions.ExifToolExecuteError:
@@ -776,15 +816,18 @@ class ExposureTimeLooter(QtCore.QThread):
                         with exiftool.ExifToolHelper() as et:
                             time_exif = et.execute("-EXIF:ExposureTime", file)
                             if time_exif:
-                                time_raw = float(time_exif.split(':')[-1])
-                                if time_raw > 0.1:
-                                    time = str(time_raw)
-                                else:
-                                    time = f"1/{int(1/time_raw)}"
                                 try:
-                                    self.time_dict[time] += 1
-                                except KeyError:
-                                    self.time_dict[time] = 1
+                                    time_raw = float(time_exif.split(':')[-1])
+                                    if time_raw > 0.1:
+                                        time = str(time_raw)
+                                    else:
+                                        time = f"1/{int(1/time_raw)}"
+                                    try:
+                                        self.time_dict[time] += 1
+                                    except KeyError:
+                                        self.time_dict[time] = 1
+                                except ValueError:
+                                    pass
                             else:
                                 pass
                     except exiftool.exceptions.ExifToolExecuteError:
@@ -822,11 +865,14 @@ class FocalLengthLooter(QtCore.QThread):
                         with exiftool.ExifToolHelper() as et:
                             fl_exif = et.execute("-EXIF:FocalLength", file)
                             if fl_exif:
-                                fl = int(fl_exif.split(':')[-1])
                                 try:
-                                    self.fl_dict[fl] += 1
-                                except KeyError:
-                                    self.fl_dict[fl] = 1
+                                    fl = int(fl_exif.split(':')[-1])
+                                    try:
+                                        self.fl_dict[fl] += 1
+                                    except KeyError:
+                                        self.fl_dict[fl] = 1
+                                except ValueError:
+                                    pass
                             else:
                                 pass
                     except exiftool.exceptions.ExifToolExecuteError:

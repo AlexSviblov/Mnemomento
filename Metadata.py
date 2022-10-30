@@ -778,56 +778,58 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
     :param photo_file: абсолютный путь к фотографии
     :return: фотография нормально повёрнута
     """
-    meta_orientation = data['EXIF:Orientation']
-    im = Image.open(photo_file)
-    file_exif = data
-    for key in list(file_exif.keys()):
-        if 'EXIF' in key or 'Composite' in key:
-            pass
-        else:
-            file_exif.pop(key)
+    try:
+        meta_orientation = data['EXIF:Orientation']
+        im = Image.open(photo_file)
+        file_exif = data
+        for key in list(file_exif.keys()):
+            if 'EXIF' in key or 'Composite' in key:
+                pass
+            else:
+                file_exif.pop(key)
 
-    match meta_orientation:
-        case 1:
-            im_flipped = im
-        case 2:
-            im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-        case 3:
-            im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
-        case 4:
-            im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-        case 5:
-            im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-            im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-        case 6:
-            # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-            im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-        case 7:
-            im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-            im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-        case 8:
-            # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-            im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-        case _:
-            im_flipped = im
+        match meta_orientation:
+            case 1:
+                im_flipped = im
+            case 2:
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+            case 3:
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
+            case 4:
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+            case 5:
+                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+            case 6:
+                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+            case 7:
+                im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+                im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+            case 8:
+                # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+            case _:
+                im_flipped = im
 
-    # im_flipped.save(photo_file, 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
-    im_flipped.save(photo_file, 'jpeg', quality=95, subsampling=0)
+        # im_flipped.save(photo_file, 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
+        im_flipped.save(photo_file, 'jpeg', quality=95, subsampling=0)
+        im.close()
+        im_flipped.close()
 
-    im.close()
-    im_flipped.close()
+        with exiftool.ExifToolHelper() as et:
+            et.set_tags(photo_file,
+                        tags=file_exif,
+                        params=["-P", "-overwrite_original"])
+    except KeyError:
+        pass
 
     im = Image.open(photo_file)
     width = im.width
     height = im.height
     im.close()
-
-    with exiftool.ExifToolHelper() as et:
-        et.set_tags(photo_file,
-                            tags=file_exif,
-                            params=["-P", "-overwrite_original"])
 
     write_normal_photo_size(photo_file, int(width), int(height))
 
