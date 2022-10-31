@@ -1,6 +1,7 @@
 import os
 import shutil
 
+import ErrorsAndWarnings
 import Settings
 import Metadata
 import Thumbnail
@@ -38,7 +39,10 @@ def transfer_const_photos(file: str) -> str:
     for i in range(len(file_full)-1):
         file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/
                                             # file_full[-1] = IMG_3805.jpg
-    file_metadata = Metadata.read_exif(file)
+    try:
+        file_metadata = Metadata.read_exif(file)
+    except ErrorsAndWarnings.FileReadError:
+        return '', file
 
     error, day, month, year = Metadata.date_from_exif(file_metadata)
 
@@ -150,7 +154,10 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
     """
     destination = Settings.get_destination_media() + '/Media/Photo/alone/'
     mode = Settings.get_photo_transfer_mode()
-    file_metadata = Metadata.read_exif(photofile)
+    try:
+        file_metadata = Metadata.read_exif(photofile)
+    except ErrorsAndWarnings.FileReadError:
+        raise ErrorsAndWarnings.FileReadError
 
     if type_add != 'files':
         photo_directory_lastname = photo_directory.split('/')[-1]

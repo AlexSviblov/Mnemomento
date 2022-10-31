@@ -316,7 +316,7 @@ class FilesPermissionMoveError(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('ОШИБКА')
 
-        str_show = 'Ошибка доступа к файлам.\nДанные файлы не удалось перенести, возможно они открыты в другой программе:'
+        str_show = 'Ошибка доступа к файлам.\nДанные файлы не удалось перенести, возможно они открыты в другой программе или повреждены:'
         for file in files:
             str_show += f'\n{file}'
         layout = QGridLayout(self)
@@ -347,4 +347,19 @@ class PhotoDBConnectionError(Exception):
 
 class ErnamesDBConnectionError(Exception):
     pass
+
+
+class FileReadError(Exception):
+    def __init__(self, *args):
+        if args:
+            self.message = args[0]
+        else:
+            self.message = None
+
+    def __str__(self):
+        print(f"FileReadError")
+        if self.message:
+            return f"FileReadError - {self.message}"
+        else:
+            return "FileReadError"
 

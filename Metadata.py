@@ -20,10 +20,14 @@ def read_exif(photofile: str) -> dict[str, str]:
     :return: словарь всех вытащенных библиотекой exif метаданных.
     """
     data = {}
-    with exiftool.ExifToolHelper() as et:
-        for dictionary in et.get_metadata(photofile):
-            for tag_key, tag_value in dictionary.items():
-                data[f"{tag_key}"] = tag_value
+    try:
+        with exiftool.ExifToolHelper() as et:
+            for dictionary in et.get_metadata(photofile):
+                for tag_key, tag_value in dictionary.items():
+                    data[f"{tag_key}"] = tag_value
+    except (UnicodeDecodeError, UnicodeEncodeError) as e:
+        logging.error(f"Metadata - UnicodeDecodeError - {e}")
+        raise ErrorsAndWarnings.FileReadError(photofile)
     return data
 
 

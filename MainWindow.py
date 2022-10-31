@@ -1093,6 +1093,7 @@ class AloneMaker(QtCore.QThread):
         self.preprogress.emit(self.len_file_list)
 
     def run(self):
+        files_errors = []
         logging.info(f"MainWindow - File list sent for adding in additional catalog: {self.files_list}")
         if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
             self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
@@ -1104,7 +1105,10 @@ class AloneMaker(QtCore.QThread):
             for file in self.files_list:
                 self.info_text.emit(f"Идёт обработка файла {file}")
                 logging.info(f"MainWindow - Start processing {file}")
-                FilesDirs.transfer_alone_photos(self.photo_directory, file)
+                try:
+                    FilesDirs.transfer_alone_photos(self.photo_directory, file)
+                except ErrorsAndWarnings.FileReadError:
+                    files_errors.append(file)
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
                 self.info_text.emit(f"Обработка файла {file} завершена")
@@ -1142,13 +1146,19 @@ class AloneMaker(QtCore.QThread):
                 if os.path.exists(desination_dir + '/' + file_name):
                     file_exists.append(file)
                 else:
-                    FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir, type_add='files')
+                    try:
+                        FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir, type_add='files')
+                    except ErrorsAndWarnings.FilesPermissionMoveError:
+                        files_errors.append(file)
                 j += 1
                 self.progress.emit(round(100 * (j / self.len_file_list)))
                 self.info_text.emit(f"Обработка файла {file} завершена")
                 logging.info(f"MainWindow - {file} rocessing finished")
+            if files_errors:
+                win_err = ErrorsAndWarnings.FileReadError(files_errors)
+                win_err.show()
             if file_exists:
-                logging.info(f"MainWindow - Files have been already exust in programm: {file_exists}")
+                logging.info(f"MainWindow - Files have been already exist in program: {file_exists}")
                 self.finished.emit(file_exists)
             else:
                 self.finished.emit(['finish'])
