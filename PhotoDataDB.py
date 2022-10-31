@@ -322,11 +322,11 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
             status_bd = 'No value'
 
     try:
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\'  {db_order_settings()}'
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
     except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\'  {db_order_settings()}'
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 

@@ -5,6 +5,8 @@ import shutil
 from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from PIL import Image
+import exiftool
 
 import ErrorsAndWarnings
 import OnlyShowWidget
@@ -38,7 +40,8 @@ class EditExifData(QDialog):
     edited_signal = QtCore.pyqtSignal()
     edited_signal_no_move = QtCore.pyqtSignal()
     movement_signal = QtCore.pyqtSignal(str, str, str)
-    renamed_signal = QtCore.pyqtSignal()
+    renamed_signal = QtCore.pyqtSignal(str)
+    rotated_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent, photoname, photodirectory, chosen_group_type):
         super().__init__(parent)
@@ -739,11 +742,45 @@ class EditExifData(QDialog):
             self.file_size_line.setStyleSheet(stylesheet1)
             self.file_size_line.setDisabled(True)
 
+            self.photo_rotate_right = QPushButton(self)
+            self.photo_rotate_right.setText("Повернуть на 90° по часовой")
+            self.photo_rotate_right.setFont(font14)
+            self.photo_rotate_right.setStyleSheet(stylesheet1)
+
+            self.photo_rotate_left = QPushButton(self)
+            self.photo_rotate_left.setText("Повернуть на 90° против часовой")
+            self.photo_rotate_left.setFont(font14)
+            self.photo_rotate_left.setStyleSheet(stylesheet1)
+
+            self.photo_flip_hor = QPushButton(self)
+            self.photo_flip_hor.setText("Отразить по горизонтали")
+            self.photo_flip_hor.setFont(font14)
+            self.photo_flip_hor.setStyleSheet(stylesheet1)
+
+            self.photo_flip_ver = QPushButton(self)
+            self.photo_flip_ver.setText("Отразить по вертикали")
+            self.photo_flip_ver.setFont(font14)
+            self.photo_flip_ver.setStyleSheet(stylesheet1)
+
+            self.thumbnail = QLabel(self)
+            self.pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300, QtCore.Qt.KeepAspectRatio)
+            self.thumbnail.setPixmap(self.pixmap)
+
             self.tab_file_layout.addWidget(self.filename_lbl, 0, 0, 1, 1)
-            self.tab_file_layout.addWidget(self.filename_line, 0, 1, 1, 1)
+            self.tab_file_layout.addWidget(self.filename_line, 0, 1, 1, 2)
             self.tab_file_layout.addWidget(self.file_size_lbl, 1, 0, 1, 1)
-            self.tab_file_layout.addWidget(self.file_size_line, 1, 1, 1, 1)
+            self.tab_file_layout.addWidget(self.file_size_line, 1, 1, 1, 2)
+            self.tab_file_layout.addWidget(self.photo_rotate_right, 2, 2, 1, 1)
+            self.tab_file_layout.addWidget(self.photo_rotate_left, 2, 0, 1, 1)
+            self.tab_file_layout.addWidget(self.photo_flip_hor, 3, 0, 1, 1)
+            self.tab_file_layout.addWidget(self.photo_flip_ver, 3, 2, 1, 1)
+            self.tab_file_layout.addWidget(self.thumbnail, 2, 1, 2, 1)
             self.tab_file.setLayout(self.tab_file_layout)
+
+            self.photo_flip_ver.setFixedWidth(300)
+            self.photo_flip_hor.setFixedWidth(300)
+            self.photo_rotate_left.setFixedWidth(300)
+            self.photo_rotate_right.setFixedWidth(300)
 
         def make_connects():
             self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(11))
@@ -761,6 +798,11 @@ class EditExifData(QDialog):
             self.flength_line.textChanged.connect(lambda: self.changes_to_indicator(6))
             self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
             self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
+
+            self.photo_flip_ver.clicked.connect(self.rotate_photo)
+            self.photo_flip_hor.clicked.connect(self.rotate_photo)
+            self.photo_rotate_left.clicked.connect(self.rotate_photo)
+            self.photo_rotate_right.clicked.connect(self.rotate_photo)
 
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
@@ -1079,6 +1121,7 @@ class EditExifData(QDialog):
 
     # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
+        self.new_filename = self.filename_line.text()
         all_new_data = self.read_enter()
         changes_meta_dict = {}
         for i in range(len(all_new_data)):
@@ -1103,17 +1146,17 @@ class EditExifData(QDialog):
 
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        if self.filename_line.text() == self.old_filename:
+        if self.new_filename == self.old_filename:
             pass
         else:
-            new_file_name = self.filename_line.text() + '.' + self.picture_file_format
+            new_file_name =  self.new_filename + '.' + self.picture_file_format
             if os.path.exists(f"{self.photodirectory}/{new_file_name}"):
                 win_err = ErrorsAndWarnings.ExistFileRenameError2(self)
                 win_err.show()
                 return
             else:
                 self.rename_file(self.photodirectory, self.photoname, new_file_name)
-                self.renamed_signal.emit()
+                self.renamed_signal.emit(new_file_name)
                 self.close()
 
     # записать новые метаданные
@@ -1273,6 +1316,68 @@ class EditExifData(QDialog):
         self.get_metadata(self.photoname, self.photodirectory)
         self.get_file_data(self.photoname, self.photodirectory)
         self.change_tab_gps()
+
+    def rotate_photo(self):
+        movement = self.sender().text()
+
+        im = Image.open(f"{self.photodirectory}/{self.photoname}")
+        file_exif = Metadata.read_exif(f"{self.photodirectory}/{self.photoname}")
+
+        match movement:
+            case "Повернуть на 90° по часовой":
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+            case "Повернуть на 90° против часовой":
+                im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+            case "Отразить по горизонтали":
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+            case "Отразить по вертикали":
+                im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+            case _:
+                im_flipped = im
+
+        im_flipped.save(f"{self.photodirectory}/{self.photoname}", 'jpeg', quality=95, subsampling=0)
+        im.close()
+        im_flipped.close()
+
+        for key in list(file_exif.keys()):
+            if 'EXIF' in key or 'Composite' in key:
+                pass
+            else:
+                file_exif.pop(key)
+
+        with exiftool.ExifToolHelper() as et:
+            et.set_tags(f"{self.photodirectory}/{self.photoname}",
+                        tags=file_exif,
+                        params=["-P", "-overwrite_original"])
+
+        modify_dict = {}
+        try:
+            modify_dict['EXIF:GPSLatitudeRef'] = file_exif['EXIF:GPSLatitudeRef']
+            modify_dict['EXIF:GPSLatitude'] = file_exif['EXIF:GPSLatitude']
+            modify_dict['EXIF:GPSLongitudeRef'] = file_exif['EXIF:GPSLongitudeRef']
+            modify_dict['EXIF:GPSLongitude'] = file_exif['EXIF:GPSLongitude']
+
+            with exiftool.ExifToolHelper() as et:
+                et.set_tags(f"{self.photodirectory}/{self.photoname}",
+                            tags=modify_dict,
+                            params=["-P", "-overwrite_original"])
+        except KeyError:
+            pass
+
+        self.pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300,
+                                                                                      QtCore.Qt.KeepAspectRatio)
+        self.thumbnail.setPixmap(self.pixmap)
+
+        if 'const' in self.photodirectory.split('/'):
+            Thumbnail.delete_thumbnail_const(self.photoname, self.photodirectory)
+            Thumbnail.make_const_thumbnails(self.photodirectory, self.photoname)
+        elif 'alone' in self.photodirectory.split('/'):
+            Thumbnail.delete_thumbnail_alone(self.photoname, self.photodirectory)
+            Thumbnail.make_alone_thumbnails(self.photodirectory.split('/')[-1], f"{self.photodirectory}/{self.photoname}", self.photoname)
+
+        QtCore.QCoreApplication.processEvents()
+
+        self.rotated_signal.emit()
 
 
 # совпали имена файлов при переносе по новой дате в exif

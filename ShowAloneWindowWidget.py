@@ -607,7 +607,6 @@ class AloneWidgetWindow(QWidget):
 
     # функция показа большой картинки
     def showinfo(self) -> None:
-
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
         try:
@@ -635,7 +634,7 @@ class AloneWidgetWindow(QWidget):
 
         try:
             metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text, self.photo_directory)
-        except ValueError:
+        except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata['Rotation']
@@ -860,8 +859,14 @@ class AloneWidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
-        def renamed_re_show():
+        def renamed_re_show(new_name):
             self.show_thumbnails()
+
+            button_text =  new_name
+            for i in reversed(range(self.layout_inside_thumbs.count())):
+                if self.layout_inside_thumbs.itemAt(i).widget().text() == button_text:
+                    self.layout_inside_thumbs.itemAt(i).widget().click()
+                    break
 
         photoname = self.button_text
         photodirectory = self.photo_directory
@@ -872,7 +877,7 @@ class AloneWidgetWindow(QWidget):
         dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory, chosen_group_type='None')
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
-        dialog_edit.renamed_signal.connect(renamed_re_show)
+        dialog_edit.renamed_signal.connect(lambda n: renamed_re_show(n))
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_ph_del(self) -> None:

@@ -561,10 +561,10 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                 else:
                     long_ref = 'W'
 
-                modify_dict['GPSLatitudeRef'] = lat_ref
-                modify_dict['GPSLatitude'] = float_value_lat
-                modify_dict['GPSLongitudeRef'] = long_ref
-                modify_dict['GPSLongitude'] = float_value_long
+                modify_dict['EXIF:GPSLatitudeRef'] = lat_ref
+                modify_dict['EXIF:GPSLatitude'] = float_value_lat
+                modify_dict['EXIF:GPSLongitudeRef'] = long_ref
+                modify_dict['EXIF:GPSLongitude'] = float_value_long
 
     try:
         # Сделать сама перезапись
@@ -778,7 +778,7 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
 # Проверка и исправление ориентации фотографии
 def check_photo_rotation(photo_file: str, data: dict) -> None:
     """
-    Для добавляемых в каталоги фотографий можно сделать нормальный поворот, чтобы ен крутить их каждый раз
+    Для добавляемых в каталоги фотографий можно сделать нормальный поворот, чтобы не крутить их каждый раз
     :param photo_file: абсолютный путь к фотографии
     :return: фотография нормально повёрнута
     """
@@ -827,6 +827,21 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
             et.set_tags(photo_file,
                         tags=file_exif,
                         params=["-P", "-overwrite_original"])
+
+        modify_dict = {}
+        try:
+            modify_dict['EXIF:GPSLatitudeRef'] = file_exif['EXIF:GPSLatitudeRef']
+            modify_dict['EXIF:GPSLatitude'] = file_exif['EXIF:GPSLatitude']
+            modify_dict['EXIF:GPSLongitudeRef'] = file_exif['EXIF:GPSLongitudeRef']
+            modify_dict['EXIF:GPSLongitude'] = file_exif['EXIF:GPSLongitude']
+
+            with exiftool.ExifToolHelper() as et:
+                et.set_tags(photo_file,
+                            tags=modify_dict,
+                            params=["-P", "-overwrite_original"])
+        except KeyError:
+            pass
+
     except KeyError:
         pass
 
@@ -927,36 +942,39 @@ def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None
     :param thumbnail_file: абсолютный путь миниатюры
     :return: миниатюра ставится в корректное положение
     """
-    data = read_exif(photo_file)
-    thum = Image.open(thumbnail_file)
-    meta_orientation = data['EXIF:Orientation']
-    match meta_orientation:
-        case 1:
-            thum_flipped = thum
-        case 2:
-            thum_flipped = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-        case 3:
-            thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_180)
-        case 4:
-            thum_flipped = thum.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-        case 5:
-            thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-            thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
-        case 6:
-            # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
-            thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
-        case 7:
-            thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-            thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
-        case 8:
-            # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
-            thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
-        case _:
-            thum_flipped = thum
+    try:
+        data = read_exif(photo_file)
+        thum = Image.open(thumbnail_file)
+        meta_orientation = data['EXIF:Orientation']
+        match meta_orientation:
+            case 1:
+                thum_flipped = thum
+            case 2:
+                thum_flipped = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+            case 3:
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_180)
+            case 4:
+                thum_flipped = thum.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
+            case 5:
+                thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+            case 6:
+                # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+            case 7:
+                thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
+                # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+            case 8:
+                # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+            case _:
+                thum_flipped = thum
 
-    thum_flipped.save(thumbnail_file, 'jpeg', quality=95, subsampling=0)
+        thum_flipped.save(thumbnail_file, 'jpeg', quality=95, subsampling=0)
+    except KeyError:
+        pass
 
 
 # получить метаданные, отображаемые в таблице массового редактирования

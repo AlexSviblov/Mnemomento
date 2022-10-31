@@ -309,9 +309,9 @@ class SettingsReadError(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
-class FilesPermissionMoveError(QDialog):
+class FilesReadError_win(QDialog):
     def __init__(self, parent, files):
-        super(FilesPermissionMoveError, self).__init__(parent)
+        super(FilesReadError_win, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('ОШИБКА')

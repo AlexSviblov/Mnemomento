@@ -453,14 +453,14 @@ class MainWindow(QMainWindow):
         self.view_files_progress.start()
 
     # По окончании добавления файлов в основной каталог, запустить виджет его показа
-    def finish_thread_add_const(self, files_exists: list[str], files_permissions: list[str]) -> None:
+    def finish_thread_add_const(self, files_exists: list[str], files_errors: list[str]) -> None:
         # win = PhotoExistsWarning(self, files)
         if files_exists:
             win1 = ErrorsAndWarnings.PhotoExists(self, files_exists, "const")
             win1.show()
 
-        if files_permissions:
-            win2 = ErrorsAndWarnings.FilesPermissionMoveError(self, files_permissions)
+        if files_errors:
+            win2 = ErrorsAndWarnings.FilesReadError_win(self, files_permissions)
             win2.show()
         self.show_main_const_widget()
         self.add_files_progress = None

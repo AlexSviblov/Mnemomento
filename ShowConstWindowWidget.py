@@ -721,7 +721,7 @@ class ConstWidgetWindow(QWidget):
         try:
             metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.last_clicked_name,
                                                  self.photo_directory)
-        except ValueError:
+        except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name,
                                                  self.photo_directory)
 
@@ -1009,12 +1009,12 @@ class ConstWidgetWindow(QWidget):
 
         def re_show():
             if self.group_type.currentText() == 'Дата':
-                self.showinfo()
+                # self.showinfo()
+                pass
             else:
                 self.pic.clear()
                 self.metadata_show.clear()
                 self.metadata_show.hide()
-
                 if self.group_type.currentText() == 'Соцсети':
                     self.socnet_choose.setCurrentText(old_network)
                     self.sn_status.setCurrentText(old_status)
@@ -1024,8 +1024,9 @@ class ConstWidgetWindow(QWidget):
                     self.camera_choose.setCurrentText(old_camera)
                     self.lens_choose.setCurrentText(old_lens)
                     self.type_show_thumbnails()
+            self.showinfo()
 
-        def renamed_re_show():
+        def renamed_re_show(new_name):
             self.pic.clear()
             self.metadata_show.clear()
             self.metadata_show.hide()
@@ -1053,6 +1054,17 @@ class ConstWidgetWindow(QWidget):
                 self.date_day.setCurrentText(old_day)
                 self.type_show_thumbnails()
 
+            last_splitted = self.last_clicked.split('/')
+            button_text = ''
+            for k in range(len(last_splitted) - 1):
+                button_text += last_splitted[k] + '/'
+            button_text += new_name
+
+            for i in reversed(range(self.layout_inside_thumbs.count())):
+                if self.layout_inside_thumbs.itemAt(i).widget().objectName() == button_text:
+                    self.layout_inside_thumbs.itemAt(i).widget().click()
+                    break
+
         dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
                                    chosen_group_type=self.group_type.currentText())
         dialog_edit.show()
@@ -1064,7 +1076,8 @@ class ConstWidgetWindow(QWidget):
             dialog_edit.edited_signal.connect(re_show)
 
         dialog_edit.edited_signal_no_move.connect(self.showinfo)
-        dialog_edit.renamed_signal.connect(renamed_re_show)
+        dialog_edit.renamed_signal.connect(lambda n: renamed_re_show(n))
+        dialog_edit.rotated_signal.connect(self.func_rotate_show)
 
     # при редактировании метаданных могут создаваться новые папки (по датам), а фото будут переноситься - надо обновлять отображение
     def get_date(self, year: str, month: str, day: str) -> None:
@@ -1080,6 +1093,17 @@ class ConstWidgetWindow(QWidget):
         self.date_year.setCurrentText(year)
         self.date_month.setCurrentText(month)
         self.date_day.setCurrentText(day)
+
+        last_splitted = self.last_clicked.split('/')
+        button_text = ''
+        for k in range(len(last_splitted)-4):
+            button_text += last_splitted[k] + '/'
+        button_text += f"{year}/{month}/{day}/{last_splitted[-1]}"
+
+        for i in reversed(range(self.layout_inside_thumbs.count())):
+            if self.layout_inside_thumbs.itemAt(i).widget().objectName() == button_text:
+                self.layout_inside_thumbs.itemAt(i).widget().click()
+                break
 
     # отображения статуса фото в соцсетях
     def show_social_networks(self, photoname: str, photodirectory: str) -> None:
@@ -1364,6 +1388,30 @@ class ConstWidgetWindow(QWidget):
         self.scroll_area.setFixedWidth(200 * self.thumb_row)
 
         self.type_show_thumbnails()
+
+    def func_rotate_show(self):
+        destination_thumbs = Settings.get_destination_thumb()
+        photo_way_splitted = self.last_clicked.split('/')
+        year = photo_way_splitted[-4]
+        month = photo_way_splitted[-3]
+        day = photo_way_splitted[-2]
+        name = photo_way_splitted[-1]
+
+        thumbnail_way = f"{destination_thumbs}/thumbnail/const/{year}/{month}/{day}/thumbnail_{name}"
+        print(thumbnail_way)
+        iqon = QtGui.QIcon(thumbnail_way)
+        iqon.pixmap(150, 150)
+
+        for i in reversed(range(self.layout_inside_thumbs.count())):
+            if self.layout_inside_thumbs.itemAt(i).widget().objectName() == self.last_clicked:
+                self.layout_inside_thumbs.itemAt(i).widget().setIcon(iqon)
+                break
+
+        QtCore.QCoreApplication.processEvents()
+
+        self.showinfo()
+
+        QtCore.QCoreApplication.processEvents()
 
 
 # подтвердить удаление фото
