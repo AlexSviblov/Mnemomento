@@ -58,7 +58,17 @@ def date_from_exif(data: dict) -> tuple[int, str, str, str]:
         day = date[8:10]
         month = date[5:7]
         year = date[0:4]
-        error = 0
+        try:
+            int(day)
+            int(month)
+            int(year)
+        except ValueError:
+            error = 1
+            day = '0'
+            month = '0'
+            year = '0'
+        else:
+            error = 0
     except KeyError:  # если дата не считывается - No_Date_Info
         error = 1
         day = '0'
