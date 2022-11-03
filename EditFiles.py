@@ -6,6 +6,8 @@ from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 import exiftool
 
 import ErrorsAndWarnings

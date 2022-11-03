@@ -3,6 +3,8 @@ import sqlite3
 import piexif
 import exiftool
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import ErrorsAndWarnings
 

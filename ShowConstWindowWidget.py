@@ -56,7 +56,7 @@ class ConstWidgetWindow(QWidget):
         self.thumb_row = int(settings["thumbs_row"])
         self.soc_net_setting = int(settings["social_networks_status"])
 
-        self.setWindowTitle("Тестовое окно")
+        self.setMaximumSize(Screenconfig.monitor_info()[0][0], Screenconfig.monitor_info()[0][1] - 63)
 
         self.layoutoutside = QGridLayout(self)
         self.layoutoutside.setSpacing(10)
@@ -1398,7 +1398,6 @@ class ConstWidgetWindow(QWidget):
         name = photo_way_splitted[-1]
 
         thumbnail_way = f"{destination_thumbs}/thumbnail/const/{year}/{month}/{day}/thumbnail_{name}"
-        print(thumbnail_way)
         iqon = QtGui.QIcon(thumbnail_way)
         iqon.pixmap(150, 150)
 

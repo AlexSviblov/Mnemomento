@@ -59,9 +59,9 @@ class MainWindow(QMainWindow):
 
         # Меньше невозможно сделать окно
         self.setMinimumSize(1366, 768)
+
         # раскрыть на весь экран
         self.showMaximized()
-
 
         self.menubar = QMenuBar(self)
         self.menubar.setFont(font8)
@@ -146,6 +146,7 @@ class MainWindow(QMainWindow):
         self.setMenuBar(self.menubar)
 
         self.start_show()
+
         
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -460,7 +461,7 @@ class MainWindow(QMainWindow):
             win1.show()
 
         if files_errors:
-            win2 = ErrorsAndWarnings.FilesReadError_win(self, files_permissions)
+            win2 = ErrorsAndWarnings.FilesReadError_win(self, files_errors)
             win2.show()
         self.show_main_const_widget()
         self.add_files_progress = None

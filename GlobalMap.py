@@ -8,6 +8,8 @@ from PyQt5.QtCore import pyqtSignal
 from pathlib import Path
 from folium.plugins import MousePosition
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 from folium import IFrame
 
 import PhotoDataDB
@@ -259,6 +261,7 @@ class GlobalMapWidget(QWidget):
             self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
             photo_grouped_shown = list()
             for photo in map_points_combo:
+                QtCore.QCoreApplication.processEvents()
                 if not photo[5]:
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
@@ -283,6 +286,7 @@ class GlobalMapWidget(QWidget):
                                 self.map_gps)
                         else:
                             pass
+                QtCore.QCoreApplication.processEvents()
                 self.map_gps_widget.setHtml(self.map_gps.get_root().render())
                 progress += 1
                 self.progressbar.setValue(int((progress/len(map_points_combo))*99+1))

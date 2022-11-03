@@ -8,3 +8,4 @@ def monitor_info() -> tuple[tuple[int, int], float]:
     return screenSize, scaleFactor
 
 
+

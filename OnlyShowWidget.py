@@ -42,6 +42,8 @@ class WidgetWindow(QWidget):
         self.stylesheet_color()
         self.setStyleSheet(stylesheet2)
 
+        self.setMaximumSize(Screenconfig.monitor_info()[0][0], Screenconfig.monitor_info()[0][1] - 63)
+
         self.own_dir = os.getcwd()
         self.photo_list = photo_list
         self.photo_directory = self.make_photo_dir(self.photo_list)

@@ -1,9 +1,12 @@
 import os
 import shutil
 from PIL import Image
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import Settings
 import Metadata
+
 
 
 # получение списка файлов формата jpg из папки
