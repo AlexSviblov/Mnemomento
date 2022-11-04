@@ -1,4 +1,5 @@
 import os
+import shutil
 import sys
 import folium
 import json
@@ -837,8 +838,10 @@ class ManyPhotoEdit(QWidget):
                 year = self.date_year.currentText()
                 month = self.date_month.currentText()
                 day = self.date_day.currentText()
-
-                photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+                if not year or not month or not day:
+                    return
+                else:
+                    photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
 
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
@@ -1095,13 +1098,14 @@ class ManyPhotoEdit(QWidget):
 
     # запись новых метаданных
     def write_data(self) -> None:
-        def finished():
+        def finished(status):
             self.empty1.show()
             self.layout_btns.removeWidget(self.loading_lbl)
             self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
             self.loading_lbl.hide()
             QtCore.QCoreApplication.processEvents()
-            self.update_table()
+            self.update_table(status)
+
 
         self.empty1.hide()
         self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
@@ -1112,7 +1116,7 @@ class ManyPhotoEdit(QWidget):
         modify_dict = self.get_all_new_data()
 
         self.editing_process = DoEditing(photo_list, modify_dict)
-        self.editing_process.finished.connect(finished)
+        self.editing_process.finished.connect(lambda date_changed: finished(date_changed))
         self.editing_process.start()
 
     # Создать таблицу сравнения
@@ -1190,11 +1194,14 @@ class ManyPhotoEdit(QWidget):
         self.table_positions.pop(photo)
 
     # заново заполнить таблицу после очистки/редактирования
-    def update_table(self) -> None:
+    def update_table(self, status: int) -> None:
         self.table_compare.setColumnCount(0)
-        for photo in self.get_edit_list():
-            self.table_one_add(photo)
-            QtCore.QCoreApplication.processEvents()
+        if status:
+            for photo in self.get_edit_list():
+                self.table_one_add(photo)
+        else:
+            self.set_sort_layout()
+        QtCore.QCoreApplication.processEvents()
 
 
 # Окошко подтверждения желания очистить метаданные
@@ -1243,7 +1250,7 @@ class ConfirmClear(QDialog):
 # длится больше 5 секунд и ломает поток. Поток выполняется, но не отправляет сигнал на изменение интерфейса (убрать
 # загрузку и обновить таблицу).
 class DoEditing(QtCore.QThread):
-    finished = QtCore.pyqtSignal()
+    finished = QtCore.pyqtSignal(int)
 
     def __init__(self, photo_list, modify_dict):
         QtCore.QThread.__init__(self)
@@ -1260,6 +1267,29 @@ class DoEditing(QtCore.QThread):
             Metadata.exif_rewrite_edit(name, dir, self.modify_dict)
         PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
 
-        self.finished.emit()
+        if self.modify_dict[11]:
+            new_date = self.modify_dict[11].split(" ")[0]
+            year = new_date.split(":")[-3]
+            month = new_date.split(":")[-2]
+            day = new_date.split(":")[-1]
+            for file in self.photo_list:
+                photo_name = file.split("/")[-1]
+                old_path = ""
+                path_splitted = file.split("/")
+                for i in range(len(path_splitted)-1):
+                    old_path += path_splitted[i] + "/"
+                old_path = old_path[:-1]
+                new_path = Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"
 
+                if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}"):
+                    os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}")
+                if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}"):
+                    os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}")
+                if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"):
+                    os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}")
+                shutil.move(file, f"{new_path}/{photo_name}")
+                PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
 
+            self.finished.emit(0)
+        else:
+            self.finished.emit(1)

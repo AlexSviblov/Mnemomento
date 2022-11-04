@@ -253,6 +253,7 @@ class GlobalMapWidget(QWidget):
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
         self.progressbar.setValue(1)
+        QtCore.QCoreApplication.processEvents()
         map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(full_paths)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()

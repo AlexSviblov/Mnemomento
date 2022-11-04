@@ -16,6 +16,7 @@ from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+matplotlib.use('QtAgg',force=True)
 
 import ErrorsAndWarnings
 import Metadata
@@ -376,8 +377,6 @@ class StatisticsWidget(QWidget):
 
         picture.set_facecolor(plot_back_color)
 
-
-
     def take_fnumber_dict(self) -> None:
         self.fnumber_looter = FnumberLooter(self.all_files)
         self.fnumber_looter.start()
@@ -546,7 +545,7 @@ class HoursLooter(QtCore.QThread):
         self.hours_dict = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0,
                            14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -561,6 +560,7 @@ class HoursLooter(QtCore.QThread):
                             if hour_exif:
                                 try:
                                     hour = int(hour_exif.split(':')[-2])
+                                    print(hour)
                                     try:
                                         self.hours_dict[hour] += 1
                                     except KeyError:
@@ -585,7 +585,7 @@ class CameraLooter(QtCore.QThread):
         self.all_files = files
         self.camera_dict = {}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -643,7 +643,7 @@ class LensLooter(QtCore.QThread):
         self.all_files = files
         self.lens_dict = {}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -701,7 +701,7 @@ class IsoLooter(QtCore.QThread):
         self.all_files = files
         self.iso_dict = {}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -746,7 +746,7 @@ class FnumberLooter(QtCore.QThread):
         self.all_files = files
         self.fnumber_dict = {}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -791,7 +791,7 @@ class ExposureTimeLooter(QtCore.QThread):
         self.all_files = files
         self.time_dict = {}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -848,7 +848,7 @@ class FocalLengthLooter(QtCore.QThread):
         self.all_files = files
         self.fl_dict = {}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
