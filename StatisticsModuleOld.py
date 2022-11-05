@@ -9,10 +9,14 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, pyqtSignal
 import exiftool
 
-
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
+from matplotlib.ticker import MaxNLocator
+from matplotlib.figure import Figure
 from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout
-
-from PyQt5 import QtWebEngineWidgets
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+import matplotlib.pyplot as plt
+matplotlib.use('QtAgg',force=True)
 
 import ErrorsAndWarnings
 import Metadata
@@ -178,26 +182,33 @@ class StatisticsWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(5)
 
-        self.graphic_hours = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_hours, 0, 0, 1, 1)
+        self.figure_hours = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_hours = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_hours)
+        self.layout.addWidget(self.canvas_hours, 0, 0, 1, 1)
 
-        self.graphic_camera = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_camera, 0, 1, 1, 1)
+        self.figure_camera = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_camera = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_camera)
+        self.layout.addWidget(self.canvas_camera, 0, 1, 1, 1)
 
-        self.graphic_lens = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_lens, 0, 2, 1, 1)
+        self.figure_lens = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_lens = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_lens)
+        self.layout.addWidget(self.canvas_lens, 0, 2, 1, 1)
 
-        self.graphic_iso = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_iso, 1, 0, 1, 1)
+        self.figure_iso = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_iso = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_iso)
+        self.layout.addWidget(self.canvas_iso, 1, 0, 1, 1)
 
-        self.graphic_fnumber = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_fnumber, 1, 1, 1, 1)
+        self.figure_fnumber = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_fnumber = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fnumber)
+        self.layout.addWidget(self.canvas_fnumber, 1, 1, 1, 1)
 
-        self.graphic_exposuretime = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_exposuretime, 1, 2, 1, 2)
+        self.figure_exposuretime = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_exposuretime  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_exposuretime )
+        self.layout.addWidget(self.canvas_exposuretime, 1, 2, 1, 2)
 
-        self.graphic_fl = QtWebEngineWidgets.QWebEngineView(self)
-        self.layout.addWidget(self.graphic_fl, 0, 3, 1, 1)
+        self.figure_fl = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
+        self.canvas_fl = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fl)
+        self.layout.addWidget(self.canvas_fl, 0, 3, 1, 1)
 
         self.start_btn = QPushButton(self)
         self.start_btn.setText('Пересчитать')
@@ -239,7 +250,29 @@ class StatisticsWidget(QWidget):
         self.make_hour_graphic(result)
 
     def make_hour_graphic(self, hd: dict) -> None:
-        pass
+        self.figure_hours.clear()
+        self.figure_hours.patch.set_facecolor(area_color)
+        picture = self.figure_hours.add_subplot(111)
+        sizes = list(hd.values())
+        values = list(hd.keys())
+        picture.grid(True)
+        picture.bar(values, sizes, width=1, align='edge', color=bar_color)
+        picture.set_xlim(0, 24)
+        picture.set_ylim(0, hd[max(hd, key=hd.get)])
+        self.figure_hours.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
+        picture.set_yticks([i for i in range(0, hd[max(hd, key=hd.get)]+1)])
+
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('Время съёмки', color=text_color)
+        picture.set_xlabel('часы', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_hours.tight_layout()
+        self.canvas_hours.draw()
 
     def take_camera_dict(self) -> None:
         self.camera_looter = CameraLooter(self.all_files)
@@ -252,8 +285,23 @@ class StatisticsWidget(QWidget):
         self.make_camera_graphic(result)
 
     def make_camera_graphic(self, hd: dict) -> None:
-        pass
+        self.figure_camera.clear()
+        self.figure_camera.patch.set_facecolor(area_color)
+        picture = self.figure_camera.add_subplot(111)
+        sizes = list(hd.values())
+        hd_keys = list(hd.keys())
+        labels = []
+        for i in range(len(sizes)):
+            labels.append(f"{hd_keys[i]} ({sizes[i]})")
+        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
+        for autotext in autotexts:
+            autotext.set_color(text_color)
+        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+        picture.set_title('Камеры', color=text_color)
+        self.figure_camera.tight_layout()
+        self.canvas_camera.draw()
 
+        picture.set_facecolor(plot_back_color)
 
     def take_lens_dict(self) -> None:
         self.lens_looter = LensLooter(self.all_files)
@@ -266,7 +314,23 @@ class StatisticsWidget(QWidget):
         self.make_lens_graphic(result)
 
     def make_lens_graphic(self, hd: dict) -> None:
-        pass
+        self.figure_lens.clear()
+        self.figure_lens.patch.set_facecolor(area_color)
+        picture = self.figure_lens.add_subplot(111)
+        sizes = list(hd.values())
+        hd_keys = list(hd.keys())
+        labels = []
+        for i in range(len(sizes)):
+            labels.append(f"{hd_keys[i]} ({sizes[i]})")
+        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
+        for autotext in autotexts:
+            autotext.set_color(text_color)
+        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+        picture.set_title('Объективы', color=text_color)
+        self.figure_lens.tight_layout()
+        self.canvas_lens.draw()
+
+        picture.set_facecolor(plot_back_color)
 
     def take_iso_dict(self) -> None:
         self.iso_looter = IsoLooter(self.all_files)
@@ -279,7 +343,39 @@ class StatisticsWidget(QWidget):
         self.make_iso_graphic(result)
 
     def make_iso_graphic(self, hd: dict) -> None:
-        pass
+        self.figure_iso.clear()
+        self.figure_iso.patch.set_facecolor(area_color)
+        picture = self.figure_iso.add_subplot(111)
+
+        sizes = list(hd.values())
+        labels = list(hd.keys())
+        iso_values = [i for i in range(0, len(labels))]
+        for i in range(0, len(labels)):
+            show_value = [0, int((len(labels)/5)*1), int((len(labels)/5)*2), int((len(labels)/5)*3), int((len(labels)/5)*4), len(labels)-1]
+            if i not in show_value:
+                labels[i] = ""
+
+
+        picture.bar(iso_values, sizes, width=1, align='center', color=bar_color, tick_label=labels)
+        picture.set_xlim(0, int(max(iso_values)*1.1))
+        picture.set_ylim(0, max(sizes))
+
+        self.figure_iso.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        picture.grid(False)
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('ISO', color=text_color)
+        picture.set_xlabel('ISO', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_iso.tight_layout()
+        self.canvas_iso.draw()
+
+        picture.set_facecolor(plot_back_color)
 
     def take_fnumber_dict(self) -> None:
         self.fnumber_looter = FnumberLooter(self.all_files)
@@ -292,7 +388,40 @@ class StatisticsWidget(QWidget):
         self.make_fnumber_graphic(result)
 
     def make_fnumber_graphic(self, hd: dict) -> None:
-        pass
+        # def func_pct(pct, allvals):
+        #     absolute = int(round((pct/100)*sum(allvals)))
+        #     return "{:.1f}%\n({:d})".format(pct, absolute)
+
+        self.figure_fnumber.clear()
+        self.figure_fnumber.patch.set_facecolor(area_color)
+        picture = self.figure_fnumber.add_subplot(111)
+        sizes = list(hd.values())
+        hd_keys = list(hd.keys())
+        # labels = []
+        # for i in range(len(sizes)):
+        #     labels.append(f"{hd_keys[i]} ({sizes[i]})")
+        # wedges, _, autotexts = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))
+        # for autotext in autotexts:
+        #     autotext.set_color(text_color)
+        # picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+
+        picture.bar(hd_keys, sizes, width=0.5, align='center', color=bar_color)
+        picture.set_xlim(1, int(max(hd_keys)*1.1))
+        picture.set_ylim(0, max(sizes))
+
+        self.figure_fnumber.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        picture.set_title('Диафрагма', color=text_color)
+
+        picture.set_facecolor(plot_back_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_fnumber.tight_layout()
+        self.canvas_fnumber.draw()
 
     def take_exposuretime_dict(self) -> None:
         self.exposuretime_looter = ExposureTimeLooter(self.all_files)
@@ -305,7 +434,57 @@ class StatisticsWidget(QWidget):
         self.make_exposuretime_graphic(result)
 
     def make_exposuretime_graphic(self, hd: dict) -> None:
-        pass
+        def clear_labels(float_times, labels):
+            near_cleared = []
+            for i in range(len(float_times)):
+                for j in range(len(float_times)):
+                    if i == j:
+                        pass
+                    else:
+                        if abs(float_times[i] - float_times[j]) < 0.5:
+                            if float_times[j] in near_cleared:
+                                pass
+                            else:
+                                if float_times[i] >= 0.1 and labels[i]:
+                                    labels[i] = str(round(float(labels[i]), 2))
+                                near_cleared.append(float_times[i])
+                                labels[j] = ''
+            return labels
+
+        self.figure_exposuretime.clear()
+        self.figure_exposuretime.patch.set_facecolor(area_color)
+
+        picture = self.figure_exposuretime.add_subplot(111)
+        picture.grid(False)
+        sizes = list(hd.values())
+        times = list(hd.keys())
+        float_times = []
+        for t in times:
+            if len(t.split('/')) == 2:
+                float_value_buf = float(int(t.split('/')[0])/int(t.split('/')[1]))
+                float_value = float((-1)*(1/float_value_buf)/50)
+            else:
+                float_value = float(t)
+            float_times.append(float_value)
+
+        picture.bar(float_times, sizes, width=0.1, color=bar_color, tick_label=clear_labels(float_times, times), align='center')
+        picture.set_xlim(int(min(float_times)*1.1), int(max(float_times)*1.1))
+        picture.set_ylim(0, max(sizes))
+        matplotlib.artist.setp(picture.get_xticklabels(), rotation=90, horizontalalignment='center')
+
+        self.figure_exposuretime.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('Выдержка', color=text_color)
+        picture.set_xlabel('секунды', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_exposuretime.tight_layout()
+        self.canvas_exposuretime.draw()
 
     def take_fl_dict(self) -> None:
         self.fl_looter = FocalLengthLooter(self.all_files)
@@ -318,7 +497,30 @@ class StatisticsWidget(QWidget):
         self.make_fl_graphic(result)
 
     def make_fl_graphic(self, hd: dict) -> None:
-        pass
+        self.figure_fl.clear()
+        self.figure_fl.patch.set_facecolor(area_color)
+        picture = self.figure_fl.add_subplot(111)
+
+        picture.grid(False)
+        sizes = list(hd.values())
+        length = list(hd.keys())
+        picture.bar(length, sizes, width=1, align='center', color=bar_color)
+        picture.set_xlim(0, int(max(length)*1.1))
+        picture.set_ylim(0, max(sizes))
+
+        self.figure_fl.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
+
+        picture.set_facecolor(plot_back_color)
+        picture.set_title('Фокусное расстояние', color=text_color)
+        picture.set_xlabel('миллиметры', color=text_color)
+        picture.tick_params(labelcolor=text_color, colors=text_color)
+        picture.spines['bottom'].set_color(text_color)
+        picture.spines['left'].set_color(text_color)
+        picture.spines['top'].set_color(text_color)
+        picture.spines['right'].set_color(text_color)
+
+        self.figure_fl.tight_layout()
+        self.canvas_fl.draw()
 
     def update_colors(self) -> None:
         self.parent().stylesheet_color()

@@ -266,6 +266,7 @@ class GlobalMapWidget(QWidget):
         map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(full_paths)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+        self.map_gps_widget.page().setBackgroundColor(QtCore.Qt.transparent)
         progress = 0
         locations = []
         if map_points_combo:

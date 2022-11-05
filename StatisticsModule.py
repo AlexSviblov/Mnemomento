@@ -9,14 +9,12 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, pyqtSignal
 import exiftool
 
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg
-from matplotlib.ticker import MaxNLocator
-from matplotlib.figure import Figure
+
 from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
-matplotlib.use('QtAgg',force=True)
+
+from PyQt5 import QtWebEngineWidgets
+import plotly.express as px
+import plotly.graph_objects as go
 
 import ErrorsAndWarnings
 import Metadata
@@ -34,6 +32,7 @@ text_color = str()
 plot_back_color = str()
 bar_color = str()
 area_color = str()
+bar_time_color = str()
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -65,6 +64,7 @@ class StatisticsWin(QMainWindow):
         global plot_back_color
         global bar_color
         global area_color
+        global bar_time_color
 
         if Settings.get_theme_color() == 'light':
             stylesheet1 = """
@@ -111,7 +111,8 @@ class StatisticsWin(QMainWindow):
                             """
             text_color = "black"
             plot_back_color = "white"
-            bar_color = "blue"
+            bar_time_color = "black"
+            bar_color = 'blue'
             area_color = "#F4F4F4"
         else:  # Settings.get_theme_color() == 'dark'
             stylesheet1 = """
@@ -157,8 +158,9 @@ class StatisticsWin(QMainWindow):
                                 }
                             """
             text_color = "white"
-            plot_back_color = "grey"
+            plot_back_color = "#585858"
             bar_color = "yellow"
+            bar_time_color = "#fff100"
             area_color = "#181818"
 
         self.setStyleSheet(stylesheet2)
@@ -182,33 +184,33 @@ class StatisticsWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(5)
 
-        self.figure_hours = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_hours = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_hours)
-        self.layout.addWidget(self.canvas_hours, 0, 0, 1, 1)
+        self.graphic_hours = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_hours.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_hours, 0, 0, 1, 1)
 
-        self.figure_camera = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_camera = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_camera)
-        self.layout.addWidget(self.canvas_camera, 0, 1, 1, 1)
+        self.graphic_camera = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_camera.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_camera, 0, 1, 1, 1)
 
-        self.figure_lens = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_lens = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_lens)
-        self.layout.addWidget(self.canvas_lens, 0, 2, 1, 1)
+        self.graphic_lens = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_lens.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_lens, 0, 2, 1, 1)
 
-        self.figure_iso = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_iso = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_iso)
-        self.layout.addWidget(self.canvas_iso, 1, 0, 1, 1)
+        self.graphic_iso = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_iso.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_iso, 1, 0, 1, 1)
 
-        self.figure_fnumber = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_fnumber = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fnumber)
-        self.layout.addWidget(self.canvas_fnumber, 1, 1, 1, 1)
+        self.graphic_fnumber = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_fnumber.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_fnumber, 1, 1, 1, 1)
 
-        self.figure_exposuretime = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_exposuretime  = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_exposuretime )
-        self.layout.addWidget(self.canvas_exposuretime, 1, 2, 1, 2)
+        self.graphic_exposuretime = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_exposuretime.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_exposuretime, 1, 2, 1, 2)
 
-        self.figure_fl = matplotlib.figure.Figure(figsize=(7, 7), dpi=80)
-        self.canvas_fl = matplotlib.backends.backend_qt5agg.FigureCanvasQTAgg(self.figure_fl)
-        self.layout.addWidget(self.canvas_fl, 0, 3, 1, 1)
+        self.graphic_fl = QtWebEngineWidgets.QWebEngineView(self)
+        self.graphic_fl.page().setBackgroundColor(QtCore.Qt.transparent)
+        self.layout.addWidget(self.graphic_fl, 0, 3, 1, 1)
 
         self.start_btn = QPushButton(self)
         self.start_btn.setText('Пересчитать')
@@ -250,29 +252,22 @@ class StatisticsWidget(QWidget):
         self.make_hour_graphic(result)
 
     def make_hour_graphic(self, hd: dict) -> None:
-        self.figure_hours.clear()
-        self.figure_hours.patch.set_facecolor(area_color)
-        picture = self.figure_hours.add_subplot(111)
-        sizes = list(hd.values())
-        values = list(hd.keys())
-        picture.grid(True)
-        picture.bar(values, sizes, width=1, align='edge', color=bar_color)
-        picture.set_xlim(0, 24)
-        picture.set_ylim(0, hd[max(hd, key=hd.get)])
-        self.figure_hours.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
-        picture.set_yticks([i for i in range(0, hd[max(hd, key=hd.get)]+1)])
-
-        picture.set_facecolor(plot_back_color)
-        picture.set_title('Время съёмки', color=text_color)
-        picture.set_xlabel('часы', color=text_color)
-        picture.tick_params(labelcolor=text_color, colors=text_color)
-        picture.spines['bottom'].set_color(text_color)
-        picture.spines['left'].set_color(text_color)
-        picture.spines['top'].set_color(text_color)
-        picture.spines['right'].set_color(text_color)
-
-        self.figure_hours.tight_layout()
-        self.canvas_hours.draw()
+        x_values = list(hd.keys())
+        y_values = list(hd.values())
+        hover_text = ["00:00-1:00", "1:00-2:00", "2:00-3:00", "3:00-4:00", "4:00-5:00", "5:00-6:00", "6:00-7:00",
+                      "7:00-8:00", "8:00-9:00", "9:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", "13:00-14:00",
+                      "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00", "18:00-19:00", "19:00-20:00",
+                      "20:00-21:00", "21:00-22:00", "22:00-23:00", "23:00-00:00"]
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
+                                    text=hover_text, textposition='none', marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Время съёмки',
+                          title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
+                          font_color=text_color, title_font_color=text_color)
+        fig.update_traces(width=1)
+        fig.update_xaxes(tickvals=[-0.5, 1.5, 3.5, 5.5, 7.5, 9.5, 11.5, 13.5, 15.5, 17.5, 19.5, 21.5],
+                         ticktext=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22])
+        self.graphic_hours.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def take_camera_dict(self) -> None:
         self.camera_looter = CameraLooter(self.all_files)
@@ -285,23 +280,13 @@ class StatisticsWidget(QWidget):
         self.make_camera_graphic(result)
 
     def make_camera_graphic(self, hd: dict) -> None:
-        self.figure_camera.clear()
-        self.figure_camera.patch.set_facecolor(area_color)
-        picture = self.figure_camera.add_subplot(111)
         sizes = list(hd.values())
-        hd_keys = list(hd.keys())
-        labels = []
-        for i in range(len(sizes)):
-            labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
-        for autotext in autotexts:
-            autotext.set_color(text_color)
-        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
-        picture.set_title('Камеры', color=text_color)
-        self.figure_camera.tight_layout()
-        self.canvas_camera.draw()
-
-        picture.set_facecolor(plot_back_color)
+        names = list(hd.keys())
+        fig = go.Figure(data=go.Pie(values=sizes, labels=names))
+        fig.update_layout(autosize=True, title_text='Камеры', title_x=0.5, paper_bgcolor=area_color,
+                          plot_bgcolor=plot_back_color, font_color=text_color, title_font_color=text_color)
+        self.graphic_camera.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def take_lens_dict(self) -> None:
         self.lens_looter = LensLooter(self.all_files)
@@ -314,23 +299,13 @@ class StatisticsWidget(QWidget):
         self.make_lens_graphic(result)
 
     def make_lens_graphic(self, hd: dict) -> None:
-        self.figure_lens.clear()
-        self.figure_lens.patch.set_facecolor(area_color)
-        picture = self.figure_lens.add_subplot(111)
         sizes = list(hd.values())
-        hd_keys = list(hd.keys())
-        labels = []
-        for i in range(len(sizes)):
-            labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        wedges, _, autotexts = picture.pie(sizes, autopct='%1.1f%%')
-        for autotext in autotexts:
-            autotext.set_color(text_color)
-        picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
-        picture.set_title('Объективы', color=text_color)
-        self.figure_lens.tight_layout()
-        self.canvas_lens.draw()
-
-        picture.set_facecolor(plot_back_color)
+        names = list(hd.keys())
+        fig = go.Figure(data=go.Pie(values=sizes, labels=names))
+        fig.update_layout(autosize=True, title_text='Объективы', title_x=0.5, paper_bgcolor=area_color,
+                          plot_bgcolor=plot_back_color, font_color=text_color, title_font_color=text_color)
+        self.graphic_lens.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def take_iso_dict(self) -> None:
         self.iso_looter = IsoLooter(self.all_files)
@@ -343,39 +318,25 @@ class StatisticsWidget(QWidget):
         self.make_iso_graphic(result)
 
     def make_iso_graphic(self, hd: dict) -> None:
-        self.figure_iso.clear()
-        self.figure_iso.patch.set_facecolor(area_color)
-        picture = self.figure_iso.add_subplot(111)
+        iso_values = list(hd.keys())
+        y_values = list(hd.values())
+        hover_text = iso_values
+        x_values = [i for i in range(0, len(iso_values))]
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
+                                    text=hover_text, textposition='none', marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='ISO',
+                          title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
+                          font_color=text_color, title_font_color=text_color)
 
-        sizes = list(hd.values())
-        labels = list(hd.keys())
-        iso_values = [i for i in range(0, len(labels))]
-        for i in range(0, len(labels)):
-            show_value = [0, int((len(labels)/5)*1), int((len(labels)/5)*2), int((len(labels)/5)*3), int((len(labels)/5)*4), len(labels)-1]
-            if i not in show_value:
-                labels[i] = ""
+        tick_dict = {}
+        for i in range(11):
+            tick_dict[x_values[int(len(x_values) / 10) * i]] = iso_values[int(len(x_values) / 10) * i]
 
+        fig.update_xaxes(tickvals=list(tick_dict.keys()),
+                         ticktext=list(tick_dict.values()))
 
-        picture.bar(iso_values, sizes, width=1, align='center', color=bar_color, tick_label=labels)
-        picture.set_xlim(0, int(max(iso_values)*1.1))
-        picture.set_ylim(0, max(sizes))
-
-        self.figure_iso.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-
-        picture.grid(False)
-        picture.set_facecolor(plot_back_color)
-        picture.set_title('ISO', color=text_color)
-        picture.set_xlabel('ISO', color=text_color)
-        picture.tick_params(labelcolor=text_color, colors=text_color)
-        picture.spines['bottom'].set_color(text_color)
-        picture.spines['left'].set_color(text_color)
-        picture.spines['top'].set_color(text_color)
-        picture.spines['right'].set_color(text_color)
-
-        self.figure_iso.tight_layout()
-        self.canvas_iso.draw()
-
-        picture.set_facecolor(plot_back_color)
+        self.graphic_iso.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def take_fnumber_dict(self) -> None:
         self.fnumber_looter = FnumberLooter(self.all_files)
@@ -388,40 +349,37 @@ class StatisticsWidget(QWidget):
         self.make_fnumber_graphic(result)
 
     def make_fnumber_graphic(self, hd: dict) -> None:
-        # def func_pct(pct, allvals):
-        #     absolute = int(round((pct/100)*sum(allvals)))
-        #     return "{:.1f}%\n({:d})".format(pct, absolute)
+        fnumber_values = list(hd.keys())
+        y_values = list(hd.values())
+        hover_text = fnumber_values
+        x_values = [i for i in range(0, len(fnumber_values))]
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
+                                    text=hover_text, textposition='none', marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Диафрагма',
+                          title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
+                          font_color=text_color, title_font_color=text_color)
 
-        self.figure_fnumber.clear()
-        self.figure_fnumber.patch.set_facecolor(area_color)
-        picture = self.figure_fnumber.add_subplot(111)
-        sizes = list(hd.values())
-        hd_keys = list(hd.keys())
-        # labels = []
-        # for i in range(len(sizes)):
-        #     labels.append(f"{hd_keys[i]} ({sizes[i]})")
-        # wedges, _, autotexts = picture.pie(sizes, autopct=lambda pct: func_pct(pct, sizes))
-        # for autotext in autotexts:
-        #     autotext.set_color(text_color)
-        # picture.legend(wedges, labels, loc='best', labelcolor=text_color, facecolor=area_color)
+        tick_dict = {}
+        # for i in range(len(x_values)):
+        #     if 20 >= len(x_values) > 10:
+        #         if i%2 == 0:
+        #             tick_dict[x_values[i]] = fnumber_values[i]
+        #     elif 40 >= len(x_values) > 20:
+        #         if i%5 == 0:
+        #             tick_dict[x_values[i]] = fnumber_values[i]
+        #     elif len(x_values) > 40:
+        #         if i%10 == 0:
+        #             tick_dict[x_values[i]] = fnumber_values[i]
+        #     else:
+        #         tick_dict[x_values[i]] = fnumber_values[i]
 
-        picture.bar(hd_keys, sizes, width=0.5, align='center', color=bar_color)
-        picture.set_xlim(1, int(max(hd_keys)*1.1))
-        picture.set_ylim(0, max(sizes))
+        for i in range(11):
+                tick_dict[x_values[int(len(x_values)/10)*i]] = fnumber_values[int(len(x_values)/10)*i]
 
-        self.figure_fnumber.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-
-        picture.set_title('Диафрагма', color=text_color)
-
-        picture.set_facecolor(plot_back_color)
-        picture.tick_params(labelcolor=text_color, colors=text_color)
-        picture.spines['bottom'].set_color(text_color)
-        picture.spines['left'].set_color(text_color)
-        picture.spines['top'].set_color(text_color)
-        picture.spines['right'].set_color(text_color)
-
-        self.figure_fnumber.tight_layout()
-        self.canvas_fnumber.draw()
+        fig.update_xaxes(tickvals=list(tick_dict.keys()),
+                         ticktext=list(tick_dict.values()))
+        self.graphic_fnumber.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def take_exposuretime_dict(self) -> None:
         self.exposuretime_looter = ExposureTimeLooter(self.all_files)
@@ -434,16 +392,17 @@ class StatisticsWidget(QWidget):
         self.make_exposuretime_graphic(result)
 
     def make_exposuretime_graphic(self, hd: dict) -> None:
-        def clear_labels(float_times, labels):
+        def clear_labels(float_times, labels_enter):
             near_cleared = []
+            labels = list(labels_enter)
             for i in range(len(float_times)):
                 for j in range(len(float_times)):
                     if i == j:
                         pass
                     else:
-                        if abs(float_times[i] - float_times[j]) < 0.5:
+                        if abs(float_times[i] - float_times[j]) < 2:
                             if float_times[j] in near_cleared:
-                                pass
+                                labels[i] = ''
                             else:
                                 if float_times[i] >= 0.1 and labels[i]:
                                     labels[i] = str(round(float(labels[i]), 2))
@@ -451,40 +410,31 @@ class StatisticsWidget(QWidget):
                                 labels[j] = ''
             return labels
 
-        self.figure_exposuretime.clear()
-        self.figure_exposuretime.patch.set_facecolor(area_color)
-
-        picture = self.figure_exposuretime.add_subplot(111)
-        picture.grid(False)
         sizes = list(hd.values())
         times = list(hd.keys())
         float_times = []
         for t in times:
             if len(t.split('/')) == 2:
-                float_value_buf = float(int(t.split('/')[0])/int(t.split('/')[1]))
-                float_value = float((-1)*(1/float_value_buf)/50)
+                float_value_buf = float(int(t.split('/')[0]) / int(t.split('/')[1]))
+                float_value = float(((-1) * (1 / float_value_buf) / 50)+0.3)
             else:
                 float_value = float(t)
             float_times.append(float_value)
 
-        picture.bar(float_times, sizes, width=0.1, color=bar_color, tick_label=clear_labels(float_times, times), align='center')
-        picture.set_xlim(int(min(float_times)*1.1), int(max(float_times)*1.1))
-        picture.set_ylim(0, max(sizes))
-        matplotlib.artist.setp(picture.get_xticklabels(), rotation=90, horizontalalignment='center')
+        hover_text = []
+        for time in times:
+            hover_text.append(time[:7])
+        fig = go.Figure(data=go.Bar(x=float_times, y=sizes, hovertemplate='%{text} (%{y})<extra></extra>',
+                                    text=hover_text, textposition='none', marker_color=bar_time_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Выдержка',
+                          title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
+                          font_color=text_color, title_font_color=text_color)
+        fig.update_xaxes(tickvals=list(float_times),
+                         ticktext=clear_labels(float_times, times))
+        fig.update_traces(width=0.02)
 
-        self.figure_exposuretime.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-
-        picture.set_facecolor(plot_back_color)
-        picture.set_title('Выдержка', color=text_color)
-        picture.set_xlabel('секунды', color=text_color)
-        picture.tick_params(labelcolor=text_color, colors=text_color)
-        picture.spines['bottom'].set_color(text_color)
-        picture.spines['left'].set_color(text_color)
-        picture.spines['top'].set_color(text_color)
-        picture.spines['right'].set_color(text_color)
-
-        self.figure_exposuretime.tight_layout()
-        self.canvas_exposuretime.draw()
+        self.graphic_exposuretime.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def take_fl_dict(self) -> None:
         self.fl_looter = FocalLengthLooter(self.all_files)
@@ -497,30 +447,24 @@ class StatisticsWidget(QWidget):
         self.make_fl_graphic(result)
 
     def make_fl_graphic(self, hd: dict) -> None:
-        self.figure_fl.clear()
-        self.figure_fl.patch.set_facecolor(area_color)
-        picture = self.figure_fl.add_subplot(111)
+        fl_values = list(hd.keys())
+        y_values = list(hd.values())
+        hover_text = fl_values
+        x_values = [i for i in range(0, len(fl_values))]
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
+                                    text=hover_text, textposition='none', marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Фокусное расстояние',
+                          title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
+                          font_color=text_color, title_font_color=text_color)
 
-        picture.grid(False)
-        sizes = list(hd.values())
-        length = list(hd.keys())
-        picture.bar(length, sizes, width=1, align='center', color=bar_color)
-        picture.set_xlim(0, int(max(length)*1.1))
-        picture.set_ylim(0, max(sizes))
+        tick_dict = {}
+        for i in range(11):
+                tick_dict[x_values[int(len(x_values)/10)*i]] = fl_values[int(len(x_values)/10)*i]
 
-        self.figure_fl.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-
-        picture.set_facecolor(plot_back_color)
-        picture.set_title('Фокусное расстояние', color=text_color)
-        picture.set_xlabel('миллиметры', color=text_color)
-        picture.tick_params(labelcolor=text_color, colors=text_color)
-        picture.spines['bottom'].set_color(text_color)
-        picture.spines['left'].set_color(text_color)
-        picture.spines['top'].set_color(text_color)
-        picture.spines['right'].set_color(text_color)
-
-        self.figure_fl.tight_layout()
-        self.canvas_fl.draw()
+        fig.update_xaxes(tickvals=list(tick_dict.keys()),
+                         ticktext=list(tick_dict.values()))
+        self.graphic_fl.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        QtCore.QCoreApplication.processEvents()
 
     def update_colors(self) -> None:
         self.parent().stylesheet_color()
@@ -545,7 +489,7 @@ class HoursLooter(QtCore.QThread):
         self.hours_dict = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0,
                            14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0}
 
-        # self._init = False
+        self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -560,7 +504,6 @@ class HoursLooter(QtCore.QThread):
                             if hour_exif:
                                 try:
                                     hour = int(hour_exif.split(':')[-2])
-                                    print(hour)
                                     try:
                                         self.hours_dict[hour] += 1
                                     except KeyError:
