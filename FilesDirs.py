@@ -29,6 +29,17 @@ def transfer_const_photos(file: str) -> str:
     :param file: абсолютный путь фотографии = 'C:/Users/user/Pictures/1.jpg'
     :return: если такой файл уже добавлен (совпадение по имени и дате), то вернуть его.
     """
+    def name_plussing(full_path, year, month, day):
+        original_name = full_path.split("/")[-1]
+        name_part = original_name.split(".")[0]
+        format = original_name.split(".")[-1]
+        for i in range(10000):
+            new_name = f"{name_part}-{i}.{format}"
+            if os.path.exists(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + new_name):
+                pass
+            else:
+                return new_name
+
     if file[-3:] not in ("jpg", "JPG"):
         return
 
@@ -53,6 +64,11 @@ def transfer_const_photos(file: str) -> str:
         if error == 0:
             if os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):
                 if os.path.exists(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1]):
+                    # new_name = name_plussing(file, year, month, day)
+                    # shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + new_name)
+                    # Metadata.check_photo_rotation(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + new_name, file_metadata)
+                    # Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), new_name)
+                    # PhotoDataDB.add_to_database(new_name, destination + str(year) + '/' + str(month) + '/' + str(day), file_metadata)
                     fileexist = file_full[-1]
                 else:
                     shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1])

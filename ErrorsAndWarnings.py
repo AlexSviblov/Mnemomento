@@ -314,9 +314,9 @@ class FilesReadError_win(QDialog):
         super(FilesReadError_win, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle('ОШИБКА')
+        self.setWindowTitle('ОШИБКА доступа к файлам')
 
-        str_show = 'Ошибка доступа к файлам.\nДанные файлы не удалось перенести, возможно они открыты в другой программе или повреждены:'
+        str_show = 'Данные файлы не удалось перенести, возможно они открыты в другой программе или повреждены:'
         for file in files:
             str_show += f'\n{file}'
         layout = QGridLayout(self)

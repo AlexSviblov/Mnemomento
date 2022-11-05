@@ -50,16 +50,18 @@ class GlobalMapWidget(QWidget):
         self.soc_net_setting = int(settings["social_networks_status"])
 
         self.layout_outside = QGridLayout(self)
-        self.layout_outside.setSpacing(10)
         self.setLayout(self.layout_outside)
 
         self.layout_type = QGridLayout(self)
-        self.layout_type.setAlignment(QtCore.Qt.AlignLeft)
+        self.layout_type.setHorizontalSpacing(5)
+        self.layout_type.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
 
         self.groupbox_sort = QGroupBox(self)
         self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
+        self.groupbox_sort.setAlignment(QtCore.Qt.AlignVCenter)
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.groupbox_sort.setLayout(self.layout_type)
+
         self.layout_outside.addWidget(self.groupbox_sort, 0, 1, 1, 1)
 
         self.empty = QLabel(self)
@@ -79,9 +81,8 @@ class GlobalMapWidget(QWidget):
         self.btn_show.setText('Показать')
         self.btn_show.setFont(font14)
         self.btn_show.setStyleSheet(stylesheet8)
-        self.btn_show.setFixedWidth(int(100*system_scale)+1)
-        self.btn_show.setFixedHeight(int(30*system_scale)+1)
-        self.layout_outside.addWidget(self.btn_show, 0, 4, 1, 1)
+        self.btn_show.setFixedSize(int(100*system_scale)+1, int(30*system_scale)+1)
+        self.layout_outside.addWidget(self.btn_show, 0, 2, 1, 1)
         self.btn_show.clicked.connect(self.make_show_map)
 
     def stylesheet_color(self):
@@ -223,13 +224,6 @@ class GlobalMapWidget(QWidget):
 
     # вывести карту
     def make_show_map(self) -> None:
-        try:
-            self.warning_number.deleteLater()
-        except (AttributeError, RuntimeError):
-            pass
-
-        self.layout_outside.addWidget(self.progressbar, 0, 3, 1, 1)
-
         self.progressbar.show()
         self.progressbar.setMaximum(100)
         match self.group_type.currentText():
@@ -237,10 +231,7 @@ class GlobalMapWidget(QWidget):
                 year = self.date_year.currentText()
                 month = self.date_month.currentText()
                 day = self.date_day.currentText()
-                if not year or not month or not day:
-                    return
-                else:
-                    full_paths = PhotoDataDB.get_date_photo_list(year, month, day)
+                full_paths = PhotoDataDB.get_date_photo_list(year, month, day)
             case 'Соцсети':
                 socnet = self.socnet_choose.currentText()
                 status = self.sn_status.currentText()
@@ -267,46 +258,41 @@ class GlobalMapWidget(QWidget):
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         progress = 0
-        locations = []
+        print(len(map_points_combo))
         if map_points_combo:
-            if len(map_points_combo) > 100:
-                self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
-                self.marker_cluster = folium.plugins.MarkerCluster().add_to(self.map_gps)
-                for photo in map_points_combo:
-                    QtCore.QCoreApplication.processEvents()
-                    locations.append(photo[1])
-                    self.progressbar.setValue(int((progress/len(map_points_combo))*99+1))
-                    QtCore.QCoreApplication.processEvents()
-                    progress += 1
+            self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
+            photo_grouped_shown = list()
+            for photo in map_points_combo:
 
-                callback = ('function (row) {'
-                            'var marker = L.marker(new L.LatLng(row[0], row[1]), {color: "red"});'
-                            'var icon = L.AwesomeMarkers.icon({'
-                            "icon: 'glyphicon glyphicon-picture',"
-                            "iconColor: 'white',"
-                            "markerColor: 'red',"
-                            "prefix: 'glyphicon',"
-                            '});'
-                            'marker.setIcon(icon);'
-                            'return marker};')
-                options_dict = {'spiderfyOnMaxZoom': False, 'singleMarkerMode': True}
-
-                folium.plugins.FastMarkerCluster(locations, callback=callback, options=options_dict).add_to(self.map_gps)
                 QtCore.QCoreApplication.processEvents()
-            else:
-                self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
-                self.marker_cluster = folium.plugins.MarkerCluster().add_to(self.map_gps)
-                for photo in map_points_combo:
-                    QtCore.QCoreApplication.processEvents()
-
+                if not photo[5]:
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
-                    folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.marker_cluster)
-
-                    self.progressbar.setValue(int((progress / len(map_points_combo)) * 99 + 1))
-                    QtCore.QCoreApplication.processEvents()
-                    progress += 1
-
+                    folium.Marker(location=photo[1], popup=popup,
+                                  icon=folium.Icon(color='red', icon='glyphicon glyphicon-picture')).add_to(self.map_gps)
+                    photo_grouped_shown.append(photo)
+                else: # несколько фото с 1 меткой GPS
+                    if photo not in photo_grouped_shown:
+                        group_photo_list = list()
+                        for photo_compare in map_points_combo:
+                            if photo_compare[1] == photo[1] and not photo_compare[4] == photo[4]:
+                                group_photo_list.append(photo_compare)
+                                photo_grouped_shown.append(photo_compare)
+                            else: # совпадение координат
+                                pass
+                        if len(group_photo_list) > 0:
+                            group_photo_list.append(photo)
+                            photo_grouped_shown.append(photo)
+                            iframe = self.popup_html_group(group_photo_list)
+                            popup = folium.Popup(iframe)
+                            folium.Marker(location=photo[1], popup=popup,
+                                          icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(
+                                self.map_gps)
+                        else:
+                            pass
+                QtCore.QCoreApplication.processEvents()
+                progress += 1
+                self.progressbar.setValue(int((progress/len(map_points_combo))*99+1))
                 QtCore.QCoreApplication.processEvents()
 
         else:
@@ -315,7 +301,7 @@ class GlobalMapWidget(QWidget):
         formatter = "function(num) {return L.Util.formatNum(num, 4) + ' º ';};"
 
         MousePosition(position="topright", separator=", ", empty_string="NaN",  lng_first=True,
-                      num_digits=20, prefix="Координаты:", lat_formatter=formatter, lng_formatter=formatter).add_to(self.map_gps)
+            num_digits=20, prefix="Координаты:", lat_formatter=formatter, lng_formatter=formatter).add_to(self.map_gps)
 
         popup1 = folium.LatLngPopup()
 
@@ -323,15 +309,9 @@ class GlobalMapWidget(QWidget):
 
         self.map_gps_widget.setHtml(self.map_gps.get_root().render())
 
-        self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 5)
+        self.layout_outside.addWidget(self.map_gps_widget, 1, 0, 1, 4)
         QtCore.QCoreApplication.processEvents()
         self.progressbar.hide()
-        if len(map_points_combo) > 100:
-            self.warning_number = QLabel()
-            self.warning_number.setStyleSheet(stylesheet2)
-            self.warning_number.setFont(font14)
-            self.warning_number.setText("Ограниченный показ")
-            self.layout_outside.addWidget(self.warning_number, 0, 2, 1, 1)
         QtCore.QCoreApplication.processEvents()
 
     # заполнение полей сортировки по дате
@@ -451,38 +431,38 @@ class GlobalMapWidget(QWidget):
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
+        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.date_year = QComboBox(self)
         self.date_year.setStyleSheet(stylesheet9)
         self.date_year.setFont(font14)
         self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.date_year.setFixedWidth(int(140*system_scale)+1)
-        self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
+        self.layout_type.addWidget(self.date_year, 0, 2, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.month_lbl = QLabel(self)
         self.month_lbl.setFont(font14)
         self.month_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
+        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.date_month = QComboBox(self)
         self.date_month.setFont(font14)
         self.date_month.setStyleSheet(stylesheet9)
         self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.date_month.setFixedWidth(int(140*system_scale)+1)
-        self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
+        self.layout_type.addWidget(self.date_month, 0, 4, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.day_lbl = QLabel(self)
         self.day_lbl.setFont(font14)
         self.day_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
+        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1, alignment=QtCore.Qt.AlignTop)
 
         self.date_day = QComboBox(self)
         self.date_day.setFont(font14)
         self.date_day.setStyleSheet(stylesheet9)
         self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
         self.date_day.setFixedWidth(int(140*system_scale)+1)
-        self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
+        self.layout_type.addWidget(self.date_day, 0, 6, 1, 1, alignment=QtCore.Qt.AlignVCenter)
 
         self.fill_date('date')
 

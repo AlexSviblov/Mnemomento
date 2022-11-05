@@ -62,8 +62,7 @@ class ConstWidgetWindow(QWidget):
         self.layoutoutside.setSpacing(10)
 
         self.layout_type = QGridLayout(self)
-        self.layout_type.setHorizontalSpacing(5)
-        self.layout_type.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.layout_type.setAlignment(Qt.AlignLeft)
 
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
@@ -85,7 +84,7 @@ class ConstWidgetWindow(QWidget):
         self.scroll_area.setFixedWidth(200*self.thumb_row)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(int(50*system_scale))
+        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
@@ -567,7 +566,10 @@ class ConstWidgetWindow(QWidget):
                 month = self.date_month.currentText()
                 day = self.date_day.currentText()
 
-                photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+                if not year or not month or not day:
+                    return
+                else:
+                    photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
@@ -823,16 +825,17 @@ class ConstWidgetWindow(QWidget):
 
     # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_del(self) -> None:
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
         self.metadata_show.hide()
         self.socnet_group.clear()
         self.socnet_group.hide()
-        try:
-            self.map_gps_widget.deleteLater()
-        except (RuntimeError, AttributeError):
-            pass
+        QtCore.QCoreApplication.processEvents()
 
         self.type_show_thumbnails()
         match self.group_type.currentText():

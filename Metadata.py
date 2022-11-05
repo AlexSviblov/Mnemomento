@@ -89,8 +89,8 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
     metadata = dict()
 
     try:
-        width = str(data['0th'][257])
-        height = str(data['0th'][256])
+        width = str(data['0th'][256])
+        height = str(data['0th'][257])
         metadata['Разрешение'] = width + 'x' + height
     except KeyError:
         im = Image.open(photo_directory + '/' + photofile)
