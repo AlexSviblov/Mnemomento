@@ -753,7 +753,7 @@ class ExposureTimeLooter(QtCore.QThread):
                         self.time_dict[expo_time] += 1
                     except KeyError:
                         self.time_dict[expo_time] = 1
-            except (KeyError, ValueError) as error:
+            except (KeyError, ValueError, ZeroDivisionError) as error:
                 if type(error) == ValueError:
                     try:
                         with exiftool.ExifToolHelper() as et:
@@ -802,7 +802,7 @@ class FocalLengthLooter(QtCore.QThread):
                         self.fl_dict[fl] += 1
                     except KeyError:
                         self.fl_dict[fl] = 1
-            except (KeyError, ValueError) as error:
+            except (KeyError, ValueError, ZeroDivisionError) as error:
                 if type(error) == ValueError:
                     try:
                         with exiftool.ExifToolHelper() as et:

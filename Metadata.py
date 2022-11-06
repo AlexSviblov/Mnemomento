@@ -741,11 +741,15 @@ def equip_solo_name_check(exifname: str, type: str) -> str:
     :return: как оборудование автоматически пишется в exif.
     """
     sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{exifname}\''
-    cur.execute(sql_str)
     try:
-        normname = cur.fetchone()[0]
-    except TypeError:
+        cur.execute(sql_str)
+    except ValueError:
         normname = exifname
+    else:
+        try:
+            normname = cur.fetchone()[0]
+        except TypeError:
+            normname = exifname
 
     return normname
 
