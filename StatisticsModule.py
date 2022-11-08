@@ -26,6 +26,7 @@ font14 = QtGui.QFont('Times', 14)
 
 stylesheet1 = str()
 stylesheet2 = str()
+stylesheet5 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 text_color = str()
@@ -58,6 +59,7 @@ class StatisticsWin(QMainWindow):
     def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
+        global stylesheet5
         global stylesheet8
         global stylesheet9
         global text_color
@@ -79,6 +81,20 @@ class StatisticsWin(QMainWindow):
                                 color: #000000;
                                 background-color: #F0F0F0
                             """
+            stylesheet5 = """
+                                            QProgressBar
+                                            {
+                                                border: 1px;
+                                                border-color: #000000;
+                                                border-style: solid;
+                                                background-color: #FFFFFF;
+                                                color: #000000
+                                            }
+                                            QProgressBar::chunk
+                                            {
+                                                background-color: #00FF7F;  
+                                            }
+                                        """
             stylesheet8 = """
                                 QPushButton
                                 {
@@ -127,6 +143,20 @@ class StatisticsWin(QMainWindow):
                                 color: #D3D3D3;
                                 background-color: #1C1C1C
                             """
+            stylesheet5 = """
+                                           QProgressBar
+                                           {
+                                               border: 1px;
+                                               border-color: #000000;
+                                               border-style: solid;
+                                               background-color: #CCCCCC;
+                                               color: #000000
+                                           }
+                                           QProgressBar::chunk
+                                           {
+                                               background-color: #1F7515;
+                                           }
+                                       """
             stylesheet8 = """
                                 QPushButton
                                 {
@@ -179,6 +209,14 @@ class StatisticsWidget(QWidget):
         self.setStyleSheet(stylesheet2)
 
         self.all_files = self.get_all_main_catalog_files()
+        self.number_of_operations = len(self.all_files)
+        self.counter_hours = 0
+        self.counter_camera = 0
+        self.counter_lens = 0
+        self.counter_iso = 0
+        self.counter_fnumber = 0
+        self.counter_fl = 0
+        self.counter_expotime = 0
 
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
@@ -217,6 +255,7 @@ class StatisticsWidget(QWidget):
         self.layout.addWidget(self.start_btn, 2, 0, 1, 1)
         self.start_btn.setStyleSheet(stylesheet8)
         self.start_btn.setFont(font14)
+        self.start_btn.clicked.connect(self.reset_counter)
         self.start_btn.clicked.connect(self.take_hour_dict)
         self.start_btn.clicked.connect(self.take_iso_dict)
         self.start_btn.clicked.connect(self.take_camera_dict)
@@ -224,6 +263,53 @@ class StatisticsWidget(QWidget):
         self.start_btn.clicked.connect(self.take_fnumber_dict)
         self.start_btn.clicked.connect(self.take_exposuretime_dict)
         self.start_btn.clicked.connect(self.take_fl_dict)
+
+        self.progress_group = QGroupBox(self)
+        self.progress_layout = QGridLayout(self)
+        self.progress_group.setLayout(self.progress_layout)
+        self.layout.addWidget(self.progress_group, 2, 1, 1, 2)
+
+        self.progressbar_hours = QProgressBar(self)
+        self.progressbar_hours.setFont(font14)
+        self.progressbar_hours.setValue(0)
+        self.progressbar_hours.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_hours, 0, 0, 1, 1)
+
+        self.progressbar_camera = QProgressBar(self)
+        self.progressbar_camera.setFont(font14)
+        self.progressbar_camera.setValue(0)
+        self.progressbar_camera.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_camera, 0, 1, 1, 1)
+
+        self.progressbar_lens = QProgressBar(self)
+        self.progressbar_lens.setFont(font14)
+        self.progressbar_lens.setValue(0)
+        self.progressbar_lens.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_lens, 0, 2, 1, 1)
+
+        self.progressbar_iso = QProgressBar(self)
+        self.progressbar_iso.setFont(font14)
+        self.progressbar_iso.setValue(0)
+        self.progressbar_iso.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_iso, 0, 3, 1, 1)
+
+        self.progressbar_fnumber = QProgressBar(self)
+        self.progressbar_fnumber.setFont(font14)
+        self.progressbar_fnumber.setValue(0)
+        self.progressbar_fnumber.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_fnumber, 0, 4, 1, 1)
+
+        self.progressbar_expotime = QProgressBar(self)
+        self.progressbar_expotime.setFont(font14)
+        self.progressbar_expotime.setValue(0)
+        self.progressbar_expotime.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_expotime, 0, 5, 1, 1)
+
+        self.progressbar_fl = QProgressBar(self)
+        self.progressbar_fl.setFont(font14)
+        self.progressbar_fl.setValue(0)
+        self.progressbar_fl.setStyleSheet(stylesheet5)
+        self.progress_layout.addWidget(self.progressbar_fl, 0, 6, 1, 1)
 
         self.start_btn.click()
 
@@ -243,10 +329,13 @@ class StatisticsWidget(QWidget):
 
     def take_hour_dict(self) -> None:
         self.time_looter = HoursLooter(self.all_files)
+        self.time_looter.changed.connect(self.change_progressbar_hours)
         self.time_looter.start()
         self.time_looter.finished.connect(lambda result: self.take_hour_ready(result))
 
     def take_hour_ready(self, result: dict) -> None:
+        self.progressbar_hours.hide()
+        QtCore.QCoreApplication.processEvents()
         self.time_looter = None
         self.result_hour = result
         self.make_hour_graphic(result)
@@ -271,10 +360,13 @@ class StatisticsWidget(QWidget):
 
     def take_camera_dict(self) -> None:
         self.camera_looter = CameraLooter(self.all_files)
+        self.camera_looter.changed.connect(self.change_progressbar_camera)
         self.camera_looter.start()
         self.camera_looter.finished.connect(lambda result: self.take_camera_ready(result))
 
     def take_camera_ready(self, result: dict) -> None:
+        self.progressbar_camera.hide()
+        QtCore.QCoreApplication.processEvents()
         self.camera_looter = None
         self.result_camera = result
         self.make_camera_graphic(result)
@@ -290,10 +382,13 @@ class StatisticsWidget(QWidget):
 
     def take_lens_dict(self) -> None:
         self.lens_looter = LensLooter(self.all_files)
+        self.lens_looter.changed.connect(self.change_progressbar_lens)
         self.lens_looter.start()
         self.lens_looter.finished.connect(lambda result: self.take_lens_ready(result))
 
     def take_lens_ready(self, result: dict) -> None:
+        self.progressbar_lens.hide()
+        QtCore.QCoreApplication.processEvents()
         self.lens_looter = None
         self.result_lens = result
         self.make_lens_graphic(result)
@@ -309,10 +404,13 @@ class StatisticsWidget(QWidget):
 
     def take_iso_dict(self) -> None:
         self.iso_looter = IsoLooter(self.all_files)
+        self.iso_looter.changed.connect(self.change_progressbar_iso)
         self.iso_looter.start()
         self.iso_looter.finished.connect(lambda result: self.take_iso_ready(result))
 
     def take_iso_ready(self, result: dict) -> None:
+        self.progressbar_iso.hide()
+        QtCore.QCoreApplication.processEvents()
         self.iso_looter = None
         self.result_iso = result
         self.make_iso_graphic(result)
@@ -340,10 +438,13 @@ class StatisticsWidget(QWidget):
 
     def take_fnumber_dict(self) -> None:
         self.fnumber_looter = FnumberLooter(self.all_files)
+        self.fnumber_looter.changed.connect(self.change_progressbar_fnumber)
         self.fnumber_looter.start()
         self.fnumber_looter.finished.connect(lambda result: self.take_fnumber_ready(result))
 
     def take_fnumber_ready(self, result: dict) -> None:
+        self.progressbar_fnumber.hide()
+        QtCore.QCoreApplication.processEvents()
         self.fnumber_looter = None
         self.result_fnumber = result
         self.make_fnumber_graphic(result)
@@ -383,10 +484,13 @@ class StatisticsWidget(QWidget):
 
     def take_exposuretime_dict(self) -> None:
         self.exposuretime_looter = ExposureTimeLooter(self.all_files)
+        self.exposuretime_looter.changed.connect(self.change_progressbar_expotime)
         self.exposuretime_looter.start()
         self.exposuretime_looter.finished.connect(lambda result: self.take_exposuretime_ready(result))
 
     def take_exposuretime_ready(self, result: dict) -> None:
+        self.progressbar_expotime.hide()
+        QtCore.QCoreApplication.processEvents()
         self.exposuretime_looter = None
         self.result_exposuretime = result
         self.make_exposuretime_graphic(result)
@@ -438,10 +542,13 @@ class StatisticsWidget(QWidget):
 
     def take_fl_dict(self) -> None:
         self.fl_looter = FocalLengthLooter(self.all_files)
+        self.fl_looter.changed.connect(self.change_progressbar_fl)
         self.fl_looter.start()
         self.fl_looter.finished.connect(lambda result: self.take_fl_ready(result))
 
     def take_fl_ready(self, result: dict) -> None:
+        self.progressbar_fl.hide()
+        QtCore.QCoreApplication.processEvents()
         self.fl_looter = None
         self.result_fl = result
         self.make_fl_graphic(result)
@@ -479,9 +586,75 @@ class StatisticsWidget(QWidget):
 
         self.start_btn.setStyleSheet(stylesheet8)
 
+    def reset_counter(self):
+        self.counter_hours = 0
+        self.counter_camera = 0
+        self.counter_lens = 0
+        self.counter_iso = 0
+        self.counter_fnumber = 0
+        self.counter_fl = 0
+        self.counter_expotime = 0
+
+    def change_progressbar_hours(self):
+        self.counter_hours += 1
+        old_value = self.progressbar_hours.value()
+        new_value = int((self.counter_hours/self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_hours.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
+    def change_progressbar_camera(self):
+        self.counter_camera += 1
+        old_value = self.progressbar_camera.value()
+        new_value = int((self.counter_camera / self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_camera.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
+    def change_progressbar_lens(self):
+        self.counter_lens += 1
+        old_value = self.progressbar_lens.value()
+        new_value = int((self.counter_lens / self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_lens.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
+    def change_progressbar_iso(self):
+        self.counter_iso += 1
+        old_value = self.progressbar_iso.value()
+        new_value = int((self.counter_iso / self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_iso.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
+    def change_progressbar_fnumber(self):
+        self.counter_fnumber += 1
+        old_value = self.progressbar_fnumber.value()
+        new_value = int((self.counter_fnumber / self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_fnumber.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
+    def change_progressbar_expotime(self):
+        self.counter_expotime += 1
+        old_value = self.progressbar_expotime.value()
+        new_value = int((self.counter_expotime / self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_expotime.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
+    def change_progressbar_fl(self):
+        self.counter_fl += 1
+        old_value = self.progressbar_fl.value()
+        new_value = int((self.counter_fl / self.number_of_operations)*100)
+        if new_value != old_value:
+            self.progressbar_fl.setValue(new_value)
+            QtCore.QCoreApplication.processEvents()
+
 
 class HoursLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -489,7 +662,7 @@ class HoursLooter(QtCore.QThread):
         self.hours_dict = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0,
                            14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0}
 
-        self._init = False
+        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -516,12 +689,14 @@ class HoursLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         self.finished.emit(self.hours_dict)
 
 
 class CameraLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -556,6 +731,7 @@ class CameraLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         result ={}
         for camera in list(self.camera_dict.keys()):
@@ -580,6 +756,7 @@ class CameraLooter(QtCore.QThread):
 
 class LensLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -614,6 +791,7 @@ class LensLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         result ={}
         for lens in list(self.lens_dict.keys()):
@@ -638,6 +816,7 @@ class LensLooter(QtCore.QThread):
 
 class IsoLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -675,6 +854,7 @@ class IsoLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         result = dict(sorted(self.iso_dict.items()))
 
@@ -683,6 +863,7 @@ class IsoLooter(QtCore.QThread):
 
 class FnumberLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -720,6 +901,7 @@ class FnumberLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         result = dict(sorted(self.fnumber_dict.items()))
 
@@ -728,6 +910,7 @@ class FnumberLooter(QtCore.QThread):
 
 class ExposureTimeLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -777,6 +960,7 @@ class ExposureTimeLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         result = dict(sorted(self.time_dict.items()))
 
@@ -785,6 +969,7 @@ class ExposureTimeLooter(QtCore.QThread):
 
 class FocalLengthLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
+    changed = QtCore.pyqtSignal(int)
 
     def __init__(self, files):
         QThread.__init__(self)
@@ -822,6 +1007,7 @@ class FocalLengthLooter(QtCore.QThread):
                         pass
                 else:
                     pass
+            self.changed.emit(1)
 
         result = dict(sorted(self.fl_dict.items()))
 

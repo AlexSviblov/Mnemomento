@@ -82,7 +82,7 @@ class GlobalMapWidget(QWidget):
         self.btn_show.setFixedWidth(int(100*system_scale)+1)
         self.btn_show.setFixedHeight(int(30*system_scale)+1)
         self.layout_outside.addWidget(self.btn_show, 0, 4, 1, 1)
-        self.btn_show.clicked.connect(self.make_show_map)
+        self.btn_show.clicked.connect(self.pre_make_show_map)
 
     def stylesheet_color(self):
         global stylesheet1
@@ -222,7 +222,7 @@ class GlobalMapWidget(QWidget):
             pass
 
     # вывести карту
-    def make_show_map(self) -> None:
+    def pre_make_show_map(self) -> None:
         try:
             self.warning_number.deleteLater()
         except (AttributeError, RuntimeError):
@@ -261,9 +261,19 @@ class GlobalMapWidget(QWidget):
 
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
+        self.progressbar.setValue(0)
+        QtCore.QCoreApplication.processEvents()
+
+        get_files_paths = PathsLooter(full_paths)
+        get_files_paths.finished.connect(lambda result: self.make_show_map(result))
+        get_files_paths.start()
+
+    def make_show_map(self, result):
+        map_points_combo = result[0]
+        zoom_level = result[1]
+        map_center = result[2]
         self.progressbar.setValue(1)
         QtCore.QCoreApplication.processEvents()
-        map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(full_paths)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         self.map_gps_widget.page().setBackgroundColor(QtCore.Qt.transparent)
@@ -681,3 +691,18 @@ class GlobalMapWidget(QWidget):
         iframe = IFrame(html_result, width=380, height=410)
 
         return iframe
+
+
+class PathsLooter(QtCore.QThread):
+    finished = QtCore.pyqtSignal(tuple)
+
+    def __init__(self, full_paths):
+        QtCore.QThread.__init__(self)
+        self.full_paths = full_paths
+
+        # self._init = False
+
+    def run(self):
+        map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(self.full_paths)
+        self.finished.emit((map_points_combo, zoom_level, map_center))
+

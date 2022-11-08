@@ -1197,7 +1197,6 @@ class TimeMaker(QtCore.QThread):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # app.setStyleSheet('TitleBar {background-color: #1C1C1C;}')
 
     do = 0
     with open('settings.json', 'r') as json_file:
