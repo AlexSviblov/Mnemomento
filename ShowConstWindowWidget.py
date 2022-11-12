@@ -119,12 +119,12 @@ class ConstWidgetWindow(QWidget):
         self.layout_btns = QGridLayout(self)
         self.layout_btns.setSpacing(0)
 
-        self.make_buttons()
         self.groupbox_btns = QGroupBox(self)
         self.groupbox_btns.setLayout(self.layout_btns)
         self.groupbox_btns.setStyleSheet(stylesheet2)
         self.groupbox_btns.setFixedSize(70, 220)
-        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
+        self.make_buttons()
+        self.layoutoutside.addWidget(self.groupbox_btns, 1, 4, 2, 1)
 
         self.socnet_group = QTableWidget(self)
         self.socnet_group.setColumnCount(2)
@@ -559,6 +559,7 @@ class ConstWidgetWindow(QWidget):
                 pass
 
         clear_and_lock_show()
+        QtCore.QCoreApplication.processEvents()
 
         match self.group_type.currentText():
             case 'Дата':
@@ -588,6 +589,7 @@ class ConstWidgetWindow(QWidget):
             case 'Соцсети':
                 network = self.socnet_choose.currentText()
                 if network == 'Нет данных':
+                    unlock_show()
                     return
                 else:
                     pass
@@ -601,6 +603,8 @@ class ConstWidgetWindow(QWidget):
             self.fill_scroll_thumbs(thumbnails_list, photo_list)
 
         unlock_show()
+        QtCore.QCoreApplication.processEvents()
+
 
     # функция отображения кнопок с миниатюрами
     def fill_scroll_thumbs(self, thumbnails_list, photo_list):
@@ -683,8 +687,7 @@ class ConstWidgetWindow(QWidget):
 
     # функция показа большой картинки
     def showinfo(self) -> None:
-
-        self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
+        self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 120)
 
         self.photo_path = self.sender().objectName()
 
@@ -766,13 +769,17 @@ class ConstWidgetWindow(QWidget):
         if self.soc_net_setting:
             if self.photo_rotation == 'gor':
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
+
                 self.metadata_show.show()
+
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 80, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
                 self.layout_show.addWidget(self.pic, 0, 0, 1, 3)
+
                 self.pic.show()
                 self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
+
                 self.socnet_group.show()
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
 
@@ -780,6 +787,8 @@ class ConstWidgetWindow(QWidget):
                     self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 100)
                 else:
                     self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 100)
+
+
             else:  # self.photo_rotation == 'ver'
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
@@ -1370,6 +1379,12 @@ class ConstWidgetWindow(QWidget):
             self.layout_type.itemAt(i).widget().hide()
             self.layout_type.itemAt(i).widget().deleteLater()
             QtCore.QCoreApplication.processEvents()
+
+        try:
+            self.map_gps_widget.deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
+        QtCore.QCoreApplication.processEvents()
 
         match self.group_type.currentText():
             case 'Дата':

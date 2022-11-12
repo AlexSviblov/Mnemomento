@@ -264,9 +264,9 @@ class GlobalMapWidget(QWidget):
         self.progressbar.setValue(0)
         QtCore.QCoreApplication.processEvents()
 
-        get_files_paths = PathsLooter(full_paths)
-        get_files_paths.finished.connect(lambda result: self.make_show_map(result))
-        get_files_paths.start()
+        self.get_files_paths = PathsLooter(full_paths)
+        self.get_files_paths.finished.connect(lambda result: self.make_show_map(result))
+        self.get_files_paths.start()
 
     def make_show_map(self, result):
         map_points_combo = result[0]
