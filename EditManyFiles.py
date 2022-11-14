@@ -1265,6 +1265,8 @@ class DoEditing(QtCore.QThread):
             name = file.split('/')[-1]
             dir = file[:(-1)*(len(name)+1)]
             Metadata.exif_rewrite_edit(name, dir, self.modify_dict)
+
+
         PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
 
         if self.modify_dict[11]:
@@ -1288,6 +1290,7 @@ class DoEditing(QtCore.QThread):
                 if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"):
                     os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}")
                 shutil.move(file, f"{new_path}/{photo_name}")
+                Thumbnail.make_const_thumbnails(new_path, photo_name)
                 PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
 
             self.finished.emit(0)
