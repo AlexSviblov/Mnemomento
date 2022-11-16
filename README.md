@@ -22,4 +22,6 @@ Future plans:
 
 
 
-PROGRAMM CAN WORK ONLY WITH EXE INSTALLATION\nПРОГРАММА РАССЧИТАНА НА УСТАНОВКУ УСТАНОВЩИКОМ
+PROGRAMM CAN WORK ONLY WITH EXE INSTALLATION
+
+ПРОГРАММА РАССЧИТАНА НА УСТАНОВКУ УСТАНОВЩИКОМ
