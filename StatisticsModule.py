@@ -427,8 +427,12 @@ class StatisticsWidget(QWidget):
                           font_color=text_color, title_font_color=text_color)
 
         tick_dict = {}
-        for i in range(11):
-            tick_dict[x_values[int(len(x_values) / 10) * i]] = iso_values[int(len(x_values) / 10) * i]
+        if len(iso_values) >= 11:
+            for i in range(10):
+                tick_dict[x_values[int(len(x_values) / 10) * i]] = iso_values[int(len(x_values) / 10) * i]
+        else:
+            for i in range(len(iso_values)):
+                tick_dict[i] = iso_values[i]
 
         fig.update_xaxes(tickvals=list(tick_dict.keys()),
                          ticktext=list(tick_dict.values()))
@@ -474,8 +478,12 @@ class StatisticsWidget(QWidget):
         #     else:
         #         tick_dict[x_values[i]] = fnumber_values[i]
 
-        for i in range(11):
-                tick_dict[x_values[int(len(x_values)/10)*i]] = fnumber_values[int(len(x_values)/10)*i]
+        if len(fnumber_values) >= 11:
+            for i in range(10):
+                    tick_dict[x_values[int(len(x_values)/10)*i]] = fnumber_values[int(len(x_values)/10)*i]
+        else:
+            for i in range(len(fnumber_values)):
+                    tick_dict[x_values[i]] = fnumber_values[i]
 
         fig.update_xaxes(tickvals=list(tick_dict.keys()),
                          ticktext=list(tick_dict.values()))
@@ -565,8 +573,12 @@ class StatisticsWidget(QWidget):
                           font_color=text_color, title_font_color=text_color)
 
         tick_dict = {}
-        for i in range(11):
-                tick_dict[x_values[int(len(x_values)/10)*i]] = fl_values[int(len(x_values)/10)*i]
+        if len(fl_values) >= 11:
+            for i in range(10):
+                    tick_dict[x_values[int(len(x_values)/10)*i]] = fl_values[int(len(x_values)/10)*i]
+        else:
+            for i in range(len(fl_values)):
+                    tick_dict[i] = fl_values[i]
 
         fig.update_xaxes(tickvals=list(tick_dict.keys()),
                          ticktext=list(tick_dict.values()))
