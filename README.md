@@ -21,5 +21,6 @@ Future plans:
 - Поддержка других языков
 
 
+
 PROGRAMM CAN WORK ONLY WITH EXE INSTALLATION
 ПРОГРАММА РАССЧИТАНА НА УСТАНОВКУ УСТАНОВЩИКОМ
