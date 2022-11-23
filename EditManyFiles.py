@@ -1,3 +1,4 @@
+import logging
 import os
 import shutil
 import sys
@@ -862,6 +863,7 @@ class ManyPhotoEdit(QWidget):
         if not photo_list:
             return
 
+        print(photo_list)
         thumbnails_list = self.photo_to_thumb_path(photo_list)
 
         columns = 2
@@ -1052,12 +1054,13 @@ class ManyPhotoEdit(QWidget):
                 directory = file[:(-1) * (len(name) + 1)]
                 Metadata.clear_exif(name, directory)
                 PhotoDataDB.clear_metadata(name, directory)
+                shutil.move(f"{directory}/{name}", f"{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/{name}")
 
             self.empty1.show()
             self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
             self.loading_lbl.hide()
             QtCore.QCoreApplication.processEvents()
-            self.update_table()
+            self.update_table(0)
 
         def rejected():
             win.close()
@@ -1106,10 +1109,10 @@ class ManyPhotoEdit(QWidget):
             QtCore.QCoreApplication.processEvents()
             self.update_table(status)
 
-
         self.empty1.hide()
         self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
         self.loading_lbl.show()
+
         QtCore.QCoreApplication.processEvents()
 
         photo_list = self.get_edit_list()
@@ -1269,30 +1272,35 @@ class DoEditing(QtCore.QThread):
 
         PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
 
-        if self.modify_dict[11]:
-            new_date = self.modify_dict[11].split(" ")[0]
-            year = new_date.split(":")[-3]
-            month = new_date.split(":")[-2]
-            day = new_date.split(":")[-1]
-            for file in self.photo_list:
-                photo_name = file.split("/")[-1]
-                old_path = ""
-                path_splitted = file.split("/")
-                for i in range(len(path_splitted)-1):
-                    old_path += path_splitted[i] + "/"
-                old_path = old_path[:-1]
-                new_path = Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"
+        try:
+            if self.modify_dict[11]:
+                new_date = self.modify_dict[11].split(" ")[0]
+                year = new_date.split(":")[-3]
+                month = new_date.split(":")[-2]
+                day = new_date.split(":")[-1]
+                for file in self.photo_list:
+                    photo_name = file.split("/")[-1]
+                    old_path = ""
+                    path_splitted = file.split("/")
+                    for i in range(len(path_splitted)-1):
+                        old_path += path_splitted[i] + "/"
+                    old_path = old_path[:-1]
+                    new_path = Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"
 
-                if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}"):
-                    os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}")
-                if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}"):
-                    os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}")
-                if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"):
-                    os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}")
-                shutil.move(file, f"{new_path}/{photo_name}")
-                Thumbnail.make_const_thumbnails(new_path, photo_name)
-                PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
+                    if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}"):
+                        os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}")
+                    if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}"):
+                        os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}")
+                    if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"):
+                        os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}")
+                    shutil.move(file, f"{new_path}/{photo_name}")
+                    Thumbnail.make_const_thumbnails(new_path, photo_name)
+                    PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
 
-            self.finished.emit(0)
-        else:
+                self.finished.emit(0)
+            else:
+                self.finished.emit(1)
+        except KeyError:
             self.finished.emit(1)
+        else:
+            logging.error(f"EditManyFiles - Error DoEditing file {file} in data_change block")

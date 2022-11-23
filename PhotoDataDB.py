@@ -451,6 +451,8 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     sql_str4 = f"UPDATE photos SET shootingdatetime = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
     sql_str5 = f"UPDATE photos SET GPSdata = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
     sql_str6 = f"UPDATE socialnetworks SET shootingdate = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str7 = f"UPDATE photos SET catalog = \'{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str8 = f"UPDATE socialnetworks SET catalog = \'{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info\\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
 
     cur.execute(sql_str1)
     cur.execute(sql_str2)
@@ -458,6 +460,8 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     cur.execute(sql_str4)
     cur.execute(sql_str5)
     cur.execute(sql_str6)
+    cur.execute(sql_str7)
+    cur.execute(sql_str8)
 
     conn.commit()
 
