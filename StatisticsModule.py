@@ -3,12 +3,11 @@ import os
 import sys
 
 import piexif
-import matplotlib
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import QThread, pyqtSignal
 import exiftool
-
+from pathlib import Path
 
 from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout
 
@@ -208,16 +207,6 @@ class StatisticsWidget(QWidget):
         self.setMinimumSize(1366, 720)
         self.setStyleSheet(stylesheet2)
 
-        self.all_files = self.get_all_main_catalog_files()
-        self.number_of_operations = len(self.all_files)
-        self.counter_hours = 0
-        self.counter_camera = 0
-        self.counter_lens = 0
-        self.counter_iso = 0
-        self.counter_fnumber = 0
-        self.counter_fl = 0
-        self.counter_expotime = 0
-
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
         self.layout.setSpacing(5)
@@ -251,23 +240,27 @@ class StatisticsWidget(QWidget):
         self.layout.addWidget(self.graphic_fl, 0, 3, 1, 1)
 
         self.start_btn = QPushButton(self)
-        self.start_btn.setText('Пересчитать')
+        self.start_btn.setText('Показать')
         self.layout.addWidget(self.start_btn, 2, 0, 1, 1)
         self.start_btn.setStyleSheet(stylesheet8)
         self.start_btn.setFont(font14)
-        self.start_btn.clicked.connect(self.reset_counter)
-        self.start_btn.clicked.connect(self.take_hour_dict)
-        self.start_btn.clicked.connect(self.take_iso_dict)
-        self.start_btn.clicked.connect(self.take_camera_dict)
-        self.start_btn.clicked.connect(self.take_lens_dict)
-        self.start_btn.clicked.connect(self.take_fnumber_dict)
-        self.start_btn.clicked.connect(self.take_exposuretime_dict)
-        self.start_btn.clicked.connect(self.take_fl_dict)
+        self.start_btn.clicked.connect(self.start_calculate)
 
         self.progress_group = QGroupBox(self)
         self.progress_layout = QGridLayout(self)
         self.progress_group.setLayout(self.progress_layout)
-        self.layout.addWidget(self.progress_group, 2, 1, 1, 2)
+        self.progress_group.setFixedHeight(int(0))
+        self.layout.addWidget(self.progress_group, 3, 0, 1, 2)
+
+        self.layout_type = QGridLayout(self)
+        self.layout_type.setAlignment(QtCore.Qt.AlignLeft)
+        self.groupbox_sort = QGroupBox(self)
+        self.groupbox_sort.setFixedHeight(int(60))
+        self.groupbox_sort.setLayout(self.layout_type)
+        self.layout.addWidget(self.groupbox_sort, 2, 1, 1, 2)
+
+        self.fill_sort_groupbox()
+        self.set_sort_layout()
 
         self.progressbar_hours = QProgressBar(self)
         self.progressbar_hours.setFont(font14)
@@ -311,21 +304,45 @@ class StatisticsWidget(QWidget):
         self.progressbar_fl.setStyleSheet(stylesheet5)
         self.progress_layout.addWidget(self.progressbar_fl, 0, 6, 1, 1)
 
-        self.start_btn.click()
+        # self.start_btn.click()
 
-    def get_all_main_catalog_files(self) -> list[str]:
-        all_files = []
-        main_catalog = Settings.get_destination_media() + r'/Media/Photo/const'
-        for root, dirs, files in os.walk(main_catalog):
-            for file in files:
-                if file.endswith(".jpg") or file.endswith(".JPG"):
-                    root_name = str(root)
-                    root_name = root_name.replace(r'\\', '/')
-                    root_name = root_name.replace('\\', '/')
-                    root_name = root_name.replace('//', '/')
-                    name = root_name + '/' + file
-                    all_files.append(name)
-        return all_files
+    def start_calculate(self):
+        def start():
+            self.progress_group.setFixedHeight(int(60))
+            QtCore.QCoreApplication.processEvents()
+            self.reset_counter()
+            sort_type = self.group_type.currentText()
+            arg1, arg2, arg3 = '', '', ''
+            match sort_type:
+                case 'Дата':
+                    arg1 = self.date_year.currentText()
+                    arg2 = self.date_month.currentText()
+                    arg3 = self.date_day.currentText()
+                case 'Оборудование':
+                    arg1 = self.camera_choose.currentText()
+                    arg2 = self.lens_choose.currentText()
+                case _:
+                    pass
+
+            self.paths_process = FilesPaths(filter=sort_type, arg1=arg1, arg2=arg2, arg3=arg3)
+            self.paths_process.files.connect(lambda fl: finish(fl))
+            self.paths_process.start()
+
+        def finish(files_list):
+            self.all_files = files_list
+            self.number_of_operations = len(self.all_files)
+
+            self.take_hour_dict()
+            self.take_iso_dict()
+            self.take_camera_dict()
+            self.take_lens_dict()
+            self.take_fnumber_dict()
+            self.take_exposuretime_dict()
+            self.take_fl_dict()
+
+        start()
+
+
 
     def take_hour_dict(self) -> None:
         self.time_looter = HoursLooter(self.all_files)
@@ -335,6 +352,8 @@ class StatisticsWidget(QWidget):
 
     def take_hour_ready(self, result: dict) -> None:
         self.progressbar_hours.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.time_looter = None
         self.result_hour = result
@@ -366,6 +385,8 @@ class StatisticsWidget(QWidget):
 
     def take_camera_ready(self, result: dict) -> None:
         self.progressbar_camera.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.camera_looter = None
         self.result_camera = result
@@ -388,6 +409,8 @@ class StatisticsWidget(QWidget):
 
     def take_lens_ready(self, result: dict) -> None:
         self.progressbar_lens.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.lens_looter = None
         self.result_lens = result
@@ -410,6 +433,8 @@ class StatisticsWidget(QWidget):
 
     def take_iso_ready(self, result: dict) -> None:
         self.progressbar_iso.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.iso_looter = None
         self.result_iso = result
@@ -448,6 +473,8 @@ class StatisticsWidget(QWidget):
 
     def take_fnumber_ready(self, result: dict) -> None:
         self.progressbar_fnumber.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.fnumber_looter = None
         self.result_fnumber = result
@@ -498,6 +525,8 @@ class StatisticsWidget(QWidget):
 
     def take_exposuretime_ready(self, result: dict) -> None:
         self.progressbar_expotime.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.exposuretime_looter = None
         self.result_exposuretime = result
@@ -556,6 +585,8 @@ class StatisticsWidget(QWidget):
 
     def take_fl_ready(self, result: dict) -> None:
         self.progressbar_fl.hide()
+        if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
+            self.progress_group.setFixedHeight(int(0))
         QtCore.QCoreApplication.processEvents()
         self.fl_looter = None
         self.result_fl = result
@@ -613,7 +644,7 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_hours/self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_hours.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_hours.update()
 
     def change_progressbar_camera(self):
         self.counter_camera += 1
@@ -621,7 +652,7 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_camera / self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_camera.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_camera.update()
 
     def change_progressbar_lens(self):
         self.counter_lens += 1
@@ -629,7 +660,7 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_lens / self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_lens.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_lens.update()
 
     def change_progressbar_iso(self):
         self.counter_iso += 1
@@ -637,7 +668,7 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_iso / self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_iso.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_iso.update()
 
     def change_progressbar_fnumber(self):
         self.counter_fnumber += 1
@@ -645,7 +676,7 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_fnumber / self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_fnumber.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_fnumber.update()
 
     def change_progressbar_expotime(self):
         self.counter_expotime += 1
@@ -653,7 +684,7 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_expotime / self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_expotime.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_expotime.update()
 
     def change_progressbar_fl(self):
         self.counter_fl += 1
@@ -661,8 +692,229 @@ class StatisticsWidget(QWidget):
         new_value = int((self.counter_fl / self.number_of_operations)*100)
         if new_value != old_value:
             self.progressbar_fl.setValue(new_value)
-            QtCore.QCoreApplication.processEvents()
+            self.progressbar_fl.update()
 
+    # заполнение полей сортировки по дате
+    def fill_date(self, mode: str) -> None:
+        # Получение годов
+        def get_years() -> None:
+            self.date_year.clear()
+            j = 0
+            k = 0
+            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            all_files_and_dirs = os.listdir(dir_to_find_year)
+            dir_list = list()
+            for name in all_files_and_dirs:
+                if os.path.isdir(dir_to_find_year + name):
+                    if len(os.listdir(dir_to_find_year + name)) >= 1:
+                        for file in Path(dir_to_find_year + name).rglob('*'):
+                            if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                k = 1
+                        if k == 1:
+                            k = 0
+                            dir_list.append(name)
+
+            dir_list.sort(reverse=True)
+            i = 0
+            for year in dir_list:
+                if dir_list[i] != 'No_Date_Info':
+                    self.date_year.addItem(str(year))
+                else:
+                    j = 1
+                i += 1
+            if j == 1:
+                self.date_year.addItem('No_Date_Info')
+            else:
+                pass
+            self.date_year.addItem('All')
+
+        # Получение месяцев в году
+        def get_months() -> None:
+            self.date_month.clear()
+            year = self.date_year.currentText()
+            if year == 'All':
+                self.date_month.addItem('All')
+            else:
+                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_month)
+                dir_list = list()
+                k = 0
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_month + name):
+                        if len(os.listdir(dir_to_find_month + name)) >= 1:
+                            for file in Path(dir_to_find_month + name).rglob('*'):
+                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                    k = 1
+                            if k == 1:
+                                k = 0
+                                dir_list.append(name)
+
+                dir_list.sort(reverse=True)
+                for month in dir_list:
+                    self.date_month.addItem(str(month))
+                self.date_month.addItem('All')
+
+        # Получение дней в месяце
+        def get_days() -> None:
+            self.date_day.clear()
+            year = self.date_year.currentText()
+            month = self.date_month.currentText()
+            if year == 'All' or month == 'All':
+                self.date_day.addItem('All')
+            else:
+                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                all_files_and_dirs = os.listdir(dir_to_find_day)
+                dir_list = list()
+                for name in all_files_and_dirs:
+                    if os.path.isdir(dir_to_find_day + name):
+                        if len(os.listdir(dir_to_find_day + name)) >= 1:
+                            dir_list.append(name)
+
+                dir_list.sort(reverse=True)
+                for day in dir_list:
+                    self.date_day.addItem(str(day))
+                self.date_day.addItem('All')
+
+        match mode:
+            case 'date':
+                get_years()
+                get_months()
+                get_days()
+            case 'year':
+                get_years()
+            case 'month':
+                get_months()
+            case 'day':
+                get_days()
+            case _:
+                get_years()
+                get_months()
+                get_days()
+
+    # выбор способа группировки
+    def fill_sort_groupbox(self) -> None:
+        self.group_type = QComboBox(self)
+        self.group_type.addItem('')
+        self.group_type.addItem('Дата')
+        self.group_type.addItem('Оборудование')
+        self.group_type.setObjectName('sort')
+        self.group_type.currentTextChanged.connect(self.set_sort_layout)
+        self.group_type.setFont(font14)
+        self.group_type.setFixedWidth(int(152 * system_scale) + 1)
+        self.group_type.setFixedHeight(int(30 * system_scale) + 1)
+        self.group_type.setStyleSheet(stylesheet9)
+
+        self.layout_type.addWidget(self.group_type, 0, 0, 1, 1)
+
+    # заполнить нужное поле в зависимости от выбранного типа группировки
+    def set_sort_layout(self) -> None:
+        for i in reversed(range(self.layout_type.count())):
+            if self.layout_type.itemAt(i).widget().objectName() != 'sort':
+                self.layout_type.itemAt(i).widget().hide()
+                self.layout_type.itemAt(i).widget().deleteLater()
+                QtCore.QCoreApplication.processEvents()
+
+        match self.group_type.currentText():
+            case 'Дата':
+                self.fill_sort_date()
+            case 'Оборудование':
+                self.fill_sort_equipment()
+            case _:
+                self.fill_sort_nothing()
+
+    def fill_sort_nothing(self):
+        for i in reversed(range(self.layout_type.count())):
+            if self.layout_type.itemAt(i).widget().objectName() != 'sort':
+                self.layout_type.itemAt(i).widget().hide()
+                self.layout_type.itemAt(i).widget().deleteLater()
+                QtCore.QCoreApplication.processEvents()
+
+    # заполнить поле группировки по дате
+    def fill_sort_date(self) -> None:
+        self.year_lbl = QLabel(self)
+        self.year_lbl.setFont(font14)
+        self.year_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
+
+        self.date_year = QComboBox(self)
+        self.date_year.setStyleSheet(stylesheet9)
+        self.date_year.setFont(font14)
+        self.date_year.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.date_year.setFixedWidth(int(140 * system_scale) + 1)
+        self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
+
+        self.month_lbl = QLabel(self)
+        self.month_lbl.setFont(font14)
+        self.month_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
+
+        self.date_month = QComboBox(self)
+        self.date_month.setFont(font14)
+        self.date_month.setStyleSheet(stylesheet9)
+        self.date_month.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.date_month.setFixedWidth(int(140 * system_scale) + 1)
+        self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
+
+        self.day_lbl = QLabel(self)
+        self.day_lbl.setFont(font14)
+        self.day_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
+
+        self.date_day = QComboBox(self)
+        self.date_day.setFont(font14)
+        self.date_day.setStyleSheet(stylesheet9)
+        self.date_day.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.date_day.setFixedWidth(int(140 * system_scale) + 1)
+        self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
+
+        self.fill_date('date')
+
+        if not self.year_lbl.text():
+            self.year_lbl.setText('Год:')
+            self.month_lbl.setText('    Месяц:')
+            self.day_lbl.setText('    День:')
+
+        self.date_day.setFixedHeight(int(30 * system_scale) + 1)
+        self.date_month.setFixedHeight(int(30 * system_scale) + 1)
+        self.date_year.setFixedHeight(int(30 * system_scale) + 1)
+        self.day_lbl.setFixedHeight(30)
+        self.month_lbl.setFixedHeight(30)
+        self.year_lbl.setFixedHeight(30)
+
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
+
+    # заполнить поле группировки по оборудованию
+    def fill_sort_equipment(self) -> None:
+        self.camera_choose = QComboBox(self)
+        self.camera_choose.setFont(font14)
+        self.camera_choose.setFixedHeight(int(30 * system_scale) + 1)
+        self.camera_choose.setStyleSheet(stylesheet9)
+        self.lens_choose = QComboBox(self)
+        self.lens_choose.setFont(font14)
+        self.lens_choose.setFixedHeight(int(30 * system_scale) + 1)
+        self.lens_choose.setStyleSheet(stylesheet9)
+        self.layout_type.addWidget(self.camera_choose, 0, 1, 1, 1)
+        self.layout_type.addWidget(self.lens_choose, 0, 2, 1, 1)
+
+        cameras, lenses = PhotoDataDB.get_equipment()
+        camera_max_len = 0
+        lens_max_len = 0
+
+        for camera in cameras:
+            self.camera_choose.addItem(f'{camera}')
+            if len(camera) > camera_max_len:
+                camera_max_len = len(camera)
+        self.camera_choose.addItem('All')
+
+        for lens in lenses:
+            self.lens_choose.addItem(f'{lens}')
+            if len(lens) > lens_max_len:
+                lens_max_len = len(lens)
+        self.lens_choose.addItem('All')
+
+        self.camera_choose.setFixedWidth(int((camera_max_len * 12) * system_scale) + 1)
+        self.lens_choose.setFixedWidth(int((lens_max_len * 12) * system_scale) + 1)
 
 class HoursLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
@@ -1024,6 +1276,55 @@ class FocalLengthLooter(QtCore.QThread):
         result = dict(sorted(self.fl_dict.items()))
 
         self.finished.emit(result)
+
+
+class FilesPaths(QtCore.QThread):
+    files = QtCore.pyqtSignal(list)
+
+    def __init__(self, filter='', arg1='All', arg2='All', arg3='All'):
+        QThread.__init__(self)
+        self.filter = filter
+        self.arg1 = arg1
+        self.arg2 = arg2
+        self.arg3 = arg3
+        # self._init = False
+
+    def run(self):
+        if self.filter == 'Дата':
+            year = self.arg1
+            month = self.arg2
+            day = self.arg3
+            photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+            result = photo_list
+        elif self.filter == 'Оборудование':
+            camera = self.arg1
+            lens = self.arg2
+            if camera == 'All':
+                camera_exif = 'All'
+            else:
+                camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+
+            if lens == 'All':
+                lens_exif = 'All'
+            else:
+                lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+            photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+            result = photo_list
+        else: # if not filter
+            all_files = []
+            main_catalog = Settings.get_destination_media() + r'/Media/Photo/const'
+            for root, dirs, files in os.walk(main_catalog):
+                for file in files:
+                    if file.endswith(".jpg") or file.endswith(".JPG"):
+                        root_name = str(root)
+                        root_name = root_name.replace(r'\\', '/')
+                        root_name = root_name.replace('\\', '/')
+                        root_name = root_name.replace('//', '/')
+                        name = root_name + '/' + file
+                        all_files.append(name)
+            result = all_files
+
+        self.files.emit(result)
 
 
 if __name__ == "__main__":

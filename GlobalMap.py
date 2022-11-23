@@ -262,7 +262,7 @@ class GlobalMapWidget(QWidget):
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
 
         self.progressbar.setValue(0)
-        QtCore.QCoreApplication.processEvents()
+        self.progressbar.update()
 
         self.get_files_paths = PathsLooter(full_paths)
         self.get_files_paths.finished.connect(lambda result: self.make_show_map(result))
@@ -273,7 +273,7 @@ class GlobalMapWidget(QWidget):
         zoom_level = result[1]
         map_center = result[2]
         self.progressbar.setValue(1)
-        QtCore.QCoreApplication.processEvents()
+        self.progressbar.update()
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
         self.map_gps_widget.page().setBackgroundColor(QtCore.Qt.transparent)
@@ -287,7 +287,7 @@ class GlobalMapWidget(QWidget):
                     QtCore.QCoreApplication.processEvents()
                     locations.append(photo[1])
                     self.progressbar.setValue(int((progress/len(map_points_combo))*99+1))
-                    QtCore.QCoreApplication.processEvents()
+                    self.progressbar.update()
                     progress += 1
 
                 callback = ('function (row) {'

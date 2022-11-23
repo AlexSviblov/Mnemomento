@@ -270,14 +270,14 @@ class SettingWidget(QWidget):
         self.layout.addWidget(self.logs_lbl, 7, 0, 1, 1)
 
         self.logs_show = QPushButton(self)
-        self.logs_show.setStyleSheet(stylesheet1)
+        self.logs_show.setStyleSheet(stylesheet8)
         self.logs_show.setFont(font14)
         self.logs_show.setText("Просмотреть логи")
         self.layout.addWidget(self.logs_show, 7, 1, 1, 1)
         self.logs_show.clicked.connect(self.call_explorer_logs)
 
         self.logs_btn = QPushButton(self)
-        self.logs_btn.setStyleSheet(stylesheet1)
+        self.logs_btn.setStyleSheet(stylesheet8)
         self.logs_btn.setFont(font14)
         self.logs_btn.setText('Очистить логи')
         self.layout.addWidget(self.logs_btn, 7, 2, 1, 1)

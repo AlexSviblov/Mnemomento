@@ -92,8 +92,6 @@ class ConstWidgetWindow(QWidget):
         self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
 
-        self.type_show_thumbnails()
-
         self.metadata_show = QtWidgets.QTableWidget()
         self.metadata_show.setColumnCount(2)
         self.metadata_show.setFont(font14)
@@ -421,10 +419,8 @@ class ConstWidgetWindow(QWidget):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
                             for file in Path(dir_to_find_month + name).rglob('*'):
                                 if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
-                                    k = 1
-                            if k == 1:
-                                k = 0
-                                dir_list.append(name)
+                                    dir_list.append(name)
+                                    break
 
                 dir_list.sort(reverse=True)
                 for month in dir_list:
@@ -455,8 +451,6 @@ class ConstWidgetWindow(QWidget):
         match mode:
             case 'date':
                 get_years()
-                get_months()
-                get_days()
             case 'year':
                 get_years()
             case 'month':
@@ -465,8 +459,6 @@ class ConstWidgetWindow(QWidget):
                 get_days()
             case _:
                 get_years()
-                get_months()
-                get_days()
 
     # преобразовать пути фотографий из БД в пути миниатюр для отображения
     def photo_to_thumb_path(self, photo_list):
@@ -492,6 +484,16 @@ class ConstWidgetWindow(QWidget):
 
     # выбор функции показа миниатюр в зависимости от выбранной группировки
     def type_show_thumbnails(self) -> None:
+        match self.group_type.currentText():
+            case 'Дата':
+                if not self.date_day.currentText() or not self.date_month.currentText() or not self.date_year.currentText():
+                    return
+            case 'Оборудование':
+                pass
+            case 'Соцсети':
+                if not self.socnet_choose.currentText() or not self.sn_status.currentText():
+                    return
+
         def clear_and_lock_show():
             try:
                 self.pic.clear()
@@ -1243,6 +1245,10 @@ class ConstWidgetWindow(QWidget):
 
     # заполнить поле группировки по дате
     def fill_sort_date(self) -> None:
+        for i in reversed(range(self.layout_type.count())):
+            self.layout_type.itemAt(i).widget().hide()
+            self.layout_type.itemAt(i).widget().deleteLater()
+
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
@@ -1337,6 +1343,7 @@ class ConstWidgetWindow(QWidget):
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
             self.sn_status.currentTextChanged.connect(self.type_show_thumbnails)
+            self.type_show_thumbnails()
 
     # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
@@ -1373,6 +1380,8 @@ class ConstWidgetWindow(QWidget):
         self.camera_choose.currentTextChanged.connect(self.type_show_thumbnails)
         self.lens_choose.currentTextChanged.connect(self.type_show_thumbnails)
 
+        self.type_show_thumbnails()
+
     # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:
         for i in reversed(range(self.layout_type.count())):
@@ -1393,8 +1402,6 @@ class ConstWidgetWindow(QWidget):
                 self.fill_sort_socnets()
             case 'Оборудование':
                 self.fill_sort_equipment()
-
-        self.type_show_thumbnails()
 
     # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:
