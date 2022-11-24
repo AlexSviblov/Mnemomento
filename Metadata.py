@@ -98,7 +98,7 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
         metadata['Разрешение'] = str(width) + 'x' + str(height)
         im.close()
 
-    if width > height:  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
+    if int(width) > int(height):  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
         metadata['Rotation'] = 'gor'
     else:
         metadata['Rotation'] = 'ver'
@@ -239,7 +239,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Разрешение'] = str(width) + 'x' + str(height)
         im.close()
 
-    if width > height:  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
+    if int(width) > int(height):  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
         metadata['Rotation'] = 'gor'
     else:
         metadata['Rotation'] = 'ver'
