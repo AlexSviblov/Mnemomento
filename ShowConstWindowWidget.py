@@ -772,7 +772,8 @@ class ConstWidgetWindow(QWidget):
 
                 self.metadata_show.show()
 
-                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 200, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
+                self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 200,
+                                                  self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
                                         QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
                 self.pic.setPixmap(self.pixmap2)
                 self.layout_show.addWidget(self.pic, 0, 0, 1, 3)

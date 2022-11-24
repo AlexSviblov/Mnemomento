@@ -331,7 +331,6 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         GPSLongitude = data['EXIF:GPSLongitude']
 
         if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
-
             GPSLatitude_float = float(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
             GPSLongitude_float = float(GPSLongitude)
 
