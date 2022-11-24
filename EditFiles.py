@@ -351,7 +351,12 @@ class EditExifData(QDialog):
         except AttributeError:
             pass
 
-    def make_gui(self):
+    # создание интерфейса
+    def make_gui(self) -> None:
+        """
+        Создаёт графический интерфейс, состоящий из слоя, на котором всё находится, таблицы с метаданными (отображается
+        в окне справа), переключаемыми панелями.
+        """
         self.layout.setSpacing(20)
         self.setLayout(self.layout)
 
@@ -393,19 +398,25 @@ class EditExifData(QDialog):
 
     # создание карты и метки на ней
     def make_map(self, coordinates, filename):
+        # удалить уже существующую карту, если она есть (просто скрытие hide и удаление виджета deleteWidget не работают,
+        # надо прям удалять из памяти
         try:
             self.map_gps_widget.deleteLater()
         except (RuntimeError, AttributeError):
             pass
 
+        # карта - web на JS, для отображения нужен webview
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
+        # если координаты ненулевые - центруем карту по координатам фотографии
         if coordinates[0] != 0 and coordinates[1] != 0:
             self.map_gps = folium.Map(location=coordinates, zoom_start=14)
             folium.Marker(coordinates, popup=filename, icon=folium.Icon(color='red')).add_to(self.map_gps)
         else:
             self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
+        # если нажать на карту - появится окошко с координатами
+        # в folium изменён текст внутри класса LatLngPopup для отображения русским языком
         self.popup = folium.LatLngPopup()
         self.map_gps.add_child(self.popup)
         self.map_gps_widget.setHtml(self.map_gps.get_root().render())
@@ -831,8 +842,10 @@ class EditExifData(QDialog):
 
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
+        # все необходимые метаданные вместе
         data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
+        # преобразовать данные для отображения
         def date_convert(data):
             try:
                 date_part = data['Время съёмки'].split(' ')[0]
@@ -877,6 +890,7 @@ class EditExifData(QDialog):
 
             return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
 
+        # изменение размеров таблицы и всего окна
         def func_resize():
             self.table.resizeColumnsToContents()
             self.table.horizontalHeader().setFixedHeight(1)

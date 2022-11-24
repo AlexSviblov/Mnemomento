@@ -309,8 +309,6 @@ class GlobalMapWidget(QWidget):
                 self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
                 self.marker_cluster = folium.plugins.MarkerCluster().add_to(self.map_gps)
                 for photo in map_points_combo:
-                    QtCore.QCoreApplication.processEvents()
-
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
                     folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.marker_cluster)
