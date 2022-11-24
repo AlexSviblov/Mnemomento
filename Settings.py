@@ -1,3 +1,12 @@
+# TODO: ввод комбинаций горячих клавиш
+# комбинация написана на кнопке, при нажатии на неё справа появляется строка ввода, считывается KeyPressEvent и значение вносится в строку.
+# под строкой ввода крестик и галочка - отмены или перезаписи новой введённой комбинации
+#
+# def keyPressEvent(self, e):
+#     print(e.key())
+#     if e.key() == QtCore.Qt.Key_I:
+#         print('I')
+
 import json
 import logging
 import os
@@ -17,6 +26,7 @@ font14 = QtGui.QFont('Times', 14)
 
 stylesheet1 = str()
 stylesheet2 = str()
+stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 loading_icon = str()
@@ -51,6 +61,7 @@ class SettingWin(QMainWindow):
     def stylesheet_color(self):
         global stylesheet1
         global stylesheet2
+        global stylesheet7
         global stylesheet8
         global stylesheet9
         global loading_icon
@@ -67,6 +78,34 @@ class SettingWin(QMainWindow):
                                 border: 0px;
                                 color: #000000;
                                 background-color: #F0F0F0
+                            """
+            stylesheet7 =   """
+                            QTabWidget::pane
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                background-color: #F0F0F0;
+                                color: #000000;
+                            }
+                            QTabBar::tab
+                            {
+                                border: 1px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                padding: 5px;
+                                color: #000000;
+                                min-width: 12em;
+                            }
+                            QTabBar::tab:selected
+                            {
+                                border: 2px;
+                                border-color: #A9A9A9;
+                                border-style: solid;
+                                margin-top: -1px;
+                                background-color: #C0C0C0;
+                                color: #000000;
+                            }
                             """
             stylesheet8 =   """
                                 QPushButton
@@ -112,6 +151,35 @@ class SettingWin(QMainWindow):
                                 color: #D3D3D3;
                                 background-color: #1C1C1C
                             """
+            stylesheet7 =   """
+                                            QTabWidget::pane
+                                            {
+                                                border: 1px;
+                                                border-color: #696969;
+                                                border-style: solid;
+                                                color: #D3D3D3;
+                                                background-color: #1C1C1C;
+                                                color: #D3D3D3
+                                            }
+                                            QTabBar::tab
+                                            {
+                                                border: 1px;
+                                                border-color: #696969;
+                                                border-style: solid;
+                                                padding: 5px;
+                                                color: #D3D3D3;
+                                                min-width: 12em;
+                                            } 
+                                            QTabBar::tab:selected
+                                            {
+                                                border: 2px;
+                                                border-color: #6A6A6A;
+                                                border-style: solid;
+                                                margin-top: -1px;
+                                                background-color: #1F1F1F;
+                                                color: #D3D3D3
+                                            }
+                                        """
             stylesheet8 =   """
                                 QPushButton
                                 {
@@ -160,146 +228,238 @@ class SettingWidget(QWidget):
         self.setLayout(self.layout)
         self.layout.setSpacing(5)
 
-        self.media_space_lbl = QLabel(self)
-        self.media_space_lbl.setText('Хранилище фотографий:')
-        self.media_space_lbl.setFont(font14)
-        self.media_space_lbl.setStyleSheet(stylesheet2)
-        self.layout.addWidget(self.media_space_lbl, 0, 0, 1, 1)
+        self.tabs = QTabWidget(self)
+        self.tabs.setStyleSheet(stylesheet7)
 
-        self.media_space_line = QLineEdit(self)
-        self.media_space_line.setFont(font14)
-        self.media_space_line.setStyleSheet(stylesheet1)
-        self.layout.addWidget(self.media_space_line, 0, 1, 1, 1)
+        self.make_gui()
 
-        self.media_space_choose = QPushButton(self)
-        self.media_space_choose.setText('Выбрать путь')
-        self.media_space_choose.setFont(font14)
-        self.media_space_choose.setStyleSheet(stylesheet8)
-        self.layout.addWidget(self.media_space_choose, 0, 2, 1, 1)
-        self.media_space_choose.clicked.connect(self.dir_media_choose)
-
-        self.thumbs_space_lbl = QLabel(self)
-        self.thumbs_space_lbl.setText('Место хранения миниатюр:')
-        self.thumbs_space_lbl.setFont(font14)
-        self.thumbs_space_lbl.setStyleSheet(stylesheet2)
-        self.layout.addWidget(self.thumbs_space_lbl, 1, 0, 1, 1)
-
-        self.thumbs_space_line = QLineEdit(self)
-        self.thumbs_space_line.setFont(font14)
-        self.thumbs_space_line.setStyleSheet(stylesheet1)
-        self.layout.addWidget(self.thumbs_space_line, 1, 1, 1, 1)
-
-        self.thumbs_space_choose = QPushButton(self)
-        self.thumbs_space_choose.setText('Выбрать путь')
-        self.thumbs_space_choose.setFont(font14)
-        self.thumbs_space_choose.setStyleSheet(stylesheet8)
-        self.layout.addWidget(self.thumbs_space_choose, 1, 2, 1, 1)
-        self.thumbs_space_choose.clicked.connect(self.dir_thumb_choose)
-
-        self.transfer_mode_lbl = QLabel(self)
-        self.transfer_mode_lbl.setText('Режим переноса фото:')
-        self.transfer_mode_lbl.setFont(font14)
-        self.setStyleSheet(stylesheet2)
-        self.layout.addWidget(self.transfer_mode_lbl, 2, 0, 1, 1)
-
-        self.transfer_mode_choose = QComboBox(self)
-        self.transfer_mode_choose.setFont(font14)
-        self.transfer_mode_choose.setStyleSheet(stylesheet9)
-        self.transfer_mode_choose.addItem('copy')
-        self.transfer_mode_choose.addItem('cut')
-        self.layout.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
-
-        self.num_thumbs_lbl = QLabel(self)
-        self.num_thumbs_lbl.setFont(font14)
-        self.num_thumbs_lbl.setStyleSheet(stylesheet2)
-        self.num_thumbs_lbl.setText('Миниатюр в ряд:')
-        self.layout.addWidget(self.num_thumbs_lbl, 3, 0, 1, 1)
-
-        self.num_thumbs_choose = QComboBox(self)
-        self.num_thumbs_choose.setFont(font14)
-        self.num_thumbs_choose.setStyleSheet(stylesheet1)
-        self.num_thumbs_choose.addItem('2')
-        self.num_thumbs_choose.addItem('3')
-        self.num_thumbs_choose.addItem('4')
-        self.layout.addWidget(self.num_thumbs_choose, 3, 1, 1, 1)
-
-        self.theme_lbl = QLabel(self)
-        self.theme_lbl.setText('Тема:')
-        self.theme_lbl.setFont(font14)
-        self.theme_lbl.setStyleSheet(stylesheet2)
-        self.layout.addWidget(self.theme_lbl, 4, 0, 1, 1)
-
-        self.theme_choose = QComboBox(self)
-        self.theme_choose.setFont(font14)
-        self.theme_choose.setStyleSheet(stylesheet9)
-        self.theme_choose.addItem('light')
-        self.theme_choose.addItem('dark')
-        self.layout.addWidget(self.theme_choose, 4, 1, 1, 1)
-        
-        self.socnet_lbl = QLabel(self)
-        self.socnet_lbl.setStyleSheet(stylesheet2)
-        self.socnet_lbl.setFont(font14)
-        self.socnet_lbl.setText("Соцсети включены")
-        self.layout.addWidget(self.socnet_lbl, 5, 0, 1, 1)
-
-        self.socnet_choose = QCheckBox(self)
-        self.socnet_choose.setFont(font14)
-        self.layout.addWidget(self.socnet_choose, 5, 1, 1, 1)
-
-        self.sort_type = QLabel(self)
-        self.sort_type.setFont(font14)
-        self.sort_type.setStyleSheet(stylesheet2)
-        self.sort_type.setText("Сортировка фото")
-        self.layout.addWidget(self.sort_type, 6, 0, 1, 1)
-
-        self.sort_choose = QComboBox(self)
-        self.sort_choose.setFont(font14)
-        self.sort_choose.setStyleSheet(stylesheet9)
-        self.sort_choose.addItem("Имя файла /\\")
-        self.sort_choose.addItem("Имя файла \\/")
-        self.sort_choose.addItem("Дата съёмки /\\")
-        self.sort_choose.addItem("Дата съёмки \\/")
-        self.sort_choose.addItem("Дата добавления /\\")
-        self.sort_choose.addItem("Дата добавления \\/")
-        self.layout.addWidget(self.sort_choose, 6, 1, 1, 1)
-
-        self.logs_lbl = QLabel(self)
-        self.logs_lbl.setStyleSheet(stylesheet2)
-        self.logs_lbl.setFont(font14)
-        self.logs_lbl.setText("Логи")
-        self.layout.addWidget(self.logs_lbl, 7, 0, 1, 1)
-
-        self.logs_show = QPushButton(self)
-        self.logs_show.setStyleSheet(stylesheet8)
-        self.logs_show.setFont(font14)
-        self.logs_show.setText("Просмотреть логи")
-        self.layout.addWidget(self.logs_show, 7, 1, 1, 1)
-        self.logs_show.clicked.connect(self.call_explorer_logs)
-
-        self.logs_btn = QPushButton(self)
-        self.logs_btn.setStyleSheet(stylesheet8)
-        self.logs_btn.setFont(font14)
-        self.logs_btn.setText('Очистить логи')
-        self.layout.addWidget(self.logs_btn, 7, 2, 1, 1)
-        self.logs_btn.clicked.connect(self.clear_logs)
+        self.tabs.setFont(font14)
+        self.layout.addWidget(self.tabs, 0, 0, 1, 3)
 
         self.btn_ok = QPushButton(self)
         self.btn_ok.setText('Сохранить')
         self.btn_ok.setFont(font14)
         self.btn_ok.setStyleSheet(stylesheet8)
-        self.layout.addWidget(self.btn_ok, 10, 0, 1, 1)
+        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.check_changes)
 
         self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText('Отмена')
         self.btn_cancel.setFont(font14)
         self.btn_cancel.setStyleSheet(stylesheet8)
-        self.layout.addWidget(self.btn_cancel, 10, 2, 1, 1)
+        self.layout.addWidget(self.btn_cancel, 1, 2, 1, 1)
         self.btn_cancel.clicked.connect(self.cancel_signal.emit)
 
         self.show_settings()
 
         self.resize(800, 240)
+
+    # создание интерфейса
+    def make_gui(self) -> None:
+        self.tab_files = QWidget(self)
+        self.tab_view = QWidget(self)
+        self.tab_hotkeys = QWidget(self)
+
+        def make_files() -> None:
+            self.layout_files = QGridLayout(self)
+
+            self.media_space_lbl = QLabel(self)
+            self.media_space_lbl.setText('Хранилище фотографий:')
+            self.media_space_lbl.setFont(font14)
+            self.media_space_lbl.setStyleSheet(stylesheet2)
+            self.layout_files.addWidget(self.media_space_lbl, 0, 0, 1, 1)
+
+            self.media_space_line = QLineEdit(self)
+            self.media_space_line.setFont(font14)
+            self.media_space_line.setStyleSheet(stylesheet1)
+            self.layout_files.addWidget(self.media_space_line, 0, 1, 1, 1)
+
+            self.media_space_choose = QPushButton(self)
+            self.media_space_choose.setText('Выбрать путь')
+            self.media_space_choose.setFont(font14)
+            self.media_space_choose.setStyleSheet(stylesheet8)
+            self.layout_files.addWidget(self.media_space_choose, 0, 2, 1, 1)
+            self.media_space_choose.clicked.connect(self.dir_media_choose)
+
+            self.thumbs_space_lbl = QLabel(self)
+            self.thumbs_space_lbl.setText('Место хранения миниатюр:')
+            self.thumbs_space_lbl.setFont(font14)
+            self.thumbs_space_lbl.setStyleSheet(stylesheet2)
+            self.layout_files.addWidget(self.thumbs_space_lbl, 1, 0, 1, 1)
+
+            self.thumbs_space_line = QLineEdit(self)
+            self.thumbs_space_line.setFont(font14)
+            self.thumbs_space_line.setStyleSheet(stylesheet1)
+            self.layout_files.addWidget(self.thumbs_space_line, 1, 1, 1, 1)
+
+            self.thumbs_space_choose = QPushButton(self)
+            self.thumbs_space_choose.setText('Выбрать путь')
+            self.thumbs_space_choose.setFont(font14)
+            self.thumbs_space_choose.setStyleSheet(stylesheet8)
+            self.layout_files.addWidget(self.thumbs_space_choose, 1, 2, 1, 1)
+            self.thumbs_space_choose.clicked.connect(self.dir_thumb_choose)
+
+            self.transfer_mode_lbl = QLabel(self)
+            self.transfer_mode_lbl.setText('Режим переноса фото:')
+            self.transfer_mode_lbl.setFont(font14)
+            self.setStyleSheet(stylesheet2)
+            self.layout_files.addWidget(self.transfer_mode_lbl, 2, 0, 1, 1)
+
+            self.transfer_mode_choose = QComboBox(self)
+            self.transfer_mode_choose.setFont(font14)
+            self.transfer_mode_choose.setStyleSheet(stylesheet9)
+            self.transfer_mode_choose.addItem('copy')
+            self.transfer_mode_choose.addItem('cut')
+            self.layout_files.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
+
+            self.logs_lbl = QLabel(self)
+            self.logs_lbl.setStyleSheet(stylesheet2)
+            self.logs_lbl.setFont(font14)
+            self.logs_lbl.setText("Логи")
+            self.layout_files.addWidget(self.logs_lbl, 3, 0, 1, 1)
+
+            self.logs_show = QPushButton(self)
+            self.logs_show.setStyleSheet(stylesheet8)
+            self.logs_show.setFont(font14)
+            self.logs_show.setText("Просмотреть логи")
+            self.layout_files.addWidget(self.logs_show, 3, 1, 1, 1)
+            self.logs_show.clicked.connect(self.call_explorer_logs)
+
+            self.logs_btn = QPushButton(self)
+            self.logs_btn.setStyleSheet(stylesheet8)
+            self.logs_btn.setFont(font14)
+            self.logs_btn.setText('Очистить логи')
+            self.layout_files.addWidget(self.logs_btn, 3, 2, 1, 1)
+            self.logs_btn.clicked.connect(self.clear_logs)
+
+            self.tab_files.setLayout(self.layout_files)
+
+        def make_view() -> None:
+            self.layout_view = QGridLayout(self)
+
+            self.num_thumbs_lbl = QLabel(self)
+            self.num_thumbs_lbl.setFont(font14)
+            self.num_thumbs_lbl.setStyleSheet(stylesheet2)
+            self.num_thumbs_lbl.setText('Миниатюр в ряд:')
+            self.layout_view.addWidget(self.num_thumbs_lbl, 0, 0, 1, 1)
+
+            self.num_thumbs_choose = QComboBox(self)
+            self.num_thumbs_choose.setFont(font14)
+            self.num_thumbs_choose.setStyleSheet(stylesheet1)
+            self.num_thumbs_choose.addItem('2')
+            self.num_thumbs_choose.addItem('3')
+            self.num_thumbs_choose.addItem('4')
+            self.layout_view.addWidget(self.num_thumbs_choose, 0, 1, 1, 1)
+
+            self.theme_lbl = QLabel(self)
+            self.theme_lbl.setText('Тема:')
+            self.theme_lbl.setFont(font14)
+            self.theme_lbl.setStyleSheet(stylesheet2)
+            self.layout_view.addWidget(self.theme_lbl, 1, 0, 1, 1)
+
+            self.theme_choose = QComboBox(self)
+            self.theme_choose.setFont(font14)
+            self.theme_choose.setStyleSheet(stylesheet9)
+            self.theme_choose.addItem('light')
+            self.theme_choose.addItem('dark')
+            self.layout_view.addWidget(self.theme_choose, 1, 1, 1, 1)
+
+            self.socnet_lbl = QLabel(self)
+            self.socnet_lbl.setStyleSheet(stylesheet2)
+            self.socnet_lbl.setFont(font14)
+            self.socnet_lbl.setText("Соцсети включены")
+            self.layout_view.addWidget(self.socnet_lbl, 2, 0, 1, 1)
+
+            self.socnet_choose = QCheckBox(self)
+            self.socnet_choose.setFont(font14)
+            self.layout_view.addWidget(self.socnet_choose, 2, 1, 1, 1)
+
+            self.sort_type = QLabel(self)
+            self.sort_type.setFont(font14)
+            self.sort_type.setStyleSheet(stylesheet2)
+            self.sort_type.setText("Сортировка фото")
+            self.layout_view.addWidget(self.sort_type, 3, 0, 1, 1)
+
+            self.sort_choose = QComboBox(self)
+            self.sort_choose.setFont(font14)
+            self.sort_choose.setStyleSheet(stylesheet9)
+            self.sort_choose.addItem("Имя файла /\\")
+            self.sort_choose.addItem("Имя файла \\/")
+            self.sort_choose.addItem("Дата съёмки /\\")
+            self.sort_choose.addItem("Дата съёмки \\/")
+            self.sort_choose.addItem("Дата добавления /\\")
+            self.sort_choose.addItem("Дата добавления \\/")
+            self.layout_view.addWidget(self.sort_choose, 3, 1, 1, 1)
+
+            self.tab_view.setLayout(self.layout_view)
+
+        def make_hotkeys() -> None:
+            self.layout_hotkeys = QGridLayout(self)
+
+            self.open_file_lbl = QLabel(self)
+            self.open_file_lbl.setStyleSheet(stylesheet2)
+            self.open_file_lbl.setFont(font14)
+            self.open_file_lbl.setText("Открыть файл")
+            self.layout_hotkeys.addWidget(self.open_file_lbl, 0, 0, 1, 1)
+
+            self.open_file_enter = QPushButton(self)
+            self.open_file_enter.setStyleSheet(stylesheet8)
+            self.open_file_enter.setFont(font14)
+            self.layout_hotkeys.addWidget(self.open_file_enter, 0, 1, 1, 1)
+
+            self.edit_metadata_lbl = QLabel(self)
+            self.edit_metadata_lbl.setStyleSheet(stylesheet2)
+            self.edit_metadata_lbl.setFont(font14)
+            self.edit_metadata_lbl.setText("Редактировать метаданные")
+            self.layout_hotkeys.addWidget(self.edit_metadata_lbl, 1, 0, 1, 1)
+
+            self.edit_metadata_enter = QPushButton(self)
+            self.edit_metadata_enter.setStyleSheet(stylesheet8)
+            self.edit_metadata_enter.setFont(font14)
+            self.layout_hotkeys.addWidget(self.edit_metadata_enter, 1, 1, 1, 1)
+
+            self.open_explorer_lbl = QLabel(self)
+            self.open_explorer_lbl.setStyleSheet(stylesheet2)
+            self.open_explorer_lbl.setFont(font14)
+            self.open_explorer_lbl.setText("Открыть директорию с файлом")
+            self.layout_hotkeys.addWidget(self.open_explorer_lbl, 2, 0, 1, 1)
+
+            self.open_explorer_enter = QPushButton(self)
+            self.open_explorer_enter.setStyleSheet(stylesheet8)
+            self.open_explorer_enter.setFont(font14)
+            self.layout_hotkeys.addWidget(self.open_explorer_enter, 2, 1, 1, 1)
+
+            self.delete_file_lbl = QLabel(self)
+            self.delete_file_lbl.setStyleSheet(stylesheet2)
+            self.delete_file_lbl.setFont(font14)
+            self.delete_file_lbl.setText("Удалить файл")
+            self.layout_hotkeys.addWidget(self.delete_file_lbl, 3, 0, 1, 1)
+
+            self.delete_file_enter = QPushButton(self)
+            self.delete_file_enter.setStyleSheet(stylesheet8)
+            self.delete_file_enter.setFont(font14)
+            self.layout_hotkeys.addWidget(self.delete_file_enter, 3, 1, 1, 1)
+
+            self.do_any_lbl = QLabel(self)
+            self.do_any_lbl.setStyleSheet(stylesheet2)
+            self.do_any_lbl.setFont(font14)
+            self.do_any_lbl.setText("Показать карту/статистику")
+            self.layout_hotkeys.addWidget(self.do_any_lbl, 4, 0, 1, 1)
+
+            self.do_any_enter = QPushButton(self)
+            self.do_any_enter.setStyleSheet(stylesheet8)
+            self.do_any_enter.setFont(font14)
+            self.layout_hotkeys.addWidget(self.do_any_enter, 4, 1, 1, 1)
+
+            self.tab_hotkeys.setLayout(self.layout_hotkeys)
+
+        make_files()
+        make_view()
+        make_hotkeys()
+
+        self.tabs.addTab(self.tab_files, 'Файлы')
+        self.tabs.addTab(self.tab_view, 'Внешний вид')
+        self.tabs.addTab(self.tab_hotkeys, 'Горячие клавиши')
 
     # выбор папки хранения фото
     def dir_media_choose(self) -> None:
@@ -344,14 +504,14 @@ class SettingWidget(QWidget):
             win.show()
             return
 
-        self.old_media_dir = settings['destination_dir']
-        self.old_thumb_dir = settings['thumbs_dir']
-        mode = settings['transfer_mode']
-        self.old_num_thumbs = settings["thumbs_row"]
-        self.old_theme_color = settings["color_theme"]
-        self.old_socnet_status = settings["social_networks_status"]
-        self.old_sort_type = settings["sort_type"]
-        show_sort_type(settings["sort_type"])
+        self.old_media_dir = settings['files']['destination_dir']
+        self.old_thumb_dir = settings['files']['thumbs_dir']
+        mode = settings['files']['transfer_mode']
+        self.old_num_thumbs = settings['view']["thumbs_row"]
+        self.old_theme_color = settings['view']["color_theme"]
+        self.old_socnet_status = settings['view']["social_networks_status"]
+        self.old_sort_type = settings['view']["sort_type"]
+        show_sort_type(settings['view']["sort_type"])
 
         self.media_space_line.setText(self.old_media_dir)
         self.thumbs_space_line.setText(self.old_thumb_dir)
@@ -363,6 +523,21 @@ class SettingWidget(QWidget):
             self.socnet_choose.setChecked(QtCore.Qt.Checked)
         else:
             self.socnet_choose.setChecked(QtCore.Qt.Unchecked)
+
+        try:
+            with open('hotkeys.json', 'r') as json_file:
+                hotkeys = json.load(json_file)
+        except FileNotFoundError:
+            win = ErrorsAndWarnings.SettingsReadError(self)
+            win.show()
+            return
+
+        self.open_file_enter.setText(hotkeys["open_file"])
+        self.edit_metadata_enter.setText(hotkeys["edit_metadata"])
+        self.open_explorer_enter.setText(hotkeys["open_explorer"])
+        self.delete_file_enter.setText(hotkeys["delete_file"])
+        self.do_any_enter.setText(hotkeys["show_stat_map"])
+
 
     # какие пути изменили, какие нет
     def check_changes(self) -> None:
@@ -411,9 +586,21 @@ class SettingWidget(QWidget):
         socnet_status = self.socnet_choose.checkState()
         sort_type = write_sort_type()
 
-        jsondata_wr = {'destination_dir': dir_media_chosen, 'thumbs_dir': dir_thumb_chosen,
-                       'transfer_mode': transfer_mode, "thumbs_row": num_thumbs, "color_theme": theme_color,
-                       'social_networks_status': socnet_status, "sort_type": sort_type}
+        jsondata_wr =   {
+                            "files":
+                                    {
+                                    "destination_dir": dir_media_chosen,
+                                    "thumbs_dir": dir_thumb_chosen,
+                                    "transfer_mode": transfer_mode
+                                    },
+                            "view":
+                                    {
+                                    "thumbs_row": num_thumbs,
+                                    "color_theme": theme_color,
+                                    "social_networks_status": socnet_status,
+                                    "sort_type": sort_type
+                                    }
+                            }
 
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file, sort_keys=True, indent=4, separators=(',', ': '))
@@ -432,7 +619,7 @@ class SettingWidget(QWidget):
         self.show_settings()
 
     # обновить собственный вид при изменении настроек вида
-    def update_stylesheet(self):
+    def update_stylesheet(self) -> None:
         self.setStyleSheet(stylesheet2)
         self.media_space_lbl.setStyleSheet(stylesheet2)
         self.media_space_line.setStyleSheet(stylesheet1)
@@ -453,16 +640,17 @@ class SettingWidget(QWidget):
         self.logs_lbl.setStyleSheet(stylesheet2)
         self.logs_show.setStyleSheet(stylesheet1)
         self.logs_btn.setStyleSheet(stylesheet1)
+        self.tabs.setStyleSheet(stylesheet7)
 
     # открыть папку с логами, 1 файл указывается в пути, чтобы открыть уже саму папку, а не рабочую папку программы с выделенной папкой "логи"
-    def call_explorer_logs(self):
+    def call_explorer_logs(self) -> None:
         path = os.getcwd() + r'\logs'
         file = os.listdir(path)[0]
         full_path = path + '\\' + file
         os.system(f'explorer /select,\"{full_path}\"')
 
     # очистка папки логов, лог сегодняшнего дня не очищается, так как используется самой программой во время работы
-    def clear_logs(self):
+    def clear_logs(self) -> None:
         path = os.getcwd() + r'\logs'
         files = os.listdir(path)
         for file in files:
@@ -630,7 +818,7 @@ class Notification(QDialog):
 def get_destination_media() -> str:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    destination_media = settings['destination_dir']
+    destination_media = settings['files']['destination_dir']
     return destination_media
 
 
@@ -638,23 +826,23 @@ def get_destination_media() -> str:
 def get_destination_thumb() -> str:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    destination_thumb = settings['thumbs_dir']
+    destination_thumb = settings['files']['thumbs_dir']
     return destination_thumb
 
 
 # количество миниатюр в строке
-def get_thumbs_rows() -> str:
+def get_thumbs_row() -> int:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    thumbs_rows = settings['thumbs_rows']
-    return thumbs_rows
+    thumbs_row = int(settings['view']['thumbs_row'])
+    return thumbs_row
 
 
 # режим переноса фото при добавлении
 def get_photo_transfer_mode() -> str:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    transfer_mode = settings['transfer_mode']
+    transfer_mode = settings['files']['transfer_mode']
     return transfer_mode
 
 
@@ -662,23 +850,31 @@ def get_photo_transfer_mode() -> str:
 def get_theme_color() -> str:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    theme_color = settings['color_theme']
+    theme_color = settings['view']['color_theme']
     return theme_color
 
 
 # включены или отключены соцсети
-def get_socnet_status() -> str:
+def get_socnet_status() -> int:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    socnet_status = int(settings['social_networks_status'])
+    socnet_status = int(settings['view']['social_networks_status'])
     return socnet_status
 
 
-def get_sort_type():
+# сортировка фото в основном каталоге
+def get_sort_type() -> str:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
-    sort_type = settings['sort_type']
+    sort_type = settings['view']['sort_type']
     return sort_type
+
+
+# горячие клавиши
+def get_hotkeys() -> dict:
+    with open('hotkeys.json', 'r') as json_file:
+        hotkeys = json.load(json_file)
+    return hotkeys
 
 
 if __name__ == "__main__":

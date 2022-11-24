@@ -4,6 +4,7 @@ import folium
 import os
 import json
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
+from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
@@ -51,9 +52,7 @@ class WidgetWindow(QWidget):
         self.layoutoutside = QGridLayout(self)
         self.layoutoutside.setSpacing(10)
 
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.thumb_row = int(settings["thumbs_row"])
+        self.thumb_row = Settings.get_thumbs_row()
 
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
@@ -551,6 +550,17 @@ class WidgetWindow(QWidget):
         self.layout_btns.addWidget(self.open_file_btn, 2, 0, 1, 1)
         self.open_file_btn.clicked.connect(self.open_file_func)
 
+        hotkeys = Settings.get_hotkeys()
+
+        self.edit_shortcut = QShortcut(QKeySequence(hotkeys["edit_metadata"]), self)
+        self.edit_shortcut.activated.connect(self.edit_photo_func)
+
+        self.explorer_shortcut = QShortcut(QKeySequence(hotkeys["open_explorer"]), self)
+        self.explorer_shortcut.activated.connect(self.call_explorer)
+
+        self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
+        self.open_shortcut.activated.connect(self.open_file_func)
+
     # функция редактирования
     def edit_photo_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
@@ -582,9 +592,7 @@ class WidgetWindow(QWidget):
 
     # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.thumb_row = int(settings["thumbs_row"])
+        self.thumb_row = Settings.get_thumbs_row()
 
         self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
         self.scroll_area_widget.setFixedWidth(200 * self.thumb_row)

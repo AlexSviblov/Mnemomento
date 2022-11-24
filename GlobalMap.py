@@ -45,9 +45,7 @@ class GlobalMapWidget(QWidget):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.stylesheet_color()
 
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.soc_net_setting = int(settings["social_networks_status"])
+        self.soc_net_setting = Settings.get_socnet_status()
 
         self.layout_outside = QGridLayout(self)
         self.layout_outside.setSpacing(10)
@@ -84,7 +82,10 @@ class GlobalMapWidget(QWidget):
         self.layout_outside.addWidget(self.btn_show, 0, 4, 1, 1)
         self.btn_show.clicked.connect(self.pre_make_show_map)
 
-    def stylesheet_color(self):
+        self.show_shortcut = QShortcut(QtGui.QKeySequence(Settings.get_hotkeys()["show_stat_map"]), self)
+        self.show_shortcut.activated.connect(self.pre_make_show_map)
+
+    def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
         global stylesheet5
@@ -703,6 +704,9 @@ class PathsLooter(QtCore.QThread):
         # self._init = False
 
     def run(self):
-        map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(self.full_paths)
+        try:
+            map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(self.full_paths)
+        except IndexError:
+            map_points_combo, zoom_level, map_center = '', '', ''
         self.finished.emit((map_points_combo, zoom_level, map_center))
 

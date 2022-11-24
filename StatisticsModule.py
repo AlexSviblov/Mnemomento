@@ -246,6 +246,9 @@ class StatisticsWidget(QWidget):
         self.start_btn.setFont(font14)
         self.start_btn.clicked.connect(self.start_calculate)
 
+        self.show_shortcut = QShortcut(QtGui.QKeySequence(Settings.get_hotkeys()["show_stat_map"]), self)
+        self.show_shortcut.activated.connect(self.start_calculate)
+
         self.progress_group = QGroupBox(self)
         self.progress_layout = QGridLayout(self)
         self.progress_group.setLayout(self.progress_layout)

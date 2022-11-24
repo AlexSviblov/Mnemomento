@@ -863,7 +863,6 @@ class ManyPhotoEdit(QWidget):
         if not photo_list:
             return
 
-        print(photo_list)
         thumbnails_list = self.photo_to_thumb_path(photo_list)
 
         columns = 2

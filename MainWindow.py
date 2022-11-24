@@ -51,6 +51,8 @@ class MainWindow(QMainWindow):
     def __init__(self, parent=None):
 
         super().__init__(parent)
+
+
         self.stylesheet_color()
         self.setStyleSheet(stylesheet2)
 
@@ -147,7 +149,6 @@ class MainWindow(QMainWindow):
 
         self.start_show()
 
-        
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
         global stylesheet1
@@ -1198,24 +1199,35 @@ class TimeMaker(QtCore.QThread):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    do = 0
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
 
-        if os.path.isdir(settings["destination_dir"]) and os.path.isdir(settings["thumbs_dir"]):
+        if os.path.isdir(settings['files']["destination_dir"]) and os.path.isdir(settings['files']["thumbs_dir"]):
             pass
         else:
-            do = 1
-    if do:
-        with open('settings.json', 'w') as json_file:
-            bsl = '\\'
-            new_set = {"destination_dir": f"{os.getcwd().replace(bsl, '/')}", "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}", "transfer_mode": "copy", "thumbs_row": "2", "color_theme": "light", "social_networks_status": 2, "sort_type": "name-up"}
-            json.dump(new_set, json_file)
+            with open('settings.json', 'w') as json_file:
+                bsl = '\\'
+                new_set =   {
+                            "files":
+                                    {
+                                    "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
+                                     "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}",
+                                     "transfer_mode": "copy"
+                                    },
+                            "view":
+                                    {
+                                    "thumbs_row": "2",
+                                    "color_theme": "light",
+                                    "social_networks_status": 2,
+                                    "sort_type": "name-up"
+                                    }
+                            }
+                json.dump(new_set, json_file)
 
     try:
         win = MainWindow()
         win.show()
     except:
-        logging.exception(f"ALL PROGRAM ERROR")
+        logging.exception(f"ALL PROGRAM ERROR - ")
 
     sys.exit(app.exec_())

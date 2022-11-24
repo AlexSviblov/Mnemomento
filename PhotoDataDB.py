@@ -452,7 +452,7 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     sql_str5 = f"UPDATE photos SET GPSdata = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
     sql_str6 = f"UPDATE socialnetworks SET shootingdate = \'\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
     sql_str7 = f"UPDATE photos SET catalog = \'{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
-    sql_str8 = f"UPDATE socialnetworks SET catalog = \'{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info\\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
+    sql_str8 = f"UPDATE socialnetworks SET catalog = \'{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info\' WHERE catalog = \'{photo_directory}\' and filename = \'{photo_name}\'"
 
     cur.execute(sql_str1)
     cur.execute(sql_str2)
@@ -663,7 +663,8 @@ def massive_edit_metadata(photo_list: list[str], modify_dict: list[str]) -> None
         edit_in_database(file_name, file_dir, modify_dict)
 
 
-def db_order_settings():
+# в каком порядке выдавать список из БД -> в таком же порядке создаются миниатюры в GUI
+def db_order_settings() -> str:
     setting = Settings.get_sort_type()
 
     match setting:

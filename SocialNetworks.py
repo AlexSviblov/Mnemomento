@@ -389,7 +389,7 @@ class RedSN(QDialog):
 class DelSN(QDialog):
     social_network_changed = QtCore.pyqtSignal()
 
-    def __init__(self, net_name):
+    def __init__(self, net_name: str):
         super(DelSN, self).__init__()
         self.setStyleSheet(stylesheet2)
 

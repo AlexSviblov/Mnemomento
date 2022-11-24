@@ -6,6 +6,7 @@ import math
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence
 
 import EditFiles
 import FilesDirs
@@ -53,10 +54,8 @@ class AloneWidgetWindow(QWidget):
         self.layoutoutside = QGridLayout(self)
         self.layoutoutside.setSpacing(10)
 
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.thumb_row = int(settings["thumbs_row"])
-        self.soc_net_setting = int(settings["social_networks_status"])
+        self.thumb_row = Settings.get_thumbs_row()
+        self.soc_net_setting = Settings.get_socnet_status()
 
         self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
         self.pic.hide()
@@ -822,6 +821,21 @@ class AloneWidgetWindow(QWidget):
         self.layout_btns.addWidget(self.open_file_btn, 3, 0, 1, 1)
         self.open_file_btn.clicked.connect(self.open_file_func)
 
+        hotkeys = Settings.get_hotkeys()
+
+        self.edit_shortcut = QShortcut(QKeySequence(hotkeys["edit_metadata"]), self)
+        self.edit_shortcut.activated.connect(self.edit_photo_func)
+
+        self.del_shortcut = QShortcut(QKeySequence(hotkeys["delete_file"]), self)
+        self.del_shortcut.activated.connect(self.del_photo_func)
+
+        self.explorer_shortcut = QShortcut(QKeySequence(hotkeys["open_explorer"]), self)
+        self.explorer_shortcut.activated.connect(self.call_explorer)
+
+        self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
+        self.open_shortcut.activated.connect(self.open_file_func)
+
+
     # открыть фотографию в приложении просмотра
     def open_file_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
@@ -1001,9 +1015,7 @@ class AloneWidgetWindow(QWidget):
 
     # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.thumb_row = int(settings["thumbs_row"])
+        self.thumb_row = Settings.get_thumbs_row()
 
         self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
         self.scroll_area.setFixedWidth(200 * self.thumb_row)

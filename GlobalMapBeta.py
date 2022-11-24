@@ -45,9 +45,7 @@ class GlobalMapWidget(QWidget):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.stylesheet_color()
 
-        with open('settings.json', 'r') as json_file:
-            settings = json.load(json_file)
-        self.soc_net_setting = int(settings["social_networks_status"])
+        self.soc_net_setting = Settings.get_socnet_status()
 
         self.layout_outside = QGridLayout(self)
         self.setLayout(self.layout_outside)
