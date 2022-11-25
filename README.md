@@ -22,6 +22,10 @@ Future plans:
 
 
 
-PROGRAM CAN WORK ONLY WITH EXE INSTALLATION
+Установка:
+1 путь: бинарный установщик
+2 путь: запустить CreateFilesForWork.py, затем пользоваться через MainWindow.py
 
-ПРОГРАММА РАССЧИТАНА НА УСТАНОВКУ УСТАНОВЩИКОМ
+Instalation: 
+1 way: binary instalator 
+2 way: run CreateFilesForWork.py, after use program MainWindow.py
