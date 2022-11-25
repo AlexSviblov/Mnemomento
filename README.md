@@ -12,6 +12,7 @@ Future plans:
 - Shortkeys
 - Archive export
 - Add other languages
+- Add user tags
 
 Планы разработки:
 - Оптимизировать загрузки
@@ -19,6 +20,7 @@ Future plans:
 - Добавить горячие клавиши
 - Экспорт архива
 - Поддержка других языков
+- Добавить пользовтельские заметки
 
 
 
