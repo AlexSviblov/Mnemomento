@@ -1,11 +1,14 @@
 /PhotoDB.db
 /last_opened.json
+/ErrorNames.db
+/settings.json
+/hotkeys.json
 /thumbnail/
 /Media/
 /venv/
 /test/
-/ErrorNames.db
-/settings.json
 /tests/
 /logs/
 /Helpful/
+/installer-upd.iss
+/setupscript.iss
