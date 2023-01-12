@@ -725,10 +725,40 @@ def equip_name_check(equip_list: list[str], type: str) -> list[str]:
             equip_list[i] = right_equip
         except TypeError:
             pass
-        equip_set = set(equip_list)
-        equip_list_final = list(equip_set)
+
+    equip_set = set(equip_list)
+    equip_list_final = list(equip_set)
     return equip_list_final
 
+# Замена неправильного названия для выбора группировки на правильное
+def equip_name_check_with_counter(equip_dict: dict[str, int], type: str) -> list[str]:
+    """
+    Для корректного отображения выпадающих списком камер и объективов в основном каталоге при группировке по
+    оборудованию - данные достаются из БД фотографий, сравниваются с данными БД исправлений и очищаются от повторений.
+    :param equip_list: список строк с названием оборудования.
+    :param type: тип оборудования.
+    :return: список уникальных исправленных названий оборудования.
+    """
+
+    equip_list = list(equip_dict.keys())
+
+    for i in range(len(equip_list)):
+        sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{equip_list[i]}\''
+        cur.execute(sql_str)
+        try:
+            right_equip = cur.fetchone()[0]
+            try:
+                equip_dict[f'{right_equip}'] += equip_dict[f'{equip_list[i]}']
+            except KeyError:
+                equip_dict[f'{right_equip}'] = equip_dict[f'{equip_list[i]}']
+                equip_dict.pop(f'{equip_list[i]}')
+        except TypeError:
+            pass
+
+    dict_sorted= {k: v for k, v in sorted(equip_dict.items(), key=lambda item: item[1], reverse=True)}
+    equip_list_final = list(dict_sorted.keys())
+
+    return equip_list_final
 
 # проверка, является ли переданное имя - исправлением неправильного
 def equip_solo_name_check(exifname: str, type: str) -> str:

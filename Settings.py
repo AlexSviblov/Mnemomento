@@ -872,9 +872,21 @@ def get_sort_type() -> str:
 
 # горячие клавиши
 def get_hotkeys() -> dict:
-    with open('hotkeys.json', 'r') as json_file:
-        hotkeys = json.load(json_file)
-    return hotkeys
+    try:
+        with open('hotkeys.json', 'r') as json_file:
+            hotkeys = json.load(json_file)
+        return hotkeys
+    except FileNotFoundError:
+        hotkeys_default =   {
+                              "open_file": "Ctrl+S",
+                              "edit_metadata": "Ctrl+E",
+                              "open_explorer": "Ctrl+D",
+                              "delete_file": "Del",
+                              "show_stat_map": "Enter"
+                            }
+
+        with open('hotkeys.json', 'w') as json_file:
+            json.dump(hotkeys_default, json_file, sort_keys=True, indent=4, separators=(',', ': '))
 
 
 if __name__ == "__main__":

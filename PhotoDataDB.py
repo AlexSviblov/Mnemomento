@@ -240,25 +240,25 @@ def get_equipment() -> tuple[list[str], list[str]]:
     Вытащить из базы данных все имеющиеся варианты камер и объективов.
     :return: список всех камер и объективов, по одному экземпляру каждого, с исправлением из ErrorNames.db
     """
-    sql_str_get_camera = 'SELECT camera FROM photos GROUP BY camera ORDER BY count(camera)'
+    sql_str_get_camera = 'SELECT camera, count(camera) FROM photos GROUP BY camera'
     cur.execute(sql_str_get_camera)
     camera_all_data = cur.fetchall()
-    camera_buf = list()
+    camera_counter = dict()
     for i in range(len(camera_all_data)):
-        camera_buf.append(camera_all_data[i][0])
+        camera_counter[f'{camera_all_data[i][0]}'] = camera_all_data[i][1]
 
-    cameras_list = Metadata.equip_name_check(camera_buf, 'camera')
+    cameras_list = Metadata.equip_name_check_with_counter(camera_counter, 'camera')
 
-    sql_str_get_lens = 'SELECT lens FROM photos GROUP BY lens ORDER BY count(lens)'
+    sql_str_get_lens = 'SELECT lens, count(lens) FROM photos GROUP BY lens'
     cur.execute(sql_str_get_lens)
     lens_all_data = cur.fetchall()
-    lens_buf = list()
+    lens_counter = dict()
     for i in range(len(lens_all_data)):
-        lens_buf.append(lens_all_data[i][0])
+        lens_counter[f'{lens_all_data[i][0]}'] = lens_all_data[i][0]
 
-    lens_list = Metadata.equip_name_check(lens_buf, 'lens')
+    lens_list = Metadata.equip_name_check_with_counter(lens_counter, 'lens')
 
-    return cameras_list, lens_list
+    return cameras_list, lens_list,
 
 
 # получить полный путь ко всем фото, у которых указаны выбранные камера и объектив
