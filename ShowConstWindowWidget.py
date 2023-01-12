@@ -1426,6 +1426,7 @@ class ConstWidgetWindow(QWidget):
 
         self.type_show_thumbnails()
 
+    # фото повернули, переназначить иконку на повёрнутую
     def func_rotate_show(self):
         destination_thumbs = Settings.get_destination_thumb()
         photo_way_splitted = self.last_clicked.split('/')
