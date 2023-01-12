@@ -818,6 +818,7 @@ class ManyPhotoEdit(QWidget):
 
         for i in range(self.table_compare.columnCount()):
             self.table_compare.removeColumn(i)
+        self.table_compare.update()
 
         for i in range(self.filtered_photo_table.rowCount()):
             for j in range(self.filtered_photo_table.columnCount()):
@@ -826,6 +827,7 @@ class ManyPhotoEdit(QWidget):
                 except (AttributeError, RuntimeError):
                     pass
         self.filtered_photo_table.setRowCount(0)
+        self.filtered_photo_table.update()
 
         for k in range(self.edit_photo_table.rowCount()):
             try:
@@ -833,6 +835,9 @@ class ManyPhotoEdit(QWidget):
             except (AttributeError, RuntimeError):
                 pass
         self.edit_photo_table.setRowCount(0)
+        self.edit_photo_table.update()
+
+        QtCore.QCoreApplication.processEvents()
 
         match self.group_type.currentText():
             case 'Дата':
