@@ -362,6 +362,7 @@ class SettingWidget(QWidget):
             self.theme_choose.setStyleSheet(stylesheet9)
             self.theme_choose.addItem('light')
             self.theme_choose.addItem('dark')
+            self.theme_choose.addItem('auto')
             self.layout_view.addWidget(self.theme_choose, 1, 1, 1, 1)
 
             self.socnet_lbl = QLabel(self)
@@ -851,6 +852,9 @@ def get_theme_color() -> str:
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     theme_color = settings['view']['color_theme']
+    if theme_color == 'auto':
+        import darkdetect
+        theme_color = darkdetect.theme().lower()
     return theme_color
 
 
