@@ -981,7 +981,6 @@ class ConstWidgetWindow(QWidget):
         self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
         self.open_shortcut.activated.connect(self.open_file_func)
 
-
     # открыть фотографию в приложении просмотра
     def open_file_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
