@@ -314,7 +314,7 @@ class GlobalMapWidget(QWidget):
                     folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.marker_cluster)
 
                     self.progressbar.setValue(int((progress / len(map_points_combo)) * 99 + 1))
-                    QtCore.QCoreApplication.processEvents()
+                    self.progressbar.update()
                     progress += 1
 
                 QtCore.QCoreApplication.processEvents()
