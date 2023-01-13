@@ -3,6 +3,8 @@ import os
 import json
 import logging
 import datetime
+
+import PyQt5.QtWinExtras
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtWidgets import *
@@ -332,9 +334,19 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.add_files_progress = ConstMaker(file_list=file_list)
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
@@ -350,9 +362,19 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.add_files_progress = ConstMaker(file_list=file_list)
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
@@ -369,9 +391,19 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.add_files_progress = ConstMaker(file_list=file_list)
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
@@ -388,9 +420,19 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
         self.add_files_progress.start()
@@ -410,9 +452,19 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=file_list, mode="files", exists_dir=dir_to_add)
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
         self.add_files_progress.start()
@@ -429,9 +481,19 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
         self.view_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.view_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+        self.view_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.view_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.view_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.view_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.view_files_progress.finished.connect(self.finish_thread_view_dir)
         self.view_files_progress.start()
@@ -447,15 +509,28 @@ class MainWindow(QMainWindow):
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
+        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
+        self.taskbar_progress = self.taskbar_button.progress()
+        self.taskbar_progress.show()
+        self.taskbar_button.setWindow(self.windowHandle())
+
         self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
         self.view_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.view_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
+
+
+        self.view_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
+        self.view_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
+        self.view_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
+
         self.view_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
         self.view_files_progress.finished.connect(self.finish_thread_view_dir)
         self.view_files_progress.start()
 
     # По окончании добавления файлов в основной каталог, запустить виджет его показа
     def finish_thread_add_const(self, files_exists: list[str], files_errors: list[str]) -> None:
+
+        self.taskbar_progress.reset()
         # win = PhotoExistsWarning(self, files)
         if files_exists:
             win1 = ErrorsAndWarnings.PhotoExists(self, files_exists, "const")
@@ -469,6 +544,7 @@ class MainWindow(QMainWindow):
 
     # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
     def finish_thread_add_alone(self, files: str) -> None:
+        self.taskbar_progress.reset()
         if files[0] == 'finish':
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(files[1])
@@ -484,6 +560,7 @@ class MainWindow(QMainWindow):
 
     # По окончании создания миниатюр разового просмотра, запустить виджет показа
     def finish_thread_view_dir(self) -> None:
+        self.taskbar_progress.reset()
         self.show_view_dir()
         self.view_files_progress = None
 
@@ -491,6 +568,7 @@ class MainWindow(QMainWindow):
     def show_main_const_widget(self) -> None:
         widget = ShowConstWindowWidget.ConstWidgetWindow()
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
+        self.stylesheet_color()
         self.setCentralWidget(widget)
 
     # Виджет показа дополнительного каталога
@@ -498,22 +576,26 @@ class MainWindow(QMainWindow):
         widget = ShowAloneWindowWidget.AloneWidgetWindow()
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         widget.add_photo_signal.connect(lambda t_dir: self.func_add_alone_files(t_dir))
+        self.stylesheet_color()
         self.setCentralWidget(widget)
 
     # Показ папки вне каталогов
     def show_view_dir(self) -> None:
         widget = OnlyShowWidget.WidgetWindow(self.photo_files_list_view)
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
+        self.stylesheet_color()
         self.setCentralWidget(widget)
 
     # карта снимков
     def show_global_map(self) -> None:
         widget = GlobalMap.GlobalMapWidget()
+        self.stylesheet_color()
         self.setCentralWidget(widget)
 
     # Начальный вид
     def start_show(self) -> None:
         widget = StartShow()
+        self.stylesheet_color()
         self.setCentralWidget(widget)
         widget.const_show_signal.connect(self.show_main_const_widget)
         widget.alone_show_signal.connect(self.show_main_alone_widget)
