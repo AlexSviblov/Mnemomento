@@ -916,15 +916,18 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
 # Ориантация файла при разовом просмотре
 def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
     """
-    Так как для разового просомтра файл не редактируется, а отобразить корректно его надо - если он с нормальной
+    Так как для разового просмотра файл не редактируется, а отобразить корректно его надо - если он с нормальной
     ориентацией, то показывается он, иначе создаётся нормально повёрнутая копия этого файла и отображается она
     :param photo_file: путь к файлу, который надо показать
     :return: соответствует ли ориентация той, что считана в showinfo заранее, если нет - выбрать обратную
     """
     data = read_exif(photo_file)
     im = Image.open(photo_file)
+    try:
+        meta_orientation = data['EXIF:Orientation']
+    except KeyError:
+        meta_orientation = 1
 
-    meta_orientation = data['EXIF:Orientation']
     match meta_orientation:
         case 1:
             im_flipped = im
@@ -932,38 +935,37 @@ def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
             orientation = 1
         case 2:
             im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            photo_show = photo_file
+            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
+            photo_show = photo_file + '_temp'
             orientation = 1
         case 3:
             im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
-            photo_show = photo_file
+            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
+            photo_show = photo_file + '_temp'
             orientation = 1
         case 4:
             im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-            photo_show = photo_file
+            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
+            photo_show = photo_file + '_temp'
             orientation = 1
         case 5:
             im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-            im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
+            im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
             im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
             photo_show = photo_file + '_temp'
             orientation = 0
         case 6:
-            # im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
             im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
             im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
             photo_show = photo_file + '_temp'
             orientation = 0
         case 7:
             im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            # im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-            im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
+            im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
             im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
             photo_show = photo_file + '_temp'
             orientation = 0
         case 8:
-            # im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
             im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
             im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
             photo_show = photo_file + '_temp'
