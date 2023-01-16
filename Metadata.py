@@ -751,7 +751,7 @@ def equip_name_check_with_counter(equip_dict: dict[str, int], type: str) -> list
                 equip_dict[f'{right_equip}'] += equip_dict[f'{equip_list[i]}']
             except KeyError:
                 equip_dict[f'{right_equip}'] = equip_dict[f'{equip_list[i]}']
-                equip_dict.pop(f'{equip_list[i]}')
+            equip_dict.pop(f'{equip_list[i]}')
         except TypeError:
             pass
 
