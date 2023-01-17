@@ -1001,17 +1001,13 @@ def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None
                 thum_flipped = thum.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
             case 5:
                 thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
+                thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
             case 6:
-                # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
                 thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
             case 7:
                 thum_flipped_temp = thum.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-                # thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-                thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
+                thum_flipped = thum_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
             case 8:
-                # thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_270)
                 thum_flipped = thum.transpose(method=Image.Transpose.ROTATE_90)
             case _:
                 thum_flipped = thum

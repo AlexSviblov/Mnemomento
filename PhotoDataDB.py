@@ -189,6 +189,8 @@ def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dic
     for i in range(3, len(all_column_names)):
         sn_column_names.append(all_column_names[i][1])
 
+    # sn_column_names = [all_column_names[i][1]  for i in range(3, len(all_column_names))]
+
     sql_str_get_status = f'SELECT * FROM socialnetworks WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
     cur.execute(sql_str_get_status)
 
@@ -231,6 +233,8 @@ def get_socialnetworks() -> list[str]:
     sn_column_names = list()
     for i in range(3, len(all_column_names)):
         sn_column_names.append(all_column_names[i][1])
+    # sn_column_names = [all_column_names[i][1] for i in range(3, len(all_column_names))]
+
     return sn_column_names
 
 
