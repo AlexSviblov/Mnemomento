@@ -1,5 +1,6 @@
 import os
 import shutil
+from typing import Tuple
 
 import ErrorsAndWarnings
 import Settings
@@ -17,12 +18,12 @@ def make_files_list_from_dir(directory: str) -> list[str]:
     file_list = list()
     for file in os.listdir(directory):
         if file.endswith(".jpg") or file.endswith(".JPG"):
-            file_list.append(directory + '/' + file)
+            file_list.append(f"{directory}/{file}")
     return file_list
 
 
 # Перенос файлов, создание записи в БД и создание миниатюры для основного каталога
-def transfer_const_photos(file: str) -> str:
+def transfer_const_photos(file: str) -> tuple[str, str] | None:
     """
     Для фото file проверяется его дата съёмки, при необходимости создаётся директория для этой даты в директории
     хранения фотографий, создаётся запись в БД, создаётся миниатюра.
@@ -62,96 +63,91 @@ def transfer_const_photos(file: str) -> str:
 
     if mode == 'copy':
         if error == 0:
-            if os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):
-                if os.path.exists(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1]):
-                    # new_name = name_plussing(file, year, month, day)
-                    # shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + new_name)
-                    # Metadata.check_photo_rotation(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + new_name, file_metadata)
-                    # Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), new_name)
-                    # PhotoDataDB.add_to_database(new_name, destination + str(year) + '/' + str(month) + '/' + str(day), file_metadata)
+            
+            if os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):
+                if os.path.exists(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}"):
                     fileexist = file_full[-1]
                 else:
-                    shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1])
-                    Metadata.check_photo_rotation(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1], file_metadata)
-                    Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), file_full[-1])
-                    PhotoDataDB.add_to_database(file_full[-1], destination + str(year) + '/' + str(month) + '/' + str(day), file_metadata)
+                    shutil.copy2(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
+                    Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
+                    Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
+                    PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
             else:
-                if not os.path.isdir(destination + str(year)):
-                    os.mkdir(destination + str(year))
-                if not os.path.isdir(destination + str(year) + '/' + str(month)):
-                    os.mkdir(destination + str(year) + '/' + str(month))
-                if not os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):
-                    os.mkdir(destination + str(year) + '/' + str(month) + '/' + str(day))
-                    shutil.copy2(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1])
-                    Metadata.check_photo_rotation(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1], file_metadata)
-                    Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), file_full[-1])
-                    PhotoDataDB.add_to_database(file_full[-1], destination + str(year) + '/' + str(month) + '/' + str(day), file_metadata)
+                if not os.path.isdir(f"{destination}{str(year)}"):
+                    os.mkdir(f"{destination}{str(year)}")
+                if not os.path.isdir(f"{destination}{str(year)}/{str(month)}"):
+                    os.mkdir(f"{destination}{str(year)}/{str(month)}")
+                if not os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):
+                    os.mkdir(f"{destination}{str(year)}/{str(month)}/{str(day)}")
+                    shutil.copy2(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
+                    Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
+                    Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
+                    PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
         else:   # error == 1
-            if os.path.isdir(destination + 'No_Date_Info/No_Date_Info/No_Date_Info'):
-                if os.path.exists(destination + 'No_Date_Info/No_Date_Info/No_Date_Info/' + file_full[-1] ):
+            if os.path.isdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info"):
+                if os.path.exists(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}"):
                     fileexist = file_full[-1]
                 else:
-                    shutil.copy2(file, destination + 'No_Date_Info/No_Date_Info/No_Date_Info/' + file_full[-1])
-                    Metadata.check_photo_rotation(destination + 'No_Date_Info/No_Date_Info/No_Date_Info' + '/' + file_full[-1], file_metadata)
-                    Thumbnail.make_const_thumbnails(destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_full[-1])
-                    PhotoDataDB.add_to_database(file_full[-1], destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_metadata)
-
+                    shutil.copy2(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
+                    Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
+                    Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
+                    PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)
             else:
-                os.mkdir(destination + 'No_Date_Info')
-                os.mkdir(destination + 'No_Date_Info/No_Date_Info')
-                os.mkdir(destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
-                shutil.copy2(file, destination + 'No_Date_Info/No_Date_Info/No_Date_Info/' + file_full[-1] )
-                Metadata.check_photo_rotation(destination + 'No_Date_Info/No_Date_Info/No_Date_Info' + '/' + file_full[-1], file_metadata)
-                Thumbnail.make_const_thumbnails(destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_full[-1])
-                PhotoDataDB.add_to_database(file_full[-1], destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_metadata)
+                os.mkdir(f"{destination}No_Date_Info")
+                os.mkdir(f"{destination}No_Date_Info/No_Date_Info")
+                os.mkdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
+                shutil.copy2(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
+                Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
+                Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
+                PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)
     else:   # mode == 'cut'
         if error == 0:
-            if os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):    # папка назначения существует
-                if os.path.exists(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1]):
+            if os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):    # папка назначения существует
+                if os.path.exists(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}"):
                     fileexist = file_full[-1]         # файл с таким именем уже есть
                 else:
                     try:
-                        shutil.move(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/')
-                        Metadata.check_photo_rotation(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1])
-                        Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), file_full[-1])
-                        PhotoDataDB.add_to_database(file_full[-1], destination + str(year) + '/' + str(month) + '/' + str(day))
+                        shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
+                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
+                        Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
+                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}")
                     except PermissionError:
                         file_permission_error = file_full[-1]
             else:   # папки назначения не существует -> надо её создать, проверка на наличие файла не требуется
-                if not os.path.isdir(destination + str(year)):
-                    os.mkdir(destination + str(year))
-                if not os.path.isdir(destination + str(year) + '/' + str(month)):
-                    os.mkdir(destination + str(year) + '/' + str(month))
-                if not os.path.isdir(destination + str(year) + '/' + str(month) + '/' + str(day)):
-                    os.mkdir(destination + str(year) + '/' + str(month) + '/' + str(day))
+                if not os.path.isdir(f"{destination}{str(year)}"):
+                    os.mkdir(f"{destination}{str(year)}")
+                if not os.path.isdir(f"{destination}{str(year)}/{str(month)}"):
+                    os.mkdir(f"{destination}{str(year)}/{str(month)}")
+                if not os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):
+                    os.mkdir(f"{destination}{str(year)}/{str(month)}/{str(day)}")
                     try:
-                        shutil.move(file, destination + str(year) + '/' + str(month) + '/' + str(day) + '/')
-                        Metadata.check_photo_rotation(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + file_full[-1])
-                        Thumbnail.make_const_thumbnails(destination + str(year) + '/' + str(month) + '/' + str(day), file_full[-1])
-                        PhotoDataDB.add_to_database(file_full[-1], destination + str(year) + '/' + str(month) + '/' + str(day))
+                        shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
+                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
+                        Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
+                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}")
                     except PermissionError:
                         file_permission_error = file_full[-1]
         else:   # error == 1, т.е. даты в exif нет
-            if os.path.isdir(destination + 'No_Date_Info/No_Date_Info/No_Date_Info'):
-                if os.path.exists(destination + 'No_Date_Info/No_Date_Info/No_Date_Info/' + file_full[-1]):
+            if os.path.isdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info"):
+                if os.path.exists(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}"):
                     fileexist = file_full[-1]
                 else:
                     try:
-                        shutil.move(file, destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
-                        Metadata.check_photo_rotation(destination + 'No_Date_Info/No_Date_Info/No_Date_Info' + '/' + file_full[-1])
-                        Thumbnail.make_const_thumbnails(destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_full[-1])
-                        PhotoDataDB.add_to_database(file_full[-1], destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
+                        shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
+                        Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
+                        Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
+                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
                     except PermissionError:
                         file_permission_error = file_full[-1]
             else:
-                os.mkdir(destination + 'No_Date_Info')
-                os.mkdir(destination + 'No_Date_Info/No_Date_Info')
-                os.mkdir(destination + 'No_Date_Info/No_Date_Info/No_Date_Info')
+                os.mkdir(f"{destination}No_Date_Info")
+                os.mkdir(f"{destination}No_Date_Info/No_Date_Info")
+                os.mkdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
                 try:
-                    shutil.move(file, destination + 'No_Date_Info/No_Date_Info/No_Date_Info/')
-                    Metadata.check_photo_rotation(destination + 'No_Date_Info/No_Date_Info/No_Date_Info' + '/' + file_full[-1])
-                    Thumbnail.make_const_thumbnails(destination + 'No_Date_Info/No_Date_Info/No_Date_Info', file_full[-1])       # создать миниатюру
-                    PhotoDataDB.add_to_database(file_full[-1], destination + 'No_Date_Info/No_Date_Info/No_Date_Info')           # добавить файл в БД
+                    shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
+                    Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
+                    Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])       # создать миниатюру
+                    PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")           # добавить файл в БД
                 except PermissionError:
                     file_permission_error = file_full[-1]
 
@@ -183,13 +179,13 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
     photofile_lastname = photofile.split('/')[-1]
 
     if mode == 'copy':
-        shutil.copy2(photofile, destination + photo_directory_lastname + '/' + photofile_lastname)
+        shutil.copy2(photofile, f"{destination}{photo_directory_lastname}/{photofile_lastname}")
     else:   # mode == 'cut
-        shutil.move(photofile, destination + photo_directory_lastname + '/' + photofile_lastname)
+        shutil.move(photofile, f"{destination}{photo_directory_lastname}/{photofile_lastname}")
 
-    Metadata.check_photo_rotation(destination + photo_directory_lastname + '/' + photofile_lastname, file_metadata)
-    Thumbnail.make_alone_thumbnails(photo_directory_lastname, destination + photo_directory_lastname + '/' + photofile_lastname, photofile_lastname)
-    PhotoDataDB.add_to_database(photofile_lastname, destination + photo_directory_lastname, file_metadata)
+    Metadata.check_photo_rotation(f"{destination}{photo_directory_lastname}/{photofile_lastname}", file_metadata)
+    Thumbnail.make_alone_thumbnails(photo_directory_lastname, f"{destination}{photo_directory_lastname}/{photofile_lastname}", photofile_lastname)
+    PhotoDataDB.add_to_database(photofile_lastname, f"{destination}{photo_directory_lastname}", file_metadata)
 
 
 # удалить все файлы и папку из доп.каталога
@@ -201,7 +197,7 @@ def del_alone_dir(photo_directory: str) -> None:
     """
     photo_list = Thumbnail.get_images_list(photo_directory)
     for file in photo_list:
-        os.remove(photo_directory + '/' + file)
+        os.remove(f"{photo_directory}/{file}")
     os.rmdir(photo_directory)
 
 
