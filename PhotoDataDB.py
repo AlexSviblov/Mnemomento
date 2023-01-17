@@ -2,6 +2,7 @@ import datetime
 import logging
 import os
 import sqlite3
+from typing import Tuple, List, Any
 
 import Metadata
 import Settings
@@ -185,11 +186,8 @@ def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dic
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
-    sn_column_names = list()
-    for i in range(3, len(all_column_names)):
-        sn_column_names.append(all_column_names[i][1])
 
-    # sn_column_names = [all_column_names[i][1]  for i in range(3, len(all_column_names))]
+    sn_column_names = [all_column_names[i][1]  for i in range(3, len(all_column_names))]
 
     sql_str_get_status = f'SELECT * FROM socialnetworks WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
     cur.execute(sql_str_get_status)
@@ -230,10 +228,8 @@ def get_socialnetworks() -> list[str]:
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
-    sn_column_names = list()
-    for i in range(3, len(all_column_names)):
-        sn_column_names.append(all_column_names[i][1])
-    # sn_column_names = [all_column_names[i][1] for i in range(3, len(all_column_names))]
+
+    sn_column_names = [all_column_names[i][1] for i in range(3, len(all_column_names))]
 
     return sn_column_names
 
@@ -258,7 +254,10 @@ def get_equipment() -> tuple[list[str], list[str]]:
     lens_all_data = cur.fetchall()
     lens_counter = dict()
     for i in range(len(lens_all_data)):
-        lens_counter[f'{lens_all_data[i][0]}'] = lens_all_data[i][0]
+        lens_counter[f'{lens_all_data[i][0]}'] = lens_all_data[i][1]
+
+    print(camera_counter)
+    print(lens_counter)
 
     lens_list = Metadata.equip_name_check_with_counter(lens_counter, 'lens')
 
@@ -291,10 +290,7 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
 
     photodb_data = cur.fetchall()
 
-    fullpaths = list()
-    for photo in photodb_data:
-        if 'Media/Photo/const' in photo[1]:
-            fullpaths.append(photo[1]+'/'+photo[0])
+    fullpaths = [f"{photo[1]}/{photo[0]}" for photo in photodb_data if 'Media/Photo/const' in photo[1]]
 
     return fullpaths
 
@@ -337,10 +333,7 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
         except:
             pass
 
-    fullpaths = list()
-    for photo in photodb_data:
-        if 'Media/Photo/const' in photo[1]:
-            fullpaths.append(photo[1]+'/'+photo[0])
+    fullpaths = [f"{photo[1]}/{photo[0]}" for photo in photodb_data if 'Media/Photo/const' in photo[1]]
 
     return fullpaths
 
@@ -385,9 +378,7 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 
-    photo_list = list()
-    for photo in photodb_data:
-        photo_list.append(photo[0])
+    photo_list = [photo[0] for photo in photodb_data]
 
     return photo_list
 
@@ -404,17 +395,12 @@ def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str], list[str
     cur.execute(sql_str)
 
     all = cur.fetchall()
-    old_catalogs = list()
-    for i in range(len(all)):
-        old_catalogs.append(all[i][0])
 
-    end_catalogs = list()
-    for i in range(len(all)):
-        end_catalogs.append(old_catalogs[i][len(old_way):])
+    old_catalogs = [all[i][0] for i in range(len(all))]
 
-    new_catalogs = list()
-    for i in range(len(all)):
-        new_catalogs.append(new_way + end_catalogs[i])
+    end_catalogs = [old_catalogs[i][len(old_way):] for i in range(len(all))]
+
+    new_catalogs = [new_way + end_catalogs[i] for i in range(len(all))]
 
     return new_catalogs, old_catalogs
 
@@ -528,16 +514,13 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
 
-    fullpaths = list()
-    for photo in photodb_data:
-        if 'Media/Photo/const' in photo[1]:
-            fullpaths.append(photo[1] + '/' + photo[0])
+    fullpaths = [f"{photo[1]}/{photo[0]}" for photo in photodb_data if 'Media/Photo/const' in photo[1]]
 
     return fullpaths
 
 
 # достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
-def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float], str, str, str, bool], int, tuple[float, float]]:
+def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[float, float] | bool | Any]], int, tuple[float | Any, ...] | tuple[float, float]]:
     """
     Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
     метаданных каждый раз. Заодно здесь же вычисляется, как центрировать и отдалять карту OSM.
@@ -648,7 +631,7 @@ def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
 
 
 # обновить в БД много записей одновременно
-def massive_edit_metadata(photo_list: list[str], modify_dict: list[str]) -> None:
+def massive_edit_metadata(photo_list: list[str], modify_dict: dict[int, str]) -> None:
     """
     При массовом редактировании камеры, объектив, даты съёмки или координат, надо обновить и записи в БД
     :param photo_list: список абсолютных путей файлов
