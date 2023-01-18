@@ -7,8 +7,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PIL import Image
 from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 import exiftool
+import json
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import ErrorsAndWarnings
 import OnlyShowWidget
@@ -408,6 +409,7 @@ class EditExifData(QDialog):
         # карта - web на JS, для отображения нужен webview
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
+
         # если координаты ненулевые - центруем карту по координатам фотографии
         if coordinates[0] != 0 and coordinates[1] != 0:
             self.map_gps = folium.Map(location=coordinates, zoom_start=14)
@@ -415,11 +417,29 @@ class EditExifData(QDialog):
         else:
             self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
+        # draw = folium.plugins.Draw(
+        # draw_options={
+        #     'polyline': False,
+        #     'rectangle': False,
+        #     'polygon': False,
+        #     'circle': False,
+        #     'marker': True,
+        #     'circlemarker': False},
+        # edit_options={'edit': False})
+        # self.map_gps.add_child(draw)
+
+
         # если нажать на карту - появится окошко с координатами
         # в folium изменён текст внутри класса LatLngPopup для отображения русским языком
         self.popup = folium.LatLngPopup()
         self.map_gps.add_child(self.popup)
+        self.map_gps.add_child(folium.features.ClickForLatLng(format_str='lat + "," + lng'))
+
+        page = WebEnginePage(self.map_gps_widget)
+        self.map_gps_widget.setPage(page)
+
         self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
@@ -1604,3 +1624,24 @@ class ConfirmClear(QDialog):
         btn_ok.clicked.connect(self.close)
         btn_cancel.clicked.connect(self.reject_signal.emit)
         btn_cancel.clicked.connect(self.close)
+
+
+class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
+    def javaScriptConsoleMessage(self, level, msg, line, sourceID):
+        print(msg)
+
+
+# folium features.py:
+#     _template = Template(
+#         """
+#             {% macro script(this, kwargs) %}
+#                 function getLatLng(e){
+#                     var lat = e.latlng.lat.toFixed(4),
+#                         lng = e.latlng.lng.toFixed(4);
+#                     var txt = {{this.format_str}};
+#                     console.log(txt);
+#                     };
+#                 {{this._parent.get_name()}}.on('click', getLatLng);
+#             {% endmacro %}
+#             """
+#     )  # noqa
