@@ -142,202 +142,16 @@ class ManyPhotoEdit(QWidget):
         global stylesheet9
         global loading_icon
 
-        if Settings.get_theme_color() == 'light':
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet3 =   """
-                                QHeaderView::section
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    background-color: #F0F0F0;
-                                    color: #000000;
-                                }
-                            """
-            stylesheet6 =   """
-                                QTableWidget
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0;
-                                    gridline-color: #A9A9A9;
-                                }
-                                QTableCornerButton::section 
-                                {
-                                    background-color: #F0F0F0;
-                                }
-                            """
-            stylesheet7 =   """
-                            QTabWidget::pane
-                            {
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                background-color: #F0F0F0;
-                                color: #000000;
-                            }
-                            QTabBar::tab
-                            {
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                padding: 5px;
-                                color: #000000;
-                                min-width: 12em;
-                            }
-                            QTabBar::tab:selected
-                            {
-                                border: 2px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                margin-top: -1px;
-                                background-color: #C0C0C0;
-                                color: #000000;
-                            }
-                            """
-            stylesheet8 =   """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #C0C0C0;
-                                    margin-top: -1px
-                                }
-                            """
-            stylesheet9 =   """
-                                QComboBox
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0;
-                                }
-                                QComboBox QAbstractItemView
-                                {
-                                    selection-background-color: #C0C0C0;
-                                }
-                            """
-            loading_icon = os.getcwd() + '/icons/loading_light.gif'
-        else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet3 =   """
-                                QHeaderView::section
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    background-color: #1C1C1C;
-                                    color: #D3D3D3;
-                                }
-                            """
-            stylesheet6 =   """
-                                QTableView
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1c1c1c;
-                                    gridline-color: #696969;
-                                }
-                                QTableCornerButton::section 
-                                {
-                                    background-color: #1c1c1c;
-                                }
-
-                            """
-            stylesheet7 =   """
-                                QTabWidget::pane
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1C1C1C;
-                                    color: #D3D3D3
-                                }
-                                QTabBar::tab
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    padding: 5px;
-                                    color: #D3D3D3;
-                                    min-width: 12em;
-                                } 
-                                QTabBar::tab:selected
-                                {
-                                    border: 2px;
-                                    border-color: #6A6A6A;
-                                    border-style: solid;
-                                    margin-top: -1px;
-                                    background-color: #1F1F1F;
-                                    color: #D3D3D3
-                                }
-                            """
-            stylesheet8 =   """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1C1C1C
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #2F2F2F;
-                                    margin-top: -1px
-                                }
-                            """
-            stylesheet9 =   """
-                                QComboBox
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1C1C1C;
-                                }
-                                QComboBox QAbstractItemView
-                                {
-                                    selection-background-color: #4F4F4F;
-                                }
-                            """
-            loading_icon = os.getcwd() + '/icons/loading_dark.gif'
+        theme = Settings.get_theme_color()
+        style = Screenconfig.style_dict
+        stylesheet1 = style[f'{theme}']['stylesheet1']
+        stylesheet2 = style[f'{theme}']['stylesheet2']
+        stylesheet3 = style[f'{theme}']['stylesheet3']
+        stylesheet6 = style[f'{theme}']['stylesheet6']
+        stylesheet7 = style[f'{theme}']['stylesheet7']
+        stylesheet8 = style[f'{theme}']['stylesheet8']
+        stylesheet9 = style[f'{theme}']['stylesheet9']
+        loading_icon = style[f'{theme}']['loading_icon']
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -516,6 +330,20 @@ class ManyPhotoEdit(QWidget):
             self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
             self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
+
+            # добавить невидимую штуку, которая при нажатии на карту будет плевать в консоль JS (код folium изменён) координаты
+            # координаты будут сигналом в переопределённом классе вызывать функцию write_coords_to_lines
+            self.map_gps.add_child(folium.features.ClickForLatLng(format_str='lat + "," + lng'))
+
+            page = WebEnginePage(self.map_gps_widget)
+
+            # записать выплюнутые в логи координаты в нужные поля
+            def write_coords_to_lines(msg: str):
+                self.new_gps_lat_line.setText(msg.split(',')[0])
+                self.new_gps_lon_line.setText(msg.split(',')[1])
+
+            page.coordinates_transfer.connect(lambda msg: write_coords_to_lines(msg))
+            self.map_gps_widget.setPage(page)
 
             self.popup = folium.LatLngPopup()
             self.map_gps.add_child(self.popup)
@@ -1308,3 +1136,13 @@ class DoEditing(QtCore.QThread):
             self.finished.emit(1)
         else:
             logging.error(f"EditManyFiles - Error DoEditing file {file} in data_change block")
+
+
+# переделанный класс для работы с вебом, который генерируется JS'ом, который генерируется шаблонами
+class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
+    coordinates_transfer = QtCore.pyqtSignal(str)
+    # перехват сообщений, которые кидает JS в консоль, сообщение в консоль я плюю сам в шаблоне класса folium.features.ClickForLatLng
+    def javaScriptConsoleMessage(self, level, msg, line, sourceID):
+        # print(type(msg))
+        # print(msg)
+        self.coordinates_transfer.emit(msg)
