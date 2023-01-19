@@ -76,68 +76,13 @@ class SocialNetworks(QWidget):
         global icon_edit
         global icon_delete
 
-        if Settings.get_theme_color() == 'light':
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet8 =   """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #C0C0C0;
-                                    margin-top: -1px
-                                }
-                            """
-            icon_edit = os.getcwd() + '/icons/edit_light.png'
-            icon_delete = os.getcwd() + '/icons/delete_light.png'
-        else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet8 =   """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1C1C1C
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #2F2F2F;
-                                    margin-top: -1px
-                                }
-                            """
-            icon_edit = os.getcwd() + '/icons/edit_dark.png'
-            icon_delete = os.getcwd() + '/icons/delete_dark.png'
+        theme = Settings.get_theme_color()
+        style = Screenconfig.style_dict
+        stylesheet1 = style[f'{theme}']['stylesheet1']
+        stylesheet2 = style[f'{theme}']['stylesheet2']
+        stylesheet8 = style[f'{theme}']['stylesheet8']
+        icon_edit = style[f'{theme}']['icon_edit']
+        icon_delete = style[f'{theme}']['icon_delete']
 
         try:
             self.setStyleSheet(stylesheet2)

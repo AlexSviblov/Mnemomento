@@ -161,159 +161,20 @@ class MainWindow(QMainWindow):
         global stylesheet10
 
         try:
-            theme_color = Settings.get_theme_color()
+            theme = Settings.get_theme_color()
         except (FileNotFoundError, PermissionError, FileExistsError) as e:
             logging.error(f"MainWindow - Cannot be read settings file")
             win = ErrorsAndWarnings.SettingsReadError(self)
             win.show()
             raise e
 
-        if theme_color == 'light':
-            stylesheet1 =   """
-                             border: 1px;
-                             border-color: #A9A9A9;
-                             border-style: solid;
-                             color: #000000;
-                             background-color: #F0F0F0
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet4 =   """
-                            QMenuBar 
-                            {
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            }
-                            QMenuBar::item::selected
-                            {
-                                color: #000000;
-                                background-color: #C0C0C0
-                            }
-                            """
-            stylesheet5 =   """
-                            QProgressBar
-                            {
-                                border: 1px;
-                                border-color: #000000;
-                                border-style: solid;
-                                background-color: #FFFFFF;
-                                color: #000000
-                            }
-                            QProgressBar::chunk
-                            {
-                                background-color: #00FF7F;  
-                            }
-                            """
-            stylesheet8 =   """
-                            QPushButton
-                            {
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            }
-                            QPushButton::pressed
-                            {
-                                border: 2px;
-                                background-color: #C0C0C0;
-                                margin-top: -1px
-                            }
-                            """
-            stylesheet10 =  """
-                            QMenu
-                            {
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            }
-                            QMenu::item::selected
-                            {
-                                border: 2px;
-                                background-color: #C0C0C0;
-                            }
-                            """
-        else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 =   """
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet2 =   """
-                                border: 0px;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet4 =   """
-                            QMenuBar 
-                            {
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            }
-                            QMenuBar::item::selected
-                            {
-                                color: #D3D3D3;
-                                background-color: #3F3F3F
-                            }
-                            """
-            stylesheet5 =   """
-                            QProgressBar
-                            {
-                                border: 1px;
-                                border-color: #000000;
-                                border-style: solid;
-                                background-color: #CCCCCC;
-                                color: #000000
-                            }
-                            QProgressBar::chunk
-                            {
-                                background-color: #1F7515;
-                            }
-                            """
-            stylesheet8 =   """
-                            QPushButton
-                            {
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            }
-                            QPushButton::pressed
-                            {
-                                border: 2px;
-                                background-color: #2F2F2F;
-                                margin-top: -1px
-                            }
-                            """
-            stylesheet10 =  """
-                            QMenu
-                            {
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            }
-                            QMenu::item::selected
-                            {
-                                border: 2px;
-                                background-color: #2F2F2F;
-                            }
-                            """
+        style = Screenconfig.style_dict
+        stylesheet1 = style[f'{theme}']['stylesheet1']
+        stylesheet2 = style[f'{theme}']['stylesheet2']
+        stylesheet4 = style[f'{theme}']['stylesheet4']
+        stylesheet5 = style[f'{theme}']['stylesheet5']
+        stylesheet8 = style[f'{theme}']['stylesheet8']
+        stylesheet10 = style[f'{theme}']['stylesheet10']
 
         self.setStyleSheet(stylesheet2)
         try:

@@ -67,130 +67,18 @@ class StatisticsWin(QMainWindow):
         global area_color
         global bar_time_color
 
-        if Settings.get_theme_color() == 'light':
-            stylesheet1 = """
-                                border: 1px;
-                                border-color: #A9A9A9;
-                                border-style: solid;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet2 = """
-                                border: 0px;
-                                color: #000000;
-                                background-color: #F0F0F0
-                            """
-            stylesheet5 = """
-                                            QProgressBar
-                                            {
-                                                border: 1px;
-                                                border-color: #000000;
-                                                border-style: solid;
-                                                background-color: #FFFFFF;
-                                                color: #000000
-                                            }
-                                            QProgressBar::chunk
-                                            {
-                                                background-color: #00FF7F;  
-                                            }
-                                        """
-            stylesheet8 = """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #C0C0C0;
-                                    margin-top: -1px
-                                }
-                            """
-            stylesheet9 = """
-                                QComboBox
-                                {
-                                    border: 1px;
-                                    border-color: #A9A9A9;
-                                    border-style: solid;
-                                    color: #000000;
-                                    background-color: #F0F0F0;
-                                }
-                                QComboBox QAbstractItemView
-                                {
-                                    selection-background-color: #C0C0C0;
-                                }
-                            """
-            text_color = "black"
-            plot_back_color = "white"
-            bar_time_color = "black"
-            bar_color = 'blue'
-            area_color = "#F4F4F4"
-        else:  # Settings.get_theme_color() == 'dark'
-            stylesheet1 = """
-                                border: 1px;
-                                border-color: #696969;
-                                border-style: solid;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet2 = """
-                                border: 0px;
-                                color: #D3D3D3;
-                                background-color: #1C1C1C
-                            """
-            stylesheet5 = """
-                                           QProgressBar
-                                           {
-                                               border: 1px;
-                                               border-color: #000000;
-                                               border-style: solid;
-                                               background-color: #CCCCCC;
-                                               color: #000000
-                                           }
-                                           QProgressBar::chunk
-                                           {
-                                               background-color: #1F7515;
-                                           }
-                                       """
-            stylesheet8 = """
-                                QPushButton
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    color: #D3D3D3;
-                                    background-color: #1C1C1C
-                                }
-                                QPushButton::pressed
-                                {
-                                    border: 2px;
-                                    background-color: #2F2F2F;
-                                    margin-top: -1px
-                                }
-                            """
-            stylesheet9 = """
-                                QComboBox
-                                {
-                                    border: 1px;
-                                    border-color: #696969;
-                                    border-style: solid;
-                                    background-color: #1C1C1C;
-                                    color: #D3D3D3;
-                                }
-                                QComboBox QAbstractItemView
-                                {
-                                    selection-background-color: #4F4F4F;
-                                }
-                            """
-            text_color = "white"
-            plot_back_color = "#585858"
-            bar_color = "yellow"
-            bar_time_color = "#fff100"
-            area_color = "#181818"
+        theme = Settings.get_theme_color()
+        style = Screenconfig.style_dict
+        stylesheet1 = style[f'{theme}']['stylesheet1']
+        stylesheet2 = style[f'{theme}']['stylesheet2']
+        stylesheet5 = style[f'{theme}']['stylesheet5']
+        stylesheet8 = style[f'{theme}']['stylesheet8']
+        stylesheet9 = style[f'{theme}']['stylesheet9']
+        text_color = style[f'{theme}']['statistics']['text_color']
+        plot_back_color = style[f'{theme}']['statistics']['plot_back_color']
+        bar_color = style[f'{theme}']['statistics']['bar_color']
+        area_color = style[f'{theme}']['statistics']['area_color']
+        bar_time_color = style[f'{theme}']['statistics']['bar_time_color']
 
         self.setStyleSheet(stylesheet2)
 
