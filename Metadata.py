@@ -2,8 +2,7 @@ import logging
 import sqlite3
 import piexif
 import exiftool
-from PIL import Image
-from PIL import ImageFile
+from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import ErrorsAndWarnings
@@ -575,7 +574,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                 modify_dict['EXIF:GPSLongitude'] = float_value_long
 
     try:
-        # Сделать сама перезапись
+        # Сделать саму перезапись
         if modify_dict:
             with exiftool.ExifToolHelper() as et:
                 et.set_tags(photofile,
@@ -1091,3 +1090,40 @@ def massive_table_data(file: str) -> dict[str, str]:
         useful_data['Координаты'] = ''
 
     return useful_data
+
+
+# import exiftool
+#
+# def read_exif(photofile: str) -> dict[str, str]:
+#     data = {}
+#     try:
+#         with exiftool.ExifToolHelper() as et:
+#             for dictionary in et.get_metadata(photofile):
+#                 for tag_key, tag_value in dictionary.items():
+#                     data[f"{tag_key}"] = tag_value
+#     except (UnicodeDecodeError, UnicodeEncodeError) as e:
+#         print(e)
+#     return data
+#
+#
+# # modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
+# def exif_rewrite_edit(photofile, new_value_dict):
+#     modify_dict = dict()
+#
+#     modify_dict['EXIF:UserComment'] = new_value_dict[0]
+#
+#     try:
+#         if modify_dict:
+#             with exiftool.ExifToolHelper() as et:
+#                 et.set_tags(photofile,
+#                             tags=modify_dict,
+#                             params=["-P", "-overwrite_original"])
+#     except exiftool.exceptions.ExifToolExecuteError as e:
+#         print(e)
+#
+#
+# print(read_exif(r"IMG_5693.jpg"))
+#
+# exif_rewrite_edit(r"IMG_5693.jpg", {0: 'TestComment (c) Sasha'})
+#
+# print(read_exif(r"IMG_5693.jpg"))

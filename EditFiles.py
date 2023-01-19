@@ -1,3 +1,4 @@
+import logging
 import os
 import folium
 import math
@@ -1452,9 +1453,13 @@ class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
     coordinates_transfer = QtCore.pyqtSignal(str)
     # перехват сообщений, которые кидает JS в консоль, сообщение в консоль я плюю сам в шаблоне класса folium.features.ClickForLatLng
     def javaScriptConsoleMessage(self, level, msg, line, sourceID):
-        # print(type(msg))
-        # print(msg)
-        self.coordinates_transfer.emit(msg)
+        try:
+            float(msg.split(',')[0])
+            float(msg.split(',')[1])
+        except ValueError:
+            logging.info(f"JS map message: {msg}")
+        else:
+            self.coordinates_transfer.emit(msg)
 
 
 

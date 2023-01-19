@@ -1,6 +1,5 @@
 import os
 import folium
-import json
 import base64
 from PyQt5 import QtWebEngineWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
@@ -9,8 +8,8 @@ from pathlib import Path
 from folium.plugins import MousePosition
 from PIL import Image
 from PIL import ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 from folium import IFrame
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import PhotoDataDB
 import Metadata
