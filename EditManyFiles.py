@@ -21,10 +21,10 @@ import EditFiles
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
-stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
+stylesheet11 = str()
 loading_icon = str()
 
 
@@ -118,7 +118,7 @@ class ManyPhotoEdit(QWidget):
 
         # self.compare_scroll = QScrollArea(self)
         self.table_compare = QTableWidget(self)
-        self.table_compare.setFixedHeight(254)
+        self.table_compare.setFixedHeight(280)
         # self.compare_scroll.setWidget(self.table_compare)
         # self.layout_outside.addWidget(self.compare_scroll, 2, 2, 1, 2)
         self.layout_outside.addWidget(self.table_compare, 3, 2, 1, 2)
@@ -136,10 +136,10 @@ class ManyPhotoEdit(QWidget):
         global stylesheet1
         global stylesheet2
         global stylesheet3
-        global stylesheet6
         global stylesheet7
         global stylesheet8
         global stylesheet9
+        global stylesheet11
         global loading_icon
 
         theme = Settings.get_theme_color()
@@ -147,10 +147,10 @@ class ManyPhotoEdit(QWidget):
         stylesheet1 = style[f'{theme}']['stylesheet1']
         stylesheet2 = style[f'{theme}']['stylesheet2']
         stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
         stylesheet7 = style[f'{theme}']['stylesheet7']
         stylesheet8 = style[f'{theme}']['stylesheet8']
         stylesheet9 = style[f'{theme}']['stylesheet9']
+        stylesheet11 = style[f'{theme}']['stylesheet11']
         loading_icon = style[f'{theme}']['loading_icon']
 
         try:
@@ -160,6 +160,7 @@ class ManyPhotoEdit(QWidget):
 
     # создание элементов ввода новых данных
     def make_new_data_enter(self) -> None:
+        # TODO: комментарий +
         self.new_make_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_make_check, 0, 0, 1, 1)
         self.new_make_check.setStyleSheet(stylesheet2)
@@ -237,6 +238,7 @@ class ManyPhotoEdit(QWidget):
         self.layout_new_data.addWidget(self.new_offset_line, 6, 2, 1, 1)
         self.new_offset_line.setStyleSheet(stylesheet1)
         self.new_offset_line.setFont(font12)
+        self.new_offset_line.setDisplayFormat("HH:mm")
 
         self.new_gps_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_gps_check, 7, 0, 1, 1)
@@ -257,6 +259,16 @@ class ManyPhotoEdit(QWidget):
         self.new_gps_lon_line.setStyleSheet(stylesheet1)
         self.new_gps_lon_line.setFont(font12)
 
+        self.new_usercomment_check = QCheckBox(self)
+        self.layout_new_data.addWidget(self.new_usercomment_check, 8, 0, 1, 1)
+        self.new_usercomment_check.setFont(font12)
+        self.new_usercomment_check.setStyleSheet(stylesheet2)
+
+        self.new_usercomment_line = QLineEdit(self)
+        self.layout_new_data.addWidget(self.new_usercomment_line, 8, 1, 1, 2)
+        self.new_usercomment_line.setFont(font12)
+        self.new_usercomment_line.setStyleSheet(stylesheet1)
+
         self.new_make_check.setText('Производитель')
         self.new_model_check.setText('Модель')
         self.new_lens_check.setText('Объектив')
@@ -265,6 +277,7 @@ class ManyPhotoEdit(QWidget):
         self.new_datetime_check.setText('Дата и время')
         self.new_offset_check.setText('Часовой пояс')
         self.new_gps_check.setText('Координаты')
+        self.new_usercomment_check.setText('Комментарий')
 
         self.new_make_line.setDisabled(True)
         self.new_model_line.setDisabled(True)
@@ -276,6 +289,7 @@ class ManyPhotoEdit(QWidget):
         self.new_offset_pm_line.setDisabled(True)
         self.new_gps_lat_line.setDisabled(True)
         self.new_gps_lon_line.setDisabled(True)
+        self.new_usercomment_line.setDisabled(True)
 
         self.new_make_check.stateChanged.connect(self.new_line_locker)
         self.new_model_check.stateChanged.connect(self.new_line_locker)
@@ -285,9 +299,11 @@ class ManyPhotoEdit(QWidget):
         self.new_datetime_check.stateChanged.connect(self.new_line_locker)
         self.new_offset_check.stateChanged.connect(self.new_line_locker)
         self.new_gps_check.stateChanged.connect(self.new_line_locker)
+        self.new_usercomment_check.stateChanged.connect(self.new_line_locker)
 
     # блокировать/разрешать ввод в поле ввода, если не нажата/нажата галочка в чекбоксе
     def new_line_locker(self) -> None:
+        # TODO: комментарий +
         match self.sender().text():
             case "Производитель":
                 lines = [self.new_make_line]
@@ -305,6 +321,8 @@ class ManyPhotoEdit(QWidget):
                 lines = [self.new_offset_line, self.new_offset_pm_line]
             case "Координаты":
                 lines = [self.new_gps_lat_line, self.new_gps_lon_line]
+            case "Комментарий":
+                lines = [self.new_usercomment_line]
 
         if self.sender().checkState():
             for line in lines:
@@ -905,6 +923,7 @@ class ManyPhotoEdit(QWidget):
     # считать все новые вводимые данные
     def get_all_new_data(self) -> dict[int, str]:
         modify_dict = dict()
+        #TODO: комментарий
 
         if self.new_make_check.checkState():
             if self.new_make_line.text():
@@ -933,6 +952,7 @@ class ManyPhotoEdit(QWidget):
 
     # запись новых метаданных
     def write_data(self) -> None:
+        #TODO: check_enter (как в одиночном редактировании)
         def finished(status):
             self.empty1.show()
             self.layout_btns.removeWidget(self.loading_lbl)
@@ -959,65 +979,89 @@ class ManyPhotoEdit(QWidget):
         self.table_compare.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_compare.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_compare.setFont(font14)
-        self.table_compare.setRowCount(8)
-        self.table_compare.setStyleSheet(stylesheet6)
+        self.table_compare.setRowCount(9)
+        self.table_compare.setStyleSheet(stylesheet11)
         self.table_compare.horizontalHeader().setStyleSheet(stylesheet3)
         self.table_compare.verticalHeader().setStyleSheet(stylesheet3)
         self.table_compare.horizontalHeader().setFont(font10)
         self.table_compare.verticalHeader().setFont(font10)
         self.table_compare.setVerticalHeaderLabels(["Производитель", "Модель", "Объектив", "Серийный номер камеры",
                                                     "Серийный номер объектива", "Дата и Время", "Часовой пояс",
-                                                    "Координаты"])
+                                                    "Координаты", "Комментарий"])
         # закрасить левый верхний угол, которые иначе - белый-белый
         self.table_compare.findChild(QAbstractButton).setStyleSheet(stylesheet2)
 
     # +1 фото в редактирование
     def table_one_add(self, photo: str) -> None:
+        # TODO: добавить поле комментария с контролем длины +
         self.table_compare.setColumnCount(self.table_compare.columnCount() + 1)
         column = self.table_compare.columnCount() - 1
         self.table_positions[photo] = column
         self.table_compare.setHorizontalHeaderItem(column, QTableWidgetItem(photo.split('/')[-1]))
         current_data = Metadata.massive_table_data(photo)
+        str_maker = str(current_data['Производитель'])
+        str_camera = str(current_data['Камера'])
+        str_lens = str(current_data['Объектив'])
+        str_camera_number = str(current_data['Серийный номер камеры'])
+        str_lens_number = str(current_data['Серийный номер объектива'])
+        str_time = str(current_data['Время съёмки'])
+        str_offset = str(current_data['Часовой пояс'])
+        str_coords = str(current_data['Координаты'])
+        str_comment = str(current_data['Комментарий'])
+
+        max_str_len = max([len(str_maker), len(str_camera), len(str_lens), len(str_camera_number),
+                           len(str_lens_number), len(str_time), len(str_offset), len(str_coords)])
+        if len(str_comment) <= max_str_len:
+            show_comment = str_comment
+        else:
+            show_comment = f"{str_comment[:max_str_len-3]}..."
+
         lbl_1 = QLabel(self)
-        lbl_1.setText(str(current_data['Производитель']))
+        lbl_1.setText(str_maker)
         lbl_1.setFont(font10)
         lbl_1.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(0, column, lbl_1)
         lbl_2 = QLabel(self)
-        lbl_2.setText(str(current_data['Камера']))
+        lbl_2.setText(str_camera)
         lbl_2.setFont(font10)
         lbl_2.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(1, column, lbl_2)
         lbl_3 = QLabel(self)
-        lbl_3.setText(str(current_data['Объектив']))
+        lbl_3.setText(str_lens)
         lbl_3.setFont(font10)
         lbl_3.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(2, column, lbl_3)
         lbl_4 = QLabel(self)
-        lbl_4.setText(str(current_data['Серийный номер камеры']))
+        lbl_4.setText(str_camera_number)
         lbl_4.setFont(font10)
         lbl_4.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(3, column, lbl_4)
         lbl_5 = QLabel(self)
-        lbl_5.setText(str(current_data['Серийный номер объектива']))
+        lbl_5.setText(str_lens_number)
         lbl_5.setFont(font10)
         lbl_5.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(4, column, lbl_5)
         lbl_6 = QLabel(self)
-        lbl_6.setText(str(current_data['Время съёмки']))
+        lbl_6.setText(str_time)
         lbl_6.setFont(font10)
         lbl_6.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(5, column, lbl_6)
         lbl_7 = QLabel(self)
-        lbl_7.setText(str(current_data['Часовой пояс']))
+        lbl_7.setText(str_offset)
         lbl_7.setFont(font10)
         lbl_7.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(6, column, lbl_7)
         lbl_8 = QLabel(self)
-        lbl_8.setText(str(current_data['Координаты']))
+        lbl_8.setText(str_coords)
         lbl_8.setFont(font10)
         lbl_8.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(7, column, lbl_8)
+
+        lbl_9 = QLabel(self)
+        lbl_9.setText(show_comment)
+        lbl_9.setFont(font10)
+        lbl_9.setStyleSheet(stylesheet2)
+        self.table_compare.setCellWidget(8, column, lbl_9)
 
     # -1 фото из редактирования
     def table_one_del(self, photo: str) -> None:
@@ -1125,9 +1169,20 @@ class DoEditing(QtCore.QThread):
                         os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}")
                     if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"):
                         os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}")
+
+                    if os.path.exists(f"{new_path}/{photo_name}"):
+                        old_name = photo_name
+                        for i in range(1000):
+                            photo_name = photo_name[:-4] + str(i) + photo_name[-4:]
+                            if os.path.exists(f"{new_path}/{photo_name}"):
+                                pass
+                            else:
+                                break
+
                     shutil.move(file, f"{new_path}/{photo_name}")
                     Thumbnail.make_const_thumbnails(new_path, photo_name)
-                    PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
+                    # PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
+                    PhotoDataDB.filename_after_transfer(old_name, photo_name, old_path, new_path, 0)
 
                 self.finished.emit(0)
             else:

@@ -2,6 +2,7 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 
 import Settings
+import Screenconfig
 
 
 stylesheet2 = str()
@@ -294,6 +295,35 @@ class FilesReadError_win(QDialog):
 
         layout.addWidget(lbl, 0, 0, 1, 1)
         layout.addWidget(btn, 1, 0, 1, 1)
+
+# при вводе метаданных в режиме редактирования введён недопустимый формат
+class EditCommentError_win(QDialog):
+    def __init__(self, parent, symbol):
+        super(EditCommentError_win, self).__init__(parent)
+        stylesheet_color()
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle('Комментарий плохого формата')
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText(f'К сожалению, комментарии к JPEG могут содержать только английские буквы,\n'
+                    f'цифры и специальные символы.\n'
+                    f'Недопустимый символ - {symbol}')
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet2)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet8)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)
+
+class EditCommentError(Exception):
+    def __init__(self, symbol):
+        self.symbol = symbol
 
 
 # при любой ошибки в процессе modify_exif вызывается ошибка

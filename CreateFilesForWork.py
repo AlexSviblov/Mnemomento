@@ -2,10 +2,11 @@ import sqlite3
 import json
 import os
 
-conn = sqlite3.connect(r'C:\Users\Public\AppData\TestForPhotoPr\PhotoDB.db')   # соединение с БД
+# conn = sqlite3.connect(r'C:\Users\Public\AppData\TestForPhotoPr\PhotoDB.db')   # соединение с БД
+conn = sqlite3.connect(r'C:\Users\user\PycharmProjects\PhotoProgramm\PhotoDB.db')
 cur = conn.cursor()
 
-sql_str1 = 'CREATE TABLE photos (filename TEXT, catalog TEXT, camera TEXT, lens TEXT, shootingdate TEXT, shootingdatetime TEXT, additiondate TEXT, GPSdata TEXT)'
+sql_str1 = 'CREATE TABLE photos (filename TEXT, catalog TEXT, camera TEXT, lens TEXT, shootingdate TEXT, shootingdatetime TEXT, additiondate TEXT, GPSdata TEXT, comment TEXT)'
 
 sql_str2 = 'CREATE TABLE socialnetworks (filename TEXT, catalog TEXT, shootingdate TEXT)'
 
@@ -72,6 +73,9 @@ os.mkdir(f"{os.getcwd()}/Media/Photo/alone")
 os.mkdir(f"{os.getcwd()}/thumbnail/const")
 os.mkdir(f"{os.getcwd()}/thumbnail/alone")
 os.mkdir(f"{os.getcwd()}/thumbnail/view")
+
+
+# sql_str = "ALTER TABLE photos ADD COLUMN comment TEXT DEFAULT \'\'"
 
 
 

@@ -33,6 +33,8 @@ def read_exif(photofile: str) -> dict[str, str]:
 
 
 # считать весь exif из фотографии быстро с помощью piexif
+
+##!!! 37510 - UserComment
 def fast_read_exif(photofile: str) -> dict[str, str]:
     """
     Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
@@ -40,7 +42,6 @@ def fast_read_exif(photofile: str) -> dict[str, str]:
     :return: словарь всех вытащенных библиотекой exif метаданных.
     """
     data = piexif.load(photofile)
-
     return data
 
 
@@ -356,7 +357,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
 
 # данные для вноса в БД photos
-def exif_for_db(data: dict) -> tuple[str, str, str, str]:
+def exif_for_db(data: dict) -> tuple[str, str, str, str, str]:
     """
     Вынуть из фото метаданные для БД: камера, объектив, дата съёмки, дата-время съёмки, GPS.
     :param photoname: имя файла.
@@ -398,7 +399,12 @@ def exif_for_db(data: dict) -> tuple[str, str, str, str]:
     except KeyError:
         GPS = ""
 
-    return camera, lens, date, GPS
+    try:
+        usercomment = data['EXIF:UserComment']
+    except KeyError:
+        usercomment = ''
+
+    return camera, lens, date, GPS, usercomment
 
 
 # exif для показа в режиме редактирования
@@ -476,6 +482,11 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
         useful_data['Серийный номер объектива'] = all_data['EXIF:LensSerialNumber']
     except KeyError:
         useful_data['Серийный номер объектива'] = ''
+
+    try:
+        useful_data['Комментарий'] = all_data['EXIF:UserComment']
+    except KeyError:
+        useful_data['Комментарий'] = ''
 
     try:
         GPSLatitudeRef = all_data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
@@ -573,6 +584,9 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                 modify_dict['EXIF:GPSLongitudeRef'] = long_ref
                 modify_dict['EXIF:GPSLongitude'] = float_value_long
 
+            case 12:
+                modify_dict['EXIF:UserComment'] = new_value_dict[12]
+
     try:
         # Сделать саму перезапись
         if modify_dict:
@@ -602,7 +616,6 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
         raise ErrorsAndWarnings.EditExifError()
 
     match editing_type:
-
         # выдержка
         case 3:
             if '/' in new_value:
@@ -705,6 +718,17 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
                 float(new_value_splitted[1])
             except (ValueError, IndexError):
                 make_error()
+
+        # комментарий
+        case 12:
+            if not new_value.isascii():
+                for i in range(len(new_value)):
+                    if new_value[:i+1].isascii():
+                        pass
+                    else:
+                        raise ErrorsAndWarnings.EditCommentError(new_value[i])
+            else:
+                pass
 
 
 # Замена неправильного названия для выбора группировки на правильное
@@ -1089,6 +1113,11 @@ def massive_table_data(file: str) -> dict[str, str]:
     except KeyError:
         useful_data['Координаты'] = ''
 
+    try:
+        useful_data['Комментарий'] = all_data['EXIF:UserComment']
+    except KeyError:
+        useful_data['Комментарий'] = ''
+
     return useful_data
 
 
@@ -1106,7 +1135,6 @@ def massive_table_data(file: str) -> dict[str, str]:
 #     return data
 #
 #
-# # modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
 # def exif_rewrite_edit(photofile, new_value_dict):
 #     modify_dict = dict()
 #

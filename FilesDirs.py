@@ -30,17 +30,6 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
     :param file: абсолютный путь фотографии = 'C:/Users/user/Pictures/1.jpg'
     :return: если такой файл уже добавлен (совпадение по имени и дате), то вернуть его.
     """
-    def name_plussing(full_path, year, month, day):
-        original_name = full_path.split("/")[-1]
-        name_part = original_name.split(".")[0]
-        format = original_name.split(".")[-1]
-        for i in range(10000):
-            new_name = f"{name_part}-{i}.{format}"
-            if os.path.exists(destination + str(year) + '/' + str(month) + '/' + str(day) + '/' + new_name):
-                pass
-            else:
-                return new_name
-
     if file[-3:] not in ("jpg", "JPG"):
         return
 

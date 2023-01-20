@@ -22,14 +22,14 @@ def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
     # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', "No Data"
-    camera, lens, shootingdatetime, GPS = Metadata.exif_for_db(metadata)
+    camera, lens, shootingdatetime, GPS, usercomment = Metadata.exif_for_db(metadata)
     if shootingdatetime != "":
         shootingdate = shootingdatetime[:10]
     else:
         shootingdate = shootingdatetime
 
     sql_str1 = f'INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
-               f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{GPS}\')'
+               f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{GPS}\', \'{usercomment}\')'
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
@@ -105,6 +105,11 @@ def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> Non
 
             case 7:    # GPS
                 sql_str = f'UPDATE photos SET GPSdata = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
+                cur.execute(sql_str)
+                conn.commit()
+
+            case 12:
+                sql_str = f'UPDATE photos SET comment = \'{new_text}\' WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
                 cur.execute(sql_str)
                 conn.commit()
 

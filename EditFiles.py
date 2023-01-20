@@ -9,7 +9,6 @@ from PyQt5.QtCore import Qt
 from PIL import Image
 from PIL import ImageFile
 import exiftool
-import json
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 import ErrorsAndWarnings
@@ -21,6 +20,8 @@ import Settings
 import ShowConstWindowWidget
 import Thumbnail
 
+from Screenconfig import font14, font12
+
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -29,10 +30,6 @@ stylesheet6 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
-
-
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
 
 
 system_scale = Screenconfig.monitor_info()[1]
@@ -67,12 +64,14 @@ class EditExifData(QDialog):
         self.btn_cancel = QPushButton(self)
         self.btn_clear = QPushButton(self)
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+
         self.tab_date_layout = QGridLayout(self)
         self.date_lbl = QLabel(self)
         self.date_choose = QDateTimeEdit(self)
         self.timezone_lbl = QLabel(self)
         self.timezone_pm_choose = QComboBox(self)
         self.timezone_num_choose = QTimeEdit(self)
+
         self.tab_tt_layout = QGridLayout(self)
         self.maker_lbl = QLabel(self)
         self.camera_lbl = QLabel(self)
@@ -92,6 +91,7 @@ class EditExifData(QDialog):
         self.flength_line = QLineEdit(self)
         self.serialbody_line = QLineEdit(self)
         self.seriallens_line = QLineEdit(self)
+
         self.tab_layout_gps = QGridLayout(self)
         self.mode_check_dmc = QCheckBox(self)
         self.mode_check_fn = QCheckBox(self)
@@ -115,22 +115,29 @@ class EditExifData(QDialog):
         self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
         self.longitude_dmc_min_line = QLineEdit(self)  # долгота
         self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+
         self.tab_file_layout = QGridLayout(self)
         self.filename_lbl = QLabel(self)
         self.filename_line = QLineEdit(self)
         self.file_size_lbl = QLabel(self)
         self.file_size_line = QLineEdit(self)
+
+        self.tab_comment_layout = QGridLayout(self)
+        self.usercomment_lbl = QLabel(self)
+        self.usercomment_text = QLineEdit(self)
+
         self.tabs = QTabWidget(self)
         self.tab_date = QWidget(self)
         self.tab_technic_settings = QWidget(self)
         self.tab_GPS = QWidget(self)
         self.tab_file = QWidget(self)
+        self.tab_comment = QWidget(self)
 
         self.make_gui()
 
         self.get_metadata(photoname, photodirectory)
         self.get_file_data(photoname, photodirectory)
-        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
@@ -267,7 +274,7 @@ class EditExifData(QDialog):
 
     # отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
     def change_tab_gps(self):
-        if self.tabs.currentIndex() in (0, 1, 3):
+        if self.tabs.currentIndex() in (0, 1, 3, 4):
             self.table.show()
             self.layout.addWidget(self.table, 0, 1, 1, 2)
             try:
@@ -637,6 +644,22 @@ class EditExifData(QDialog):
             self.photo_rotate_left.setFixedWidth(300)
             self.photo_rotate_right.setFixedWidth(300)
 
+        def make_tab_usercomment():
+            self.usercomment_lbl.setText('Комментарий')
+            self.usercomment_lbl.setFont(font14)
+            self.usercomment_lbl.setStyleSheet(stylesheet2)
+            self.usercomment_lbl.setAlignment(Qt.AlignCenter)
+            
+            self.usercomment_text.setFont(font12)
+            self.usercomment_text.setStyleSheet(stylesheet1)
+
+            self.tab_comment_layout.setAlignment(Qt.AlignTop)
+
+            self.tab_comment_layout.addWidget(self.usercomment_lbl, 0, 0, 1, 1)
+            self.tab_comment_layout.addWidget(self.usercomment_text, 1, 0, 1, 1)
+            
+            self.tab_comment.setLayout(self.tab_comment_layout)
+
         def make_connects():
             self.date_choose.dateTimeChanged.connect(lambda: self.changes_to_indicator(11))
             self.timezone_pm_choose.currentTextChanged.connect(lambda: self.changes_to_indicator(8))
@@ -654,6 +677,8 @@ class EditExifData(QDialog):
             self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
             self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
 
+            self.usercomment_text.textChanged.connect(lambda: self.changes_to_indicator(12))
+
             self.photo_flip_ver.clicked.connect(self.rotate_photo)
             self.photo_flip_hor.clicked.connect(self.rotate_photo)
             self.photo_rotate_left.clicked.connect(self.rotate_photo)
@@ -666,6 +691,7 @@ class EditExifData(QDialog):
         self.tabs.addTab(self.tab_technic_settings, 'Оборудование и настройки')
         self.tabs.addTab(self.tab_GPS, 'GPS')
         self.tabs.addTab(self.tab_file, 'Файл')
+        self.tabs.addTab(self.tab_comment, 'Комментарий')
 
         self.tabs.setFont(font12)
 
@@ -673,6 +699,7 @@ class EditExifData(QDialog):
         make_tab_tt()
         make_tab_gps()
         make_tab_file()
+        make_tab_usercomment()
         make_connects()
 
     # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
@@ -792,14 +819,19 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setText(str(longitude_min))
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
-        self.table.setColumnCount(2)
-        self.table.setRowCount(len(data))
-        keys = list(data.keys())
+        def fill_comment():
+            self.usercomment_text.setText(str(data['Комментарий']))
 
-        for parameter in range(len(data)):
-            self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
-            self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
-            self.table.setItem(parameter, 1, QTableWidgetItem(str(data[keys[parameter]])))
+        self.table.setColumnCount(2)
+        self.table.setRowCount(len(data)-1)
+        keys = list(data.keys())
+        keys.remove('Комментарий')
+
+        for parameter in range(len(data)-1):
+            if keys[parameter] != 'Комментарий':
+                self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
+                self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
+                self.table.setItem(parameter, 1, QTableWidgetItem(str(data[keys[parameter]])))
 
         year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min = date_convert(data)
 
@@ -813,6 +845,7 @@ class EditExifData(QDialog):
 
         fill_equip_set()
         fill_gps()
+        fill_comment()
 
         func_resize()
 
@@ -930,6 +963,7 @@ class EditExifData(QDialog):
         flenght = self.flength_line.text()
         serialbody = self.serialbody_line.text()
         seriallens = self.seriallens_line.text()
+        usercomment = self.usercomment_text.text()
 
         timezone = self.timezone_pm_choose.currentText() + self.timezone_num_choose.text()
         datetime = self.date_choose.text().replace(".", ":")
@@ -937,7 +971,7 @@ class EditExifData(QDialog):
         gps = self.latitude_fn_line.text() + ", " + self.longitude_fn_line.text()
 
         all_meta_entered = [maker, camera, lens, time, iso, fnumber, flenght, gps, timezone,
-                            serialbody, seriallens, datetime]
+                            serialbody, seriallens, datetime, usercomment]
 
         return all_meta_entered
 
@@ -990,7 +1024,7 @@ class EditExifData(QDialog):
 
         self.write_changes(self.photoname, self.photodirectory, changes_meta_dict)
 
-        if self.indicator[-1] == 0: # -1 - изменение даты (возможен перенос)
+        if self.indicator[-2] == 0: # -1 - изменение даты (возможен перенос)
             self.update_show_data()
         else:
             if type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
@@ -1002,7 +1036,7 @@ class EditExifData(QDialog):
             else:
                 self.update_show_data()
 
-        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
         if self.new_filename == self.old_filename:
             pass
@@ -1035,6 +1069,10 @@ class EditExifData(QDialog):
                 check_enter(editing_type, new_text)
             except ErrorsAndWarnings.EditExifError:
                 win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err.show()
+                return
+            except ErrorsAndWarnings.EditCommentError as e:
+                win_err = ErrorsAndWarnings.EditCommentError_win(self, e.symbol)
                 win_err.show()
                 return
 
@@ -1370,7 +1408,7 @@ class EqualNames(QDialog):
             err_win.show()
             return
 
-        modify_dict = {13: self.full_exif_date}
+        modify_dict = {11: self.full_exif_date}
 
         if self.new_checkbox.checkState():  # переименовывается переносимый файл
             new_new_name = self.new_name.text() + '.' + self.format

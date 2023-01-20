@@ -145,6 +145,21 @@ stylesheet10_light =  """
                                 background-color: #C0C0C0;
                             }
                             """
+stylesheet11_light =   """
+                                QTableWidget
+                                {
+                                    border: 1px;
+                                    border-color: #A9A9A9;
+                                    border-style: solid;
+                                    color: #000000;
+                                    background-color: #F0F0F0;
+                                    gridline-color: #A9A9A9;
+                                }
+                                QTableCornerButton::section 
+                                {
+                                    background-color: #F0F0F0;
+                                }
+                            """
 icon_explorer_light = os.getcwd() + '/icons/explorer_light.png'
 icon_view_light = os.getcwd() + '/icons/view_light.png'
 icon_edit_light = os.getcwd() + '/icons/edit_light.png'
@@ -292,6 +307,22 @@ stylesheet10_dark =  """
                                 background-color: #2F2F2F;
                             }
                             """
+stylesheet11_dark = """
+                                QTableView
+                                {
+                                    border: 1px;
+                                    border-color: #696969;
+                                    border-style: solid;
+                                    color: #D3D3D3;
+                                    background-color: #1c1c1c;
+                                    gridline-color: #696969;
+                                }
+                                QTableCornerButton::section 
+                                {
+                                    background-color: #1c1c1c;
+                                }
+
+                            """
 icon_explorer_dark = os.getcwd() + '/icons/explorer_dark.png'
 icon_view_dark = os.getcwd() + '/icons/view_dark.png'
 icon_edit_dark = os.getcwd() + '/icons/edit_dark.png'
@@ -313,6 +344,7 @@ light_style = {'stylesheet1': stylesheet1_light,
                'stylesheet8': stylesheet8_light,
                'stylesheet9': stylesheet9_light,
                'stylesheet10': stylesheet10_light,
+               'stylesheet11': stylesheet11_light,
                'icon_explorer': icon_explorer_light,
                'icon_view': icon_view_light,
                'icon_edit': icon_edit_light,
@@ -338,6 +370,7 @@ dark_style = {'stylesheet1': stylesheet1_dark,
                'stylesheet8': stylesheet8_dark,
                'stylesheet9': stylesheet9_dark,
                'stylesheet10': stylesheet10_dark,
+               'stylesheet11': stylesheet11_dark,
                'icon_explorer': icon_explorer_dark,
                'icon_view': icon_view_dark,
                'icon_edit': icon_edit_dark,
