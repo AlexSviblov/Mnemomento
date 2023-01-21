@@ -692,7 +692,7 @@ class ManyPhotoEdit(QWidget):
                 if not year or not month or not day:
                     return
                 else:
-                    photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+                    photo_list = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
 
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
@@ -708,7 +708,7 @@ class ManyPhotoEdit(QWidget):
                 else:
                     lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
 
-                photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+                photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
 
         if not photo_list:
             return

@@ -1185,7 +1185,7 @@ class FilesPaths(QtCore.QThread):
             year = self.arg1
             month = self.arg2
             day = self.arg3
-            photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+            photo_list = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
             result = photo_list
         elif self.filter == 'Оборудование':
             camera = self.arg1
@@ -1199,7 +1199,7 @@ class FilesPaths(QtCore.QThread):
                 lens_exif = 'All'
             else:
                 lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
-            photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+            photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
             result = photo_list
         else: # if not filter
             all_files = []

@@ -132,11 +132,11 @@ class GlobalMapWidget(QWidget):
                 if not year or not month or not day:
                     return
                 else:
-                    full_paths = PhotoDataDB.get_date_photo_list(year, month, day)
+                    full_paths = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
             case 'Соцсети':
                 socnet = self.socnet_choose.currentText()
                 status = self.sn_status.currentText()
-                full_paths = PhotoDataDB.get_sn_photo_list(socnet, status)
+                full_paths = PhotoDataDB.get_sn_photo_list(socnet, status, False, '')
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
@@ -151,7 +151,7 @@ class GlobalMapWidget(QWidget):
                 else:
                     lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
 
-                full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+                full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
 
         self.progressbar.setValue(0)
         self.progressbar.update()
