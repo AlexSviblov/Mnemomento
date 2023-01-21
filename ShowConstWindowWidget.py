@@ -86,7 +86,7 @@ class ConstWidgetWindow(QWidget):
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
-        self.fill_sort_comment()
+        self.fill_sort_comment('Дата')
         self.fill_sort_groupbox()
         self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
@@ -115,13 +115,15 @@ class ConstWidgetWindow(QWidget):
 
         self.layout_btns = QGridLayout(self)
         self.layout_btns.setSpacing(0)
+        self.layout_btns.setAlignment(Qt.AlignRight)
 
         self.groupbox_btns = QGroupBox(self)
         self.groupbox_btns.setLayout(self.layout_btns)
         self.groupbox_btns.setStyleSheet(stylesheet2)
-        self.groupbox_btns.setFixedSize(70, 220)
+        self.groupbox_btns.setFixedSize(120, 220)
+        self.groupbox_btns.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
         self.make_buttons()
-        self.layoutoutside.addWidget(self.groupbox_btns, 1, 4, 2, 1)
+        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
 
         self.socnet_group = QTableWidget(self)
         self.socnet_group.setColumnCount(2)
@@ -621,9 +623,9 @@ class ConstWidgetWindow(QWidget):
                 self.show_social_networks(self.last_clicked_name, self.last_clicked_dir)
 
                 if self.pixmap2.width() > self.metadata_show.width() + self.socnet_group.width():
-                    self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 100)
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 200)
                 else:
-                    self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 100)
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 200)
 
 
             else:  # self.photo_rotation == 'ver'
@@ -650,9 +652,9 @@ class ConstWidgetWindow(QWidget):
                 self.pic.show()
 
                 if self.pixmap2.width() > self.metadata_show.width():
-                    self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 160)
                 else:
-                    self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+                    self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.groupbox_btns.width() + 160)
             else:  # self.photo_rotation == 'ver'
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
@@ -662,8 +664,10 @@ class ConstWidgetWindow(QWidget):
 
                 self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
                 self.pic.show()
+                self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 160)
 
-                self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+
+        self.pic.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
 
         QtCore.QCoreApplication.processEvents()
         self.make_map()
@@ -733,7 +737,7 @@ class ConstWidgetWindow(QWidget):
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 3, 1)
 
-        self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
+        self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 120)
 
     def resize_map(self):
         try:
@@ -767,6 +771,12 @@ class ConstWidgetWindow(QWidget):
 
     # Создание кнопок удаления и редактирования
     def make_buttons(self) -> None:
+        try:
+            for i in reversed(range(self.layout_btns.count())):
+                self.layout_btns.itemAt(i).widget().deleteLater()
+        except (RuntimeError, AttributeError):
+            pass
+
         self.edit_btn = QToolButton(self)
         self.edit_btn.setStyleSheet(stylesheet1)
         self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
@@ -1092,17 +1102,15 @@ class ConstWidgetWindow(QWidget):
 
         self.layoutoutside.addWidget(self.group_type, 0, 0, 1, 1)
 
-    def fill_sort_comment(self):
+    def fill_sort_comment(self, type):
         self.empty_sort = QLabel(self)
         self.empty_sort.setFixedHeight(int(30 * system_scale) + 1)
         self.empty_sort.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
-        self.layout_type.addWidget(self.empty_sort, 0, 7, 1, 1)
 
         self.comment_check = QCheckBox(self)
         self.comment_check.setFont(font14)
         self.comment_check.setStyleSheet(stylesheet2)
         self.comment_check.setFixedHeight(int(30 * system_scale) + 1)
-        self.layout_type.addWidget(self.comment_check, 0, 8, 1, 1, alignment=Qt.AlignRight)
 
         def comment_line_block():
             if self.comment_check.checkState():
@@ -1119,9 +1127,17 @@ class ConstWidgetWindow(QWidget):
         self.comment_line.setStyleSheet(stylesheet1)
         self.comment_line.setFixedHeight(int(30*system_scale)+1)
         self.comment_line.setFixedWidth(int(150*system_scale)+1)
-        self.layout_type.addWidget(self.comment_line, 0, 9, 1, 1, alignment=Qt.AlignRight)
         self.comment_line.setDisabled(True)
         self.comment_line.editingFinished.connect(self.type_show_thumbnails)
+
+        if type =='Дата':
+            self.layout_type.addWidget(self.empty_sort, 0, 7, 1, 1)
+            self.layout_type.addWidget(self.comment_check, 0, 8, 1, 1, alignment=Qt.AlignRight)
+            self.layout_type.addWidget(self.comment_line, 0, 9, 1, 1, alignment=Qt.AlignRight)
+        else:
+            self.layout_type.addWidget(self.empty_sort, 0, 3, 1, 1)
+            self.layout_type.addWidget(self.comment_check, 0, 4, 1, 1, alignment=Qt.AlignRight)
+            self.layout_type.addWidget(self.comment_line, 0, 5, 1, 1, alignment=Qt.AlignRight)
 
     # заполнить поле группировки по дате
     def fill_sort_date(self) -> None:
@@ -1271,14 +1287,19 @@ class ConstWidgetWindow(QWidget):
             pass
         QtCore.QCoreApplication.processEvents()
 
-        self.fill_sort_comment()
+
         match self.group_type.currentText():
             case 'Дата':
                 self.fill_sort_date()
+                self.fill_sort_comment('Дата')
             case 'Соцсети':
                 self.fill_sort_socnets()
+                self.fill_sort_comment('Соцсети')
             case 'Оборудование':
                 self.fill_sort_equipment()
+                self.fill_sort_comment('Оборудование')
+
+        self.make_buttons()
 
     # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:

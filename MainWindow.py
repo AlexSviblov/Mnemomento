@@ -45,7 +45,7 @@ font8 = QtGui.QFont('Times', 8)
 system_scale = Screenconfig.monitor_info()[1]
 
 logging.basicConfig(filename=f"logs/log-{str(datetime.datetime.now())[:10]}.txt", format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S', level=logging.INFO)
+                    datefmt='%d-%b-%y %H:%M:%S', level=logging.WARNING)
 
 
 class MainWindow(QMainWindow):

@@ -326,24 +326,16 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
         case _:
             status_bd = 'No value'
 
-    if not comment_status:
-        try:
-            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
-            cur.execute(sql_str)
-            photodb_data = cur.fetchall()
-        except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
-            cur.execute(sql_str)
-            photodb_data = cur.fetchall()
-    else:
-        try:
-            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
-            cur.execute(sql_str)
-            photodb_data = cur.fetchall()
-        except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
-            cur.execute(sql_str)
-            photodb_data = cur.fetchall()
+
+    try:
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
+        cur.execute(sql_str)
+        photodb_data = cur.fetchall()
+    except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
+        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
+        cur.execute(sql_str)
+        photodb_data = cur.fetchall()
+
 
     # ЧТО ЗА ХУЙНЮ  Я ТУТ НАПИСАЛ КОГДА-ТО???
     # if not photodb_data:
@@ -354,10 +346,12 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
     #         photodb_data = cur.fetchall()
     #     except:
     #         pass
-
-    sql_str = f'SELECT filename, catalog FROM photos WHERE comment LIKE \'%{comment_text}%\''
-    cur.execute(sql_str)
-    with_comments_list = cur.fetchall()
+    if  comment_status:
+        sql_str = f'SELECT filename, catalog FROM photos WHERE comment LIKE \'%{comment_text}%\''
+        cur.execute(sql_str)
+        with_comments_list = cur.fetchall()
+    else:
+        with_comments_list = photodb_data
 
     fullpaths = [f"{photo[1]}/{photo[0]}" for photo in photodb_data if 'Media/Photo/const' in photo[1] and photo in with_comments_list]
 

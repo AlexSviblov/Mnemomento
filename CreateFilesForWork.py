@@ -4,8 +4,9 @@ import os
 
 conn = sqlite3.connect(r'C:\Users\Public\AppData\TestForPhotoPr\PhotoDB.db')   # соединение с БД
 # conn = sqlite3.connect(r'C:\Users\user\PycharmProjects\PhotoProgramm\PhotoDB.db')
+# conn = sqlite3.connect(r'C:\Program Files (x86)\Mnemomento\PhotoDB.db')
 cur = conn.cursor()
-sql_str = "ALTER TABLE photos ADD COLUMN comment TEXT DEFAULT \'\'"
+sql_str = "ALTER TABLE photos ADD COLUMN comment"
 cur.execute(sql_str)
 conn.commit()
 conn.close()
