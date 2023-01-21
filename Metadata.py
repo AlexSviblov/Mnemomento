@@ -41,7 +41,10 @@ def fast_read_exif(photofile: str) -> dict[str, str]:
     :param photofile: абсолютный путь к файлу фотографии.
     :return: словарь всех вытащенных библиотекой exif метаданных.
     """
-    data = piexif.load(photofile)
+    try:
+        data = piexif.load(photofile)
+    except FileNotFoundError:
+        raise FileNotFoundError
     return data
 
 
@@ -656,6 +659,32 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
             except ValueError:
                 make_error()
 
+        # GPS
+        case 7:
+            new_value_splitted = new_value.split(', ')
+            try:
+                float(new_value_splitted[0])
+                float(new_value_splitted[1])
+            except (ValueError, IndexError):
+                make_error()
+
+
+        # часовой пояс
+        case 8:
+            try:
+                int(new_value[1])
+                int(new_value[2])
+                if new_value[0] == '+' or new_value[0] == '-':
+                    pass
+                else:
+                    make_error()
+                if new_value[3] == ':' and new_value[4] == '0' and new_value[5] == '0':
+                    pass
+                else:
+                    make_error()
+            except (ValueError, IndexError):
+                make_error()
+
         # дата съёмки
         case 11:
             try:
@@ -692,31 +721,6 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
                 else:
                     make_error()
             except ValueError:
-                make_error()
-
-        # часовой пояс
-        case 8:
-            try:
-                int(new_value[1])
-                int(new_value[2])
-                if new_value[0] == '+' or new_value[0] == '-':
-                    pass
-                else:
-                    make_error()
-                if new_value[3] == ':' and new_value[4] == '0' and new_value[5] == '0':
-                    pass
-                else:
-                    make_error()
-            except (ValueError, IndexError):
-                make_error()
-
-        # GPS
-        case 7:
-            new_value_splitted = new_value.split(', ')
-            try:
-                float(new_value_splitted[0])
-                float(new_value_splitted[1])
-            except (ValueError, IndexError):
                 make_error()
 
         # комментарий

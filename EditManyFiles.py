@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from pathlib import Path
 
+import ErrorsAndWarnings
 import PhotoDataDB
 import Screenconfig
 import Metadata
@@ -160,7 +161,6 @@ class ManyPhotoEdit(QWidget):
 
     # создание элементов ввода новых данных
     def make_new_data_enter(self) -> None:
-        # TODO: комментарий +
         self.new_make_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_make_check, 0, 0, 1, 1)
         self.new_make_check.setStyleSheet(stylesheet2)
@@ -303,7 +303,6 @@ class ManyPhotoEdit(QWidget):
 
     # блокировать/разрешать ввод в поле ввода, если не нажата/нажата галочка в чекбоксе
     def new_line_locker(self) -> None:
-        # TODO: комментарий +
         match self.sender().text():
             case "Производитель":
                 lines = [self.new_make_line]
@@ -923,7 +922,6 @@ class ManyPhotoEdit(QWidget):
     # считать все новые вводимые данные
     def get_all_new_data(self) -> dict[int, str]:
         modify_dict = dict()
-        #TODO: комментарий
 
         if self.new_make_check.checkState():
             if self.new_make_line.text():
@@ -947,19 +945,29 @@ class ManyPhotoEdit(QWidget):
         if self.new_gps_check.checkState():
             if self.new_gps_lat_line.text() and self.new_gps_lon_line.text():
                 modify_dict[7] = self.new_gps_lat_line.text() + ', ' + self.new_gps_lon_line.text()
+        if self.new_usercomment_check.checkState():
+            if self.new_usercomment_line.text():
+                modify_dict[12] = self.new_usercomment_line.text()
 
         return modify_dict
 
     # запись новых метаданных
     def write_data(self) -> None:
-        #TODO: check_enter (как в одиночном редактировании)
-        def finished(status):
+        # проверка введённых пользователем метаданных
+        def check_enter(editing_type: int, new_text: str) -> None:
+            Metadata.exif_check_edit(editing_type, new_text)
+
+        def finished_animation():
             self.empty1.show()
             self.layout_btns.removeWidget(self.loading_lbl)
             self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
             self.loading_lbl.hide()
             QtCore.QCoreApplication.processEvents()
+
+        def finished_success(status):
+            finished_animation()
             self.update_table(status)
+
 
         self.empty1.hide()
         self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
@@ -970,8 +978,24 @@ class ManyPhotoEdit(QWidget):
         photo_list = self.get_edit_list()
         modify_dict = self.get_all_new_data()
 
+        # проверка введённых пользователем метаданных
+        for editing_type in list(modify_dict.keys()):
+            new_text = modify_dict[editing_type]
+            try:
+                check_enter(editing_type, new_text)
+            except ErrorsAndWarnings.EditExifError:
+                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err.show()
+                finished_animation()
+                return
+            except ErrorsAndWarnings.EditCommentError as e:
+                win_err = ErrorsAndWarnings.EditCommentError_win(self, e.symbol)
+                win_err.show()
+                finished_animation()
+                return
+
         self.editing_process = DoEditing(photo_list, modify_dict)
-        self.editing_process.finished.connect(lambda date_changed: finished(date_changed))
+        self.editing_process.finished.connect(lambda date_changed: finished_success(date_changed))
         self.editing_process.start()
 
     # Создать таблицу сравнения
@@ -993,7 +1017,6 @@ class ManyPhotoEdit(QWidget):
 
     # +1 фото в редактирование
     def table_one_add(self, photo: str) -> None:
-        # TODO: добавить поле комментария с контролем длины +
         self.table_compare.setColumnCount(self.table_compare.columnCount() + 1)
         column = self.table_compare.columnCount() - 1
         self.table_positions[photo] = column
@@ -1170,14 +1193,15 @@ class DoEditing(QtCore.QThread):
                     if not os.path.exists(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}"):
                         os.mkdir(Settings.get_destination_media() + f"/Media/Photo/const/{year}/{month}/{day}")
 
-                    if os.path.exists(f"{new_path}/{photo_name}"):
-                        old_name = photo_name
+                    old_name = photo_name
+                    if os.path.exists(f"{new_path}/{photo_name}") and new_path != old_path:
                         for i in range(1000):
                             photo_name = photo_name[:-4] + str(i) + photo_name[-4:]
                             if os.path.exists(f"{new_path}/{photo_name}"):
                                 pass
                             else:
                                 break
+
 
                     shutil.move(file, f"{new_path}/{photo_name}")
                     Thumbnail.make_const_thumbnails(new_path, photo_name)
@@ -1189,8 +1213,8 @@ class DoEditing(QtCore.QThread):
                 self.finished.emit(1)
         except KeyError:
             self.finished.emit(1)
-        else:
-            logging.error(f"EditManyFiles - Error DoEditing file {file} in data_change block")
+        except Exception as e:
+            logging.exception(f"EditManyFiles - {e}")
 
 
 # переделанный класс для работы с вебом, который генерируется JS'ом, который генерируется шаблонами

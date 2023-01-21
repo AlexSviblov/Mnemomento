@@ -2,19 +2,22 @@ import os
 import folium
 import json
 import math
+import logging
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from pathlib import Path
-import logging
 
+import ErrorsAndWarnings
 import PhotoDataDB
 import Screenconfig
 import Metadata
 import Settings
 import Thumbnail
 import EditFiles
+
+from Screenconfig import font14, font12
 
 
 stylesheet1 = str()
@@ -28,10 +31,6 @@ icon_explorer = str()
 icon_view = str()
 icon_edit = str()
 icon_delete = str()
-
-
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
 
 
 system_scale = Screenconfig.monitor_info()[1]
@@ -89,6 +88,7 @@ class ConstWidgetWindow(QWidget):
 
         self.fill_sort_groupbox()
         self.fill_sort_date()
+        self.fill_sort_comment()
         self.groupbox_sort.setLayout(self.layout_type)
 
         self.metadata_show = QtWidgets.QTableWidget()
@@ -382,6 +382,13 @@ class ConstWidgetWindow(QWidget):
         clear_and_lock_show()
         QtCore.QCoreApplication.processEvents()
 
+        if self.comment_check.checkState():
+            search_comment = True
+            comment_text = self.comment_line.text()
+        else:
+            search_comment = False
+            comment_text = ''
+
         match self.group_type.currentText():
             case 'Дата':
                 year = self.date_year.currentText()
@@ -549,6 +556,11 @@ class ConstWidgetWindow(QWidget):
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name,
                                                  self.photo_directory)
+        except FileNotFoundError:
+            win_err = ErrorsAndWarnings.ExistFileError(self)
+            win_err.show()
+            self.type_show_thumbnails()
+            return
 
         self.photo_rotation = metadata['Rotation']
 
@@ -1076,12 +1088,37 @@ class ConstWidgetWindow(QWidget):
 
         self.layoutoutside.addWidget(self.group_type, 0, 0, 1, 1)
 
+    def fill_sort_comment(self):
+        self.empty_sort = QLabel(self)
+        self.empty_sort.setFixedHeight(int(30 * system_scale) + 1)
+        self.empty_sort.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
+        self.layout_type.addWidget(self.empty_sort, 0, 7, 1, 1)
+
+        self.comment_check = QCheckBox(self)
+        self.comment_check.setFont(font14)
+        self.comment_check.setStyleSheet(stylesheet2)
+        self.comment_check.setFixedHeight(int(30 * system_scale) + 1)
+        self.layout_type.addWidget(self.comment_check, 0, 8, 1, 1, alignment=Qt.AlignRight)
+
+        def comment_line_block():
+            if self.comment_check.checkState():
+                self.comment_line.setDisabled(False)
+            else:
+                self.comment_line.setDisabled(True)
+
+        self.comment_check.stateChanged.connect(lambda: comment_line_block())
+
+        self.comment_line = QLineEdit(self)
+        self.comment_line.setFont(font14)
+        self.comment_line.setStyleSheet(stylesheet1)
+        self.comment_line.setFixedHeight(int(30*system_scale)+1)
+        self.comment_line.setFixedWidth(int(150*system_scale)+1)
+        self.layout_type.addWidget(self.comment_line, 0, 9, 1, 1, alignment=Qt.AlignRight)
+        self.comment_line.setDisabled(True)
+        self.comment_line.editingFinished.connect(self.type_show_thumbnails)
+
     # заполнить поле группировки по дате
     def fill_sort_date(self) -> None:
-        for i in reversed(range(self.layout_type.count())):
-            self.layout_type.itemAt(i).widget().hide()
-            self.layout_type.itemAt(i).widget().deleteLater()
-
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
@@ -1228,6 +1265,7 @@ class ConstWidgetWindow(QWidget):
             pass
         QtCore.QCoreApplication.processEvents()
 
+        self.fill_sort_comment()
         match self.group_type.currentText():
             case 'Дата':
                 self.fill_sort_date()

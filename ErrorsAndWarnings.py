@@ -353,3 +353,25 @@ class FileReadError(Exception):
         else:
             return "FileReadError"
 
+class ExistFileError(QDialog):
+    def __init__(self, parent):
+        super(ExistFileError, self).__init__(parent)
+        stylesheet_color()
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle('Файл не найден')
+
+        layout = QGridLayout(self)
+        self.setLayout(layout)
+        lbl = QLabel(self)
+        lbl.setText('Файл не найден')
+        lbl.setFont(font14)
+        lbl.setStyleSheet(stylesheet2)
+
+        btn = QPushButton(self)
+        btn.setText('Ок')
+        btn.setFont(font14)
+        btn.setStyleSheet(stylesheet8)
+        btn.clicked.connect(lambda: self.close())
+
+        layout.addWidget(lbl, 0, 0, 1, 1)
+        layout.addWidget(btn, 1, 0, 1, 1)

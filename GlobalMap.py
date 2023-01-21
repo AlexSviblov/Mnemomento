@@ -16,6 +16,8 @@ import Metadata
 import Screenconfig
 import Settings
 
+from Screenconfig import font14, font12
+
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -26,9 +28,6 @@ stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 map_tiles = str()
-
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
 
 
 system_scale = Screenconfig.monitor_info()[1]

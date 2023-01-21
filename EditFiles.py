@@ -1439,8 +1439,8 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
-            Metadata.exif_rewrite_edit(new_old_name, self.old_photo_dir, modify_dict)
-            PhotoDataDB.edit_in_database(new_old_name, self.old_photo_dir[:-1], modify_dict)
+            Metadata.exif_rewrite_edit(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
+            PhotoDataDB.edit_in_database(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
         self.file_rename_transfer_signal.emit()
         self.close()
 

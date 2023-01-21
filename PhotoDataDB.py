@@ -261,14 +261,11 @@ def get_equipment() -> tuple[list[str], list[str]]:
     for i in range(len(lens_all_data)):
         lens_counter[f'{lens_all_data[i][0]}'] = lens_all_data[i][1]
 
-    print(camera_counter)
-    print(lens_counter)
-
     lens_list = Metadata.equip_name_check_with_counter(lens_counter, 'lens')
 
     return cameras_list, lens_list,
 
-
+# TODO:comment
 # получить полный путь ко всем фото, у которых указаны выбранные камера и объектив
 def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str) -> list[str]:
     """
@@ -299,7 +296,7 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
 
     return fullpaths
 
-
+# TODO:comment
 # получить полный путь всех фото, у которых в выбранной соцсети указан выбранный статус
 def get_sn_photo_list(network: str, status: str) -> list[str]:
     """
@@ -456,7 +453,7 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
 
     logging.info(f"PhotoDataDB - Metadata of {photo_directory}/{photo_name} cleared in DB")
 
-
+# TODO: comment
 # достать из БД список фото сделанных в определённый день
 def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
     """
