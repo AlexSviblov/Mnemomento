@@ -265,9 +265,9 @@ def get_equipment() -> tuple[list[str], list[str]]:
 
     return cameras_list, lens_list,
 
-# TODO:comment
+
 # получить полный путь ко всем фото, у которых указаны выбранные камера и объектив
-def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str) -> list[str]:
+def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str, comment_status: bool, comment_text:str) -> list[str]:
     """
     Получить полный путь ко всем фото, у которых указаны выбранные камера и объектив.
     При наличии исправлений в ErrorNames, надо учесть, что какие-то записи могут быть сделаны вручную, а какие-то
@@ -278,15 +278,24 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
     :param lens: исправленное название объектива (либо повторение exif, если оно не исправляется).
     :return: список абсолютных путей ко всем файлам с выбранными камерой и объективом.
     """
-
-    if camera_exif == 'All' and camera == 'All' and lens == 'All' and lens_exif == 'All':
-        sql_str = f'SELECT filename, catalog FROM photos {db_order_settings()}'
-    elif (camera_exif == 'All' and camera == 'All') and (lens != 'All' or lens_exif != 'All'):
-        sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\') {db_order_settings()}'
-    elif (camera_exif != 'All' or camera != 'All') and (lens == 'All' and lens_exif == 'All'):
-        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') {db_order_settings()}'
+    if not comment_status:
+        if camera_exif == 'All' and camera == 'All' and lens == 'All' and lens_exif == 'All':
+            sql_str = f'SELECT filename, catalog FROM photos {db_order_settings()}'
+        elif (camera_exif == 'All' and camera == 'All') and (lens != 'All' or lens_exif != 'All'):
+            sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\') {db_order_settings()}'
+        elif (camera_exif != 'All' or camera != 'All') and (lens == 'All' and lens_exif == 'All'):
+            sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') {db_order_settings()}'
+        else:
+            sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\') {db_order_settings()}'
     else:
-        sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\') {db_order_settings()}'
+        if camera_exif == 'All' and camera == 'All' and lens == 'All' and lens_exif == 'All':
+            sql_str = f'SELECT filename, catalog FROM photos  WHERE comment LIKE \'%{comment_text}%\' {db_order_settings()}'
+        elif (camera_exif == 'All' and camera == 'All') and (lens != 'All' or lens_exif != 'All'):
+            sql_str = f'SELECT filename, catalog FROM photos WHERE (lens = \'{lens}\' OR lens = \'{lens_exif}\') AND comment LIKE \'%{comment_text}%\' {db_order_settings()}'
+        elif (camera_exif != 'All' or camera != 'All') and (lens == 'All' and lens_exif == 'All'):
+            sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\')  AND comment LIKE \'%{comment_text}%\' {db_order_settings()}'
+        else:
+            sql_str = f'SELECT filename, catalog FROM photos WHERE (camera = \'{camera}\' OR camera = \'{camera_exif}\') AND (lens = \'{lens}\' OR lens = \'{lens_exif}\')  AND comment LIKE \'%{comment_text}%\' {db_order_settings()}'
 
     cur.execute(sql_str)
 
@@ -296,9 +305,9 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
 
     return fullpaths
 
-# TODO:comment
+
 # получить полный путь всех фото, у которых в выбранной соцсети указан выбранный статус
-def get_sn_photo_list(network: str, status: str) -> list[str]:
+def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_text:str) -> list[str]:
     """
     Список абсолютных путей с выбранным статусом в выбранной соцсети.
     :param network: соцсеть (надпись из GUI, без приставки numnumnum).
@@ -317,25 +326,40 @@ def get_sn_photo_list(network: str, status: str) -> list[str]:
         case _:
             status_bd = 'No value'
 
-    try:
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\''
-        cur.execute(sql_str)
-        photodb_data = cur.fetchall()
-    except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
-        sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\''
-        cur.execute(sql_str)
-        photodb_data = cur.fetchall()
-
-    if not photodb_data:
+    if not comment_status:
         try:
-            int(network[1])
-            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status}\''
+            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
-        except:
-            pass
+        except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
+            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
+    else:
+        try:
+            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
+        except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
+            sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
+            cur.execute(sql_str)
+            photodb_data = cur.fetchall()
 
-    fullpaths = [f"{photo[1]}/{photo[0]}" for photo in photodb_data if 'Media/Photo/const' in photo[1]]
+    # ЧТО ЗА ХУЙНЮ  Я ТУТ НАПИСАЛ КОГДА-ТО???
+    # if not photodb_data:
+    #     try:
+    #         int(network[1])
+    #         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status}\' {db_order_settings()}'
+    #         cur.execute(sql_str)
+    #         photodb_data = cur.fetchall()
+    #     except:
+    #         pass
+
+    sql_str = f'SELECT filename, catalog FROM photos WHERE comment LIKE \'%{comment_text}%\''
+    cur.execute(sql_str)
+    with_comments_list = cur.fetchall()
+
+    fullpaths = [f"{photo[1]}/{photo[0]}" for photo in photodb_data if 'Media/Photo/const' in photo[1] and photo in with_comments_list]
 
     return fullpaths
 
@@ -455,7 +479,7 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
 
 # TODO: comment
 # достать из БД список фото сделанных в определённый день
-def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
+def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, comment_text:str) -> list[str]:
     """
     В БД записывается дата съёмки, тут достаются из БД все записи о фото, сделанных в указанную дату
     :param year: год съёмки
@@ -463,10 +487,12 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
     :param day: день съёмки
     :return: список полных путей к фотографиям
     """
-    photodb_data = list()
     if year == 'No_Date_Info':
         date_to_search = ''
-        sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' {db_order_settings()}"
+        if not comment_status:
+            sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' {db_order_settings()}"
+        else:
+            sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
     else:
@@ -480,8 +506,10 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
                 date_part += f"(shootingdate = \'{date_to_search}\')"
                 if i != 31:
                     date_part += f" OR "
-
-            sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
+            if not comment_status:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
+            else:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
 
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
@@ -503,16 +531,29 @@ def get_date_photo_list(year: str, month: str, day: str) -> list[str]:
                         date_part += f" OR "
                     else:
                         pass
-            sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
+
+            if not comment_status:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
+            else:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
+
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
         elif year == 'All' and month == 'All' and day == 'All':
-            sql_str = f"SELECT filename, catalog FROM photos {db_order_settings()}"
+            if not comment_status:
+                sql_str = f"SELECT filename, catalog FROM photos {db_order_settings()}"
+            else:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE comment LIKE \'%{comment_text}%\' {db_order_settings()}"
+
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
         else:
             date_to_search = f"{year}.{month}.{day}"
-            sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' {db_order_settings()}"
+            if not comment_status:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' {db_order_settings()}"
+            else:
+                sql_str = f"SELECT filename, catalog FROM photos WHERE shootingdate = \'{date_to_search}\' AND comment LIKE \'%{comment_text}%\' {db_order_settings()} "
+
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
 

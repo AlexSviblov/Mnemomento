@@ -86,9 +86,9 @@ class ConstWidgetWindow(QWidget):
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
+        self.fill_sort_comment()
         self.fill_sort_groupbox()
         self.fill_sort_date()
-        self.fill_sort_comment()
         self.groupbox_sort.setLayout(self.layout_type)
 
         self.metadata_show = QtWidgets.QTableWidget()
@@ -303,6 +303,7 @@ class ConstWidgetWindow(QWidget):
 
     # выбор функции показа миниатюр в зависимости от выбранной группировки
     def type_show_thumbnails(self) -> None:
+
         match self.group_type.currentText():
             case 'Дата':
                 if not self.date_day.currentText() or not self.date_month.currentText() or not self.date_year.currentText():
@@ -312,6 +313,7 @@ class ConstWidgetWindow(QWidget):
             case 'Соцсети':
                 if not self.socnet_choose.currentText() or not self.sn_status.currentText():
                     return
+
 
         def clear_and_lock_show():
             try:
@@ -382,12 +384,14 @@ class ConstWidgetWindow(QWidget):
         clear_and_lock_show()
         QtCore.QCoreApplication.processEvents()
 
+
         if self.comment_check.checkState():
             search_comment = True
             comment_text = self.comment_line.text()
         else:
             search_comment = False
             comment_text = ''
+
 
         match self.group_type.currentText():
             case 'Дата':
@@ -398,7 +402,7 @@ class ConstWidgetWindow(QWidget):
                 if not year or not month or not day:
                     return
                 else:
-                    photo_list = PhotoDataDB.get_date_photo_list(year, month, day)
+                    photo_list = PhotoDataDB.get_date_photo_list(year, month, day, search_comment, comment_text)
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
@@ -413,7 +417,7 @@ class ConstWidgetWindow(QWidget):
                 else:
                     lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
 
-                photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens)
+                photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, search_comment, comment_text)
             case 'Соцсети':
                 network = self.socnet_choose.currentText()
                 if network == 'Нет данных':
@@ -422,7 +426,7 @@ class ConstWidgetWindow(QWidget):
                 else:
                     pass
 
-                photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText())
+                photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText(), search_comment, comment_text)
 
         if not photo_list:
             self.groupbox_thumbs.setMinimumHeight(self.height() - 100)
@@ -1104,7 +1108,9 @@ class ConstWidgetWindow(QWidget):
             if self.comment_check.checkState():
                 self.comment_line.setDisabled(False)
             else:
+                self.comment_line.clear()
                 self.comment_line.setDisabled(True)
+                self.type_show_thumbnails()
 
         self.comment_check.stateChanged.connect(lambda: comment_line_block())
 
