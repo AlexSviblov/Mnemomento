@@ -16,6 +16,8 @@ import Metadata
 import Screenconfig
 import Settings
 
+from FoliumRemastered import LatLngPopup
+
 from Screenconfig import font14, font12
 
 
@@ -218,7 +220,7 @@ class GlobalMapWidget(QWidget):
         MousePosition(position="topright", separator=", ", empty_string="NaN",  lng_first=True,
                       num_digits=20, prefix="Координаты:", lat_formatter=formatter, lng_formatter=formatter).add_to(self.map_gps)
 
-        popup1 = folium.LatLngPopup()
+        popup1 = LatLngPopup()
 
         self.map_gps.add_child(popup1)
 

@@ -3,6 +3,7 @@ import os
 import folium
 import math
 import shutil
+
 from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
@@ -10,6 +11,8 @@ from PIL import Image
 from PIL import ImageFile
 import exiftool
 ImageFile.LOAD_TRUNCATED_IMAGES = True
+
+from FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 
 import ErrorsAndWarnings
 import OnlyShowWidget
@@ -250,12 +253,13 @@ class EditExifData(QDialog):
 
         # если нажать на карту - появится окошко с координатами
         # в folium изменён текст внутри класса LatLngPopup для отображения русским языком
-        self.popup = folium.LatLngPopup()
+        self.popup = LatLngPopup()
         self.map_gps.add_child(self.popup)
 
         # добавить невидимую штуку, которая при нажатии на карту будет плевать в консоль JS (код folium изменён) координаты
         # координаты будут сигналом в переопределённом классе вызывать функцию write_coords_to_lines
-        self.map_gps.add_child(folium.features.ClickForLatLng(format_str='lat + "," + lng'))
+        # self.map_gps.add_child(folium.features.ClickForLatLng(format_str='lat + "," + lng'))
+        self.map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
 
         page = WebEnginePage(self.map_gps_widget)
 
@@ -1485,33 +1489,3 @@ class ConfirmClear(QDialog):
         btn_cancel.clicked.connect(self.reject_signal.emit)
         btn_cancel.clicked.connect(self.close)
 
-
-# переделанный класс для работы с вебом, который генерируется JS'ом, который генерируется шаблонами
-class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
-    coordinates_transfer = QtCore.pyqtSignal(str)
-    # перехват сообщений, которые кидает JS в консоль, сообщение в консоль я плюю сам в шаблоне класса folium.features.ClickForLatLng
-    def javaScriptConsoleMessage(self, level, msg, line, sourceID):
-        try:
-            float(msg.split(',')[0])
-            float(msg.split(',')[1])
-        except ValueError:
-            logging.info(f"JS map message: {msg}")
-        else:
-            self.coordinates_transfer.emit(msg)
-
-
-
-# folium features.py class ClickForLatLng:
-#     _template = Template(
-#         """
-#             {% macro script(this, kwargs) %}
-#                 function getLatLng(e){
-#                     var lat = e.latlng.lat.toFixed(4),
-#                         lng = e.latlng.lng.toFixed(4);
-#                     var txt = {{this.format_str}};
-#                     console.log(txt);
-#                     };
-#                 {{this._parent.get_name()}}.on('click', getLatLng);
-#             {% endmacro %}
-#             """
-#     )  # noqa

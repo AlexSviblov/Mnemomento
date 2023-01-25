@@ -54,7 +54,6 @@ class MainWindow(QMainWindow):
 
         super().__init__(parent)
 
-
         self.stylesheet_color()
         self.setStyleSheet(stylesheet2)
 
