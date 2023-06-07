@@ -296,6 +296,7 @@ class FilesReadErrorWin(QDialog):
         layout.addWidget(lbl, 0, 0, 1, 1)
         layout.addWidget(btn, 1, 0, 1, 1)
 
+
 # при вводе метаданных в режиме редактирования введён недопустимый формат
 class EditCommentErrorWin(QDialog):
     def __init__(self, parent, symbol):

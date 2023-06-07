@@ -220,7 +220,7 @@ def thumbnail_photo_conformity() -> None:
 
         elif 'alone' in catalog_splitted:
             catalog_name = combo[0].split('/')[-1]
-            thumbnail_way = destination_thumbs + 'alone/' + catalog_name + '/' + 'thumbnail_' +combo[1]
+            thumbnail_way = destination_thumbs + 'alone/' + catalog_name + '/' + 'thumbnail_' + combo[1]
             if os.path.exists(thumbnail_way):
                 pass
             else:

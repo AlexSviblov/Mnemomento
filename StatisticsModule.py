@@ -233,8 +233,6 @@ class StatisticsWidget(QWidget):
 
         start()
 
-
-
     def take_hour_dict(self) -> None:
         self.time_looter = HoursLooter(self.all_files)
         self.time_looter.changed.connect(self.change_progressbar_hours)

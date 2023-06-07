@@ -2,10 +2,10 @@ import logging
 import sqlite3
 import piexif
 import exiftool
-from PIL import Image, ImageFile
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
 import ErrorsAndWarnings
+from PIL import Image, ImageFile
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
@@ -537,7 +537,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                 modify_dict['EXIF:Model'] = new_value_dict[1]
 
             case 2:
-                modify_dict['EXIF:LensModel'] =new_value_dict[2]
+                modify_dict['EXIF:LensModel'] = new_value_dict[2]
 
             case 3:
                 if '/' in new_value_dict[3]:
@@ -667,7 +667,6 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
                 float(new_value_splitted[1])
             except (ValueError, IndexError):
                 make_error()
-
 
         # часовой пояс
         case 8:

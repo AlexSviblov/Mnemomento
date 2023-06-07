@@ -9,20 +9,19 @@ font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 font6 = QtGui.QFont('Times', 6)
 
-
-stylesheet1_light =  """
+stylesheet1_light = """
                     border: 1px;
                     border-color: #A9A9A9;
                     border-style: solid;
                     color: #000000;
                     background-color: #F0F0F0
                 """
-stylesheet2_light =  """
+stylesheet2_light = """
                     border: 0px;
                     color: #000000;
                     background-color: #F0F0F0
                 """
-stylesheet3_light =  """
+stylesheet3_light = """
                     QHeaderView::section
                     {
                         border: 1px;
@@ -32,7 +31,7 @@ stylesheet3_light =  """
                         color: #000000;
                     }
                 """
-stylesheet4_light =  """
+stylesheet4_light = """
                             QMenuBar 
                             {
                                 border: 1px;
@@ -47,7 +46,7 @@ stylesheet4_light =  """
                                 background-color: #C0C0C0
                             }
                         """
-stylesheet5_light =  """
+stylesheet5_light = """
                                QProgressBar
                                {
                                    border: 1px;
@@ -61,7 +60,7 @@ stylesheet5_light =  """
                                    background-color: #00FF7F;  
                                }
                            """
-stylesheet6_light =  """
+stylesheet6_light = """
                     QTableView
                     {
                         border: 1px;
@@ -72,7 +71,7 @@ stylesheet6_light =  """
                         gridline-color: #A9A9A9;
                     }
                 """
-stylesheet7_light =  """
+stylesheet7_light = """
                 QTabWidget::pane
                 {
                     border: 1px;
@@ -100,7 +99,7 @@ stylesheet7_light =  """
                     color: #000000;
                 }
                 """
-stylesheet8_light =  """
+stylesheet8_light = """
                     QPushButton
                     {
                         border: 1px;
@@ -116,7 +115,7 @@ stylesheet8_light =  """
                         margin-top: -1px
                     }
                 """
-stylesheet9_light =  """
+stylesheet9_light = """
                     QComboBox
                     {
                         border: 1px;
@@ -130,7 +129,7 @@ stylesheet9_light =  """
                         selection-background-color: #C0C0C0;
                     }
                 """
-stylesheet10_light =  """
+stylesheet10_light = """
                             QMenu
                             {
                                 border: 1px;
@@ -145,7 +144,7 @@ stylesheet10_light =  """
                                 background-color: #C0C0C0;
                             }
                             """
-stylesheet11_light =   """
+stylesheet11_light = """
                                 QTableWidget
                                 {
                                     border: 1px;
@@ -171,19 +170,19 @@ statistics_bar_time_color_light = "black"
 statistics_bar_color_light = 'blue'
 statistics_area_color_light = "#F4F4F4"
 
-stylesheet1_dark =  """
+stylesheet1_dark = """
                     border: 1px;
                     border-color: #696969;
                     border-style: solid;
                     color: #D3D3D3;
                     background-color: #1C1C1C
                 """
-stylesheet2_dark =   """
+stylesheet2_dark = """
                     border: 0px;
                     color: #D3D3D3;
                     background-color: #1C1C1C
                 """
-stylesheet3_dark =   """
+stylesheet3_dark = """
                     QHeaderView::section
                     {
                         border: 1px;
@@ -193,7 +192,7 @@ stylesheet3_dark =   """
                         color: #D3D3D3;
                     }
                 """
-stylesheet4_dark =   """
+stylesheet4_dark = """
                      QMenuBar 
                      {
                          border: 1px;
@@ -208,7 +207,7 @@ stylesheet4_dark =   """
                          background-color: #3F3F3F
                      }
                      """
-stylesheet5_dark =   """
+stylesheet5_dark = """
                     QProgressBar
                     {
                         border: 1px;
@@ -222,7 +221,7 @@ stylesheet5_dark =   """
                         background-color: #1F7515;
                     }
                 """
-stylesheet6_dark =  """
+stylesheet6_dark = """
                     QTableView
                     {
                         border: 1px;
@@ -233,7 +232,7 @@ stylesheet6_dark =  """
                         gridline-color: #696969;
                     }
                 """
-stylesheet7_dark =   """
+stylesheet7_dark = """
                     QTabWidget::pane
                     {
                         border: 1px;
@@ -262,7 +261,7 @@ stylesheet7_dark =   """
                         color: #D3D3D3
                     }
                 """
-stylesheet8_dark =   """
+stylesheet8_dark = """
                     QPushButton
                     {
                         border: 1px;
@@ -278,7 +277,7 @@ stylesheet8_dark =   """
                         margin-top: -1px
                     }
                 """
-stylesheet9_dark =   """
+stylesheet9_dark = """
                     QComboBox
                     {
                         border: 1px;
@@ -292,7 +291,7 @@ stylesheet9_dark =   """
                         selection-background-color: #4F4F4F;
                     }
                 """
-stylesheet10_dark =  """
+stylesheet10_dark = """
                             QMenu
                             {
                                 border: 1px;
@@ -327,7 +326,7 @@ icon_explorer_dark = os.getcwd() + '/icons/explorer_dark.png'
 icon_view_dark = os.getcwd() + '/icons/view_dark.png'
 icon_edit_dark = os.getcwd() + '/icons/edit_dark.png'
 icon_delete_dark = os.getcwd() + '/icons/delete_dark.png'
-loading_icon_dark  = os.getcwd() + '/icons/loading_dark.gif'
+loading_icon_dark = os.getcwd() + '/icons/loading_dark.gif'
 statistics_text_color_dark = "white"
 statistics_plot_back_color_dark = "#585858"
 statistics_bar_time_color_dark = "yellow"
@@ -358,33 +357,33 @@ light_style = {'stylesheet1': stylesheet1_light,
                    'bar_color': statistics_bar_color_light,
                    'area_color': statistics_area_color_light
                }
-            }
+               }
 
 dark_style = {'stylesheet1': stylesheet1_dark,
-               'stylesheet2': stylesheet2_dark,
-               'stylesheet3': stylesheet3_dark,
-               'stylesheet4': stylesheet4_dark,
-               'stylesheet5': stylesheet5_dark,
-               'stylesheet6': stylesheet6_dark,
-               'stylesheet7': stylesheet7_dark,
-               'stylesheet8': stylesheet8_dark,
-               'stylesheet9': stylesheet9_dark,
-               'stylesheet10': stylesheet10_dark,
-               'stylesheet11': stylesheet11_dark,
-               'icon_explorer': icon_explorer_dark,
-               'icon_view': icon_view_dark,
-               'icon_edit': icon_edit_dark,
-               'icon_delete': icon_delete_dark,
-               'loading_icon': loading_icon_dark,
-               'map_tiles': "OpenStreetMap",
-               'statistics': {
-                   'text_color': statistics_text_color_dark,
-                   'plot_back_color': statistics_plot_back_color_dark,
-                   'bar_time_color': statistics_bar_time_color_dark,
-                   'bar_color': statistics_bar_color_dark,
-                   'area_color': statistics_area_color_dark
-               }
-            }
+              'stylesheet2': stylesheet2_dark,
+              'stylesheet3': stylesheet3_dark,
+              'stylesheet4': stylesheet4_dark,
+              'stylesheet5': stylesheet5_dark,
+              'stylesheet6': stylesheet6_dark,
+              'stylesheet7': stylesheet7_dark,
+              'stylesheet8': stylesheet8_dark,
+              'stylesheet9': stylesheet9_dark,
+              'stylesheet10': stylesheet10_dark,
+              'stylesheet11': stylesheet11_dark,
+              'icon_explorer': icon_explorer_dark,
+              'icon_view': icon_view_dark,
+              'icon_edit': icon_edit_dark,
+              'icon_delete': icon_delete_dark,
+              'loading_icon': loading_icon_dark,
+              'map_tiles': "OpenStreetMap",
+              'statistics': {
+                  'text_color': statistics_text_color_dark,
+                  'plot_back_color': statistics_plot_back_color_dark,
+                  'bar_time_color': statistics_bar_time_color_dark,
+                  'bar_color': statistics_bar_color_dark,
+                  'area_color': statistics_area_color_dark
+              }
+              }
 
 style_dict = {'light': light_style, 'dark': dark_style}
 
@@ -394,6 +393,3 @@ def monitor_info() -> tuple[tuple[int, int], float]:
 
     scaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100
     return screenSize, scaleFactor
-
-
-

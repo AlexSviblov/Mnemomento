@@ -533,7 +533,7 @@ class ManyPhotoEdit(QWidget):
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
                             for file in Path(dir_to_find_month + name).rglob('*'):
-                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     k = 1
                             if k == 1:
                                 k = 0
@@ -889,7 +889,7 @@ class ManyPhotoEdit(QWidget):
                 break
 
         for k in range(self.edit_photo_table.rowCount()):
-            if self.edit_photo_table.cellWidget(k,0).objectName() == photo_path:
+            if self.edit_photo_table.cellWidget(k, 0).objectName() == photo_path:
                 self.edit_photo_table.cellWidget(k, 0).deleteLater()
                 self.edit_photo_table.removeRow(k)
                 break
@@ -983,7 +983,6 @@ class ManyPhotoEdit(QWidget):
         def finished_success(status):
             finished_animation()
             self.update_table(status)
-
 
         self.empty1.hide()
         self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
@@ -1184,7 +1183,6 @@ class DoEditing(QtCore.QThread):
             dir = file[:(-1)*(len(name)+1)]
             Metadata.exif_rewrite_edit(name, dir, self.modify_dict)
 
-
         PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
 
         try:
@@ -1217,7 +1215,6 @@ class DoEditing(QtCore.QThread):
                                 pass
                             else:
                                 break
-
 
                     shutil.move(file, f"{new_path}/{photo_name}")
                     Thumbnail.make_const_thumbnails(new_path, photo_name)

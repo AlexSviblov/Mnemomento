@@ -316,7 +316,6 @@ class ConstWidgetWindow(QWidget):
                 if not self.socnet_choose.currentText() or not self.sn_status.currentText():
                     return
 
-
         def clear_and_lock_show():
             try:
                 self.pic.clear()
@@ -386,14 +385,12 @@ class ConstWidgetWindow(QWidget):
         clear_and_lock_show()
         QtCore.QCoreApplication.processEvents()
 
-
         if self.comment_check.checkState():
             search_comment = True
             comment_text = self.comment_line.text()
         else:
             search_comment = False
             comment_text = ''
-
 
         match self.group_type.currentText():
             case 'Дата':
@@ -627,7 +624,6 @@ class ConstWidgetWindow(QWidget):
                 else:
                     self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 200)
 
-
             else:  # self.photo_rotation == 'ver'
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
@@ -665,7 +661,6 @@ class ConstWidgetWindow(QWidget):
                 self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
                 self.pic.show()
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 160)
-
 
         self.pic.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
 
@@ -1286,7 +1281,6 @@ class ConstWidgetWindow(QWidget):
         except (RuntimeError, AttributeError):
             pass
         QtCore.QCoreApplication.processEvents()
-
 
         match self.group_type.currentText():
             case 'Дата':

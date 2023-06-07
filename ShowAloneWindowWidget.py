@@ -655,7 +655,6 @@ class AloneWidgetWindow(QWidget):
         self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
         self.open_shortcut.activated.connect(self.open_file_func)
 
-
     # открыть фотографию в приложении просмотра
     def open_file_func(self) -> None:
         if not self.pic.isVisible() or not self.last_clicked:
@@ -695,7 +694,7 @@ class AloneWidgetWindow(QWidget):
         def renamed_re_show(new_name):
             self.show_thumbnails()
 
-            button_text =  new_name
+            button_text = new_name
             for i in reversed(range(self.layout_inside_thumbs.count())):
                 if self.layout_inside_thumbs.itemAt(i).widget().text() == button_text:
                     self.layout_inside_thumbs.itemAt(i).widget().click()

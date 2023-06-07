@@ -5,10 +5,10 @@ import jinja2
 import logging
 
 
-
 # переделанный класс для работы с вебом, который генерируется JS'ом, который генерируется шаблонами
 class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
     coordinates_transfer = QtCore.pyqtSignal(str)
+
     # перехват сообщений, которые кидает JS в консоль, сообщение в консоль я плюю сам в шаблоне класса folium.features.ClickForLatLng
     def javaScriptConsoleMessage(self, level, msg, line, sourceID):
         try:
@@ -41,6 +41,7 @@ class ClickForLatLng(folium.features.ClickForLatLng):
         self._name = "ClickForLatLng"
         self.format_str = format_str or 'lat + "," + lng'
         self.alert = alert
+
 
 class LatLngPopup(folium.features.LatLngPopup):
     """

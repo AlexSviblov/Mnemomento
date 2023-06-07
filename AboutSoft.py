@@ -43,7 +43,7 @@ class AboutInfo(QDialog):
         self.answer = None
 
         self.lbl = QLabel(self)
-        str_to_show =   """
+        str_to_show = """
                             <p style="text-align:center">О программе</p>
 
                             <p style="text-align:center">&quot;<strong>Мнемоменто</strong>&quot;</p>
@@ -64,7 +64,7 @@ class AboutInfo(QDialog):
                             </ul>
                             
                             <p>Программа распространяется по лицензии GPLv3</p>
-                        """
+                     """
         self.lbl.setText(str_to_show)
         self.lbl.setFont(font10)
         self.layout.addWidget(self.lbl, 0, 0, 1, 1)
@@ -78,10 +78,3 @@ class AboutInfo(QDialog):
         self.resize(self.lbl.width()+20, self.lbl.height() + self.btn_ok.height() + 20)
 
         self.btn_ok.clicked.connect(lambda: self.close())
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    win = AboutInfo()
-    win.show()
-    sys.exit(app.exec_())

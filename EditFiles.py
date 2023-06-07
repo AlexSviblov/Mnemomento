@@ -4,16 +4,6 @@ import folium
 import math
 import shutil
 
-from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
-from PIL import Image
-from PIL import ImageFile
-import exiftool
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-from FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
-
 import ErrorsAndWarnings
 import OnlyShowWidget
 import PhotoDataDB
@@ -23,7 +13,17 @@ import Settings
 import ShowConstWindowWidget
 import Thumbnail
 
+from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
+from PIL import Image
+from PIL import ImageFile
+import exiftool
+
+from FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 from Screenconfig import font14, font12
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 stylesheet1 = str()
@@ -919,7 +919,7 @@ class EditExifData(QDialog):
 
             self.latitude_fn_line.setText(str(latitude))
             self.longitude_fn_line.setText(str(longitude))
-        else: #self.mode_check_fn.checkState() == 2
+        else: # self.mode_check_fn.checkState() == 2
             try:
                 latitude = float(self.latitude_fn_line.text())
             except ValueError:
@@ -1045,7 +1045,7 @@ class EditExifData(QDialog):
         if self.new_filename == self.old_filename:
             pass
         else:
-            new_file_name =  self.new_filename + '.' + self.picture_file_format
+            new_file_name = self.new_filename + '.' + self.picture_file_format
             if os.path.exists(f"{self.photodirectory}/{new_file_name}"):
                 win_err = ErrorsAndWarnings.ExistFileRenameError2(self)
                 win_err.show()
@@ -1488,4 +1488,3 @@ class ConfirmClear(QDialog):
         btn_ok.clicked.connect(self.close)
         btn_cancel.clicked.connect(self.reject_signal.emit)
         btn_cancel.clicked.connect(self.close)
-

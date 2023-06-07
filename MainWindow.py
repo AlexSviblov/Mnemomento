@@ -304,7 +304,7 @@ class MainWindow(QMainWindow):
         if not file_list:
             return
         path_splitted = file_list[0].split("/")
-        photo_directory_buf =''
+        photo_directory_buf = ''
         for i in range(len(path_splitted) - 1):
             photo_directory_buf += path_splitted[i] + '/'
         photo_directory = photo_directory_buf[:-1]
@@ -377,7 +377,6 @@ class MainWindow(QMainWindow):
         self.view_files_progress = TimeMaker(photo_files_list=self.photo_files_list_view)
         self.view_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.view_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
-
 
         self.view_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
         self.view_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
@@ -584,7 +583,7 @@ class MainWindow(QMainWindow):
             else:
                 # Если были выбраны "Соцсети", но в настройках их отключили
                 pass
-        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             #OnlyShow
+        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             # OnlyShow
             self.centralWidget().after_change_settings()
             self.centralWidget().stylesheet_color()
         elif type(self.centralWidget()) == StartShow:
@@ -1149,10 +1148,10 @@ if __name__ == "__main__":
         else:
             with open('settings.json', 'w') as json_file:
                 bsl = '\\'
-                new_set =   {
+                new_set = {
                             "files":
                                     {
-                                    "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
+                                     "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
                                      "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}",
                                      "transfer_mode": "copy"
                                     },
@@ -1163,7 +1162,7 @@ if __name__ == "__main__":
                                     "social_networks_status": 2,
                                     "sort_type": "name-up"
                                     }
-                            }
+                          }
                 json.dump(new_set, json_file)
 
     try:

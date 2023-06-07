@@ -1,6 +1,11 @@
 import os
 import folium
 import base64
+import PhotoDataDB
+import Metadata
+import Screenconfig
+import Settings
+
 from PyQt5 import QtWebEngineWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import pyqtSignal
@@ -9,16 +14,12 @@ from folium.plugins import MousePosition
 from PIL import Image
 from PIL import ImageFile
 from folium import IFrame
-ImageFile.LOAD_TRUNCATED_IMAGES = True
-
-import PhotoDataDB
-import Metadata
-import Screenconfig
-import Settings
 
 from FoliumRemastered import LatLngPopup
 
 from Screenconfig import font14, font12
+
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 stylesheet1 = str()
@@ -550,7 +551,7 @@ class GlobalMapWidget(QWidget):
             if i == 0:
                 html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
             else:
-                html_img_str =  """
+                html_img_str = """
                                     <br>
                                     <br>
                                     <br>
@@ -600,4 +601,3 @@ class PathsLooter(QtCore.QThread):
         except IndexError:
             map_points_combo, zoom_level, map_center = '', '', ''
         self.finished.emit((map_points_combo, zoom_level, map_center))
-

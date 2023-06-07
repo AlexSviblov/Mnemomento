@@ -720,7 +720,6 @@ class EditExifData(QDialog):
         self.longitude_fn_line = QLineEdit(self)    # долгота
         self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
-
         self.latitude_fn_lbl.setFont(font12)
         self.longitude_fn_lbl.setFont(font12)
         self.latitude_fn_line.setFont(font12)
@@ -1198,6 +1197,7 @@ class EditExifData(QDialog):
 class ConfirmClear(QDialog):
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
+
     def __init__(self, parent):
         super(ConfirmClear, self).__init__(parent)
         self.setStyleSheet(stylesheet2)

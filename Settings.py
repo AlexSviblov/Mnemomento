@@ -402,7 +402,6 @@ class SettingWidget(QWidget):
         self.delete_file_enter.setText(hotkeys["delete_file"])
         self.do_any_enter.setText(hotkeys["show_stat_map"])
 
-
     # какие пути изменили, какие нет
     def check_changes(self) -> None:
         code = 0
@@ -744,13 +743,13 @@ def get_hotkeys() -> dict:
             hotkeys = json.load(json_file)
         return hotkeys
     except FileNotFoundError:
-        hotkeys_default =   {
+        hotkeys_default = {
                               "open_file": "Ctrl+S",
                               "edit_metadata": "Ctrl+E",
                               "open_explorer": "Ctrl+D",
                               "delete_file": "Del",
                               "show_stat_map": "Enter"
-                            }
+                          }
 
         with open('hotkeys.json', 'w') as json_file:
             json.dump(hotkeys_default, json_file, sort_keys=True, indent=4, separators=(',', ': '))

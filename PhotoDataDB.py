@@ -326,7 +326,6 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
         case _:
             status_bd = 'No value'
 
-
     try:
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
         cur.execute(sql_str)
@@ -335,7 +334,6 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
-
 
     # ЧТО ЗА ХУЙНЮ  Я ТУТ НАПИСАЛ КОГДА-ТО???
     # if not photodb_data:
@@ -346,7 +344,7 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
     #         photodb_data = cur.fetchall()
     #     except:
     #         pass
-    if  comment_status:
+    if comment_status:
         sql_str = f'SELECT filename, catalog FROM photos WHERE comment LIKE \'%{comment_text}%\''
         cur.execute(sql_str)
         with_comments_list = cur.fetchall()
@@ -472,6 +470,8 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
     logging.info(f"PhotoDataDB - Metadata of {photo_directory}/{photo_name} cleared in DB")
 
 # TODO: comment
+
+
 # достать из БД список фото сделанных в определённый день
 def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, comment_text:str) -> list[str]:
     """
