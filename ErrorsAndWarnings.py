@@ -9,7 +9,7 @@ stylesheet2 = str()
 stylesheet8 = str()
 
 
-font14 = QtGui.QFont('Times', 14)
+font14 = Screenconfig.font14
 
 
 def stylesheet_color():
@@ -65,9 +65,9 @@ class PhotoExists(QDialog):
 
 
 # при вводе метаданных в режиме редактирования введён недопустимый формат
-class EditExifError_win(QDialog):
+class EditExifErrorWin(QDialog):
     def __init__(self, parent):
-        super(EditExifError_win, self).__init__(parent)
+        super(EditExifErrorWin, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Ошибка ввода данных')
@@ -270,9 +270,9 @@ class SettingsReadError(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
-class FilesReadError_win(QDialog):
+class FilesReadErrorWin(QDialog):
     def __init__(self, parent, files):
-        super(FilesReadError_win, self).__init__(parent)
+        super(FilesReadErrorWin, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('ОШИБКА доступа к файлам')
@@ -297,9 +297,9 @@ class FilesReadError_win(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 # при вводе метаданных в режиме редактирования введён недопустимый формат
-class EditCommentError_win(QDialog):
+class EditCommentErrorWin(QDialog):
     def __init__(self, parent, symbol):
-        super(EditCommentError_win, self).__init__(parent)
+        super(EditCommentErrorWin, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Комментарий плохого формата')
@@ -320,6 +320,7 @@ class EditCommentError_win(QDialog):
 
         layout.addWidget(lbl, 0, 0, 1, 1)
         layout.addWidget(btn, 1, 0, 1, 1)
+
 
 class EditCommentError(Exception):
     def __init__(self, symbol):
@@ -352,6 +353,7 @@ class FileReadError(Exception):
             return f"FileReadError - {self.message}"
         else:
             return "FileReadError"
+
 
 class ExistFileError(QDialog):
     def __init__(self, parent):

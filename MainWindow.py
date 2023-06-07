@@ -397,7 +397,7 @@ class MainWindow(QMainWindow):
             win1.show()
 
         if files_errors:
-            win2 = ErrorsAndWarnings.FilesReadError_win(self, files_errors)
+            win2 = ErrorsAndWarnings.FilesReadErrorWin(self, files_errors)
             win2.show()
         self.show_main_const_widget()
         self.add_files_progress = None

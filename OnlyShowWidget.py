@@ -1171,7 +1171,7 @@ class EditExifData(QDialog):
                 check_enter(editing_type, new_text)
             except ErrorsAndWarnings.EditExifError:
                 logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
-                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err = ErrorsAndWarnings.EditExifErrorWin(self)
                 win_err.show()
                 return
 

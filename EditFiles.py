@@ -1072,11 +1072,11 @@ class EditExifData(QDialog):
             try:
                 check_enter(editing_type, new_text)
             except ErrorsAndWarnings.EditExifError:
-                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err = ErrorsAndWarnings.EditExifErrorWin(self)
                 win_err.show()
                 return
             except ErrorsAndWarnings.EditCommentError as e:
-                win_err = ErrorsAndWarnings.EditCommentError_win(self, e.symbol)
+                win_err = ErrorsAndWarnings.EditCommentErrorWin(self, e.symbol)
                 win_err.show()
                 return
 

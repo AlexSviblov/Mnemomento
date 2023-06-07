@@ -587,6 +587,7 @@ class ManyPhotoEdit(QWidget):
         self.camera_choose.setFont(font14)
         self.camera_choose.setFixedHeight(int(30*system_scale)+1)
         self.camera_choose.setStyleSheet(stylesheet9)
+
         self.lens_choose = QComboBox(self)
         self.lens_choose.setFont(font14)
         self.lens_choose.setFixedHeight(int(30*system_scale)+1)
@@ -612,6 +613,9 @@ class ManyPhotoEdit(QWidget):
 
         self.camera_choose.setFixedWidth(int(camera_max_len*12*system_scale)+1)
         self.lens_choose.setFixedWidth(int(camera_max_len*12*system_scale)+1)
+
+        print(self.camera_choose.isEnabled())
+        print(self.lens_choose.isEnabled())
 
         self.camera_choose.currentTextChanged.connect(self.show_filtered_thumbs)
         self.lens_choose.currentTextChanged.connect(self.show_filtered_thumbs)
@@ -714,6 +718,15 @@ class ManyPhotoEdit(QWidget):
                 photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
 
         if not photo_list:
+            try:
+                self.btn_move_all_left.setDisabled(False)
+                self.btn_move_all_right.setDisabled(False)
+                self.btn_clear_all.setDisabled(False)
+                self.btn_write.setDisabled(False)
+                for i in reversed(range(self.layout_type.count())):
+                    self.layout_type.itemAt(i).widget().setDisabled(False)
+            except AttributeError:
+                pass
             return
 
         thumbnails_list = self.photo_to_thumb_path(photo_list)
@@ -987,12 +1000,12 @@ class ManyPhotoEdit(QWidget):
             try:
                 check_enter(editing_type, new_text)
             except ErrorsAndWarnings.EditExifError:
-                win_err = ErrorsAndWarnings.EditExifError_win(self)
+                win_err = ErrorsAndWarnings.EditExifErrorWin(self)
                 win_err.show()
                 finished_animation()
                 return
             except ErrorsAndWarnings.EditCommentError as e:
-                win_err = ErrorsAndWarnings.EditCommentError_win(self, e.symbol)
+                win_err = ErrorsAndWarnings.EditCommentErrorWin(self, e.symbol)
                 win_err.show()
                 finished_animation()
                 return

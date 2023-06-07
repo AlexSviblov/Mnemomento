@@ -600,7 +600,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
 
         logging.info(f"Metadata - New file metadata {photofile} - {modify_dict}")
     except exiftool.exceptions.ExifToolExecuteError:
-        win = ErrorsAndWarnings.EditExifError_win(parent=None)
+        win = ErrorsAndWarnings.EditExifErrorWin(parent=None)
         win.show()
         logging.warning(f"Metadata - Metadata rewrite error {photofile} - {modify_dict}")
 
