@@ -210,7 +210,7 @@ def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[s
     else:   # chosen == 'new' - переименовывают переносимый файл
         try:
             os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
-                  destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
+                      destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
         except FileExistsError:
             os.remove(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
             os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
@@ -285,7 +285,7 @@ def file_rename(file_directory: str, old_file_name: str, new_file_name: str) -> 
     dir_splitted = file_directory.split('/')
     if 'const' in dir_splitted:
         catalog_part = '/thumbnail/const/' + dir_splitted[-3]+'/'+dir_splitted[-2]+'/'+dir_splitted[-1] + '/'
-    else: # 'alone' in dir_splitted
+    else:    # 'alone' in dir_splitted
         catalog_part = '/thumbnail/alone/' + dir_splitted[-1] + '/'
     thumb_dir = destination_thumbs + catalog_part
     old_thumb_file = f'thumbnail_{old_file_name}'

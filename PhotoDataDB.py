@@ -15,6 +15,7 @@ cur = conn.cursor()
 def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None:
     """
     Добавить запись о фотографии, добавляемой в программу, в базу данных.
+    :param metadata: словар ьс метаданными
     :param photoname: имя фотографии.
     :param photodirectory: каталог хранения фотографии.
     :return: добавляются 2 записи в БД (1 в таблице photos, 2 в socialnetworks)
@@ -71,10 +72,9 @@ def del_from_database(photoname: str, photodirectory: str) -> None:
 def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> None:
     """
     Редактированию подлежат поля таблицы photos камера, объектив, дата съёмки,координаты GPS.
+    :param new_value_dict: словарь с новыми значениями
     :param photoname: имя файла.
     :param photodirectory: каталог хранения.
-    :param editing_type: тип (1 - камера, 2 - объектив, 7 - PGS, 11 - дата)
-    :param new_text: новое значение, вносимое в БД.
     :return: изменение записи в соответствии с редактированием метаданных.
     """
     for editing_type in list(new_value_dict.keys()):
@@ -150,7 +150,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
     :param code: 0 - переименовывается переносимый файл, 1 - переименовывается файл в папк еназначения.
     :return: отредактированная 1/2 записи в БД.
     """
-    if code == 0: # переименовывается переносимый файл, в котором поменяли дату
+    if code == 0:   # переименовывается переносимый файл, в котором поменяли дату
         sql_str1 = f"UPDATE photos SET catalog = \'temp\' WHERE filename = \'{prewname}\' AND catalog = \'{newcatalog}\'"
         cur.execute(sql_str1)
         sql_str2 = f"UPDATE photos SET filename = \'{rename}\' WHERE filename = \'{prewname}\' AND catalog = \'temp\'"
@@ -165,7 +165,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
         sql_str6 = f"UPDATE socialnetworks SET catalog = \'{oldcatalog}\' WHERE filename = \'{rename}\' AND catalog = \'temp\'"
         cur.execute(sql_str6)
 
-    else: # code == 1 - переименовывается файл уже находящийся в папке назначения
+    else:   # code == 1 - переименовывается файл уже находящийся в папке назначения
         sql_str1 = f"UPDATE photos SET filename = \'{rename}\' WHERE filename = \'{prewname}\' AND catalog = \'{oldcatalog}\'"
         cur.execute(sql_str1)
         sql_str2 = f"UPDATE photos SET catalog = \'{oldcatalog}\' WHERE filename = \'{prewname}\' AND catalog = \'{newcatalog}\'"
@@ -192,7 +192,7 @@ def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dic
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
 
-    sn_column_names = [all_column_names[i][1]  for i in range(3, len(all_column_names))]
+    sn_column_names = [all_column_names[i][1] for i in range(3, len(all_column_names))]
 
     sql_str_get_status = f'SELECT * FROM socialnetworks WHERE filename = \'{photoname}\' AND catalog = \'{photodirectory}\''
     cur.execute(sql_str_get_status)
@@ -267,11 +267,13 @@ def get_equipment() -> tuple[list[str], list[str]]:
 
 
 # получить полный путь ко всем фото, у которых указаны выбранные камера и объектив
-def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str, comment_status: bool, comment_text:str) -> list[str]:
+def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str, comment_status: bool, comment_text: str) -> list[str]:
     """
     Получить полный путь ко всем фото, у которых указаны выбранные камера и объектив.
     При наличии исправлений в ErrorNames, надо учесть, что какие-то записи могут быть сделаны вручную, а какие-то
     автоматически из метаданных.
+    :param comment_text: тег, если есть
+    :param comment_status: искать ли по тегам
     :param camera_exif: значение из автоматически созданных exif.
     :param camera: исправленное название камеры (либо повторение exif, если оно не исправляется).
     :param lens_exif: значение из автоматически созданных exif.
@@ -307,9 +309,11 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
 
 
 # получить полный путь всех фото, у которых в выбранной соцсети указан выбранный статус
-def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_text:str) -> list[str]:
+def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_text: str) -> list[str]:
     """
     Список абсолютных путей с выбранным статусом в выбранной соцсети.
+    :param comment_text: тег, если есть
+    :param comment_status: искать по тегу или нет
     :param network: соцсеть (надпись из GUI, без приставки numnumnum).
     :param status: 1 из 4 возможных статусов в формате БД.
     :return: абсолютные пути фото с выбранным статусом в выбранной соцсети.
@@ -330,20 +334,11 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}'
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
-    except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
+    except:     # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}'
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
 
-    # ЧТО ЗА ХУЙНЮ  Я ТУТ НАПИСАЛ КОГДА-ТО???
-    # if not photodb_data:
-    #     try:
-    #         int(network[1])
-    #         sql_str = f'SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status}\' {db_order_settings()}'
-    #         cur.execute(sql_str)
-    #         photodb_data = cur.fetchall()
-    #     except:
-    #         pass
     if comment_status:
         sql_str = f'SELECT filename, catalog FROM photos WHERE comment LIKE \'%{comment_text}%\''
         cur.execute(sql_str)
@@ -391,7 +386,7 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
         sql_str = f'SELECT filename FROM socialnetworks WHERE {network} = \'{status}\' AND catalog = \'{photo_directory}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
-    except: # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
+    except:     # поймать ошибку с тем, что нет столбца network, так как у столбца начало 'numnumnum'
         sql_str = f'SELECT filename FROM socialnetworks WHERE numnumnum{network} = \'{status}\' AND catalog = \'{photo_directory}\''
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
@@ -412,13 +407,13 @@ def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str], list[str
     sql_str = f"SELECT catalog from photos"
     cur.execute(sql_str)
 
-    all = cur.fetchall()
+    all_catalogs = cur.fetchall()
 
-    old_catalogs = [all[i][0] for i in range(len(all))]
+    old_catalogs = [all_catalogs[i][0] for i in range(len(all_catalogs))]
 
-    end_catalogs = [old_catalogs[i][len(old_way):] for i in range(len(all))]
+    end_catalogs = [old_catalogs[i][len(old_way):] for i in range(len(all_catalogs))]
 
-    new_catalogs = [new_way + end_catalogs[i] for i in range(len(all))]
+    new_catalogs = [new_way + end_catalogs[i] for i in range(len(all_catalogs))]
 
     return new_catalogs, old_catalogs
 
@@ -473,9 +468,11 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
 
 
 # достать из БД список фото сделанных в определённый день
-def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, comment_text:str) -> list[str]:
+def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, comment_text: str) -> list[str]:
     """
     В БД записывается дата съёмки, тут достаются из БД все записи о фото, сделанных в указанную дату
+    :param comment_text: тег, если есть
+    :param comment_status: искать по тегам или нет
     :param year: год съёмки
     :param month: месяц съёмки
     :param day: день съёмки

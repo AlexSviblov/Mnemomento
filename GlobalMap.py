@@ -252,7 +252,7 @@ class GlobalMapWidget(QWidget):
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
                         for file in Path(dir_to_find_year + name).rglob('*'):
-                            if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                            if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                 k = 1
                         if k == 1:
                             k = 0
@@ -287,7 +287,7 @@ class GlobalMapWidget(QWidget):
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
                             for file in Path(dir_to_find_month + name).rglob('*'):
-                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     k = 1
                             if k == 1:
                                 k = 0
@@ -592,8 +592,6 @@ class PathsLooter(QtCore.QThread):
     def __init__(self, full_paths):
         QtCore.QThread.__init__(self)
         self.full_paths = full_paths
-
-        # self._init = False
 
     def run(self):
         try:

@@ -14,7 +14,6 @@ import Screenconfig
 import Settings
 import ErrorsAndWarnings
 
-
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
@@ -26,10 +25,8 @@ icon_explorer = str()
 icon_view = str()
 icon_edit = str()
 
-
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
-
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -45,7 +42,6 @@ class WidgetWindow(QWidget):
 
         self.setMaximumSize(Screenconfig.monitor_info()[0][0], Screenconfig.monitor_info()[0][1] - 63)
 
-        self.own_dir = os.getcwd()
         self.photo_list = photo_list
         self.photo_directory = self.make_photo_dir(self.photo_list)
 
@@ -67,9 +63,10 @@ class WidgetWindow(QWidget):
         self.groupbox_thumbs.setStyleSheet(stylesheet1)
         self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
         self.scroll_area_widget.setWidget(self.groupbox_thumbs)
-        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
+        self.groupbox_thumbs.setFixedWidth(
+            195 * self.thumb_row)  # задание размеров подвижной области и её внутренностей
 
-        self.scroll_area_widget.setFixedWidth(200*self.thumb_row)
+        self.scroll_area_widget.setFixedWidth(200 * self.thumb_row)
         self.scroll_area_widget.setWidgetResizable(True)
         self.scroll_area_widget.setWidget(self.groupbox_thumbs)
         self.scroll_area_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -161,7 +158,8 @@ class WidgetWindow(QWidget):
 
         self.thumbnails_list = list()
 
-        for file in os.listdir(Settings.get_destination_thumb() + '/thumbnail/view/'):  # получение списка созданных миниатюр
+        for file in os.listdir(
+                Settings.get_destination_thumb() + '/thumbnail/view/'):  # получение списка созданных миниатюр
             if file.endswith(".jpg") or file.endswith(".JPG"):
                 self.thumbnails_list.append(file)
 
@@ -173,20 +171,23 @@ class WidgetWindow(QWidget):
                 for i in range(0, len(self.thumbnails_list) - self.thumb_row * (num_of_j - 1)):
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
+                    iqon = QtGui.QIcon(
+                        Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
                     iqon.pixmap(150, 150)  # задание размера картинки
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)  # помещение картинки на кнопку
                     self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{self.thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
+                    self.button.setText(
+                        f'{self.thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')
+                    iqon = QtGui.QIcon(
+                        Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')
                     iqon.pixmap(150, 150)
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
@@ -215,7 +216,7 @@ class WidgetWindow(QWidget):
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                 self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-            else: # self.photo_rotation == 'ver'
+            else:  # self.photo_rotation == 'ver'
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 self.map_gps_widget.setFixedWidth(self.metadata_show.width())
                 self.map_gps_widget.setFixedHeight(self.height() - self.metadata_show.height() - 100)
@@ -243,11 +244,12 @@ class WidgetWindow(QWidget):
         # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
-        show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)# размещение большой картинки
+        show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)  # размещение большой картинки
         pixmap = QtGui.QPixmap(show_photo)
 
         try:
-            metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text, self.photo_directory)
+            metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text,
+                                                 self.photo_directory)
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
@@ -284,7 +286,7 @@ class WidgetWindow(QWidget):
                 if len(metadata[params[i]]) > max_len:
                     max_len = len(metadata[params[i]])
 
-        self.metadata_show.setColumnWidth(1, max_len*12)
+        self.metadata_show.setColumnWidth(1, max_len * 12)
 
         if self.metadata_show.columnWidth(1) < 164:
             self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.Fixed)
@@ -298,21 +300,27 @@ class WidgetWindow(QWidget):
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
 
-            self.pixmap2 = pixmap.scaled(self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
-                                    self.size().height() - self.metadata_show.height(), QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+            self.pixmap2 = pixmap.scaled(
+                self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
+                self.size().height() - self.metadata_show.height(),
+                QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
             self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
-        else: # self.photo_rotation == 'ver'
+            self.set_minimum_size.emit(
+                self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
+        else:  # self.photo_rotation == 'ver'
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
-            self.pixmap2 = pixmap.scaled(self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
-                                    self.metadata_show.width(), self.size().height() - 50, QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
+            self.pixmap2 = pixmap.scaled(
+                self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
+                self.metadata_show.width(), self.size().height() - 50,
+                QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
             self.pic.setPixmap(self.pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
             self.pic.show()
-            self.set_minimum_size.emit(self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+            self.set_minimum_size.emit(
+                self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
         QtCore.QCoreApplication.processEvents()
         self.make_map()
@@ -324,7 +332,7 @@ class WidgetWindow(QWidget):
     def make_photo_dir(self, photo_list: list[str]) -> str:
         photo_splitted = photo_list[0].split('/')
         photo_dir = ''
-        for i in range(0, len(photo_splitted)-1):
+        for i in range(0, len(photo_splitted) - 1):
             photo_dir += photo_splitted[i] + '/'
 
         return photo_dir
@@ -406,7 +414,7 @@ class WidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
-        open_path = self.photo_file # 'C:/Users/user/Pictures/IMG_0454.jpg'
+        open_path = self.photo_file  # 'C:/Users/user/Pictures/IMG_0454.jpg'
         path = open_path.replace('/', '\\')
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
@@ -423,7 +431,6 @@ class WidgetWindow(QWidget):
 
 # редактирование exif
 class EditExifData(QDialog):
-
     edited_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent, photoname, photodirectory):
@@ -557,7 +564,7 @@ class EditExifData(QDialog):
         self.timezone_pm_choose.setStyleSheet(stylesheet9)
         self.timezone_pm_choose.addItem("+")
         self.timezone_pm_choose.addItem("-")
-        self.timezone_pm_choose.setFixedWidth(int(50*system_scale))
+        self.timezone_pm_choose.setFixedWidth(int(50 * system_scale))
         self.tab_date_layout.addWidget(self.timezone_pm_choose, 1, 1, 1, 1)
 
         self.timezone_num_choose = QTimeEdit(self)
@@ -715,10 +722,12 @@ class EditExifData(QDialog):
         self.longitude_fn_lbl = QLabel(self)  # долгота
         self.longitude_fn_lbl.setText("Долгота:")
 
-        self.latitude_fn_line = QLineEdit(self)     # широта
-        self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
-        self.longitude_fn_line = QLineEdit(self)    # долгота
-        self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+        self.latitude_fn_line = QLineEdit(self)  # широта
+        self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
+            QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+        self.longitude_fn_line = QLineEdit(self)  # долгота
+        self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(
+            QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.latitude_fn_lbl.setFont(font12)
         self.longitude_fn_lbl.setFont(font12)
@@ -748,12 +757,12 @@ class EditExifData(QDialog):
         self.latitude_dmc_choose = QComboBox(self)
         self.latitude_dmc_choose.addItem("Север")
         self.latitude_dmc_choose.addItem("Юг")
-        self.latitude_dmc_choose.setFixedWidth(int(80*system_scale))
+        self.latitude_dmc_choose.setFixedWidth(int(80 * system_scale))
 
         self.longitude_dmc_choose = QComboBox(self)
         self.longitude_dmc_choose.addItem("Восток")
         self.longitude_dmc_choose.addItem("Запад")
-        self.longitude_dmc_choose.setFixedWidth(int(80*system_scale))
+        self.longitude_dmc_choose.setFixedWidth(int(80 * system_scale))
 
         self.latitude_dmc_deg_lbl = QLabel(self)  # широта
         self.latitude_dmc_deg_lbl.setText("Градусы:")
@@ -780,16 +789,19 @@ class EditExifData(QDialog):
         self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
         self.latitude_dmc_sec_line = QLineEdit(self)  # широта
-        self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+        self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
+            QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
-        self.longitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
+        self.longitude_dmc_deg_line.setValidator(
+            QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
 
         self.longitude_dmc_min_line = QLineEdit(self)  # долгота
         self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
 
         self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
-        self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+        self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
+            QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
 
         self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
@@ -898,35 +910,35 @@ class EditExifData(QDialog):
 
     # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
-        own_dir = os.getcwd()
         data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
         # Дата и время съёмки из формата exif в формат QDateTime
-        def date_convert(data: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
+        def date_convert(data_dict: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
             try:
-                date_part = data['Время съёмки'].split(' ')[0]
-                time_part = data['Время съёмки'].split(' ')[1]
+                date_part = data_dict['Время съёмки'].split(' ')[0]
+                time_part = data_dict['Время съёмки'].split(' ')[1]
             except IndexError:
                 date_part = "0000:00:00"
                 time_part = "00:00:00"
 
-            year = int(date_part.split(":")[0])
-            month = int(date_part.split(":")[1])
-            day = int(date_part.split(":")[2])
-            hour = int(time_part.split(":")[0])
-            minute = int(time_part.split(":")[1])
-            second = int(time_part.split(":")[2])
+            year_int = int(date_part.split(":")[0])
+            month_int = int(date_part.split(":")[1])
+            day_int = int(date_part.split(":")[2])
+            hour_int = int(time_part.split(":")[0])
+            minute_int = int(time_part.split(":")[1])
+            second_int = int(time_part.split(":")[2])
 
             try:
-                zone_pm = data['Часовой пояс'][0]
-                zone_hour = int(data['Часовой пояс'][1:].split(':')[0])
-                zone_min = int(data['Часовой пояс'][1:].split(':')[1])
+                zone_pm_sign = data_dict['Часовой пояс'][0]
+                zone_hour_int = int(data_dict['Часовой пояс'][1:].split(':')[0])
+                zone_min_int = int(data_dict['Часовой пояс'][1:].split(':')[1])
             except IndexError:
-                zone_pm = "+"
-                zone_hour = int("00")
-                zone_min = int("00")
+                zone_pm_sign = "+"
+                zone_hour_int = int("00")
+                zone_min_int = int("00")
 
-            return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
+            return year_int, month_int, day_int, hour_int, minute_int, second_int, \
+                zone_pm_sign, zone_hour_int, zone_min_int
 
         # изменение размеров окна
         def func_resize() -> None:
@@ -1156,12 +1168,12 @@ class EditExifData(QDialog):
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, modify_dict) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, modify_dict)
+        def rewriting(photo_name: str, photo_directory: str, modify_dict) -> None:
+            Metadata.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
 
         # проверка введённых пользователем метаданных
-        def check_enter(editing_type: int, new_text: str) -> None:
-            Metadata.exif_check_edit(editing_type, new_text)
+        def check_enter(editing_type_int: int, new_text_str: str) -> None:
+            Metadata.exif_check_edit(editing_type_int, new_text_str)
 
         # проверка введённых пользователем метаданных
         for editing_type in list(new_value_dict.keys()):
@@ -1169,7 +1181,8 @@ class EditExifData(QDialog):
             try:
                 check_enter(editing_type, new_text)
             except ErrorsAndWarnings.EditExifError:
-                logging.error(f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
+                logging.error(
+                    f"Invalid try to rewrite metadata {photoname}, {photodirectory}, {editing_type}, {new_text}")
                 win_err = ErrorsAndWarnings.EditExifErrorWin(self)
                 win_err.show()
                 return

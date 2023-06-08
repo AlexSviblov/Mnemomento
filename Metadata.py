@@ -34,7 +34,7 @@ def read_exif(photofile: str) -> dict[str, str]:
 
 # считать весь exif из фотографии быстро с помощью piexif
 
-##!!! 37510 - UserComment
+# !!! 37510 - UserComment
 def fast_read_exif(photofile: str) -> dict[str, str]:
     """
     Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
@@ -53,7 +53,6 @@ def date_from_exif(data: dict) -> tuple[int, str, str, str]:
     """
     Для определения папки хранения файла в основном каталоге, необходимо при его добавлении в программу, достать
     дату съёмки из метаданных.
-    :param file: абсолютный путь к файлу.
     :return: error = 1, если даты нет, и фото следует поместить в No_Date_Info, иначе - day, month, year - строки
     длинами 2, 2, 4 соответственно.
     """
@@ -155,14 +154,14 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
         metadata['Объектив'] = ''
 
     try:
-        FocalLength_float = data['Exif'][37386][0]/data['Exif'][37386][1]
-        metadata['Фокусное расстояние'] = str(int(FocalLength_float))
+        focal_length_float = data['Exif'][37386][0]/data['Exif'][37386][1]
+        metadata['Фокусное расстояние'] = str(int(focal_length_float))
     except KeyError:
         metadata['Фокусное расстояние'] = ''
 
     try:
-        FNumber_float = data['Exif'][33437][0]/data['Exif'][33437][1]
-        metadata['Диафрагма'] = str(FNumber_float)
+        f_number_float = data['Exif'][33437][0]/data['Exif'][33437][1]
+        metadata['Диафрагма'] = str(f_number_float)
     except KeyError:
         metadata['Диафрагма'] = ''
 
@@ -188,30 +187,30 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
         metadata['ISO'] = ''
 
     try:
-        GPSLatitudeRef = data['GPS'][1].decode('utf-8')  # Считывание GPS из метаданных
-        GPSLatitude = data['GPS'][2]
-        GPSLongitudeRef = data['GPS'][3].decode('utf-8')
-        GPSLongitude = data['GPS'][4]
+        gps_latitude_ref = data['GPS'][1].decode('utf-8')  # Считывание GPS из метаданных
+        gps_latitude = data['GPS'][2]
+        gps_longitude_ref = data['GPS'][3].decode('utf-8')
+        gps_longitude = data['GPS'][4]
 
-        if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
+        if gps_longitude_ref and gps_latitude_ref and gps_longitude and gps_latitude:
 
-            GPSLongitude_float = (GPSLongitude[0][0]/GPSLongitude[0][1]) + (GPSLongitude[1][0]/GPSLongitude[1][1])/60 + (GPSLongitude[2][0]/GPSLongitude[2][1])/3600  # Приведение координат к десятичным числам, как на Я.Картах
-            GPSLatitude_float = (GPSLatitude[0][0]/GPSLatitude[0][1]) + (GPSLatitude[1][0]/GPSLatitude[1][1])/60 + (GPSLatitude[2][0]/GPSLatitude[2][1])/3600
+            gps_longitude_float = (gps_longitude[0][0]/gps_longitude[0][1]) + (gps_longitude[1][0]/gps_longitude[1][1])/60 + (gps_longitude[2][0]/gps_longitude[2][1])/3600  # Приведение координат к десятичным числам, как на Я.Картах
+            gps_latitude_float = (gps_latitude[0][0]/gps_latitude[0][1]) + (gps_latitude[1][0]/gps_latitude[1][1])/60 + (gps_latitude[2][0]/gps_latitude[2][1])/3600
 
-            GPSLongitude_value = round(GPSLongitude_float, 4)
-            GPSLatitude_value = round(GPSLatitude_float, 4)
+            gps_longitude_value = round(gps_longitude_float, 4)
+            gps_latitude_value = round(gps_latitude_float, 4)
 
-            if GPSLongitudeRef == 'E':
+            if gps_longitude_ref == 'E':
                 pass
             else:
-                GPSLongitude_value = GPSLongitude_value * (-1)
+                gps_longitude_value = gps_longitude_value * (-1)
 
-            if GPSLatitudeRef == 'N':
+            if gps_latitude_ref == 'N':
                 pass
             else:
-                GPSLatitude_value = GPSLatitude_value * (-1)
+                gps_latitude_value = gps_latitude_value * (-1)
 
-            metadata['GPS'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
+            metadata['GPS'] = str(gps_latitude_value) + ', ' + str(gps_longitude_value)
         else:
             metadata['GPS'] = ''
     except KeyError:
@@ -295,14 +294,14 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['Объектив'] = ''
 
     try:
-        FocalLength_float = data['FocalLength']
-        metadata['Фокусное расстояние'] = str(int(FocalLength_float))
+        focal_length_float = data['FocalLength']
+        metadata['Фокусное расстояние'] = str(int(focal_length_float))
     except KeyError:
         metadata['Фокусное расстояние'] = ''
 
     try:
-        FNumber_float = data['EXIF:FNumber']
-        metadata['Диафрагма'] = str(FNumber_float)
+        f_number_float = data['EXIF:FNumber']
+        metadata['Диафрагма'] = str(f_number_float)
     except KeyError:
         metadata['Диафрагма'] = ''
 
@@ -328,24 +327,24 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
         metadata['ISO'] = ''
 
     try:
-        GPSLatitudeRef = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = data['EXIF:GPSLatitude']
-        GPSLongitudeRef = data['EXIF:GPSLongitudeRef']
-        GPSLongitude = data['EXIF:GPSLongitude']
+        gps_latitude_ref = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
+        gps_latitude = data['EXIF:GPSLatitude']
+        gps_longitude_ref = data['EXIF:GPSLongitudeRef']
+        gps_longitude = data['EXIF:GPSLongitude']
 
-        if GPSLongitudeRef and GPSLatitudeRef and GPSLongitude and GPSLatitude:
-            GPSLatitude_float = float(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
-            GPSLongitude_float = float(GPSLongitude)
+        if gps_longitude_ref and gps_latitude_ref and gps_longitude and gps_latitude:
+            GPSLatitude_float = float(gps_latitude)  # Приведение координат к десятичным числам, как на Я.Картах
+            GPSLongitude_float = float(gps_longitude)
 
             GPSLongitude_value = round(GPSLongitude_float, 4)
             GPSLatitude_value = round(GPSLatitude_float, 4)
 
-            if GPSLongitudeRef == 'E':
+            if gps_longitude_ref == 'E':
                 pass
             else:
                 GPSLongitude_value = GPSLongitude_value * (-1)
 
-            if GPSLatitudeRef == 'N':
+            if gps_latitude_ref == 'N':
                 pass
             else:
                 GPSLatitude_value = GPSLatitude_value * (-1)
@@ -363,8 +362,7 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 def exif_for_db(data: dict) -> tuple[str, str, str, str, str]:
     """
     Вынуть из фото метаданные для БД: камера, объектив, дата съёмки, дата-время съёмки, GPS.
-    :param photoname: имя файла.
-    :param photodirectory: директория для хранения фото.
+    :param data: словарь метаданных
     :return: камера, объектив, дата, GPS.
     """
     try:
@@ -384,30 +382,30 @@ def exif_for_db(data: dict) -> tuple[str, str, str, str, str]:
         date = ""
 
     try:
-        GPSLatitudeRef = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = round(float(data['EXIF:GPSLatitude']), 4)
-        GPSLongitudeRef = data['EXIF:GPSLongitudeRef']
-        GPSLongitude = round(float(data['EXIF:GPSLongitude']), 4)
+        gps_latitude_ref = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
+        gps_latitude = round(float(data['EXIF:GPSLatitude']), 4)
+        gps_longitude_ref = data['EXIF:GPSLongitudeRef']
+        gps_longitude = round(float(data['EXIF:GPSLongitude']), 4)
 
-        if GPSLongitudeRef == 'E':
+        if gps_longitude_ref == 'E':
             pass
         else:
-            GPSLongitude = GPSLongitude * (-1)
+            gps_longitude = gps_longitude * (-1)
 
-        if GPSLatitudeRef == 'N':
+        if gps_latitude_ref == 'N':
             pass
         else:
-            GPSLatitude = GPSLatitude * (-1)
-        GPS = str(GPSLatitude) + ', ' + str(GPSLongitude)
+            gps_latitude = gps_latitude * (-1)
+        gps = str(gps_latitude) + ', ' + str(gps_longitude)
     except KeyError:
-        GPS = ""
+        gps = ""
 
     try:
         usercomment = data['EXIF:UserComment']
     except KeyError:
         usercomment = ''
 
-    return camera, lens, date, GPS, usercomment
+    return camera, lens, date, gps, usercomment
 
 
 # exif для показа в режиме редактирования
@@ -492,28 +490,28 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
         useful_data['Комментарий'] = ''
 
     try:
-        GPSLatitudeRef = all_data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = all_data['EXIF:GPSLatitude']
-        GPSLongitudeRef = all_data['EXIF:GPSLongitudeRef']
-        GPSLongitude = all_data['EXIF:GPSLongitude']
+        gps_latitude_ref = all_data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
+        gps_latitude = all_data['EXIF:GPSLatitude']
+        gps_longitude_ref = all_data['EXIF:GPSLongitudeRef']
+        gps_longitude = all_data['EXIF:GPSLongitude']
 
-        GPSLatitude_float = float(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
-        GPSLongitude_float = float(GPSLongitude)
+        gps_latitude_float = float(gps_latitude)  # Приведение координат к десятичным числам, как на Я.Картах
+        gps_longitude_float = float(gps_longitude)
 
-        GPSLongitude_value = round(GPSLongitude_float, 4)
-        GPSLatitude_value = round(GPSLatitude_float, 4)
+        gps_longitude_value = round(gps_longitude_float, 4)
+        gps_latitude_value = round(gps_latitude_float, 4)
 
-        if GPSLongitudeRef == 'E':
+        if gps_longitude_ref == 'E':
             pass
         else:
-            GPSLongitude_value = GPSLongitude_value * (-1)
+            gps_longitude_value = gps_longitude_value * (-1)
 
-        if GPSLatitudeRef == 'N':
+        if gps_latitude_ref == 'N':
             pass
         else:
-            GPSLatitude_value = GPSLatitude_value * (-1)
+            gps_latitude_value = gps_latitude_value * (-1)
 
-        useful_data['Координаты'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
+        useful_data['Координаты'] = str(gps_latitude_value) + ', ' + str(gps_longitude_value)
     except KeyError:
         useful_data['Координаты'] = ''
 
@@ -568,7 +566,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
                 modify_dict['EXIF:LensSerialNumber'] = new_value_dict[10]
 
             case 7:
-                new_value_splitted =  new_value_dict[7].split(', ')
+                new_value_splitted = new_value_dict[7].split(', ')
                 float_value_lat = float(new_value_splitted[0])
                 float_value_long = float(new_value_splitted[1])
 
@@ -735,16 +733,16 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
 
 
 # Замена неправильного названия для выбора группировки на правильное
-def equip_name_check(equip_list: list[str], type: str) -> list[str]:
+def equip_name_check(equip_list: list[str], equip_type: str) -> list[str]:
     """
     Для корректного отображения выпадающих списком камер и объективов в основном каталоге при группировке по
     оборудованию - данные достаются из БД фотографий, сравниваются с данными БД исправлений и очищаются от повторений.
     :param equip_list: список строк с названием оборудования.
-    :param type: тип оборудования.
+    :param equip_type: тип оборудования.
     :return: список уникальных исправленных названий оборудования.
     """
     for i in range(len(equip_list)):
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{equip_list[i]}\''
+        sql_str = f'SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{equip_list[i]}\''
         cur.execute(sql_str)
         try:
             right_equip = cur.fetchone()[0]
@@ -756,20 +754,21 @@ def equip_name_check(equip_list: list[str], type: str) -> list[str]:
     equip_list_final = list(equip_set)
     return equip_list_final
 
+
 # Замена неправильного названия для выбора группировки на правильное
-def equip_name_check_with_counter(equip_dict: dict[str, int], type: str) -> list[str]:
+def equip_name_check_with_counter(equip_dict: dict[str, int], equip_type: str) -> list[str]:
     """
     Для корректного отображения выпадающих списком камер и объективов в основном каталоге при группировке по
     оборудованию - данные достаются из БД фотографий, сравниваются с данными БД исправлений и очищаются от повторений.
-    :param equip_list: список строк с названием оборудования.
-    :param type: тип оборудования.
+    :param equip_dict: словарь, где ключт - название оборудования, значение - количество упоминаний в базе.
+    :param equip_type: тип оборудования.
     :return: список уникальных исправленных названий оборудования.
     """
 
     equip_list = list(equip_dict.keys())
 
     for i in range(len(equip_list)):
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{equip_list[i]}\''
+        sql_str = f'SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{equip_list[i]}\''
         cur.execute(sql_str)
         try:
             right_equip = cur.fetchone()[0]
@@ -781,44 +780,45 @@ def equip_name_check_with_counter(equip_dict: dict[str, int], type: str) -> list
         except TypeError:
             pass
 
-    dict_sorted= {k: v for k, v in sorted(equip_dict.items(), key=lambda item: item[1], reverse=True)}
+    dict_sorted = {k: v for k, v in sorted(equip_dict.items(), key=lambda item: item[1], reverse=True)}
     equip_list_final = list(dict_sorted.keys())
 
     return equip_list_final
 
+
 # проверка, является ли переданное имя - исправлением неправильного
-def equip_solo_name_check(exifname: str, type: str) -> str:
+def equip_solo_name_check(exif_name: str, equip_type: str) -> str:
     """
     Для поиска в БД необходимо искать не только отображаемое значение и неправильное, которое могло быть
     исправлено.
-    :param normname: корректное исправленное имя.
-    :param type: тип устройства.
+    :param exif_name: название оборудования на проверку, есть ли номральнео имя, или это оно и есть
+    :param equip_type: тип устройства.
     :return: как оборудование автоматически пишется в exif.
     """
-    sql_str = f'SELECT normname FROM ernames WHERE type = \'{type}\' AND exifname = \'{exifname}\''
+    sql_str = f'SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{exif_name}\''
     try:
         cur.execute(sql_str)
     except ValueError:
-        normname = exifname
+        normname = exif_name
     else:
         try:
             normname = cur.fetchone()[0]
         except TypeError:
-            normname = exifname
+            normname = exif_name
 
     return normname
 
 
 # проверка, является ли переданное имя - исправлением неправильного
-def equip_name_check_reverse(normname: str, type: str) -> str:
+def equip_name_check_reverse(normname: str, equip_type: str) -> str:
     """
     Для поиска в БД необходимо искать не только отображаемое значение и неправильное, которое могло быть
     исправлено.
     :param normname: корректное исправленное имя.
-    :param type: тип устройства.
+    :param equip_type: тип устройства.
     :return: как оборудование автоматически пишется в exif.
     """
-    sql_str = f'SELECT exifname FROM ernames WHERE type = \'{type}\' AND normname = \'{normname}\''
+    sql_str = f'SELECT exifname FROM ernames WHERE type = \'{equip_type}\' AND normname = \'{normname}\''
     cur.execute(sql_str)
     try:
         exifname = cur.fetchone()[0]
@@ -847,6 +847,7 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
 def check_photo_rotation(photo_file: str, data: dict) -> None:
     """
     Для добавляемых в каталоги фотографий можно сделать нормальный поворот, чтобы не крутить их каждый раз
+    :param data: словарь метаданных
     :param photo_file: абсолютный путь к фотографии
     :return: фотография нормально повёрнута
     """
@@ -1122,39 +1123,3 @@ def massive_table_data(file: str) -> dict[str, str]:
         useful_data['Комментарий'] = ''
 
     return useful_data
-
-
-# import exiftool
-#
-# def read_exif(photofile: str) -> dict[str, str]:
-#     data = {}
-#     try:
-#         with exiftool.ExifToolHelper() as et:
-#             for dictionary in et.get_metadata(photofile):
-#                 for tag_key, tag_value in dictionary.items():
-#                     data[f"{tag_key}"] = tag_value
-#     except (UnicodeDecodeError, UnicodeEncodeError) as e:
-#         print(e)
-#     return data
-#
-#
-# def exif_rewrite_edit(photofile, new_value_dict):
-#     modify_dict = dict()
-#
-#     modify_dict['EXIF:UserComment'] = new_value_dict[0]
-#
-#     try:
-#         if modify_dict:
-#             with exiftool.ExifToolHelper() as et:
-#                 et.set_tags(photofile,
-#                             tags=modify_dict,
-#                             params=["-P", "-overwrite_original"])
-#     except exiftool.exceptions.ExifToolExecuteError as e:
-#         print(e)
-#
-#
-# print(read_exif(r"IMG_5693.jpg"))
-#
-# exif_rewrite_edit(r"IMG_5693.jpg", {0: 'TestComment (c) Sasha'})
-#
-# print(read_exif(r"IMG_5693.jpg"))

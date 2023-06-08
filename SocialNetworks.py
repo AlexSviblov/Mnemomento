@@ -101,39 +101,39 @@ class SocialNetworks(QWidget):
         networks = PhotoDataDB.get_socialnetworks()
         max_sn_name = 0
         for i in range(0, len(networks)):
-            self.soc_net_lbl = QLabel(self)
-            self.soc_net_lbl.setFont(font14)
+            soc_net_lbl = QLabel(self)
+            soc_net_lbl.setFont(font14)
             if networks[i][0:9] != 'numnumnum':
-                self.soc_net_lbl.setText(f'{networks[i]}')
+                soc_net_lbl.setText(f'{networks[i]}')
             else:
-                self.soc_net_lbl.setText(f'{networks[i][9:]}')
+                soc_net_lbl.setText(f'{networks[i][9:]}')
 
-            if len(self.soc_net_lbl.text()) > max_sn_name:
-                max_sn_name = len(self.soc_net_lbl.text())
+            if len(soc_net_lbl.text()) > max_sn_name:
+                max_sn_name = len(soc_net_lbl.text())
 
-            self.group_layout.addWidget(self.soc_net_lbl, i, 0, 1, 1)
+            self.group_layout.addWidget(soc_net_lbl, i, 0, 1, 1)
 
-            self.btn_red = QToolButton(self)
-            self.btn_red.setStyleSheet(stylesheet1)
-            self.btn_red.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
-            self.btn_red.setIcon(QtGui.QIcon(icon_edit))
-            self.btn_red.setToolTip('Редактировать название')
-            self.btn_red.setObjectName(networks[i])
-            self.btn_red.clicked.connect(self.func_red)
-            self.group_layout.addWidget(self.btn_red, i, 1, 1, 1)
+            btn_red = QToolButton(self)
+            btn_red.setStyleSheet(stylesheet1)
+            btn_red.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
+            btn_red.setIcon(QtGui.QIcon(icon_edit))
+            btn_red.setToolTip('Редактировать название')
+            btn_red.setObjectName(networks[i])
+            btn_red.clicked.connect(self.func_red)
+            self.group_layout.addWidget(btn_red, i, 1, 1, 1)
 
-            self.btn_del = QToolButton(self)
-            self.btn_del.setStyleSheet(stylesheet1)
-            self.btn_del.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
-            self.btn_del.setIcon(QtGui.QIcon(icon_delete))
-            self.btn_del.setToolTip('Удалить соцсеть')
-            self.btn_del.setObjectName(networks[i])
-            self.btn_del.clicked.connect(self.func_del)
-            self.group_layout.addWidget(self.btn_del, i, 2, 1, 1)
+            btn_del = QToolButton(self)
+            btn_del.setStyleSheet(stylesheet1)
+            btn_del.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
+            btn_del.setIcon(QtGui.QIcon(icon_delete))
+            btn_del.setToolTip('Удалить соцсеть')
+            btn_del.setObjectName(networks[i])
+            btn_del.clicked.connect(self.func_del)
+            self.group_layout.addWidget(btn_del, i, 2, 1, 1)
 
         try:
-            self.soc_net_lbl.setFixedWidth(int((max_sn_name*15)*system_scale)+1)
-            self.networks_group.setFixedWidth(self.soc_net_lbl.width()+self.btn_del.width()+self.btn_red.width()+self.group_layout.spacing()*4 + 10)
+            soc_net_lbl.setFixedWidth(int((max_sn_name*15)*system_scale)+1)
+            self.networks_group.setFixedWidth(soc_net_lbl.width()+btn_del.width()+btn_red.width()+self.group_layout.spacing()*4 + 10)
             self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
         except (AttributeError, RuntimeError):
             pass
@@ -141,7 +141,8 @@ class SocialNetworks(QWidget):
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
 
     # считать из БД введённые соцсети
-    def get_social_networks_list(self) -> list[str]:
+    @staticmethod
+    def get_social_networks_list() -> list[str]:
         networks = list()
         sql_str = 'PRAGMA table_info(socialnetworks)'
         cur.execute(sql_str)

@@ -23,14 +23,12 @@ import Screenconfig
 
 font14 = QtGui.QFont('Times', 14)
 
-
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 loading_icon = str()
-
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -415,7 +413,7 @@ class SettingWidget(QWidget):
         else:
             self.write_settings()
 
-        if code: # if code != 0
+        if code:  # if code != 0
             dialog_win = TransferFiles(self, code, self.old_media_dir, self.media_space_line.text(), self.old_thumb_dir,
                                        self.thumbs_space_line.text())
             dialog_win.show()
@@ -449,21 +447,21 @@ class SettingWidget(QWidget):
         socnet_status = self.socnet_choose.checkState()
         sort_type = write_sort_type()
 
-        jsondata_wr =   {
-                            "files":
-                                    {
-                                    "destination_dir": dir_media_chosen,
-                                    "thumbs_dir": dir_thumb_chosen,
-                                    "transfer_mode": transfer_mode
-                                    },
-                            "view":
-                                    {
-                                    "thumbs_row": num_thumbs,
-                                    "color_theme": theme_color,
-                                    "social_networks_status": socnet_status,
-                                    "sort_type": sort_type
-                                    }
-                            }
+        jsondata_wr = {
+            "files":
+                {
+                    "destination_dir": dir_media_chosen,
+                    "thumbs_dir": dir_thumb_chosen,
+                    "transfer_mode": transfer_mode
+                },
+            "view":
+                {
+                    "thumbs_row": num_thumbs,
+                    "color_theme": theme_color,
+                    "social_networks_status": socnet_status,
+                    "sort_type": sort_type
+                }
+        }
 
         with open('settings.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file, sort_keys=True, indent=4, separators=(',', ': '))
@@ -744,12 +742,12 @@ def get_hotkeys() -> dict:
         return hotkeys
     except FileNotFoundError:
         hotkeys_default = {
-                              "open_file": "Ctrl+S",
-                              "edit_metadata": "Ctrl+E",
-                              "open_explorer": "Ctrl+D",
-                              "delete_file": "Del",
-                              "show_stat_map": "Enter"
-                          }
+            "open_file": "Ctrl+S",
+            "edit_metadata": "Ctrl+E",
+            "open_explorer": "Ctrl+D",
+            "delete_file": "Del",
+            "show_stat_map": "Enter"
+        }
 
         with open('hotkeys.json', 'w') as json_file:
             json.dump(hotkeys_default, json_file, sort_keys=True, indent=4, separators=(',', ': '))

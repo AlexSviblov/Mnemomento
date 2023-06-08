@@ -399,14 +399,14 @@ class AddBDDialog(QDialog):
     def confirm_func(self) -> None:
         match self.type_combobox.currentIndex():
             case 0:
-                type = 'maker'
+                equip_type = 'maker'
             case 1:
-                type = 'camera'
+                equip_type = 'camera'
             case 2:
-                type = 'lens'
+                equip_type = 'lens'
 
         enter_1 = "INSERT INTO ernames(type,exifname,normname) VALUES(?,?,?)"
-        enter_2 = (type, self.error_entered, self.norm_entered)
+        enter_2 = (equip_type, self.error_entered, self.norm_entered)
 
         try:
             cur.execute(enter_1, enter_2)
@@ -417,7 +417,7 @@ class AddBDDialog(QDialog):
 
         conn.commit()
 
-        logging.info(f"ErNamesDB - Added correction {type} - {self.error_entered} - {self.norm_entered}")
+        logging.info(f"ErNamesDB - Added correction {equip_type} - {self.error_entered} - {self.norm_entered}")
 
         ready = SuccessWindowClass(self)
         ready.show()

@@ -719,49 +719,50 @@ class EditExifData(QDialog):
         data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
         # преобразовать данные для отображения
-        def date_convert(data):
+        def date_convert(data_dict):
             try:
-                date_part = data['Время съёмки'].split(' ')[0]
-                time_part = data['Время съёмки'].split(' ')[1]
+                date_part = data_dict['Время съёмки'].split(' ')[0]
+                time_part = data_dict['Время съёмки'].split(' ')[1]
             except IndexError:
                 date_part = "0000:00:00"
                 time_part = "00:00:00"
 
             try:
-                year = int(date_part.split(":")[0])
+                year_int = int(date_part.split(":")[0])
             except ValueError:
-                year = 0
+                year_int = 0
             try:
-                month = int(date_part.split(":")[1])
+                month_int = int(date_part.split(":")[1])
             except ValueError:
-                month = 0
+                month_int = 0
             try:
-                day = int(date_part.split(":")[2])
+                day_int = int(date_part.split(":")[2])
             except ValueError:
-                day = 0
+                day_int = 0
             try:
-                hour = int(time_part.split(":")[0])
+                hour_int = int(time_part.split(":")[0])
             except ValueError:
-                hour = 0
+                hour_int = 0
             try:
-                minute = int(time_part.split(":")[1])
+                minute_int = int(time_part.split(":")[1])
             except ValueError:
-                minute = 0
+                minute_int = 0
             try:
-                second = int(time_part.split(":")[2])
+                second_int = int(time_part.split(":")[2])
             except ValueError:
-                second = 0
+                second_int = 0
 
             try:
-                zone_pm = data['Часовой пояс'][0]
-                zone_hour = int(data['Часовой пояс'][1:].split(':')[0])
-                zone_min = int(data['Часовой пояс'][1:].split(':')[1])
+                zone_pm_sign = data_dict['Часовой пояс'][0]
+                zone_hour_int = int(data_dict['Часовой пояс'][1:].split(':')[0])
+                zone_min_int = int(data_dict['Часовой пояс'][1:].split(':')[1])
             except IndexError:
-                zone_pm = "+"
-                zone_hour = int("00")
-                zone_min = int("00")
+                zone_pm_sign = "+"
+                zone_hour_int = int("00")
+                zone_min_int = int("00")
 
-            return year, month, day, hour, minute, second, zone_pm, zone_hour, zone_min
+            return year_int, month_int, day_int, hour_int, minute_int, second_int, \
+                zone_pm_sign, zone_hour_int, zone_min_int
 
         # изменение размеров таблицы и всего окна
         def func_resize():
@@ -906,12 +907,12 @@ class EditExifData(QDialog):
 
             if latitude_ref == "Юг":
                 latitude_pm_coe = -1
-            else: # latitude_ref == "Север"
+            else:   # latitude_ref == "Север"
                 latitude_pm_coe = 1
 
             if longitude_ref == "Восток":
                 longitude_pm_coe = 1
-            else: # latitude_ref == "Запад"
+            else:   # latitude_ref == "Запад"
                 longitude_pm_coe = -1
 
             latitude = round((latitude_pm_coe*(latitude_deg + latitude_min/60 + latitude_sec/3600)), 4)
@@ -919,7 +920,7 @@ class EditExifData(QDialog):
 
             self.latitude_fn_line.setText(str(latitude))
             self.longitude_fn_line.setText(str(longitude))
-        else: # self.mode_check_fn.checkState() == 2
+        else:   # self.mode_check_fn.checkState() == 2
             try:
                 latitude = float(self.latitude_fn_line.text())
             except ValueError:
@@ -986,7 +987,7 @@ class EditExifData(QDialog):
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
             else:
                 self.mode_check_fn.setCheckState(Qt.Checked)
-        else: # self.sender().text() == "Числом":
+        else:   # self.sender().text() == "Числом":
             if self.mode_check_fn.checkState() == 2:
                 self.mode_check_dmc.setCheckState(Qt.Unchecked)
             else:
@@ -1028,7 +1029,7 @@ class EditExifData(QDialog):
 
         self.write_changes(self.photoname, self.photodirectory, changes_meta_dict)
 
-        if self.indicator[-2] == 0: # -1 - изменение даты (возможен перенос)
+        if self.indicator[-2] == 0:     # -1 - изменение даты (возможен перенос)
             self.update_show_data()
         else:
             if type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
@@ -1058,13 +1059,13 @@ class EditExifData(QDialog):
     # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photoname: str, photodirectory: str, modify_dict) -> None:
-            Metadata.exif_rewrite_edit(photoname, photodirectory, modify_dict)
-            PhotoDataDB.edit_in_database(photoname, photodirectory, modify_dict)
+        def rewriting(photo_name: str, photo_directory: str, modify_dict) -> None:
+            Metadata.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
+            PhotoDataDB.edit_in_database(photo_name, photo_directory, modify_dict)
 
         # проверка введённых пользователем метаданных
-        def check_enter(editing_type: int, new_text: str) -> None:
-            Metadata.exif_check_edit(editing_type, new_text)
+        def check_enter(editing_type_int: int, new_text_str: str) -> None:
+            Metadata.exif_check_edit(editing_type_int, new_text_str)
 
         # проверка введённых пользователем метаданных
         for editing_type in list(new_value_dict.keys()):
@@ -1108,7 +1109,7 @@ class EditExifData(QDialog):
                 day_old = old_date_splitted[2]
 
                 new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
-                if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)): # папки назначения нет -> сравнивать не надо
+                if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)):    # папки назначения нет -> сравнивать не надо
                     if not os.path.isdir(destination + '/' + str(year_old)):
                         os.mkdir(destination + '/' + str(year_old))
                     if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):

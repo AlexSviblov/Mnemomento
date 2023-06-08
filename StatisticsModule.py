@@ -195,8 +195,6 @@ class StatisticsWidget(QWidget):
         self.progressbar_fl.setStyleSheet(stylesheet5)
         self.progress_layout.addWidget(self.progressbar_fl, 0, 6, 1, 1)
 
-        # self.start_btn.click()
-
     def start_calculate(self):
         def start():
             self.progress_group.setFixedHeight(int(60))
@@ -215,7 +213,7 @@ class StatisticsWidget(QWidget):
                 case _:
                     pass
 
-            self.paths_process = FilesPaths(filter=sort_type, arg1=arg1, arg2=arg2, arg3=arg3)
+            self.paths_process = FilesPaths(type_filter=sort_type, arg1=arg1, arg2=arg2, arg3=arg3)
             self.paths_process.files.connect(lambda fl: finish(fl))
             self.paths_process.start()
 
@@ -381,18 +379,6 @@ class StatisticsWidget(QWidget):
                           font_color=text_color, title_font_color=text_color)
 
         tick_dict = {}
-        # for i in range(len(x_values)):
-        #     if 20 >= len(x_values) > 10:
-        #         if i%2 == 0:
-        #             tick_dict[x_values[i]] = fnumber_values[i]
-        #     elif 40 >= len(x_values) > 20:
-        #         if i%5 == 0:
-        #             tick_dict[x_values[i]] = fnumber_values[i]
-        #     elif len(x_values) > 40:
-        #         if i%10 == 0:
-        #             tick_dict[x_values[i]] = fnumber_values[i]
-        #     else:
-        #         tick_dict[x_values[i]] = fnumber_values[i]
 
         if len(fnumber_values) >= 11:
             for i in range(10):
@@ -422,21 +408,21 @@ class StatisticsWidget(QWidget):
         self.make_exposuretime_graphic(result)
 
     def make_exposuretime_graphic(self, hd: dict) -> None:
-        def clear_labels(float_times, labels_enter):
+        def clear_labels(float_times_list, labels_enter):
             near_cleared = []
             labels = list(labels_enter)
-            for i in range(len(float_times)):
-                for j in range(len(float_times)):
+            for i in range(len(float_times_list)):
+                for j in range(len(float_times_list)):
                     if i == j:
                         pass
                     else:
-                        if abs(float_times[i] - float_times[j]) < 2:
-                            if float_times[j] in near_cleared:
+                        if abs(float_times_list[i] - float_times_list[j]) < 2:
+                            if float_times_list[j] in near_cleared:
                                 labels[i] = ''
                             else:
-                                if float_times[i] >= 0.1 and labels[i]:
+                                if float_times_list[i] >= 0.1 and labels[i]:
                                     labels[i] = str(round(float(labels[i]), 2))
-                                near_cleared.append(float_times[i])
+                                near_cleared.append(float_times_list[i])
                                 labels[j] = ''
             return labels
 
@@ -597,7 +583,7 @@ class StatisticsWidget(QWidget):
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
                         for file in Path(dir_to_find_year + name).rglob('*'):
-                            if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                            if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                 k = 1
                         if k == 1:
                             k = 0
@@ -632,7 +618,7 @@ class StatisticsWidget(QWidget):
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
                             for file in Path(dir_to_find_month + name).rglob('*'):
-                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     k = 1
                             if k == 1:
                                 k = 0
@@ -805,6 +791,7 @@ class StatisticsWidget(QWidget):
         self.camera_choose.setFixedWidth(int((camera_max_len * 12) * system_scale) + 1)
         self.lens_choose.setFixedWidth(int((lens_max_len * 12) * system_scale) + 1)
 
+
 class HoursLooter(QtCore.QThread):
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
@@ -814,8 +801,6 @@ class HoursLooter(QtCore.QThread):
         self.all_files = files
         self.hours_dict = {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, 11: 0, 12: 0, 13: 0,
                            14: 0, 15: 0, 16: 0, 17: 0, 18: 0, 19: 0, 20: 0, 21: 0, 22: 0, 23: 0}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -886,7 +871,7 @@ class CameraLooter(QtCore.QThread):
                     pass
             self.changed.emit(1)
 
-        result ={}
+        result = {}
         for camera in list(self.camera_dict.keys()):
             if camera in list(result.keys()):
                 pass
@@ -946,7 +931,7 @@ class LensLooter(QtCore.QThread):
                     pass
             self.changed.emit(1)
 
-        result ={}
+        result = {}
         for lens in list(self.lens_dict.keys()):
             if lens in list(result.keys()):
                 pass
@@ -1170,22 +1155,21 @@ class FocalLengthLooter(QtCore.QThread):
 class FilesPaths(QtCore.QThread):
     files = QtCore.pyqtSignal(list)
 
-    def __init__(self, filter='', arg1='All', arg2='All', arg3='All'):
+    def __init__(self, type_filter='', arg1='All', arg2='All', arg3='All'):
         QThread.__init__(self)
-        self.filter = filter
+        self.type_filter = type_filter
         self.arg1 = arg1
         self.arg2 = arg2
         self.arg3 = arg3
-        # self._init = False
 
     def run(self):
-        if self.filter == 'Дата':
+        if self.type_filter == 'Дата':
             year = self.arg1
             month = self.arg2
             day = self.arg3
             photo_list = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
             result = photo_list
-        elif self.filter == 'Оборудование':
+        elif self.type_filter == 'Оборудование':
             camera = self.arg1
             lens = self.arg2
             if camera == 'All':
@@ -1199,7 +1183,7 @@ class FilesPaths(QtCore.QThread):
                 lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
             photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
             result = photo_list
-        else: # if not filter
+        else:   # if not filter
             all_files = []
             main_catalog = Settings.get_destination_media() + r'/Media/Photo/const'
             for root, dirs, files in os.walk(main_catalog):

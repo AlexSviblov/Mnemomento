@@ -389,7 +389,7 @@ style_dict = {'light': light_style, 'dark': dark_style}
 
 
 def monitor_info() -> tuple[tuple[int, int], float]:
-    screenSize = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
+    screen_size = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
 
-    scaleFactor = ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100
-    return screenSize, scaleFactor
+    scale_factor = ctypes.windll.shcore.GetScaleFactorForDevice(0) / 100
+    return screen_size, scale_factor

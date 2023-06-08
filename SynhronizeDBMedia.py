@@ -112,7 +112,7 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
         if not answer_photo or not answer_socnets:
             additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
             # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', ""
-            camera, lens, shootingdatetime, GPS, usercomment = Metadata.exif_for_db(Metadata.read_exif(f"{photodirectory}/{photoname}"))
+            camera, lens, shootingdatetime, gps, usercomment = Metadata.exif_for_db(Metadata.read_exif(f"{photodirectory}/{photoname}"))
             if shootingdatetime != "":
                 shootingdate = shootingdatetime[:10]
             else:
@@ -120,7 +120,7 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
 
             if not answer_photo:
                 sql_str1 = f'INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
-                           f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{GPS}\', \'{usercomment}\')'
+                           f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{gps}\', \'{usercomment}\')'
 
                 cur.execute(sql_str1)
 
@@ -228,7 +228,7 @@ def thumbnail_photo_conformity() -> None:
 
 
 # получить список всех имеющихся миниатюр
-def research_all_thumbnails() -> list[list[str]]:
+def research_all_thumbnails() -> list[str]:
     """
     Получается список всех миниатюр в директории хранения
     :return: список путей файлов, которые передаются как список из 1 элемента, надо бы это поправить

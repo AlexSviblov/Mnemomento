@@ -46,7 +46,6 @@ class AloneWidgetWindow(QWidget):
         super().__init__()
         self.stylesheet_color()
 
-        self.own_dir = os.getcwd()
         self.setMaximumSize(Screenconfig.monitor_info()[0][0], Screenconfig.monitor_info()[0][1] - 63)
 
         self.setStyleSheet(stylesheet2)

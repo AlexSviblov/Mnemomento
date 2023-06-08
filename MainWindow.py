@@ -26,7 +26,6 @@ import Settings
 import RecoveryModule
 import GlobalMap
 
-
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet4 = str()
@@ -34,17 +33,16 @@ stylesheet5 = str()
 stylesheet8 = str()
 stylesheet10 = str()
 
-
 font16 = QtGui.QFont('Times', 16)
 font14 = QtGui.QFont('Times', 14)
 font12 = QtGui.QFont('Times', 12)
 font10 = QtGui.QFont('Times', 10)
 font8 = QtGui.QFont('Times', 8)
 
-
 system_scale = Screenconfig.monitor_info()[1]
 
-logging.basicConfig(filename=f"logs/log-{str(datetime.datetime.now())[:10]}.txt", format='%(asctime)s - %(levelname)s - %(message)s',
+logging.basicConfig(filename=f"logs/log-{str(datetime.datetime.now())[:10]}.txt",
+                    format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt='%d-%b-%y %H:%M:%S', level=logging.WARNING)
 
 
@@ -83,7 +81,7 @@ class MainWindow(QMainWindow):
         add_const_megadir_bar.triggered.connect(self.func_add_const_megadir_const)
 
         add_const_alone_directory = QAction('Добавить папку в дополнительный каталог', self)
-        add_const_alone_directory.triggered.connect(self.func_add_alone_dir) 
+        add_const_alone_directory.triggered.connect(self.func_add_alone_dir)
 
         self.add_menu.addAction(add_const_files_bar)
         self.add_menu.addAction(add_const_directory_bar)
@@ -285,7 +283,8 @@ class MainWindow(QMainWindow):
         self.taskbar_progress.show()
         self.taskbar_button.setWindow(self.windowHandle())
 
-        self.add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list, mode="dir", exists_dir='')
+        self.add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list,
+                                             mode="dir", exists_dir='')
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
 
@@ -317,7 +316,8 @@ class MainWindow(QMainWindow):
         self.taskbar_progress.show()
         self.taskbar_button.setWindow(self.windowHandle())
 
-        self.add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=file_list, mode="files", exists_dir=dir_to_add)
+        self.add_files_progress = AloneMaker(photo_directory=photo_directory, photo_files_list=file_list, mode="files",
+                                             exists_dir=dir_to_add)
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
 
@@ -550,11 +550,11 @@ class MainWindow(QMainWindow):
     def update_settings_widget(self) -> None:
         self.stylesheet_color()
 
-        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:   #Alone
+        if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:  # Alone
             chosen_dir = self.centralWidget().directory_choose.currentText()
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(chosen_dir)
-        elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow: #Const
+        elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:  # Const
             chosen_mode = self.centralWidget().group_type.currentText()
             if chosen_mode == 'Оборудование':
                 chosen_camera = self.centralWidget().camera_choose.currentText()
@@ -562,7 +562,7 @@ class MainWindow(QMainWindow):
             elif chosen_mode == 'Соцсети':
                 chosen_network = self.centralWidget().socnet_choose.currentText()
                 chosen_status = self.centralWidget().sn_status.currentText()
-            else: # 'Дата'
+            else:  # 'Дата'
                 chosen_year = self.centralWidget().date_year.currentText()
                 chosen_month = self.centralWidget().date_month.currentText()
                 chosen_day = self.centralWidget().date_day.currentText()
@@ -583,7 +583,7 @@ class MainWindow(QMainWindow):
             else:
                 # Если были выбраны "Соцсети", но в настройках их отключили
                 pass
-        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:             # OnlyShow
+        elif type(self.centralWidget()) == OnlyShowWidget.WidgetWindow:  # OnlyShow
             self.centralWidget().after_change_settings()
             self.centralWidget().stylesheet_color()
         elif type(self.centralWidget()) == StartShow:
@@ -645,10 +645,12 @@ class MainWindow(QMainWindow):
     def update_network_changes(self) -> None:
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:  # Alone
             if self.centralWidget().socnet_group.isVisible():
-                self.centralWidget().show_social_networks(self.centralWidget().last_clicked, self.centralWidget().photo_directory)
+                self.centralWidget().show_social_networks(self.centralWidget().last_clicked,
+                                                          self.centralWidget().photo_directory)
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:  # Const
             if self.centralWidget().socnet_group.isVisible():
-                self.centralWidget().show_social_networks(self.centralWidget().last_clicked_name, self.centralWidget().last_clicked_dir)
+                self.centralWidget().show_social_networks(self.centralWidget().last_clicked_name,
+                                                          self.centralWidget().last_clicked_dir)
             if self.centralWidget().group_type.currentText() == 'Соцсети':
                 self.centralWidget().fill_sort_socnets()
         else:
@@ -683,7 +685,7 @@ class ProgressBar(QWidget):
         self.layout.addWidget(self.title_text, 1, 1, 1, 1)
 
         self.progressbar = QProgressBar()
-        self.progressbar.setFixedWidth(int(self.width()/2))
+        self.progressbar.setFixedWidth(int(self.width() / 2))
         self.progressbar.setFont(font16)
         self.progressbar.setStyleSheet(stylesheet5)
         self.progressbar.setAlignment(QtCore.Qt.AlignCenter)
@@ -837,10 +839,10 @@ class StartShow(QWidget):
 
         if size < 1024:
             str_size = f'Объём основного каталога: {round(size, 3)} байт\n'
-        elif size < 1024**2:
-            str_size = f'Объём основного каталога: {round(size/1024, 3)} килобайт\n'
-        elif size < 1024**3:
-            str_size = f'Объём основного каталога: {round(size/(1024**2), 3)} мегабайт\n'
+        elif size < 1024 ** 2:
+            str_size = f'Объём основного каталога: {round(size / 1024, 3)} килобайт\n'
+        elif size < 1024 ** 3:
+            str_size = f'Объём основного каталога: {round(size / (1024 ** 2), 3)} мегабайт\n'
         else:
             str_size = f'Объём основного каталога: {round(size / (1024 ** 3), 3)} гигабайт\n'
         str_to_show += str_size
@@ -861,12 +863,12 @@ class StartShow(QWidget):
         numdir = fullnum - numfiles
         if size < 1024:
             str_size = f'Объём дополнительного каталога: {round(size, 3)} байт\n'
-        elif size < 1024**2:
-            str_size = f'Объём дополнительного каталога: {round(size/1024, 3)} килобайт\n'
-        elif size < 1024**3:
-            str_size = f'Объём дополнительного каталога: {round(size/(1024**2), 3)} мегабайт\n'
+        elif size < 1024 ** 2:
+            str_size = f'Объём дополнительного каталога: {round(size / 1024, 3)} килобайт\n'
+        elif size < 1024 ** 3:
+            str_size = f'Объём дополнительного каталога: {round(size / (1024 ** 2), 3)} мегабайт\n'
         else:
-            str_size = f'Объём дополнительного каталога: {round(size/(1024**3), 3)} гигабайт\n'
+            str_size = f'Объём дополнительного каталога: {round(size / (1024 ** 3), 3)} гигабайт\n'
 
         str_to_show += str_size
 
@@ -883,7 +885,7 @@ class StartShow(QWidget):
         numfile = 0
         iteration = 0
         for file in Path(path).rglob('*'):
-            if (os.path.isfile(file)):
+            if os.path.isfile(file):
                 fsize += os.path.getsize(file)
                 numfile += 1
             iteration += 1
@@ -976,7 +978,7 @@ class ConstMaker(QtCore.QThread):
             logging.info(f"MainWindow - Start processing {file}")
             fileexists, filepermissions = FilesDirs.transfer_const_photos(file)
             j += 1
-            self.progress.emit(round(100*(j/self.len_file_list)))
+            self.progress.emit(round(100 * (j / self.len_file_list)))
             self.info_text.emit(f"Обработка файла {file} завершена")
             logging.info(f"MainWindow - {file} processing finished")
 
@@ -1004,7 +1006,7 @@ class ConstMaker(QtCore.QThread):
                     logging.info(f"MainWindow - Empty directory {file_dir} was removed")
                     self.info_text.emit(f"Опустевшая папка {file_dir} удалена")
                 except PermissionError as e:
-                    logging.WARNING(f"MainWindow - Directory {self.photo_directory} cannot be removed: {e}")
+                    logging.warning(f"MainWindow - Directory {self.photo_directory} cannot be removed: {e}")
                     self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
 
             else:
@@ -1038,7 +1040,8 @@ class AloneMaker(QtCore.QThread):
     def run(self):
         files_errors = []
         logging.info(f"MainWindow - File list sent for adding in additional catalog: {self.files_list}")
-        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
+        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[
+            -1]) and self.mode == "dir":
             self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
             logging.info(f"MainWindow - Creating directory {self.photo_directory.split('/')[-1]} in programm")
             os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
@@ -1067,7 +1070,7 @@ class AloneMaker(QtCore.QThread):
                         logging.info(f"MainWindow - Empty directory {self.photo_directory} was removed")
                         self.info_text.emit(f"MainWindow - Папка {self.photo_directory} была удалена")
                     except PermissionError as e:
-                        logging.WARNING(f"MainWindow - Directory {self.photo_directory} cannot be removed: {e}")
+                        logging.warning(f"MainWindow - Directory {self.photo_directory} cannot be removed: {e}")
                         self.info_text.emit(f"Папка {self.photo_directory} не была удалена")
                 else:
                     logging.info(f"MainWindow - Directory {self.photo_directory}  was not removed, because not empty")
@@ -1075,22 +1078,26 @@ class AloneMaker(QtCore.QThread):
 
             self.finished.emit(['finish', self.photo_directory.split('/')[-1]])
 
-        elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
-            logging.info(f"MainWindow - Directory {self.photo_directory.split('/')[-1]} have been already exist in program")
+        elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[
+            -1]) and self.mode == "dir":
+            logging.info(
+                f"MainWindow - Directory {self.photo_directory.split('/')[-1]} have been already exist in program")
             self.finished.emit(['error'])
-        else: # self.mode == "files"
+        else:  # self.mode == "files"
             j = 0
             file_exists = []
             for file in self.files_list:
                 self.info_text.emit(f"Начата обработка файла {file}")
                 logging.info(f"MainWindow - Start processing {file}")
-                desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.exists_dir.split('/')[-1]
+                desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.exists_dir.split('/')[
+                    -1]
                 file_name = file.split('/')[-1]
                 if os.path.exists(desination_dir + '/' + file_name):
                     file_exists.append(file)
                 else:
                     try:
-                        FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir, type_add='files')
+                        FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir,
+                                                        type_add='files')
                     except ErrorsAndWarnings.FilesPermissionMoveError:
                         files_errors.append(file)
                 j += 1
@@ -1149,20 +1156,20 @@ if __name__ == "__main__":
             with open('settings.json', 'w') as json_file:
                 bsl = '\\'
                 new_set = {
-                            "files":
-                                    {
-                                     "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
-                                     "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}",
-                                     "transfer_mode": "copy"
-                                    },
-                            "view":
-                                    {
-                                    "thumbs_row": "2",
-                                    "color_theme": "light",
-                                    "social_networks_status": 2,
-                                    "sort_type": "name-up"
-                                    }
-                          }
+                    "files":
+                        {
+                            "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
+                            "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}",
+                            "transfer_mode": "copy"
+                        },
+                    "view":
+                        {
+                            "thumbs_row": "2",
+                            "color_theme": "light",
+                            "social_networks_status": 2,
+                            "sort_type": "name-up"
+                        }
+                }
                 json.dump(new_set, json_file)
 
     try:

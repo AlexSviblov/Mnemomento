@@ -44,7 +44,6 @@ class ConstWidgetWindow(QWidget):
         super().__init__()
         self.stylesheet_color()
 
-        self.own_dir = os.getcwd()
         # resolution = Screenconfig.monitor_info()
         # self.monitor_width = resolution[0]
         # self.monitor_height = resolution[1]

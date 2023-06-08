@@ -38,8 +38,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
     file_dir = ''
     file_full = file.split(r'/')
     for i in range(len(file_full)-1):
-        file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/
-                                            # file_full[-1] = IMG_3805.jpg
+        file_dir += file_full[i] + '/'      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/ , file_full[-1] = IMG_3805.jpg
     try:
         file_metadata = Metadata.read_exif(file)
     except ErrorsAndWarnings.FileReadError:
@@ -97,9 +96,9 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 else:
                     try:
                         shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
-                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
+                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
                         Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
-                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}")
+                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
                     except PermissionError:
                         file_permission_error = file_full[-1]
             else:   # папки назначения не существует -> надо её создать, проверка на наличие файла не требуется
@@ -111,9 +110,9 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                     os.mkdir(f"{destination}{str(year)}/{str(month)}/{str(day)}")
                     try:
                         shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
-                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
+                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
                         Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
-                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}")
+                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
                     except PermissionError:
                         file_permission_error = file_full[-1]
         else:   # error == 1, т.е. даты в exif нет
@@ -123,9 +122,9 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 else:
                     try:
                         shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
-                        Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
+                        Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
                         Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
-                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
+                        PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)
                     except PermissionError:
                         file_permission_error = file_full[-1]
             else:
@@ -134,9 +133,9 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 os.mkdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
                 try:
                     shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
-                    Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
+                    Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
                     Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])       # создать миниатюру
-                    PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")           # добавить файл в БД
+                    PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)           # добавить файл в БД
                 except PermissionError:
                     file_permission_error = file_full[-1]
 

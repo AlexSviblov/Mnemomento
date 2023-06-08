@@ -248,14 +248,14 @@ class ManyPhotoEdit(QWidget):
         self.new_gps_check.setStyleSheet(stylesheet2)
         self.new_gps_check.setFont(font12)
 
-        self.new_gps_lat_line = QLineEdit(self) # широта
+        self.new_gps_lat_line = QLineEdit(self)     # широта
         self.layout_new_data.addWidget(self.new_gps_lat_line, 7, 1, 1, 1)
         self.new_gps_lat_line.setValidator(QtGui.QRegExpValidator(
                 QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$')))
         self.new_gps_lat_line.setStyleSheet(stylesheet1)
         self.new_gps_lat_line.setFont(font12)
 
-        self.new_gps_lon_line = QLineEdit(self) # долгота
+        self.new_gps_lon_line = QLineEdit(self)     # долгота
         self.layout_new_data.addWidget(self.new_gps_lon_line, 7, 2, 1, 1)
         self.new_gps_lon_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
                 '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$')))
@@ -498,7 +498,7 @@ class ManyPhotoEdit(QWidget):
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
                         for file in Path(dir_to_find_year + name).rglob('*'):
-                            if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                            if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                 k = 1
                         if k == 1:
                             k = 0
@@ -970,8 +970,8 @@ class ManyPhotoEdit(QWidget):
     # запись новых метаданных
     def write_data(self) -> None:
         # проверка введённых пользователем метаданных
-        def check_enter(editing_type: int, new_text: str) -> None:
-            Metadata.exif_check_edit(editing_type, new_text)
+        def check_enter(editing_type_int: int, new_text_str: str) -> None:
+            Metadata.exif_check_edit(editing_type_int, new_text_str)
 
         def finished_animation():
             self.empty1.show()
@@ -1180,8 +1180,8 @@ class DoEditing(QtCore.QThread):
         # Metadata.massive_exif_edit(self.photo_list, self.modify_dict)
         for file in self.photo_list:
             name = file.split('/')[-1]
-            dir = file[:(-1)*(len(name)+1)]
-            Metadata.exif_rewrite_edit(name, dir, self.modify_dict)
+            directory = file[:(-1) * (len(name) + 1)]
+            Metadata.exif_rewrite_edit(name, directory, self.modify_dict)
 
         PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
 

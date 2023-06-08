@@ -24,7 +24,7 @@ def stylesheet_color():
 
 # добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
 class PhotoExists(QDialog):
-    def __init__(self, parent, photo_list, type):
+    def __init__(self, parent, photo_list, catalog_type):
         super(PhotoExists, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -43,7 +43,7 @@ class PhotoExists(QDialog):
         for photo in photo_list:
             str_to_show += str(photo) + '\n'
 
-        if type == "const":
+        if catalog_type == "const":
             str_to_show += '\nЕсли вы хотите их перезаписать - удалите уже добавленные.\n\nУ данных файлов совпала дата ' \
                            'съёмки(при её наличии) и название.'
         else:   # type == "alone"
