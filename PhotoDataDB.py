@@ -358,10 +358,7 @@ def del_alone_dir(photo_directory: str) -> None:
     :param photo_directory: название папки.
     :return: удаление записей.
     """
-    photo_list = list()
-    for file in os.listdir(photo_directory):
-        if file.endswith(".jpg") or file.endswith(".JPG"):
-            photo_list.append(file)
+    photo_list = [file for file in os.listdir(photo_directory) if file.endswith(".jpg") or file.endswith(".JPG")]
 
     for photo in photo_list:
         sql_str = f'DELETE FROM photos WHERE filename = \'{photo}\' AND catalog = \'{photo_directory}\''

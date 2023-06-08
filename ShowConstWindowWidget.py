@@ -44,10 +44,6 @@ class ConstWidgetWindow(QWidget):
         super().__init__()
         self.stylesheet_color()
 
-        # resolution = Screenconfig.monitor_info()
-        # self.monitor_width = resolution[0]
-        # self.monitor_height = resolution[1]
-
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
         self.thumb_row = Settings.get_thumbs_row()
@@ -233,12 +229,11 @@ class ConstWidgetWindow(QWidget):
                 dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
                 all_files_and_dirs = os.listdir(dir_to_find_month)
                 dir_list = list()
-                k = 0
                 for name in all_files_and_dirs:
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
                             for file in Path(dir_to_find_month + name).rglob('*'):
-                                if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                                if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     dir_list.append(name)
                                     break
 
