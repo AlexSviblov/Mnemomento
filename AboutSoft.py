@@ -27,8 +27,10 @@ def stylesheet_color():
     stylesheet8 = style[f'{theme}']['stylesheet8']
 
 
-# добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
 class AboutInfo(QDialog):
+    """
+    Добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
+    """
     def __init__(self, parent):
         super(AboutInfo, self).__init__(parent)
         stylesheet_color()

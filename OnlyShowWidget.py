@@ -32,6 +32,9 @@ system_scale = Screenconfig.monitor_info()[1]
 
 
 class WidgetWindow(QWidget):
+    """
+
+    """
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
 
@@ -112,8 +115,10 @@ class WidgetWindow(QWidget):
         self.photo_show.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.photo_show, 0, 1, 1, 1)
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet3
@@ -151,8 +156,10 @@ class WidgetWindow(QWidget):
         except AttributeError:
             pass
 
-    # функция отображения кнопок с миниатюрами
     def show_thumbnails(self) -> None:
+        """
+        Функция отображения кнопок с миниатюрами
+        """
         for i in reversed(range(self.layout_inside_thumbs.count())):
             self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
 
@@ -197,8 +204,10 @@ class WidgetWindow(QWidget):
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.clicked.connect(self.showinfo)
 
-    # создание и отрисовка карты с GPS-меткой
     def make_map(self) -> None:
+        """
+        Создание и отрисовка карты с GPS-меткой
+        """
         try:
             self.map_gps_widget.deleteLater()
         except (RuntimeError, AttributeError):
@@ -227,8 +236,10 @@ class WidgetWindow(QWidget):
             except (RuntimeError, AttributeError):
                 pass
 
-    # функция показа большой картинки
     def showinfo(self) -> None:
+        """
+        Функция показа большой картинки
+        """
         try:
             self.button_text = self.sender().text()
         except AttributeError:
@@ -328,8 +339,12 @@ class WidgetWindow(QWidget):
         if show_photo != self.photo_file:
             os.remove(show_photo)
 
-    # в класс передаётся список файлов, надо получить их директорию
     def make_photo_dir(self, photo_list: list[str]) -> str:
+        """
+        В класс передаётся список файлов, надо получить их директорию
+        :param photo_list:
+        :return:
+        """
         photo_splitted = photo_list[0].split('/')
         photo_dir = ''
         for i in range(0, len(photo_splitted) - 1):
@@ -337,21 +352,30 @@ class WidgetWindow(QWidget):
 
         return photo_dir
 
-    # Действия при изменении размеров окна
     def resizeEvent(self, QResizeEvent) -> None:
+        """
+        Действия при изменении размеров окна
+        """
         self.resized_signal.emit()
 
-    # изменить размер фото при изменении размера окна
     def resize_func(self) -> None:
+        """
+        Изменить размер фото при изменении размера окна
+        """
         self.resize_photo()
 
     def resize_photo(self) -> None:
+        """
+
+        """
         if not self.pic.isVisible():
             return
         self.showinfo()
 
-    # создание кнопки редактирования
     def make_buttons(self) -> None:
+        """
+        Создание кнопки редактирования
+        """
         self.edit_btn = QToolButton(self)
         self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
         self.edit_btn.setIconSize(QtCore.QSize(50, 50))
@@ -390,8 +414,10 @@ class WidgetWindow(QWidget):
         self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
         self.open_shortcut.activated.connect(self.open_file_func)
 
-    # функция редактирования
     def edit_photo_func(self) -> None:
+        """
+        Функция редактирования
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -401,16 +427,20 @@ class WidgetWindow(QWidget):
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
 
-    # открыть фотографию в приложении просмотра
     def open_file_func(self) -> None:
+        """
+        Открыть фотографию в приложении просмотра
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
         path = self.photo_file  # 'C:/Users/user/Pictures/IMG_0454.jpg'
         os.startfile(path)
 
-    # показать фото в проводнике
     def call_explorer(self) -> None:
+        """
+        Показать фото в проводнике
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -419,8 +449,10 @@ class WidgetWindow(QWidget):
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
 
-    # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:
+        """
+        Обновить дизайн при изменении настроек
+        """
         self.thumb_row = Settings.get_thumbs_row()
 
         self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
@@ -429,8 +461,10 @@ class WidgetWindow(QWidget):
         self.show_thumbnails()
 
 
-# редактирование exif
 class EditExifData(QDialog):
+    """
+    Редактирование exif
+    """
     edited_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent, photoname, photodirectory):
@@ -486,8 +520,13 @@ class EditExifData(QDialog):
         self.get_metadata(photoname, photodirectory)
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    # создание карты и метки на ней
     def make_map(self, coordinates, filename):
+        """
+        Создание карты и метки на ней
+        :param coordinates:
+        :param filename:
+        :return:
+        """
         try:
             self.map_gps_widget.deleteLater()
         except (RuntimeError, AttributeError):
@@ -507,8 +546,10 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
-    # отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
     def change_tab_gps(self):
+        """
+        Отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
+        """
         if self.tabs.currentIndex() in (0, 1, 3):
             self.table.show()
             self.layout.addWidget(self.table, 0, 1, 1, 2)
@@ -521,8 +562,10 @@ class EditExifData(QDialog):
             self.make_map((float(self.latitude_fn_line.text()), float(self.longitude_fn_line.text())), self.photoname)
             self.map_gps_widget.show()
 
-    # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
+        """
+        Создание всего GUI в разделе, где можно редактировать метаданные
+        """
         self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
@@ -901,15 +944,22 @@ class EditExifData(QDialog):
         self.serialbody_line.textChanged.connect(lambda: self.changes_to_indicator(9))
         self.seriallens_line.textChanged.connect(lambda: self.changes_to_indicator(10))
 
-    # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
     def changes_to_indicator(self, index: int) -> None:
+        """
+        Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
+        :param index:
+        """
         try:
             self.indicator[index] = 1
         except (IndexError, AttributeError):
             pass
 
-    # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
+        """
+        Считать и отобразить актуальные метаданные
+        :param photoname:
+        :param photodirectory:
+        """
         data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
         # Дата и время съёмки из формата exif в формат QDateTime
@@ -940,8 +990,10 @@ class EditExifData(QDialog):
             return year_int, month_int, day_int, hour_int, minute_int, second_int, \
                 zone_pm_sign, zone_hour_int, zone_min_int
 
-        # изменение размеров окна
         def func_resize() -> None:
+            """
+            Изменение размеров окна
+            """
             self.table.resizeColumnsToContents()
             self.table.horizontalHeader().setFixedHeight(1)
             self.table.setFixedSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 2,
@@ -951,8 +1003,10 @@ class EditExifData(QDialog):
             self.setMinimumSize(self.table.columnWidth(0) + self.table.columnWidth(1) + 650,
                                 self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 60)
 
-        # заполнить поля второй вкладки
         def fill_equip_set() -> None:
+            """
+            Заполнить поля второй вкладки
+            """
             self.maker_line.setText(str(data['Производитель']))
             self.camera_line.setText(str(data['Камера']))
             self.lens_line.setText(str(data['Объектив']))
@@ -963,8 +1017,10 @@ class EditExifData(QDialog):
             self.serialbody_line.setText(str(data['Серийный номер камеры']))
             self.seriallens_line.setText(str(data['Серийный номер объектива']))
 
-        # заполнить вкладку GPS
         def fill_gps() -> None:
+            """
+            Заполнить вкладку GPS
+            """
             coords_all = data['Координаты']
             try:
                 latitude_part = float(coords_all.split(',')[0])
@@ -1026,8 +1082,10 @@ class EditExifData(QDialog):
 
         func_resize()
 
-    # при изменении координат GPS в одном из вариантов ввода, поменять в соответствие и другую
     def updating_other_gps(self) -> None:
+        """
+        При изменении координат GPS в одном из вариантов ввода, поменять в соответствие и другую
+        """
         if self.mode_check_dmc.checkState() == 2:
             latitude_ref = self.latitude_dmc_choose.currentText()
             longitude_ref = self.longitude_dmc_choose.currentText()
@@ -1087,8 +1145,11 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setText(str(longitude_min))
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
-    # считать все поля ввода
     def read_enter(self) -> list[str]:
+        """
+        Считать все поля ввода
+        :return:
+        """
         maker = self.maker_line.text()
         camera = self.camera_line.text()
         lens = self.lens_line.text()
@@ -1146,8 +1207,10 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setDisabled(False)
             self.longitude_dmc_sec_line.setDisabled(False)
 
-    # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
+        """
+        Процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
+        """
         all_new_data = self.read_enter()
         changes_meta_dict = {}
         for i in range(len(all_new_data)):
@@ -1165,14 +1228,28 @@ class EditExifData(QDialog):
 
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
-        # Перезаписать в exif и БД новые метаданные
+        """
+        Записать новые метаданные
+        :param photoname:
+        :param photodirectory:
+        :param new_value_dict:
+        """
         def rewriting(photo_name: str, photo_directory: str, modify_dict) -> None:
+            """
+            Перезаписать в exif и БД новые метаданные
+            :param photo_name:
+            :param photo_directory:
+            :param modify_dict:
+            """
             Metadata.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
 
-        # проверка введённых пользователем метаданных
         def check_enter(editing_type_int: int, new_text_str: str) -> None:
+            """
+            Проверка введённых пользователем метаданных
+            :param editing_type_int:
+            :param new_text_str:
+            """
             Metadata.exif_check_edit(editing_type_int, new_text_str)
 
         # проверка введённых пользователем метаданных
@@ -1190,8 +1267,10 @@ class EditExifData(QDialog):
         rewriting(photoname, photodirectory, new_value_dict)
         self.edited_signal.emit()
 
-    # очистка exif
     def clear_exif_func(self) -> None:
+        """
+        Очистка exif
+        """
         def accepted():
             Metadata.clear_exif(self.photoname, self.photodirectory)
             self.get_metadata(self.photoname, self.photodirectory)
@@ -1206,8 +1285,10 @@ class EditExifData(QDialog):
         win.reject_signal.connect(rejected)
 
 
-# Окошко подтверждения желания очистить метаданные
 class ConfirmClear(QDialog):
+    """
+    Окошко подтверждения желания очистить метаданные
+    """
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
 

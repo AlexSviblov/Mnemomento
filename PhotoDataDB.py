@@ -11,7 +11,6 @@ conn = sqlite3.connect(f'file:{os.getcwd()}\\PhotoDB.db', check_same_thread=Fals
 cur = conn.cursor()
 
 
-# Добавление записи в БД при добавлении фото в каталог
 def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None:
     """
     Добавить запись о фотографии, добавляемой в программу, в базу данных.
@@ -50,10 +49,9 @@ def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None
     logging.info(f'In DB added record about {photodirectory}/{photoname}')
 
 
-# Удаление записи из БД при удалении фото из основного каталога
 def del_from_database(photoname: str, photodirectory: str) -> None:
     """
-    Удаление записи из БД при удалении фотографии, определение какую запрись удалять - по имени файла и каталогу.
+    Удаление записи из БД при удалении фотографии, определение какую запись удалять - по имени файла и каталогу.
     :param photoname: абсолютный путь фотографии.
     :param photodirectory: каталог хранения фотографии.
     :return: удаляются 2 записи в БД (1 в таблице photos, 2 в socialnetworks)
@@ -68,9 +66,9 @@ def del_from_database(photoname: str, photodirectory: str) -> None:
     logging.info(f'From DB removed record about {photodirectory}/{photoname}')
 
 
-# Запись изменений, внесённых пользователем при редактировании метаданных, которые есть в БД
 def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> None:
     """
+    Запись изменений, внесённых пользователем при редактировании метаданных, которые есть в БД.
     Редактированию подлежат поля таблицы photos камера, объектив, дата съёмки,координаты GPS.
     :param new_value_dict: словарь с новыми значениями
     :param photoname: имя файла.
@@ -119,7 +117,6 @@ def edit_in_database(photoname: str, photodirectory: str, new_value_dict) -> Non
         logging.info(f"PhotoDataDB - In DB edited record about {photodirectory}/{photoname} - {editing_type} = {new_text}")
 
 
-# при переносе в другую папку надо переписать её путь в БД
 def catalog_after_transfer(photoname: str, old_directory: str, new_directory: str) -> None:
     """
     При переносе фотографии основного каталога из-за смены даты съёмки в метаданных, необходимо отредактировать
@@ -139,9 +136,9 @@ def catalog_after_transfer(photoname: str, old_directory: str, new_directory: st
     logging.info(f"PhotoDataDB - After transfer to another directory, updated record in DB, file {photoname} moved from {old_directory} to {new_directory}")
 
 
-# записать в БД новое имя при переименовании при переносе
 def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcatalog: str, code: int) -> None:
     """
+    Записать в БД новое имя при переименовании при переносе.
     Если при смене даты, пришлось менять имя файла - перезаписать и каталог, и имя файла в БД.
     :param prewname: прошлое имя файла.
     :param rename: новое имя файла.
@@ -180,7 +177,6 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
     logging.info(f"PhotoDataDB - File {newcatalog}/{prewname} transfered to {oldcatalog}/{rename}")
 
 
-# достать вбитые в БД теги соцсетей
 def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dict]:
     """
     Для фотографии достать выбранные статусы выкладывания в БД.
@@ -207,7 +203,6 @@ def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dic
     return sn_column_names, sn_tags_values
 
 
-# редактирование тегов соцсетей
 def edit_sn_tags(photoname: str, photodirectory: str, new_status: str, network: str) -> None:
     """
     При изменении тега в графическом интерфейсе - сменить статус в БД.
@@ -224,10 +219,9 @@ def edit_sn_tags(photoname: str, photodirectory: str, new_status: str, network: 
     conn.commit()
 
 
-# список соцсетей в БД
 def get_socialnetworks() -> list[str]:
     """
-    Достаётся список добавленных в программу соцсетей. Возвращаются имена столбцов таблицы.
+    Достаётся список добавленных в программу соцсетей.
     :return: список названий столбцов - соцсетей.
     """
     sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
@@ -239,7 +233,6 @@ def get_socialnetworks() -> list[str]:
     return sn_column_names
 
 
-# список камер и объективов из БД
 def get_equipment() -> tuple[list[str], list[str]]:
     """
     Вытащить из базы данных все имеющиеся варианты камер и объективов.
@@ -266,7 +259,6 @@ def get_equipment() -> tuple[list[str], list[str]]:
     return cameras_list, lens_list,
 
 
-# получить полный путь ко всем фото, у которых указаны выбранные камера и объектив
 def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: str, comment_status: bool, comment_text: str) -> list[str]:
     """
     Получить полный путь ко всем фото, у которых указаны выбранные камера и объектив.
@@ -308,7 +300,6 @@ def get_equip_photo_list(camera_exif: str, camera: str, lens_exif: str, lens: st
     return fullpaths
 
 
-# получить полный путь всех фото, у которых в выбранной соцсети указан выбранный статус
 def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_text: str) -> list[str]:
     """
     Список абсолютных путей с выбранным статусом в выбранной соцсети.
@@ -351,7 +342,6 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
     return fullpaths
 
 
-# удалить все записи о файлах из удаляемой папки доп.каталога
 def del_alone_dir(photo_directory: str) -> None:
     """
     Удалить все записи, в которых указан удаляемый каталог.
@@ -370,7 +360,6 @@ def del_alone_dir(photo_directory: str) -> None:
         conn.commit()
 
 
-# выдать список фоток в папке доп.каталога с выбранными статусами в соцсетях
 def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[str]:
     """
     Для папки в доп.каталоге вернуть список файлов с выбранным статусом в выбранной соцсети.
@@ -393,7 +382,6 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
     return photo_list
 
 
-# получить пути для БД для перезаписи при переносе
 def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str], list[str]]:
     """
     При переносе файлов из-за изменения пути хранения фотографии в настройках перезаписать пути в БД.
@@ -415,7 +403,6 @@ def transfer_media_ways(old_way: str, new_way: str) -> tuple[list[str], list[str
     return new_catalogs, old_catalogs
 
 
-# перезаписать пути в БД, если при изменении настроек программы, был перенос файлов
 def transfer_media(new_catalog: str, old_catalog: str) -> None:
     """
     При переносе файлов из-за изменения пути хранения фотографии в настройках перезаписать пути в БД.
@@ -430,7 +417,6 @@ def transfer_media(new_catalog: str, old_catalog: str) -> None:
     conn.commit()
 
 
-# при очистке метаданных - обнулить значения в '' в БД
 def clear_metadata(photo_name: str, photo_directory: str) -> None:
     """
     Очистка столбцов метаданных в БД (камера, объектив, дата съёмки, дата и время съёмки, GPS в таблице photos и
@@ -461,10 +447,7 @@ def clear_metadata(photo_name: str, photo_directory: str) -> None:
 
     logging.info(f"PhotoDataDB - Metadata of {photo_directory}/{photo_name} cleared in DB")
 
-# TODO: comment
 
-
-# достать из БД список фото сделанных в определённый день
 def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, comment_text: str) -> list[str]:
     """
     В БД записывается дата съёмки, тут достаются из БД все записи о фото, сделанных в указанную дату
@@ -550,7 +533,6 @@ def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, c
     return fullpaths
 
 
-# достать GPS-координаты фотографий основного каталога из БД (используется только в GlobalMap)
 def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[float, float] | bool | Any]], int, tuple[float | Any, ...] | tuple[float, float]]:
     """
     Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
@@ -642,10 +624,9 @@ def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[flo
     return names_and_coords, zoom_level, map_center
 
 
-# переименовать файлы в БД при смене имени
 def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
     """
-    Переименование файла при его перименовнании в специальной графе окошка редактирования метаданных
+    Переименование файла при его переименовании в специальной графе окошка редактирования метаданных
     :param catalog: каталог хранения
     :param old_file_name: старое имя файла
     :param new_file_name: новое имя файла
@@ -661,7 +642,6 @@ def file_rename(catalog: str, old_file_name: str, new_file_name: str) -> None:
     logging.info(f"PhotoDataDB - Renaming file in database, catalog - {catalog}, old name - {old_file_name}, new name - {new_file_name}")
 
 
-# обновить в БД много записей одновременно
 def massive_edit_metadata(photo_list: list[str], modify_dict: dict[int, str]) -> None:
     """
     При массовом редактировании камеры, объектив, даты съёмки или координат, надо обновить и записи в БД
@@ -675,8 +655,10 @@ def massive_edit_metadata(photo_list: list[str], modify_dict: dict[int, str]) ->
         edit_in_database(file_name, file_dir, modify_dict)
 
 
-# в каком порядке выдавать список из БД -> в таком же порядке создаются миниатюры в GUI
 def db_order_settings() -> str:
+    """
+    В каком порядке выдавать список из БД -> в таком же порядке создаются миниатюры в GUI
+    """
     setting = Settings.get_sort_type()
 
     match setting:

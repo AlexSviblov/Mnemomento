@@ -11,10 +11,9 @@ conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
 cur = conn.cursor()
 
 
-# получить все каталоги+файлы из ФотоДБ (таблицы фото и соцсети)
 def get_all_db_ways() -> tuple[list[list[str]], list[list[str]]]:
     """
-    Все пути из БД PhotoDB (из обеих таблиц)
+    Получить все каталоги+файлы из ФотоДБ (таблицы фото и соцсети) (обе таблицы)
     :return: список путей (путь каталога, имя файла) таблицы фото и таблицы соцсетей
     """
 
@@ -30,9 +29,9 @@ def get_all_db_ways() -> tuple[list[list[str]], list[list[str]]]:
     return all_photos_db, all_socnets_db
 
 
-# проверить существуют ли файлы из БД на диске
 def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[list[str]]) -> None:
     """
+    Проверить существуют ли файлы из БД на диске.
     Если файла, путь к которому указан в БД, не существует - стереть запись.
     :param all_photos_db: список путей таблицы photos БД PhotoDB.
     :param all_socnets_db: список путей таблицы socialnetworks БД PhotoDB.
@@ -72,9 +71,9 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
     conn.commit()
 
 
-# найти все фото в директории хранения медиа
 def research_all_media_photos() -> list[list[str]]:
     """
+    Найти все фото в директории хранения медиа.
     Сбор вообще всех JPG, кроме миниатюр, в директории хранения фотографий.
     :return: список абсолютных путей.
     """
@@ -88,7 +87,6 @@ def research_all_media_photos() -> list[list[str]]:
     return filelist
 
 
-# Если фото есть в директории хранения, но нет в БД - записать
 def add_flaw_to_db(filelist: list[list[str]]) -> None:
     """
     Если фото есть в директории хранения, но нет в БД - сделать запись в БД, как при добавлении фото в каталог.
@@ -141,9 +139,9 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
     conn.commit()
 
 
-# Проверка, что в путях в БД содержится путь хранения медиа, т.е. Бд ведёт к папке хранения, а не куда-то в небытие
 def check_destination_corr_db() -> tuple[int, int]:
     """
+    Проверка, что в путях в БД содержится путь хранения медиа, т.е. БД ведёт к папке хранения, а не куда-то в небытие.
     Проверка для отображения "количества ошибок" в ГУЕ.
     :return: количество записей, где в графе catalog не содержится путь к директории хранения фото из настроек.
     """
@@ -165,18 +163,20 @@ def check_destination_corr_db() -> tuple[int, int]:
     return photo_conflicts, socnet_conflicts
 
 
-# получить все каталоги+файлы из ФотоДБ (таблица фото)
 def get_photo_db_ways():
+    """
+    Получить все каталоги+файлы из ФотоДБ (таблица фото)
+    """
     sql_str = "SELECT catalog, filename FROM photos"
     cur.execute(sql_str)
     all_photos_db = cur.fetchall()
     return all_photos_db
 
 
-# соотнести миниатюры в папке хранения и фотографии, лишние миниатюры удалить, недостающие добавить
 def thumbnail_photo_conformity() -> None:
     """
-    Используется для удаления лишних миниатюр, которые не были удалены при удалении фотографий и создания недостающих
+    Соотнести миниатюры в папке хранения и фотографии, лишние миниатюры удалить, недостающие добавить.
+    Используется для удаления лишних миниатюр, которые не были удалены при удалении фотографий и создания недостающих.
     :return: создаются или удаляются миниатюры
     """
     thumb_list = research_all_thumbnails()
@@ -227,7 +227,6 @@ def thumbnail_photo_conformity() -> None:
                 Thumbnail.make_alone_thumbnails(catalog_name, f"{combo[0]}/{combo[1]}", combo[1])
 
 
-# получить список всех имеющихся миниатюр
 def research_all_thumbnails() -> list[str]:
     """
     Получается список всех миниатюр в директории хранения

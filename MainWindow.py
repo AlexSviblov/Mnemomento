@@ -47,9 +47,7 @@ logging.basicConfig(filename=f"logs/log-{str(datetime.datetime.now())[:10]}.txt"
 
 
 class MainWindow(QMainWindow):
-
     def __init__(self, parent=None):
-
         super().__init__(parent)
 
         self.stylesheet_color()
@@ -148,8 +146,10 @@ class MainWindow(QMainWindow):
 
         self.start_show()
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet4
@@ -182,63 +182,33 @@ class MainWindow(QMainWindow):
         except AttributeError:
             pass
 
-    # добавить в основной каталог на постоянку файлы
     def func_add_const_files(self) -> None:
+        """
+        Добавить в основной каталог на постоянку файлы
+        """
         self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
         file_list = self.add_files_chosen[0]
         if not file_list:
             return
 
-        self.progressbar = ProgressBar()
-        self.setCentralWidget(self.progressbar)
+        self.func_add_const(file_list)
 
-        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
-        self.taskbar_progress = self.taskbar_button.progress()
-        self.taskbar_progress.show()
-        self.taskbar_button.setWindow(self.windowHandle())
-
-        self.add_files_progress = ConstMaker(file_list=file_list)
-        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
-        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
-
-        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
-        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
-        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
-
-        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
-        self.add_files_progress.start()
-
-    # добавить в основной каталог на постоянку папку
     def func_add_const_dir(self) -> None:
+        """
+        Добавить в основной каталог на постоянку папку
+        """
         add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
         try:
             file_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
         except FileNotFoundError:
             return
 
-        self.progressbar = ProgressBar()
-        self.setCentralWidget(self.progressbar)
+        self.func_add_const(file_list)
 
-        self.taskbar_button = PyQt5.QtWinExtras.QWinTaskbarButton()
-        self.taskbar_progress = self.taskbar_button.progress()
-        self.taskbar_progress.show()
-        self.taskbar_button.setWindow(self.windowHandle())
-
-        self.add_files_progress = ConstMaker(file_list=file_list)
-        self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
-        self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
-
-        self.add_files_progress.preprogress.connect(lambda x: self.taskbar_progress.setMaximum(x))
-        self.add_files_progress.progress.connect(lambda y: self.taskbar_progress.setValue(y))
-        self.add_files_progress.progress.connect(lambda: QtCore.QCoreApplication.processEvents())
-
-        self.add_files_progress.info_text.connect(lambda t: self.progressbar.info_set_text(t))
-        self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
-        self.add_files_progress.start()
-
-    # добавить в основной каталог папку, все файлы в ней и все файлы во всех подпапках
     def func_add_const_megadir_const(self):
+        """
+        Добавить в основной каталог папку, все файлы в ней и все файлы во всех подпапках
+        """
         add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
         file_list = []
         for root, dirs, files in os.walk(add_dir_chosen):
@@ -246,6 +216,13 @@ class MainWindow(QMainWindow):
                 if file.endswith(".jpg") or file.endswith(".JPG"):
                     file_list.append(root.replace('\\', '/') + '/' + file)
 
+        self.func_add_const(file_list)
+
+    def func_add_const(self, file_list: list[str]) -> None:
+        """
+        Добавление файлов в основной каталог
+        :param file_list: список путей файлов
+        """
         self.progressbar = ProgressBar()
         self.setCentralWidget(self.progressbar)
 
@@ -266,8 +243,10 @@ class MainWindow(QMainWindow):
         self.add_files_progress.finished.connect(lambda e, p: self.finish_thread_add_const(e, p))
         self.add_files_progress.start()
 
-    # добавить в дополнительный каталог папку на постоянку
     def func_add_alone_dir(self) -> None:
+        """
+        Добавить в дополнительный каталог папку на постоянку
+        """
         add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
 
         try:
@@ -296,8 +275,11 @@ class MainWindow(QMainWindow):
         self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
         self.add_files_progress.start()
 
-    # добавить в доп.каталог файлы
     def func_add_alone_files(self, dir_to_add: str) -> None:
+        """
+        Добавить в доп.каталог файлы
+        :param dir_to_add: папка доп.каталога, в которую добавлять файлы
+        """
         self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
         file_list = self.add_files_chosen[0]
         if not file_list:
@@ -329,8 +311,10 @@ class MainWindow(QMainWindow):
         self.add_files_progress.finished.connect(lambda files: self.finish_thread_add_alone(files))
         self.add_files_progress.start()
 
-    # одноразовый просмотр папки
     def func_view_dir(self) -> None:
+        """
+        Одноразовый просмотр папки
+        """
         self.view_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
 
         try:
@@ -358,8 +342,10 @@ class MainWindow(QMainWindow):
         self.view_files_progress.finished.connect(self.finish_thread_view_dir)
         self.view_files_progress.start()
 
-    # одноразовый просмотр файлов
     def func_view_files(self) -> None:
+        """
+        Одноразовый просмотр файлов
+        """
         self.view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
         self.photo_files_list_view = self.view_files_chosen[0]
 
@@ -386,11 +372,13 @@ class MainWindow(QMainWindow):
         self.view_files_progress.finished.connect(self.finish_thread_view_dir)
         self.view_files_progress.start()
 
-    # По окончании добавления файлов в основной каталог, запустить виджет его показа
     def finish_thread_add_const(self, files_exists: list[str], files_errors: list[str]) -> None:
-
+        """
+        По окончании добавления файлов в основной каталог, запустить виджет его показа
+        :param files_exists: файлы, которые уже были добавлены (список имён)
+        :param files_errors: файлы, которые не удалось скопировать
+        """
         self.taskbar_progress.reset()
-        # win = PhotoExistsWarning(self, files)
         if files_exists:
             win1 = ErrorsAndWarnings.PhotoExists(self, files_exists, "const")
             win1.show()
@@ -401,8 +389,11 @@ class MainWindow(QMainWindow):
         self.show_main_const_widget()
         self.add_files_progress = None
 
-    # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
     def finish_thread_add_alone(self, files: str) -> None:
+        """
+        # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
+        :param files: список уже существовавших файлов
+        """
         self.taskbar_progress.reset()
         if files[0] == 'finish':
             self.show_main_alone_widget()
@@ -417,42 +408,54 @@ class MainWindow(QMainWindow):
             self.show_main_alone_widget()
         self.add_files_progress = None
 
-    # По окончании создания миниатюр разового просмотра, запустить виджет показа
     def finish_thread_view_dir(self) -> None:
+        """
+        По окончании создания миниатюр разового просмотра, запустить виджет показа
+        """
         self.taskbar_progress.reset()
         self.show_view_dir()
         self.view_files_progress = None
 
-    # Виджет показа основного каталога
     def show_main_const_widget(self) -> None:
+        """
+        Виджет показа основного каталога
+        """
         widget = ShowConstWindowWidget.ConstWidgetWindow()
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         self.stylesheet_color()
         self.setCentralWidget(widget)
 
-    # Виджет показа дополнительного каталога
     def show_main_alone_widget(self) -> None:
+        """
+        Виджет показа дополнительного каталога
+        """
         widget = ShowAloneWindowWidget.AloneWidgetWindow()
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         widget.add_photo_signal.connect(lambda t_dir: self.func_add_alone_files(t_dir))
         self.stylesheet_color()
         self.setCentralWidget(widget)
 
-    # Показ папки вне каталогов
     def show_view_dir(self) -> None:
+        """
+        Показ папки вне каталогов
+        """
         widget = OnlyShowWidget.WidgetWindow(self.photo_files_list_view)
         widget.set_minimum_size.connect(lambda w: self.setMinimumWidth(w))
         self.stylesheet_color()
         self.setCentralWidget(widget)
 
-    # карта снимков
     def show_global_map(self) -> None:
+        """
+        Карта снимков
+        """
         widget = GlobalMap.GlobalMapWidget()
         self.stylesheet_color()
         self.setCentralWidget(widget)
 
-    # Начальный вид
     def start_show(self) -> None:
+        """
+        Начальный вид
+        """
         widget = StartShow()
         self.stylesheet_color()
         self.setCentralWidget(widget)
@@ -463,8 +466,10 @@ class MainWindow(QMainWindow):
         widget.const_add_dir_signal.connect(self.func_add_const_dir)
         widget.last_opened_clicked.connect(lambda file: self.last_opened_show(file))
 
-    # открыть дату с последней открытой фотографией
     def last_opened_show(self, photofile: str) -> None:
+        """
+        Открыть дату с последней открытой фотографией
+        """
         file_splitted = photofile.split('/')
         if 'const' in file_splitted:
             self.show_main_const_widget()
@@ -475,10 +480,12 @@ class MainWindow(QMainWindow):
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(file_splitted[-2])
 
-    # Таблица с изменёнными именами
     def db_ernames_view_func(self) -> None:
+        """
+        Таблица с изменёнными именами
+        """
         try:
-            self.window_db = DB_window(self)
+            self.window_db = ErrorNamesDBWindow(self)
         except Exception:
             logging.exception(f"MainWindow - Error in {type(self)} - Cannot open ErrorNames.db")
             er_win = ErrorsAndWarnings.ErNamesDBErrorWin(self)
@@ -489,18 +496,24 @@ class MainWindow(QMainWindow):
         self.window_db.main_resize_signal.connect(self.resize_db_window)
         self.window_db.show()
 
-    # Изменение размера окна таблицы при её редактировании
     def resize_db_window(self) -> None:
+        """
+        Изменение размера окна таблицы при её редактировании
+        """
         self.window_db.resize(self.window_db.size())
         self.window_db.adjustSize()
 
-    # закрытие программы -> удалить созданное для разового просмотра
     def closeEvent(self, event) -> None:
+        """
+        Закрытие программы -> удалить созданное для разового просмотра
+        """
         self.clear_view_close()
         logging.info("MainWindow - Correct program exit")
 
-    # удалить созданное для разового просмотра
     def clear_view_close(self) -> None:
+        """
+        Удалить созданное для разового просмотра
+        """
         try:
             Thumbnail.delete_exists()
             path = Settings.get_destination_media() + "/Media/Photo/const/"
@@ -517,37 +530,49 @@ class MainWindow(QMainWindow):
         except FileNotFoundError:
             pass
 
-    # соцсети
     def social_networks_func(self) -> None:
-        self.window_sn = Social_Network_window(self)
+        """
+        Соцсети
+        """
+        self.window_sn = SocialNetworksWindow(self)
         self.window_sn.resize(self.window_sn.size())
         self.window_sn.main_resize_signal.connect(self.resize_sn_window)
         self.window_sn.social_network_changed.connect(self.update_network_changes)
         self.window_sn.show()
 
-    # Изменение размера окна таблицы при её редактировании
     def resize_sn_window(self) -> None:
+        """
+        Изменение размера окна таблицы при её редактировании
+        """
         self.window_sn.resize(self.window_sn.size())
         self.window_sn.adjustSize()
 
-    # настройки
     def settings_func(self) -> None:
+        """
+        Настройки
+        """
         window_set = Settings.SettingWin(self)
         window_set.update_main_widget.connect(self.update_settings_widget)
         window_set.show()
 
-    # статистика
     def statistics_func(self) -> None:
+        """
+        Статистика
+        """
         self.window_stat = StatisticsModule.StatisticsWin(self)
         self.window_stat.show()
 
-    # восстановление
     def recovery_func(self) -> None:
+        """
+        Восстановление
+        """
         self.recovery_win = RecoveryModule.RecoveryWin(self)
         self.recovery_win.show()
 
-    # после изменения в настройках надо обновить текущий виджет
     def update_settings_widget(self) -> None:
+        """
+        После изменения в настройках надо обновить текущий виджет
+        """
         self.stylesheet_color()
 
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:  # Alone
@@ -641,8 +666,10 @@ class MainWindow(QMainWindow):
         except AttributeError:
             pass
 
-    # обновить основной виджет при редактировании соцсетей
     def update_network_changes(self) -> None:
+        """
+        Обновить основной виджет при редактировании соцсетей
+        """
         if type(self.centralWidget()) == ShowAloneWindowWidget.AloneWidgetWindow:  # Alone
             if self.centralWidget().socnet_group.isVisible():
                 self.centralWidget().show_social_networks(self.centralWidget().last_clicked,
@@ -656,20 +683,26 @@ class MainWindow(QMainWindow):
         else:
             pass
 
-    # окно массового редактирования метаданных
     def massive_edit_func(self) -> None:
-        self.window_me = Massive_Edit_window(self)
+        """
+        Окно массового редактирования метаданных
+        """
+        self.window_me = MassiveEditWindow(self)
         self.window_me.resize(self.window_me.size())
         self.window_me.show()
 
-    # о программе
     def func_about(self) -> None:
+        """
+        О программе
+        """
         win_about = AboutSoft.AboutInfo(self)
         win_about.show()
 
 
-# при добавлении папки
 class ProgressBar(QWidget):
+    """
+    При добавлении папки
+    """
     def __init__(self):
         super().__init__()
         self.setStyleSheet(stylesheet2)
@@ -706,8 +739,10 @@ class ProgressBar(QWidget):
         self.transfer_info.setText(f"{text}")
 
 
-# стартовое окно, при запуске программы
 class StartShow(QWidget):
+    """
+    Стартовое окно, при запуске программы
+    """
     const_show_signal = QtCore.pyqtSignal()
     alone_show_signal = QtCore.pyqtSignal()
     const_add_dir_signal = QtCore.pyqtSignal()
@@ -716,7 +751,6 @@ class StartShow(QWidget):
     last_opened_clicked = QtCore.pyqtSignal(str)
 
     def __init__(self):
-
         super().__init__()
         self.layout_outside = QGridLayout(self)
 
@@ -794,7 +828,6 @@ class StartShow(QWidget):
 
         self.layout_last = QGridLayout(self)
         self.last_photo = QToolButton(self)
-        # self.last_photo.setAlignment(QtCore.Qt.AlignTop)
         self.layout_last.addWidget(self.last_photo, 1, 0, 1, 1)
         self.last_text = QLabel()
         self.last_text.setText('Последнее просмотренное фото:\n')
@@ -828,8 +861,10 @@ class StartShow(QWidget):
         self.btn_const_add_files.clicked.connect(lambda: self.const_add_files_signal.emit())
         self.btn_const_add_dir.clicked.connect(lambda: self.const_add_dir_signal.emit())
 
-    # Собрать и вывести статистику основного каталога
     def fill_const_stats(self) -> None:
+        """
+        Собрать и вывести статистику основного каталога
+        """
         str_to_show = ''
         try:
             size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/const/')
@@ -837,14 +872,8 @@ class StartShow(QWidget):
             self.const_stats.setText(str_to_show)
             return
 
-        if size < 1024:
-            str_size = f'Объём основного каталога: {round(size, 3)} байт\n'
-        elif size < 1024 ** 2:
-            str_size = f'Объём основного каталога: {round(size / 1024, 3)} килобайт\n'
-        elif size < 1024 ** 3:
-            str_size = f'Объём основного каталога: {round(size / (1024 ** 2), 3)} мегабайт\n'
-        else:
-            str_size = f'Объём основного каталога: {round(size / (1024 ** 3), 3)} гигабайт\n'
+        str_size = f'Объём основного каталога: {self.get_size_str(size)}\n'
+
         str_to_show += str_size
         str_numfiles = f'Фотографий в основном каталоге: {numfiles}\n'
         str_to_show += str_numfiles
@@ -852,23 +881,20 @@ class StartShow(QWidget):
         self.const_stats.setText(str_to_show)
         self.const_stats.setFont(font12)
 
-    # Собрать и вывести статистику дополнительного каталога
     def fill_alone_stats(self) -> None:
+        """
+        Собрать и вывести статистику дополнительного каталога
+        """
         str_to_show = ''
         try:
             size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/alone/')
         except Exception:
             self.alone_stats.setText(str_to_show)
             return
+
         numdir = fullnum - numfiles
-        if size < 1024:
-            str_size = f'Объём дополнительного каталога: {round(size, 3)} байт\n'
-        elif size < 1024 ** 2:
-            str_size = f'Объём дополнительного каталога: {round(size / 1024, 3)} килобайт\n'
-        elif size < 1024 ** 3:
-            str_size = f'Объём дополнительного каталога: {round(size / (1024 ** 2), 3)} мегабайт\n'
-        else:
-            str_size = f'Объём дополнительного каталога: {round(size / (1024 ** 3), 3)} гигабайт\n'
+
+        str_size = f'Объём дополнительного каталога: {self.get_size_str(size)}\n'
 
         str_to_show += str_size
 
@@ -879,8 +905,28 @@ class StartShow(QWidget):
         self.alone_stats.setText(str_to_show)
         self.alone_stats.setFont(font10)
 
-    # получить данные о занятой памяти, количестве файлов и файлов + подпапок
+    def get_size_str(self, size: int) -> str:
+        """
+        Из количества байт размера каталога, получить его размер
+        :param size: размер каталога в байтах
+        :return: строка с текстом объёма
+        """
+        if size < 1024:
+            str_size = f'{round(size, 3)} байт'
+        elif size < 1024 ** 2:
+            str_size = f'{round(size / 1024, 3)} килобайт'
+        elif size < 1024 ** 3:
+            str_size = f'{round(size / (1024 ** 2), 3)} мегабайт'
+        else:
+            str_size = f'{round(size / (1024 ** 3), 3)} гигабайт'
+        return str_size
+
     def fill_dir_stats(self, path: str) -> tuple[int, int, int]:
+        """
+        Получить данные о занятой памяти, количестве файлов и файлов + подпапок
+        :param path: путь к каталогу (основной, либо дополнительный)
+        :return: байт объёма кталога, количество файлов, количество фйалов+папок
+        """
         fsize = 0
         numfile = 0
         iteration = 0
@@ -892,8 +938,10 @@ class StartShow(QWidget):
         return fsize, numfile, iteration
 
 
-# окно просмотра базы неверных имён
-class DB_window(QMainWindow):
+class ErrorNamesDBWindow(QMainWindow):
+    """
+    Окно просмотра базы неверных имён
+    """
     main_resize_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent):
@@ -912,8 +960,10 @@ class DB_window(QMainWindow):
         self.main_resize_signal.emit()
 
 
-# просмотр окна соцсетей
-class Social_Network_window(QMainWindow):
+class SocialNetworksWindow(QMainWindow):
+    """
+    Просмотр окна соцсетей
+    """
     social_network_changed = QtCore.pyqtSignal()
     main_resize_signal = QtCore.pyqtSignal()
 
@@ -933,8 +983,10 @@ class Social_Network_window(QMainWindow):
         self.main_resize_signal.emit()
 
 
-# окно массового редактирования метаданных
-class Massive_Edit_window(QMainWindow):
+class MassiveEditWindow(QMainWindow):
+    """
+    Окно массового редактирования метаданных
+    """
     main_resize_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent):
@@ -951,8 +1003,10 @@ class Massive_Edit_window(QMainWindow):
         self.main_resize_signal.emit()
 
 
-# добавление в основной каталог
 class ConstMaker(QtCore.QThread):
+    """
+    Добавление в основной каталог
+    """
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
@@ -1016,8 +1070,10 @@ class ConstMaker(QtCore.QThread):
         self.finished.emit(files_exist, files_permission)
 
 
-# добавление в дополнительный каталог
 class AloneMaker(QtCore.QThread):
+    """
+    Добавление в дополнительный каталог
+    """
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
@@ -1114,12 +1170,14 @@ class AloneMaker(QtCore.QThread):
                 self.finished.emit(['finish'])
 
 
-# создание временных файлов для разового просмотра
 class TimeMaker(QtCore.QThread):
+    """
+    Создание временных файлов для разового просмотра
+    """
     info_text = pyqtSignal(str)
     preprogress = pyqtSignal(int)
     progress = pyqtSignal(int)
-    finished = pyqtSignal(str)
+    finished = pyqtSignal()
 
     def __init__(self, photo_files_list):
         QThread.__init__(self)
@@ -1141,7 +1199,7 @@ class TimeMaker(QtCore.QThread):
             j += 1
             self.progress.emit(round(100 * (j / self.len_file_list)))
 
-        self.finished.emit('finish')
+        self.finished.emit()
 
 
 if __name__ == "__main__":

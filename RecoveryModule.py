@@ -20,9 +20,10 @@ loading_icon = str()
 font14 = QtGui.QFont('Times', 14)
 
 
-# объект окна настроек
 class RecoveryWin(QMainWindow):
-
+    """
+    Объект окна настроек
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.stylesheet_color()
@@ -35,8 +36,10 @@ class RecoveryWin(QMainWindow):
         self.setCentralWidget(recovery)
         self.resize(recovery.size())
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self) -> None:
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet8
@@ -56,8 +59,10 @@ class RecoveryWin(QMainWindow):
             pass
 
 
-# сам виджет со всем GUI
 class RecoveryWidget(QWidget):
+    """
+    Сам виджет со всем GUI
+    """
     def __init__(self, parent):
         super().__init__(parent)
         self.setStyleSheet(stylesheet2)
@@ -160,8 +165,10 @@ class RecoveryWidget(QWidget):
         self.btn_recovery.clicked.connect(self.do_recovery_func)
         self.layout.addWidget(self.btn_recovery, 10, 0, 1, 1)
 
-    # выполнение восстановления
     def do_recovery_func(self) -> None:
+        """
+        Выполнение восстановления
+        """
         self.loading_win = RecoveryLoadingWin(self)
         self.proccess = DoRecovery()
         self.proccess.finished.connect(self.loading_win.close)
@@ -170,8 +177,10 @@ class RecoveryWidget(QWidget):
         self.loading_win.show()
         self.proccess.start()
 
-    # обновить GUI по завершении восстановления
     def update_values(self) -> None:
+        """
+        Обновить GUI по завершении восстановления
+        """
         self.len_photos_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[0])))
         self.len_socnets_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[1])))
         self.err_photos_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[0]))
@@ -181,8 +190,10 @@ class RecoveryWidget(QWidget):
         self.proccess = None
 
 
-# тупа анимация загрузки с надписью
 class RecoveryLoadingWin(QDialog):
+    """
+    Тупа анимация загрузки с надписью
+    """
     def __init__(self, parent):
         super().__init__(parent)
         self.layout = QGridLayout(self)
@@ -213,8 +224,10 @@ class RecoveryLoadingWin(QDialog):
         self.process_lbl.setText(f"{text}")
 
 
-# непосредственно восстановление
 class DoRecovery(QtCore.QThread):
+    """
+    Непосредственно восстановление
+    """
     loading_text_show = pyqtSignal(str)
     finished = QtCore.pyqtSignal()
 

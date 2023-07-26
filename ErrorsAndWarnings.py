@@ -22,8 +22,10 @@ def stylesheet_color():
     stylesheet8 = style[f'{theme}']['stylesheet8']
 
 
-# добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
 class PhotoExists(QDialog):
+    """
+    Добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
+    """
     def __init__(self, parent, photo_list, catalog_type):
         super(PhotoExists, self).__init__(parent)
         stylesheet_color()
@@ -64,8 +66,10 @@ class PhotoExists(QDialog):
         self.btn_ok.clicked.connect(lambda: self.close())
 
 
-# при вводе метаданных в режиме редактирования введён недопустимый формат
 class EditExifErrorWin(QDialog):
+    """
+    При вводе метаданных в режиме редактирования введён недопустимый формат
+    """
     def __init__(self, parent):
         super(EditExifErrorWin, self).__init__(parent)
         stylesheet_color()
@@ -88,9 +92,11 @@ class EditExifErrorWin(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
-# при редактировании даты exif надо переносить файл в другую папку, там уже есть файл с таким
-# именем, и пользователь не переименовал ни один из двух
 class ExistFileRenameError1(QDialog):
+    """
+    При редактировании даты exif надо переносить файл в другую папку, там уже есть файл с таким
+    именем, и пользователь не переименовал ни один из двух
+    """
     def __init__(self, parent):
         super(ExistFileRenameError1, self).__init__(parent)
         stylesheet_color()
@@ -115,6 +121,9 @@ class ExistFileRenameError1(QDialog):
 
 
 class ExistFileRenameError2(QDialog):
+    """
+
+    """
     def __init__(self, parent):
         super(ExistFileRenameError2, self).__init__(parent)
         stylesheet_color()
@@ -139,6 +148,9 @@ class ExistFileRenameError2(QDialog):
 
 
 class ErNamesDBWarn(QDialog):
+    """
+
+    """
     def __init__(self, parent, code=0):
         super(ErNamesDBWarn, self).__init__(parent)
         stylesheet_color()
@@ -173,6 +185,9 @@ class ErNamesDBWarn(QDialog):
 
 
 class ExistAloneDir(QDialog):
+    """
+
+    """
     def __init__(self, parent=None):
         super(ExistAloneDir, self).__init__(parent)
         stylesheet_color()
@@ -197,6 +212,9 @@ class ExistAloneDir(QDialog):
 
 
 class ErNamesDBErrorWin(QDialog):
+    """
+
+    """
     def __init__(self, parent=None):
         super(ErNamesDBErrorWin, self).__init__(parent)
         stylesheet_color()
@@ -221,6 +239,9 @@ class ErNamesDBErrorWin(QDialog):
 
 
 class RenameTransferingPhoto(QDialog):
+    """
+
+    """
     def __init__(self, parent=None):
         super(RenameTransferingPhoto, self).__init__(parent)
         stylesheet_color()
@@ -247,6 +268,9 @@ class RenameTransferingPhoto(QDialog):
 
 
 class SettingsReadError(QDialog):
+    """
+
+    """
     def __init__(self, parent=None):
         super(SettingsReadError, self).__init__(parent)
         stylesheet_color()
@@ -271,6 +295,9 @@ class SettingsReadError(QDialog):
 
 
 class FilesReadErrorWin(QDialog):
+    """
+
+    """
     def __init__(self, parent, files):
         super(FilesReadErrorWin, self).__init__(parent)
         stylesheet_color()
@@ -297,8 +324,10 @@ class FilesReadErrorWin(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
-# при вводе метаданных в режиме редактирования введён недопустимый формат
 class EditCommentErrorWin(QDialog):
+    """
+    При вводе метаданных в режиме редактирования введён недопустимый формат
+    """
     def __init__(self, parent, symbol):
         super(EditCommentErrorWin, self).__init__(parent)
         stylesheet_color()
@@ -324,24 +353,38 @@ class EditCommentErrorWin(QDialog):
 
 
 class EditCommentError(Exception):
+    """
+
+    """
     def __init__(self, symbol):
         self.symbol = symbol
 
 
-# при любой ошибки в процессе modify_exif вызывается ошибка
 class EditExifError(Exception):
+    """
+    При любой ошибки в процессе modify_exif вызывается ошибка
+    """
     pass
 
 
 class PhotoDBConnectionError(Exception):
+    """
+
+    """
     pass
 
 
 class ErnamesDBConnectionError(Exception):
+    """
+
+    """
     pass
 
 
 class FileReadError(Exception):
+    """
+
+    """
     def __init__(self, *args):
         if args:
             self.message = args[0]
@@ -357,6 +400,9 @@ class FileReadError(Exception):
 
 
 class ExistFileError(QDialog):
+    """
+
+    """
     def __init__(self, parent):
         super(ExistFileError, self).__init__(parent)
         stylesheet_color()

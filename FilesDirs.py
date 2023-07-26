@@ -9,9 +9,9 @@ import Thumbnail
 import PhotoDataDB
 
 
-# Достаёт список файлов расширения jpg из папки
 def make_files_list_from_dir(directory: str) -> list[str]:
     """
+    Достаёт список файлов расширения jpg из папки
     :param directory: абсолютный путь к папке, возвращается.
     :return: список абсолютных путей ко всем файлам формата JPG в directory.
     """
@@ -22,7 +22,6 @@ def make_files_list_from_dir(directory: str) -> list[str]:
     return file_list
 
 
-# Перенос файлов, создание записи в БД и создание миниатюры для основного каталога
 def transfer_const_photos(file: str) -> tuple[str, str] | None:
     """
     Для фото file проверяется его дата съёмки, при необходимости создаётся директория для этой даты в директории
@@ -142,7 +141,6 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
     return fileexist, file_permission_error
 
 
-# Перенос файлов, создание записи в БД и создание миниатюры для дополнительного каталога
 def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:
     """
     Для фото file выполняется перенос, создаётся запись в БД, создаётся миниатюра.
@@ -176,7 +174,6 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name=
     PhotoDataDB.add_to_database(photofile_lastname, f"{destination}{photo_directory_lastname}", file_metadata)
 
 
-# удалить все файлы и папку из доп.каталога
 def del_alone_dir(photo_directory: str) -> None:
     """
     Удаляется папка из доп.каталога (именно сама папка, записи в БД и миниатюры удаляются не тут).
@@ -189,7 +186,6 @@ def del_alone_dir(photo_directory: str) -> None:
     os.rmdir(photo_directory)
 
 
-# очистка пустых папок при закрытии
 def clear_empty_dirs(path) -> None:
     """
     При закрытии программы осуществляется попытка удаления пустых папок основного каталога.

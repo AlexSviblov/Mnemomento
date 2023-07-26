@@ -42,7 +42,9 @@ system_scale = Screenconfig.monitor_info()[1]
 
 
 class ManyPhotoEdit(QWidget):
-
+    """
+    Редактирование метаданных множества фотографий сразу
+    """
     def __init__(self):
         super().__init__()
         self.stylesheet_color()
@@ -120,11 +122,8 @@ class ManyPhotoEdit(QWidget):
         self.layout_outside.addWidget(self.write_buttons_groupbox, 4, 2, 1, 2)
         self.write_buttons_groupbox.setFixedHeight(80)
 
-        # self.compare_scroll = QScrollArea(self)
         self.table_compare = QTableWidget(self)
         self.table_compare.setFixedHeight(280)
-        # self.compare_scroll.setWidget(self.table_compare)
-        # self.layout_outside.addWidget(self.compare_scroll, 2, 2, 1, 2)
         self.layout_outside.addWidget(self.table_compare, 3, 2, 1, 2)
         self.make_compare_table()
 
@@ -135,8 +134,10 @@ class ManyPhotoEdit(QWidget):
         self.make_new_data_enter()
         self.make_buttons()
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self) -> None:
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet3
@@ -162,8 +163,10 @@ class ManyPhotoEdit(QWidget):
         except AttributeError:
             pass
 
-    # создание элементов ввода новых данных
     def make_new_data_enter(self) -> None:
+        """
+        Создание элементов ввода новых данных
+        """
         self.new_make_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_make_check, 0, 0, 1, 1)
         self.new_make_check.setStyleSheet(stylesheet2)
@@ -304,8 +307,10 @@ class ManyPhotoEdit(QWidget):
         self.new_gps_check.stateChanged.connect(self.new_line_locker)
         self.new_usercomment_check.stateChanged.connect(self.new_line_locker)
 
-    # блокировать/разрешать ввод в поле ввода, если не нажата/нажата галочка в чекбоксе
     def new_line_locker(self) -> None:
+        """
+        Блокировать/разрешать ввод в поле ввода, если не нажата/нажата галочка в чекбоксе
+        """
         match self.sender().text():
             case "Производитель":
                 lines = [self.new_make_line]
@@ -339,8 +344,11 @@ class ManyPhotoEdit(QWidget):
             else:
                 self.make_map(0)
 
-    # создание карты и метки на ней
     def make_map(self, status: int) -> None:
+        """
+        Создание карты и метки на ней
+        :param status:
+        """
         if not status:
             try:
                 self.map_gps_widget.deleteLater()
@@ -371,8 +379,10 @@ class ManyPhotoEdit(QWidget):
 
             self.layout_outside.addWidget(self.map_gps_widget, 1, 3, 1, 1)
 
-    # кнопки переноса всех фото между таблицами
     def make_buttons(self) -> None:
+        """
+        Кнопки переноса всех фото между таблицами
+        """
         self.btn_move_all_right = QPushButton(self)
         self.btn_move_all_right.setText(">>")
         self.btn_move_all_right.setFixedSize(40, 20)
@@ -415,8 +425,10 @@ class ManyPhotoEdit(QWidget):
         self.movie.start()
         self.loading_lbl.hide()
 
-    # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
+        """
+        Выбор способа группировки
+        """
         self.group_type = QComboBox(self)
         self.group_type.addItem('Дата')
         self.group_type.addItem('Оборудование')
@@ -428,8 +440,10 @@ class ManyPhotoEdit(QWidget):
 
         self.layout_outside.addWidget(self.group_type, 0, 0, 1, 1)
 
-    # заполнить поле группировки по дате
     def fill_sort_date(self) -> None:
+        """
+        Заполнить поле группировки по дате
+        """
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
@@ -484,8 +498,11 @@ class ManyPhotoEdit(QWidget):
 
         self.fill_date('date')
 
-    # заполнение полей сортировки по дате
     def fill_date(self, mode: str) -> None:
+        """
+        Заполнение полей сортировки по дате
+        :param mode:
+        """
         # Получение годов
         def get_years() -> None:
             self.date_year.clear()
@@ -581,8 +598,10 @@ class ManyPhotoEdit(QWidget):
                 get_months()
                 get_days()
 
-    # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
+        """
+        Заполнить поле группировки по оборудованию
+        """
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
         self.camera_choose.setFixedHeight(int(30*system_scale)+1)
@@ -620,8 +639,10 @@ class ManyPhotoEdit(QWidget):
         self.camera_choose.currentTextChanged.connect(self.show_filtered_thumbs)
         self.lens_choose.currentTextChanged.connect(self.show_filtered_thumbs)
 
-    # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:
+        """
+        Заполнить нужное поле в зависимости от выбранного типа группировки
+        """
         for i in reversed(range(self.layout_type.count())):
             self.layout_type.itemAt(i).widget().hide()
             self.layout_type.itemAt(i).widget().deleteLater()
@@ -635,8 +656,12 @@ class ManyPhotoEdit(QWidget):
 
         self.show_filtered_thumbs()
 
-    # преобразовать пути фотографий из БД в пути миниатюр для отображения
     def photo_to_thumb_path(self, photo_list: list[str]) -> list[str]:
+        """
+        Преобразовать пути фотографий из БД в пути миниатюр для отображения
+        :param photo_list:
+        :return:
+        """
         thumb_names = list()
         thumbnails_list = list()
         for photo in photo_list:
@@ -656,8 +681,10 @@ class ManyPhotoEdit(QWidget):
 
         return thumbnails_list
 
-    # показывать в левой таблице фото по группировке
     def show_filtered_thumbs(self) -> None:
+        """
+        Показывать в левой таблице фото по группировке
+        """
         try:
             self.btn_move_all_left.setDisabled(True)
             self.btn_move_all_right.setDisabled(True)
@@ -781,8 +808,10 @@ class ManyPhotoEdit(QWidget):
         except AttributeError:
             pass
 
-    # перенос всех отфильтрованных фото в таблицу редактирования
     def transfer_all_to_edit(self) -> None:
+        """
+        Перенос всех отфильтрованных фото в таблицу редактирования
+        """
         self.btn_move_all_left.setDisabled(True)
         self.btn_move_all_right.setDisabled(True)
         self.btn_clear_all.setDisabled(True)
@@ -827,8 +856,10 @@ class ManyPhotoEdit(QWidget):
         for i in reversed(range(self.layout_type.count())):
             self.layout_type.itemAt(i).widget().setDisabled(False)
 
-    # перенос всех фото из таблицы редактирования в таблицу просто отфильтрованных
     def transfer_all_to_filtered(self) -> None:
+        """
+        Перенос всех фото из таблицы редактирования в таблицу просто отфильтрованных
+        """
         for k in range(self.edit_photo_table.rowCount()):
             photo_path = self.edit_photo_table.cellWidget(k, 0).objectName()
             x = 0
@@ -848,8 +879,10 @@ class ManyPhotoEdit(QWidget):
 
         self.edit_photo_table.setRowCount(0)
 
-    # перенос одного фото в редактирование
     def transfer_one_to_edit(self) -> None:
+        """
+        Перенос одного фото в редактирование
+        """
         photo_path = self.sender().objectName()
         self.sender().setDisabled(True)
         item = QToolButton(self)
@@ -872,8 +905,10 @@ class ManyPhotoEdit(QWidget):
 
         item.clicked.connect(self.transfer_one_to_filtered)
 
-    # перенос одного фото из редактирования
     def transfer_one_to_filtered(self) -> None:
+        """
+        Перенос одного фото из редактирования
+        """
         photo_path = self.sender().objectName()
         x = 0
         for i in range(self.filtered_photo_table.rowCount()):
@@ -896,8 +931,10 @@ class ManyPhotoEdit(QWidget):
 
         self.table_one_del(photo_path)
 
-    # получить список всех файлов, выбранных для редактирования метаданных
     def get_edit_list(self) -> list[str]:
+        """
+        Получить список всех файлов, выбранных для редактирования метаданных
+        """
         photo_list = []
         for k in range(self.edit_photo_table.rowCount()):
             try:
@@ -906,8 +943,10 @@ class ManyPhotoEdit(QWidget):
                 pass
         return photo_list
 
-    # очистка метаданных
     def func_clear(self) -> None:
+        """
+        Очистка метаданных
+        """
         def accepted():
             self.empty1.hide()
             self.layout_btns.addWidget(self.loading_lbl, 0, 1, 1, 1)
@@ -935,8 +974,10 @@ class ManyPhotoEdit(QWidget):
         win.accept_signal.connect(accepted)
         win.reject_signal.connect(rejected)
 
-    # считать все новые вводимые данные
     def get_all_new_data(self) -> dict[int, str]:
+        """
+        Считать все новые вводимые данные
+        """
         modify_dict = dict()
 
         if self.new_make_check.checkState():
@@ -967,8 +1008,10 @@ class ManyPhotoEdit(QWidget):
 
         return modify_dict
 
-    # запись новых метаданных
     def write_data(self) -> None:
+        """
+        Запись новых метаданных
+        """
         # проверка введённых пользователем метаданных
         def check_enter(editing_type_int: int, new_text_str: str) -> None:
             Metadata.exif_check_edit(editing_type_int, new_text_str)
@@ -1013,8 +1056,10 @@ class ManyPhotoEdit(QWidget):
         self.editing_process.finished.connect(lambda date_changed: finished_success(date_changed))
         self.editing_process.start()
 
-    # Создать таблицу сравнения
     def make_compare_table(self) -> None:
+        """
+        Создать таблицу сравнения
+        """
         self.table_compare.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_compare.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.table_compare.setFont(font14)
@@ -1101,8 +1146,11 @@ class ManyPhotoEdit(QWidget):
         lbl_9.setStyleSheet(stylesheet2)
         self.table_compare.setCellWidget(8, column, lbl_9)
 
-    # -1 фото из редактирования
     def table_one_del(self, photo: str) -> None:
+        """
+        -1 фото из редактирования
+        :param photo:
+        """
         column = self.table_positions[photo]
         self.table_compare.removeColumn(column)
         for key in list(self.table_positions.keys()):
@@ -1110,8 +1158,11 @@ class ManyPhotoEdit(QWidget):
                 self.table_positions[key] = self.table_positions[key] - 1
         self.table_positions.pop(photo)
 
-    # заново заполнить таблицу после очистки/редактирования
     def update_table(self, status: int) -> None:
+        """
+        Заново заполнить таблицу после очистки/редактирования
+        :param status:
+        """
         self.table_compare.setColumnCount(0)
         if status:
             for photo in self.get_edit_list():
@@ -1121,8 +1172,10 @@ class ManyPhotoEdit(QWidget):
         QtCore.QCoreApplication.processEvents()
 
 
-# Окошко подтверждения желания очистить метаданные
 class ConfirmClear(QDialog):
+    """
+    Окошко подтверждения желания очистить метаданные
+    """
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
 
@@ -1162,11 +1215,14 @@ class ConfirmClear(QDialog):
         btn_cancel.clicked.connect(self.close)
 
 
-# Процесс редактирования метаданных и записей в БД
-# Пришлось сделать редактирование данных не всему списку разом, так как выполнение массового редактирования при 4+ фото
-# длится больше 5 секунд и ломает поток. Поток выполняется, но не отправляет сигнал на изменение интерфейса (убрать
-# загрузку и обновить таблицу).
+
 class DoEditing(QtCore.QThread):
+    """
+    Процесс редактирования метаданных и записей в БД
+    Пришлось сделать редактирование данных не всему списку разом, так как выполнение массового редактирования при 4+ фото
+    длится больше 5 секунд и ломает поток. Поток выполняется, но не отправляет сигнал на изменение интерфейса (убрать
+    загрузку и обновить таблицу).
+    """
     finished = QtCore.pyqtSignal(int)
 
     def __init__(self, photo_list, modify_dict):

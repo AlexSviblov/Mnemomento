@@ -38,9 +38,10 @@ stylesheet9 = str()
 system_scale = Screenconfig.monitor_info()[1]
 
 
-# редактирование exif
 class EditExifData(QDialog):
-
+    """
+    Редактирование exif
+    """
     edited_signal = QtCore.pyqtSignal()
     edited_signal_no_move = QtCore.pyqtSignal()
     movement_signal = QtCore.pyqtSignal(str, str, str)
@@ -142,8 +143,10 @@ class EditExifData(QDialog):
         self.get_file_data(photoname, photodirectory)
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet3
@@ -187,7 +190,6 @@ class EditExifData(QDialog):
         except AttributeError:
             pass
 
-    # создание интерфейса
     def make_gui(self) -> None:
         """
         Создаёт графический интерфейс, состоящий из слоя, на котором всё находится, таблицы с метаданными (отображается
@@ -212,8 +214,10 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
-    # создание кнопок
     def make_buttons(self):
+        """
+        Создание кнопок
+        """
         self.btn_ok.setText("Записать")
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font14)
@@ -232,8 +236,13 @@ class EditExifData(QDialog):
         self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
         self.btn_clear.clicked.connect(self.clear_exif_func)
 
-    # создание карты и метки на ней
     def make_map(self, coordinates, filename):
+        """
+        Создание карты и метки на ней
+        :param coordinates:
+        :param filename:
+        :return:
+        """
         # удалить уже существующую карту, если она есть (просто скрытие hide и удаление виджета deleteWidget не работают,
         # надо прям удалять из памяти
         try:
@@ -276,8 +285,10 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
-    # отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
     def change_tab_gps(self):
+        """
+        Отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
+        """
         if self.tabs.currentIndex() in (0, 1, 3, 4):
             self.table.show()
             self.layout.addWidget(self.table, 0, 1, 1, 2)
@@ -290,8 +301,10 @@ class EditExifData(QDialog):
             self.make_map((float(self.latitude_fn_line.text()), float(self.longitude_fn_line.text())), self.photoname)
             self.map_gps_widget.show()
 
-    # создание всего GUI в разделе, где можно редактировать метаданные
     def make_tabs_gui(self) -> None:
+        """
+        Создание всего GUI в разделе, где можно редактировать метаданные
+        """
         def make_tab_date():
             self.date_lbl.setStyleSheet(stylesheet2)
             self.date_lbl.setText("Дата съёмки:")
@@ -706,15 +719,23 @@ class EditExifData(QDialog):
         make_tab_usercomment()
         make_connects()
 
-    # Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
     def changes_to_indicator(self, index: int) -> None:
+        """
+        Если поле было изменено, в списке "индикатор" меняется значение с индексом, соответствующем полю, с 0 на 1
+        :param index:
+        """
         try:
             self.indicator[index] = 1
         except (IndexError, AttributeError):
             pass
 
-    # считать и отобразить актуальные метаданные
     def get_metadata(self, photoname: str, photodirectory: str) -> None:
+        """
+        Считать и отобразить актуальные метаданные
+        :param photoname:
+        :param photodirectory:
+        :return:
+        """
         # все необходимые метаданные вместе
         data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
 
@@ -854,8 +875,13 @@ class EditExifData(QDialog):
 
         func_resize()
 
-    # считать и отобразить данные файла (имя и вес)
     def get_file_data(self, file_name: str, file_directory: str) -> None:
+        """
+        Считать и отобразить данные файла (имя и вес)
+        :param file_name:
+        :param file_directory:
+        :return:
+        """
         file_name_splitted = file_name.split('.')
         self.picture_file_format = file_name_splitted[1]
         file_name_show = file_name_splitted[0]
@@ -875,8 +901,10 @@ class EditExifData(QDialog):
 
         self.file_size_line.setText(str_size)
 
-    # при изменении координат GPS в одном из вариантов ввода, поменять в соответствие и другую
     def updating_other_gps(self) -> None:
+        """
+        При изменении координат GPS в одном из вариантов ввода, поменять в соответствие и другую
+        """
         if self.mode_check_dmc.checkState() == 2:
             latitude_ref = self.latitude_dmc_choose.currentText()
             longitude_ref = self.longitude_dmc_choose.currentText()
@@ -957,8 +985,11 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setText(str(longitude_min))
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
-    # считать все поля ввода
     def read_enter(self) -> list[str]:
+        """
+        Считать все поля ввода
+        :return:
+        """
         maker = self.maker_line.text()
         camera = self.camera_line.text()
         lens = self.lens_line.text()
@@ -980,8 +1011,10 @@ class EditExifData(QDialog):
 
         return all_meta_entered
 
-    # блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
     def block_check_gps(self) -> None:
+        """
+        Блокировать/разблокировать элементы ввода GPS при выборе разных вариантов ввода
+        """
         if self.sender().text() == "ШД Г.м.с":
             if self.mode_check_dmc.checkState() == 2:
                 self.mode_check_fn.setCheckState(Qt.Unchecked)
@@ -1016,8 +1049,10 @@ class EditExifData(QDialog):
             self.longitude_dmc_min_line.setDisabled(False)
             self.longitude_dmc_sec_line.setDisabled(False)
 
-    # процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
     def pre_write_changes(self) -> None:
+        """
+        Процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
+        """
         self.new_filename = self.filename_line.text()
         all_new_data = self.read_enter()
         changes_meta_dict = {}
@@ -1056,8 +1091,13 @@ class EditExifData(QDialog):
                 self.renamed_signal.emit(new_file_name)
                 self.close()
 
-    # записать новые метаданные
     def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
+        """
+        Записать новые метаданные
+        :param photoname:
+        :param photodirectory:
+        :param new_value_dict:
+        """
         # Перезаписать в exif и БД новые метаданные
         def rewriting(photo_name: str, photo_directory: str, modify_dict) -> None:
             Metadata.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
@@ -1157,8 +1197,10 @@ class EditExifData(QDialog):
             rewriting(photoname, photodirectory, new_value_dict)
             self.edited_signal.emit()
 
-    # записать новые метаданные
     def clear_exif_func(self) -> None:
+        """
+        Записать новые метаданные
+        """
         def accepted():
             if 'No_Date_Info' in self.photodirectory:
                 Metadata.clear_exif(self.photoname, self.photodirectory)
@@ -1206,19 +1248,29 @@ class EditExifData(QDialog):
         win.accept_signal.connect(accepted)
         win.reject_signal.connect(rejected)
 
-    # переименование файла
     def rename_file(self, file_directory: str, file_name: str, new_name: str) -> None:
+        """
+        Переименование файла
+        :param file_directory:
+        :param file_name:
+        :param new_name:
+        """
         PhotoDataDB.file_rename(file_directory, file_name, new_name)
         Thumbnail.file_rename(file_directory, file_name, new_name)
         shutil.move(f"{file_directory}/{file_name}", f"{file_directory}/{new_name}")
 
-    # обновить данные в таблице/ на карте после записи метаданных
     def update_show_data(self):
+        """
+        Обновить данные в таблице/ на карте после записи метаданных
+        """
         self.get_metadata(self.photoname, self.photodirectory)
         self.get_file_data(self.photoname, self.photodirectory)
         self.change_tab_gps()
 
     def rotate_photo(self):
+        """
+        Поворачивать фотографию
+        """
         movement = self.sender().text()
 
         im = Image.open(f"{self.photodirectory}/{self.photoname}")
@@ -1281,8 +1333,10 @@ class EditExifData(QDialog):
         self.rotated_signal.emit()
 
 
-# совпали имена файлов при переносе по новой дате в exif
 class EqualNames(QDialog):
+    """
+    Совпали имена файлов при переносе по новой дате в exif
+    """
     file_rename_transfer_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent, filesname, old_date, new_date, full_exif_date):
@@ -1374,8 +1428,10 @@ class EqualNames(QDialog):
         self.layout.addWidget(self.btn_cnl, 4, 2, 1, 2)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
-    # показать в уменьшенном виде 2 фото, у которых совпали названия
     def show_photos(self) -> None:
+        """
+        Показать в уменьшенном виде 2 фото, у которых совпали названия
+        """
         self.old_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/'
         self.new_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/'
         pixmap_old = QtGui.QPixmap(self.old_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
@@ -1383,8 +1439,10 @@ class EqualNames(QDialog):
         self.pic_old.setPixmap(pixmap_old)
         self.pic_new.setPixmap(pixmap_new)
 
-    # какое фото выбрано для переименования, а какое остаётся со своим имеем
     def check_disable(self) -> None:
+        """
+        Какое фото выбрано для переименования, а какое остаётся со своим имеем
+        """
         last_changed = self.sender().objectName()
         if last_changed == 'old_checkbox':
             if self.old_checkbox.checkState():  # поставили галочку
@@ -1405,9 +1463,13 @@ class EqualNames(QDialog):
                 self.old_name.setDisabled(False)
                 self.old_checkbox.setCheckState(2)
 
-    # проверка ввода названий
     def ok_check(self, new_enter_text: str, old_enter_text: str) -> None:
-
+        """
+        Проверка ввода названий
+        :param new_enter_text:
+        :param old_enter_text:
+        :return:
+        """
         if new_enter_text == old_enter_text:
             err_win = ErrorsAndWarnings.ExistFileRenameError1(self)
             err_win.show()
@@ -1450,8 +1512,10 @@ class EqualNames(QDialog):
         self.close()
 
 
-# Окошко подтверждения желания очистить метаданные
 class ConfirmClear(QDialog):
+    """
+    Окошко подтверждения желания очистить метаданные
+    """
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
 

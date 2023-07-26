@@ -37,6 +37,9 @@ system_scale = Screenconfig.monitor_info()[1]
 
 
 class GlobalMapWidget(QWidget):
+    """
+
+    """
     update_main_widget = pyqtSignal()
     cancel_signal = pyqtSignal()
 
@@ -116,8 +119,10 @@ class GlobalMapWidget(QWidget):
         except AttributeError:
             pass
 
-    # вывести карту
     def pre_make_show_map(self) -> None:
+        """
+        Вывести карту
+        """
         try:
             self.warning_number.deleteLater()
         except (AttributeError, RuntimeError):
@@ -164,6 +169,11 @@ class GlobalMapWidget(QWidget):
         self.get_files_paths.start()
 
     def make_show_map(self, result):
+        """
+
+        :param result:
+        :return:
+        """
         map_points_combo = result[0]
         zoom_level = result[1]
         map_center = result[2]
@@ -238,8 +248,11 @@ class GlobalMapWidget(QWidget):
             self.layout_outside.addWidget(self.warning_number, 0, 2, 1, 1)
         QtCore.QCoreApplication.processEvents()
 
-    # заполнение полей сортировки по дате
     def fill_date(self, mode: str) -> None:
+        """
+        Заполнение полей сортировки по дате
+        :param mode:
+        """
         # Получение годов
         def get_years() -> None:
             self.date_year.clear()
@@ -335,8 +348,10 @@ class GlobalMapWidget(QWidget):
                 get_months()
                 get_days()
 
-    # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
+        """
+        Выбор способа группировки
+        """
         self.group_type = QComboBox(self)
         self.group_type.addItem('Дата')
         if self.soc_net_setting:
@@ -350,8 +365,10 @@ class GlobalMapWidget(QWidget):
 
         self.layout_outside.addWidget(self.group_type, 0, 0, 1, 1)
 
-    # заполнить поле группировки по дате
     def fill_sort_date(self) -> None:
+        """
+        Заполнить поле группировки по дате
+        """
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
@@ -405,8 +422,10 @@ class GlobalMapWidget(QWidget):
         self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
         self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
 
-    # заполнить поле группировки по соцсетям
     def fill_sort_socnets(self) -> None:
+        """
+        Заполнить поле группировки по соцсетям
+        """
         self.socnet_choose = QComboBox(self)
         self.socnet_choose.setFont(font14)
         self.socnet_choose.setFixedHeight(int(30*system_scale)+1)
@@ -442,8 +461,10 @@ class GlobalMapWidget(QWidget):
             self.sn_status.setFixedWidth(int(164*system_scale)+1)
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
-    # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
+        """
+        Заполнить поле группировки по оборудованию
+        """
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
         self.camera_choose.setFixedHeight(int(30*system_scale)+1)
@@ -474,8 +495,10 @@ class GlobalMapWidget(QWidget):
         self.camera_choose.setFixedWidth(int((camera_max_len * 12)*system_scale)+1)
         self.lens_choose.setFixedWidth(int((lens_max_len * 12)*system_scale)+1)
 
-    # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:
+        """
+        Заполнить нужное поле в зависимости от выбранного типа группировки
+        """
         for i in reversed(range(self.layout_type.count())):
             self.layout_type.itemAt(i).widget().hide()
             self.layout_type.itemAt(i).widget().deleteLater()
@@ -490,6 +513,14 @@ class GlobalMapWidget(QWidget):
                 self.fill_sort_equipment()
 
     def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
+        """
+
+        :param photo_name:
+        :param shooting_date:
+        :param camera:
+        :param thumbnail_way:
+        :return:
+        """
         if shooting_date != "":
             date_splitted = shooting_date.split('.')
             date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
@@ -530,6 +561,11 @@ class GlobalMapWidget(QWidget):
         return iframe
 
     def popup_html_group(self, photo_data_list: list[list[str, str, str, str, bool]]) -> IFrame:
+        """
+
+        :param photo_data_list:
+        :return:
+        """
         html_result = f"""
                <html>
                    """
@@ -587,6 +623,9 @@ class GlobalMapWidget(QWidget):
 
 
 class PathsLooter(QtCore.QThread):
+    """
+
+    """
     finished = QtCore.pyqtSignal(tuple)
 
     def __init__(self, full_paths):

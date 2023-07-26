@@ -33,8 +33,10 @@ loading_icon = str()
 system_scale = Screenconfig.monitor_info()[1]
 
 
-# объект окна настроек
 class SettingWin(QMainWindow):
+    """
+    Объект окна настроек
+    """
     update_main_widget = pyqtSignal()
 
     def __init__(self, parent=None):
@@ -55,8 +57,10 @@ class SettingWin(QMainWindow):
         self.setCentralWidget(settings)
         self.resize(settings.size())
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet7
@@ -74,8 +78,10 @@ class SettingWin(QMainWindow):
         loading_icon = style[f'{theme}']['loading_icon']
 
 
-# сами настройки (виджет)
 class SettingWidget(QWidget):
+    """
+    Сами настройки (виджет)
+    """
     update_main_widget = pyqtSignal()
     cancel_signal = pyqtSignal()
 
@@ -115,8 +121,10 @@ class SettingWidget(QWidget):
 
         self.resize(800, 240)
 
-    # создание интерфейса
     def make_gui(self) -> None:
+        """
+        Создание интерфейса
+        """
         self.tab_files = QWidget(self)
         self.tab_view = QWidget(self)
         self.tab_hotkeys = QWidget(self)
@@ -323,24 +331,30 @@ class SettingWidget(QWidget):
         self.tabs.addTab(self.tab_view, 'Внешний вид')
         self.tabs.addTab(self.tab_hotkeys, 'Горячие клавиши')
 
-    # выбор папки хранения фото
     def dir_media_choose(self) -> None:
+        """
+        Выбор папки хранения фото
+        """
         dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '')
         if dir_chosen:
             self.media_space_line.setText(dir_chosen)
         else:
             self.media_space_line.setText(self.old_media_dir)
 
-    # выбор папки хранения миниатюр
     def dir_thumb_choose(self) -> None:
+        """
+        Выбор папки хранения миниатюр
+        """
         dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '')
         if dir_chosen:
             self.thumbs_space_line.setText(dir_chosen)
         else:
             self.thumbs_space_line.setText(self.old_thumb_dir)
 
-    # показать записанный сейчас настройки
     def show_settings(self) -> None:
+        """
+        Показать записанный сейчас настройки
+        """
         def show_sort_type(chosen):
             match chosen:
                 case "name-up":
@@ -400,8 +414,10 @@ class SettingWidget(QWidget):
         self.delete_file_enter.setText(hotkeys["delete_file"])
         self.do_any_enter.setText(hotkeys["show_stat_map"])
 
-    # какие пути изменили, какие нет
     def check_changes(self) -> None:
+        """
+        Какие пути изменили, какие нет
+        """
         code = 0
 
         if self.old_media_dir != self.media_space_line.text() and not self.old_thumb_dir != self.thumbs_space_line.text():
@@ -420,8 +436,10 @@ class SettingWidget(QWidget):
             dialog_win.photo_transfered.connect(self.write_settings)
             dialog_win.photo_transfered.connect(lambda: dialog_win.close())
 
-    # перезаписать настройки на новые введённые
     def write_settings(self) -> None:
+        """
+        Перезаписать настройки на новые введённые
+        """
         def write_sort_type():
             match self.sort_choose.currentText():
                 case "Имя файла /\\":
@@ -479,8 +497,10 @@ class SettingWidget(QWidget):
 
         self.show_settings()
 
-    # обновить собственный вид при изменении настроек вида
     def update_stylesheet(self) -> None:
+        """
+        Обновить собственный вид при изменении настроек вида
+        """
         self.setStyleSheet(stylesheet2)
         self.media_space_lbl.setStyleSheet(stylesheet2)
         self.media_space_line.setStyleSheet(stylesheet1)
@@ -503,15 +523,19 @@ class SettingWidget(QWidget):
         self.logs_btn.setStyleSheet(stylesheet1)
         self.tabs.setStyleSheet(stylesheet7)
 
-    # открыть папку с логами, 1 файл указывается в пути, чтобы открыть уже саму папку, а не рабочую папку программы с выделенной папкой "логи"
     def call_explorer_logs(self) -> None:
+        """
+        Открыть папку с логами, 1 файл указывается в пути, чтобы открыть уже саму папку, а не рабочую папку программы с выделенной папкой "логи"
+        """
         path = os.getcwd() + r'\logs'
         file = os.listdir(path)[0]
         full_path = path + '\\' + file
         os.system(f'explorer /select,\"{full_path}\"')
 
-    # очистка папки логов, лог сегодняшнего дня не очищается, так как используется самой программой во время работы
     def clear_logs(self) -> None:
+        """
+        Очистка папки логов, лог сегодняшнего дня не очищается, так как используется самой программой во время работы
+        """
         path = os.getcwd() + r'\logs'
         files = os.listdir(path)
         for file in files:
@@ -522,8 +546,10 @@ class SettingWidget(QWidget):
         logging.info(f"Settings - Logs cleared")
 
 
-# перенос папок, если изменился путь
 class TransferFiles(QDialog):
+    """
+    Перенос папок, если изменился путь
+    """
     photo_transfered = QtCore.pyqtSignal()
 
     def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
@@ -602,8 +628,10 @@ class TransferFiles(QDialog):
         self.reject()
 
 
-# переброска файлов вынесена в отдельный поток, так как в одном потоке с QDialog, оно ломает GUI
 class DoTransfer(QtCore.QThread):
+    """
+    Переброска файлов вынесена в отдельный поток, так как в одном потоке с QDialog, оно ломает GUI
+    """
     finished = QtCore.pyqtSignal()
 
     def __init__(self, code, old_media, new_media, old_thumb, new_thumb):
@@ -652,8 +680,10 @@ class DoTransfer(QtCore.QThread):
         self.finished.emit()
 
 
-# уведомление о сохранении настроек
 class Notification(QDialog):
+    """
+    Уведомление о сохранении настроек
+    """
     def __init__(self, parent):
         super(Notification, self).__init__(parent)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -675,40 +705,55 @@ class Notification(QDialog):
         layout.addWidget(btn, 1, 0, 1, 1)
 
 
-# получить путь хранения медиа - для других модулей
 def get_destination_media() -> str:
+    """
+    Получить путь хранения медиа - для других модулей
+    :return: путь каталогов
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     destination_media = settings['files']['destination_dir']
     return destination_media
 
 
-# получить путь хранения миниатюр - для других модулей
 def get_destination_thumb() -> str:
+    """
+    Получить путь хранения миниатюр - для других модулей
+    :return: путь миниатюр
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     destination_thumb = settings['files']['thumbs_dir']
     return destination_thumb
 
 
-# количество миниатюр в строке
 def get_thumbs_row() -> int:
+    """
+    Количество миниатюр в строке
+    :return: сколько миниатюр умещать в один ряд
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     thumbs_row = int(settings['view']['thumbs_row'])
     return thumbs_row
 
 
-# режим переноса фото при добавлении
 def get_photo_transfer_mode() -> str:
+    """
+    Режим переноса фото при добавлении
+    :return: копировать добавляемые файлы или вырезать
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     transfer_mode = settings['files']['transfer_mode']
     return transfer_mode
 
 
-# выбранная визуальная тема
 def get_theme_color() -> str:
+    """
+    Выбранная визуальная тема
+    :return: тёмная или светлая тема
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     theme_color = settings['view']['color_theme']
@@ -718,24 +763,33 @@ def get_theme_color() -> str:
     return theme_color
 
 
-# включены или отключены соцсети
 def get_socnet_status() -> int:
+    """
+    Включены или отключены соцсети
+    :return: включены или отключены соц.сети
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     socnet_status = int(settings['view']['social_networks_status'])
     return socnet_status
 
 
-# сортировка фото в основном каталоге
 def get_sort_type() -> str:
+    """
+    Сортировка фото в основном каталоге
+    :return: возвращает тип, в каком порядке сортировать файлы
+    """
     with open('settings.json', 'r') as json_file:
         settings = json.load(json_file)
     sort_type = settings['view']['sort_type']
     return sort_type
 
 
-# горячие клавиши
 def get_hotkeys() -> dict:
+    """
+    Горячие клавиши
+    :return: словарь с горячими клавишами
+    """
     try:
         with open('hotkeys.json', 'r') as json_file:
             hotkeys = json.load(json_file)

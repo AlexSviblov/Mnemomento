@@ -29,8 +29,10 @@ font12 = QtGui.QFont('Times', 12)
 system_scale = Screenconfig.monitor_info()[1]
 
 
-# просмотр базы исправлений
 class ViewBDDialog(QWidget):
+    """
+    Просмотр базы исправлений
+    """
     resized_signal = QtCore.pyqtSignal()
 
     def __init__(self, parent=None):
@@ -94,8 +96,10 @@ class ViewBDDialog(QWidget):
         self.table.itemChanged.connect(self.edit_element)
         self.edit_btn.clicked.connect(self.edit_indicator)
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self):
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet3
@@ -145,13 +149,17 @@ class ViewBDDialog(QWidget):
         except AttributeError:
             pass
 
-    # при двойном нажатии на ячейку, данные в ней запоминаются
     def edit_func(self) -> None:
+        """
+        При двойном нажатии на ячейку, данные в ней запоминаются
+        """
         self.old_element = self.table.currentItem().text()
         self.old_element_col = self.table.currentColumn()
 
-    # если был включен режим редактирования, происходит редактирование
     def edit_element(self) -> None:
+        """
+        Если был включен режим редактирования, происходит редактирование
+        """
         if self.indicator == 1:
             # изменение в БД
             self.new_element = self.table.currentItem().text()
@@ -177,15 +185,19 @@ class ViewBDDialog(QWidget):
         else:
             pass
 
-    # включение режима редактирования
     def edit_indicator(self) -> None:
+        """
+        Включение режима редактирования
+        """
         self.indicator = 1
         self.edit_mode.setFixedHeight(self.height() - self.table.height() - self.add_btn.height())
         self.edit_mode.show()
         self.edit_btn.setDisabled(True)
 
-    # получение информации из БД
     def get_bd_info(self) -> None:
+        """
+        Получение информации из БД
+        """
         cur.execute("SELECT * FROM ernames")
         all_results = cur.fetchall()
         self.row_num = len(all_results)
@@ -214,8 +226,10 @@ class ViewBDDialog(QWidget):
         self.table.verticalScrollBar().setDisabled(True)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-    # вызов окна добавления записи
     def call_add(self) -> None:
+        """
+        Вызов окна добавления записи
+        """
         self.indicator = 0
         self.edit_mode.hide()
         dialog_add = AddBDDialog()
@@ -224,8 +238,10 @@ class ViewBDDialog(QWidget):
         self.get_bd_info()
         self.my_size()
 
-    # вызов окна удаления записи
     def call_del(self) -> None:
+        """
+        Вызов окна удаления записи
+        """
         self.indicator = 0
         self.edit_mode.hide()
         cur_row = self.table.currentRow()  # считывание выбранной перед нажатием строки
@@ -239,14 +255,18 @@ class ViewBDDialog(QWidget):
         self.my_size()
 
     def my_size(self) -> None:
+        """
+        """
         width = self.table.width()
         height = self.table.height() + self.add_btn.height()
         self.resize(width + 20, height + 20)
         self.resized_signal.emit()
 
 
-# добавить новую подмены
 class AddBDDialog(QDialog):
+    """
+    Добавить новую подмену
+    """
     def __init__(self):
         super(AddBDDialog, self).__init__()
         # Создание окна
@@ -315,8 +335,10 @@ class AddBDDialog(QDialog):
         self.norm_text.setStyleSheet(stylesheet1)
         self.layout_win.addWidget(self.norm_text, 2, 1, 1, 1)
 
-    # проверка заполнения полей ввода
     def check_empty(self) -> None:
+        """
+        Проверка заполнения полей ввода
+        """
         if self.error_text.text() == '':
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=1)
             warning.show()
@@ -332,8 +354,10 @@ class AddBDDialog(QDialog):
             pass
         self.confirm_window()
 
-    # подтверждение добавления записи
     def confirm_window(self) -> None:
+        """
+        Подтверждение добавления записи
+        """
         self.norm_entered = self.norm_text.text()
         self.error_entered = self.error_text.text()
         self.type_entered = self.type_combobox.currentText()
@@ -374,8 +398,10 @@ class AddBDDialog(QDialog):
         self.btn_ok_c.clicked.connect(self.confirm_func)
         self.btn_cancel_c.clicked.connect(self.not_confirm_func)
 
-    # после отмены добавления
     def not_confirm_func(self) -> None:
+        """
+        После отмены добавления
+        """
         self.confirm_label.hide()
         self.entered_info.hide()
         self.btn_ok_c.hide()
@@ -395,8 +421,10 @@ class AddBDDialog(QDialog):
         self.error_text.setText(self.error_entered)
         self.norm_text.setText(self.norm_entered)
 
-    # после подтверждения добавления
     def confirm_func(self) -> None:
+        """
+        После подтверждения добавления
+        """
         match self.type_combobox.currentIndex():
             case 0:
                 equip_type = 'maker'
@@ -423,8 +451,10 @@ class AddBDDialog(QDialog):
         ready.show()
 
 
-# удалить подмену
 class DelBDDialog(QDialog):
+    """
+    Удалить подмену
+    """
     def __init__(self, del_object_ername, del_object_normname):
         super(DelBDDialog, self).__init__()
         # Создание окна
@@ -461,8 +491,10 @@ class DelBDDialog(QDialog):
         btn_ok.clicked.connect(self.do_del)
         btn_cancel.clicked.connect(self.reject)
 
-    # произвести удаление записи
     def do_del(self) -> None:
+        """
+        Произвести удаление записи
+        """
         sql_del_str = f"DELETE FROM ernames WHERE exifname LIKE '{self.del_obj_ername}'"
         cur.execute(sql_del_str)
         conn.commit()
@@ -471,8 +503,10 @@ class DelBDDialog(QDialog):
         self.accept()
 
 
-# "Изменения сохранены"
 class SuccessWindowClass(QDialog):
+    """
+    "Изменения сохранены"
+    """
     def __init__(self, parent):
         super(SuccessWindowClass, self).__init__(parent)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)

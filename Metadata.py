@@ -13,7 +13,6 @@ conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
 cur = conn.cursor()
 
 
-# считать весь exif из фотографии с помощью внешнего exe exiftool
 def read_exif(photofile: str) -> dict[str, str]:
     """
     Функция чтения из файла всех метаданных, что может вычленить библиотека exif.
@@ -32,7 +31,6 @@ def read_exif(photofile: str) -> dict[str, str]:
     return data
 
 
-# считать весь exif из фотографии быстро с помощью piexif
 
 # !!! 37510 - UserComment
 def fast_read_exif(photofile: str) -> dict[str, str]:
@@ -48,7 +46,6 @@ def fast_read_exif(photofile: str) -> dict[str, str]:
     return data
 
 
-# извлечь из фотографии дату съёмки
 def date_from_exif(data: dict) -> tuple[int, str, str, str]:
     """
     Для определения папки хранения файла в основном каталоге, необходимо при его добавлении в программу, достать
@@ -78,7 +75,6 @@ def date_from_exif(data: dict) -> tuple[int, str, str, str]:
     return error, day, month, year
 
 
-# из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
 def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
     """
     Фильтрация всех метаданных, оставляет только те, что показываются при просмотре фотографии в таблице.
@@ -219,7 +215,6 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
     return metadata
 
 
-# из всех exif-данных вытаскиваются интересные для нас (камера, производитель, объектив, выдержка, ISO, диафрагма, фокусное расстояние, дата съёмки, координаты)
 def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, str]:
     """
     Фильтрация всех метаданных, оставляет только те, что показываются при просмотре фотографии в таблице.
@@ -358,7 +353,6 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     return metadata
 
 
-# данные для вноса в БД photos
 def exif_for_db(data: dict) -> tuple[str, str, str, str, str]:
     """
     Вынуть из фото метаданные для БД: камера, объектив, дата съёмки, дата-время съёмки, GPS.
@@ -408,7 +402,6 @@ def exif_for_db(data: dict) -> tuple[str, str, str, str, str]:
     return camera, lens, date, gps, usercomment
 
 
-# exif для показа в режиме редактирования
 def exif_show_edit(photoname: str) -> dict[str, str]:
     """
     Вычленить из метаданных фотографии необходимые к показу в окне редактирования (производитель, камера, объектив,
@@ -518,8 +511,14 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
     return useful_data
 
 
-# modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
 def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
+    """
+    modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
+    :param photoname:
+    :param photodirectory:
+    :param new_value_dict:
+    :return:
+    """
     photofile = photodirectory + '/' + photoname
 
     modify_dict = dict()
@@ -603,7 +602,6 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
         logging.warning(f"Metadata - Metadata rewrite error {photofile} - {modify_dict}")
 
 
-# проверка ввода при редактировании exif
 def exif_check_edit(editing_type: int, new_value: str) -> None:
     """
     Проверка корректности ввода новых метаданных.
@@ -732,7 +730,6 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
                 pass
 
 
-# Замена неправильного названия для выбора группировки на правильное
 def equip_name_check(equip_list: list[str], equip_type: str) -> list[str]:
     """
     Для корректного отображения выпадающих списком камер и объективов в основном каталоге при группировке по
@@ -755,7 +752,6 @@ def equip_name_check(equip_list: list[str], equip_type: str) -> list[str]:
     return equip_list_final
 
 
-# Замена неправильного названия для выбора группировки на правильное
 def equip_name_check_with_counter(equip_dict: dict[str, int], equip_type: str) -> list[str]:
     """
     Для корректного отображения выпадающих списком камер и объективов в основном каталоге при группировке по
@@ -786,7 +782,6 @@ def equip_name_check_with_counter(equip_dict: dict[str, int], equip_type: str) -
     return equip_list_final
 
 
-# проверка, является ли переданное имя - исправлением неправильного
 def equip_solo_name_check(exif_name: str, equip_type: str) -> str:
     """
     Для поиска в БД необходимо искать не только отображаемое значение и неправильное, которое могло быть
@@ -809,7 +804,6 @@ def equip_solo_name_check(exif_name: str, equip_type: str) -> str:
     return normname
 
 
-# проверка, является ли переданное имя - исправлением неправильного
 def equip_name_check_reverse(normname: str, equip_type: str) -> str:
     """
     Для поиска в БД необходимо искать не только отображаемое значение и неправильное, которое могло быть
@@ -828,7 +822,6 @@ def equip_name_check_reverse(normname: str, equip_type: str) -> str:
     return exifname
 
 
-# удалить все метаданные
 def clear_exif(photoname: str, photodirectory: str) -> None:
     """
     Удалить все метаданные из файла.
@@ -843,7 +836,6 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     logging.info(f"Metadata - {photofile} metadata cleared")
 
 
-# Проверка и исправление ориентации фотографии
 def check_photo_rotation(photo_file: str, data: dict) -> None:
     """
     Для добавляемых в каталоги фотографий можно сделать нормальный поворот, чтобы не крутить их каждый раз
@@ -922,7 +914,6 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
     write_normal_photo_size(photo_file, int(width), int(height))
 
 
-# записать в метаданные нормально ширину и высоту картинки
 def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
     """
     После поворота, как надо, необходимо вписать в метаданные в нормальном виде размеры сторон и актуальную ориентацию (Top_Left)
@@ -940,7 +931,6 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
     logging.info(f"Metadata - In file {photo_file} were written width -{width} and height-{height}")
 
 
-# Ориантация файла при разовом просмотре
 def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
     """
     Так как для разового просмотра файл не редактируется, а отобразить корректно его надо - если он с нормальной
@@ -1005,7 +995,6 @@ def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
     return photo_show, orientation
 
 
-# Ориентация миниатюры фотографии при разовом просмотре
 def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None:
     """
     Если файл кривой, то надо повернуть его миниатюру (сначала создаётся миниатюра, потом поворачивается)
@@ -1044,11 +1033,11 @@ def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None
         pass
 
 
-# получить метаданные, отображаемые в таблице массового редактирования
 def massive_table_data(file: str) -> dict[str, str]:
     """
+    Получить метаданные, отображаемые в таблице массового редактирования.
     Данные в таблице массового редактирования отличаются от таблиц при просмотре в каталоге или в режиме редактирования
-    одиночных файлов
+    одиночных файлов.
     :param file: абсолютный путь к файлу
     :return: словарь с нужными значениями, по факту значением может быть не строка, 100% конвертация в строки идёт уже
     при заполнении таблицы в интерфейсе
