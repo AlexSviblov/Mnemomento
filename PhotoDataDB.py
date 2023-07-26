@@ -480,7 +480,7 @@ def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, c
             if not comment_status:
                 sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
             else:
-                sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
+                sql_str = f"SELECT filename, catalog FROM photos WHERE ({date_part}) AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
 
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
@@ -506,7 +506,7 @@ def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, c
             if not comment_status:
                 sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} {db_order_settings()}"
             else:
-                sql_str = f"SELECT filename, catalog FROM photos WHERE {date_part} AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
+                sql_str = f"SELECT filename, catalog FROM photos WHERE ({date_part}) AND comment LIKE \'%{comment_text}%\' {db_order_settings()}"
 
             cur.execute(sql_str)
             photodb_data = cur.fetchall()
