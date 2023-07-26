@@ -168,7 +168,7 @@ class GlobalMapWidget(QWidget):
         self.get_files_paths.finished.connect(lambda result: self.make_show_map(result))
         self.get_files_paths.start()
 
-    def make_show_map(self, result):
+    def make_show_map(self, result: tuple[list[str, tuple[float, float], str, str, str, bool], int, tuple[float, float]]):
         """
 
         :param result:
@@ -628,7 +628,7 @@ class PathsLooter(QtCore.QThread):
     """
     finished = QtCore.pyqtSignal(tuple)
 
-    def __init__(self, full_paths):
+    def __init__(self, full_paths: list[str]):
         QtCore.QThread.__init__(self)
         self.full_paths = full_paths
 

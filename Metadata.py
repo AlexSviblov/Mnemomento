@@ -31,7 +31,6 @@ def read_exif(photofile: str) -> dict[str, str]:
     return data
 
 
-
 # !!! 37510 - UserComment
 def fast_read_exif(photofile: str) -> dict[str, str]:
     """
@@ -511,7 +510,7 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
     return useful_data
 
 
-def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict):
+def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict: dict):
     """
     modify при редактировании метаданных, без проверки, так как проверка предварительно осуществляется в exif_check_edit
     :param photoname:

@@ -141,7 +141,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
     return fileexist, file_permission_error
 
 
-def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name='', type_add='dir') -> None:
+def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name: str = '', type_add: str = 'dir') -> None:
     """
     Для фото file выполняется перенос, создаётся запись в БД, создаётся миниатюра.
     :param photo_directory: путь к папке, которая добавляется = 'C:/Users/user/Pictures/СНГ'

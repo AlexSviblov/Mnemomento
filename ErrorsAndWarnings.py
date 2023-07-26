@@ -26,7 +26,7 @@ class PhotoExists(QDialog):
     """
     Добавляемое в основной каталог фото уже есть (совпали имя и папка по дате)
     """
-    def __init__(self, parent, photo_list, catalog_type):
+    def __init__(self, parent, photo_list: list[str], catalog_type: str):
         super(PhotoExists, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -151,7 +151,7 @@ class ErNamesDBWarn(QDialog):
     """
 
     """
-    def __init__(self, parent, code=0):
+    def __init__(self, parent, code: int = 0):
         super(ErNamesDBWarn, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -298,7 +298,7 @@ class FilesReadErrorWin(QDialog):
     """
 
     """
-    def __init__(self, parent, files):
+    def __init__(self, parent, files: list[str]):
         super(FilesReadErrorWin, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -328,7 +328,7 @@ class EditCommentErrorWin(QDialog):
     """
     При вводе метаданных в режиме редактирования введён недопустимый формат
     """
-    def __init__(self, parent, symbol):
+    def __init__(self, parent, symbol: str):
         super(EditCommentErrorWin, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -356,7 +356,7 @@ class EditCommentError(Exception):
     """
 
     """
-    def __init__(self, symbol):
+    def __init__(self, symbol: str):
         self.symbol = symbol
 
 

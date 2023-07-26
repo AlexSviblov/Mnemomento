@@ -1215,7 +1215,6 @@ class ConfirmClear(QDialog):
         btn_cancel.clicked.connect(self.close)
 
 
-
 class DoEditing(QtCore.QThread):
     """
     Процесс редактирования метаданных и записей в БД
@@ -1225,7 +1224,7 @@ class DoEditing(QtCore.QThread):
     """
     finished = QtCore.pyqtSignal(int)
 
-    def __init__(self, photo_list, modify_dict):
+    def __init__(self, photo_list: list[str], modify_dict: dict):
         QtCore.QThread.__init__(self)
         self.modify_dict = modify_dict
         self.photo_list = photo_list

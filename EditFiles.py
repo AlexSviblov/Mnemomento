@@ -48,7 +48,7 @@ class EditExifData(QDialog):
     renamed_signal = QtCore.pyqtSignal(str)
     rotated_signal = QtCore.pyqtSignal()
 
-    def __init__(self, parent, photoname, photodirectory, chosen_group_type):
+    def __init__(self, parent, photoname: str, photodirectory: str, chosen_group_type: str):
         super().__init__(parent)
         self.stylesheet_color()
 
@@ -143,7 +143,7 @@ class EditExifData(QDialog):
         self.get_file_data(photoname, photodirectory)
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         """
         Задать стили для всего модуля в зависимости от выбранной темы
         """
@@ -214,7 +214,7 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.tabs, 0, 0, 1, 1)
 
-    def make_buttons(self):
+    def make_buttons(self) -> None:
         """
         Создание кнопок
         """
@@ -236,7 +236,7 @@ class EditExifData(QDialog):
         self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
         self.btn_clear.clicked.connect(self.clear_exif_func)
 
-    def make_map(self, coordinates, filename):
+    def make_map(self, coordinates: tuple[float, float], filename: str):
         """
         Создание карты и метки на ней
         :param coordinates:
@@ -1259,7 +1259,7 @@ class EditExifData(QDialog):
         Thumbnail.file_rename(file_directory, file_name, new_name)
         shutil.move(f"{file_directory}/{file_name}", f"{file_directory}/{new_name}")
 
-    def update_show_data(self):
+    def update_show_data(self) -> None:
         """
         Обновить данные в таблице/ на карте после записи метаданных
         """
@@ -1267,7 +1267,7 @@ class EditExifData(QDialog):
         self.get_file_data(self.photoname, self.photodirectory)
         self.change_tab_gps()
 
-    def rotate_photo(self):
+    def rotate_photo(self) -> None:
         """
         Поворачивать фотографию
         """
@@ -1361,7 +1361,7 @@ class EqualNames(QDialog):
 
         self.show_photos()
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.text_lbl = QLabel(self)
         self.text_lbl.setText('В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?')
         self.text_lbl.setAlignment(Qt.AlignCenter)

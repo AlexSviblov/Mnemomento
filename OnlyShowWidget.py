@@ -467,7 +467,7 @@ class EditExifData(QDialog):
     """
     edited_signal = QtCore.pyqtSignal()
 
-    def __init__(self, parent, photoname, photodirectory):
+    def __init__(self, parent, photoname: str, photodirectory: str):
         super().__init__(parent)
         self.setStyleSheet(stylesheet2)
 
@@ -520,7 +520,7 @@ class EditExifData(QDialog):
         self.get_metadata(photoname, photodirectory)
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    def make_map(self, coordinates, filename):
+    def make_map(self, coordinates: list[int, int], filename: str):
         """
         Создание карты и метки на ней
         :param coordinates:
@@ -546,7 +546,7 @@ class EditExifData(QDialog):
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
-    def change_tab_gps(self):
+    def change_tab_gps(self) -> None:
         """
         Отображение либо таблицы с данными, либо карты с GPS-меткой, в зависимости от выбранной вкладки
         """
@@ -1228,7 +1228,7 @@ class EditExifData(QDialog):
 
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
+    def write_changes(self, photoname: str, photodirectory: str, new_value_dict: dict) -> None:
         """
         Записать новые метаданные
         :param photoname:

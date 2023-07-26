@@ -38,6 +38,9 @@ system_scale = Screenconfig.monitor_info()[1]
 
 
 class AloneWidgetWindow(QWidget):
+    """
+    Виджет дополнительного каталога
+    """
     add_photo_signal = QtCore.pyqtSignal(str)
     resized_signal = QtCore.pyqtSignal()
     set_minimum_size = QtCore.pyqtSignal(int)
@@ -199,8 +202,10 @@ class AloneWidgetWindow(QWidget):
         self.btn_add_photos.clicked.connect(self.add_files_to_dir)
         self.btn_add_photos.setFixedWidth(int(200*system_scale)+1)
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self) -> None:
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet3
@@ -248,8 +253,10 @@ class AloneWidgetWindow(QWidget):
         except AttributeError:
             pass
 
-    # показать/скрыть фильтры по соцсетям
     def filter_on_off(self) -> None:
+        """
+        Показать/скрыть фильтры по соцсетям
+        """
         self.socnet_choose.clear()
         if self.photo_filter.checkState() == 0:
             self.socnet_choose.hide()
@@ -274,8 +281,10 @@ class AloneWidgetWindow(QWidget):
             self.socnet_choose.show()
             self.sn_status.show()
 
-    # заполнить список папок
     def fill_directory_combobox(self) -> None:
+        """
+        Заполнить список папок
+        """
         photo_alone_dir = Settings.get_destination_media() + '/Media/Photo/alone/'
         all_files_and_dirs = os.listdir(photo_alone_dir)
         dir_list = list()
@@ -290,8 +299,10 @@ class AloneWidgetWindow(QWidget):
         for directory in dir_list:
             self.directory_choose.addItem(str(directory))
 
-    # преобразование тега соцсети в формат БД
     def get_current_tag(self) -> str:
+        """
+        Преобразование тега соцсети в формат БД
+        """
         status = self.sn_status.currentText()
         match status:
             case 'Не выбрано':
@@ -304,8 +315,10 @@ class AloneWidgetWindow(QWidget):
                 return_status = 'Publicated'
         return return_status
 
-    # функция отображения кнопок с миниатюрами
     def show_thumbnails(self) -> None:
+        """
+        Функция отображения кнопок с миниатюрами
+        """
         self.metadata_show.clear()
         self.metadata_show.hide()
         self.pic.clear()
@@ -385,6 +398,9 @@ class AloneWidgetWindow(QWidget):
                     QtCore.QCoreApplication.processEvents()
 
     def make_map(self) -> None:
+        """
+        Создание и отображение карты
+        """
         try:
             self.map_gps_widget.deleteLater()
         except (RuntimeError, AttributeError):
@@ -422,8 +438,10 @@ class AloneWidgetWindow(QWidget):
             except (RuntimeError, AttributeError):
                 pass
 
-    # функция показа большой картинки
     def showinfo(self) -> None:
+        """
+        Функция показа большой картинки
+        """
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
         try:
@@ -438,16 +456,16 @@ class AloneWidgetWindow(QWidget):
 
         self.metadata_show.clear()
         self.metadata_show.hide()
-
-        self.pic.clear()  # очистка от того, что показано сейчас
-
-        self.photo_file = self.photo_directory + '/' + self.button_text  # получение информации о нажатой кнопке
+        # очистка от того, что показано сейчас
+        self.pic.clear()
+        # получение информации о нажатой кнопке
+        self.photo_file = self.photo_directory + '/' + self.button_text
 
         jsondata_wr = {'last_opened_photo': self.photo_file}
         with open('last_opened.json', 'w') as json_file:
             json.dump(jsondata_wr, json_file)
-
-        self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
+        # размещение большой картинки
+        self.pixmap = QtGui.QPixmap(self.photo_file)
 
         try:
             metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text, self.photo_directory)
@@ -542,16 +560,24 @@ class AloneWidgetWindow(QWidget):
         self.make_map()
         self.oldsize = self.size()
 
-    # изменить размер фото при изменении размера окна
     def resizeEvent(self, QResizeEvent):
+        """
+        Изменить размер фото при изменении размера окна
+        :param QResizeEvent:
+        """
         self.resized_signal.emit()
 
-    # изменить размер фото при изменении размера окна
     def resize_func(self) -> None:
+        """
+        Изменить размер фото и карты при изменении размера окна
+        """
         self.resize_photo()
         self.resize_map()
 
     def resize_photo(self) -> None:
+        """
+        Изменение размера фото
+        """
         if not self.pic.isVisible():
             return
 
@@ -573,6 +599,9 @@ class AloneWidgetWindow(QWidget):
         self.photo_show.setFixedWidth(self.width() - self.scroll_area.width() - self.groupbox_btns.width() - 50)
 
     def resize_map(self) -> None:
+        """
+        Изменение размера карты
+        """
         try:
             if not self.map_gps_widget.isVisible():
                 return
@@ -602,8 +631,10 @@ class AloneWidgetWindow(QWidget):
                     self.height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 100)
         self.map_gps_widget.show()
 
-    # Создание кнопок удаления и редактирования
     def make_buttons(self) -> None:
+        """
+        Создание кнопок удаления, редактирования, проводника и открытия файла
+        """
         self.edit_btn = QToolButton(self)
         self.edit_btn.setStyleSheet(stylesheet1)
         self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
@@ -654,16 +685,20 @@ class AloneWidgetWindow(QWidget):
         self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
         self.open_shortcut.activated.connect(self.open_file_func)
 
-    # открыть фотографию в приложении просмотра
     def open_file_func(self) -> None:
+        """
+        Открыть фотографию в приложении просмотра
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
         path = self.photo_file
         os.startfile(path)
 
-    # показать фото в проводнике
     def call_explorer(self) -> None:
+        """
+        Показать фото в проводнике ОС
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -672,8 +707,10 @@ class AloneWidgetWindow(QWidget):
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
 
-    # удаление фото по нажатию кнопки
     def del_photo_func(self) -> None:
+        """
+        Удаление фото по нажатию кнопки
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -685,8 +722,10 @@ class AloneWidgetWindow(QWidget):
             pass
             self.last_clicked = ''
 
-    # редактирование exif
     def edit_photo_func(self) -> None:
+        """
+        Редактирование exif
+        """
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
@@ -710,16 +749,20 @@ class AloneWidgetWindow(QWidget):
         dialog_edit.edited_signal.connect(self.showinfo)
         dialog_edit.renamed_signal.connect(lambda n: renamed_re_show(n))
 
-    # убрать с экрана фото и метаданные после удаления фотографии
     def clear_after_ph_del(self) -> None:
+        """
+        Убрать с экрана фото и метаданные после удаления фотографии
+        """
         self.show_thumbnails()
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
         self.metadata_show.hide()
 
-    # убрать с экрана фото и метаданные после удаления директории
     def clear_after_dir_del(self) -> None:
+        """
+        Убрать с экрана фото и метаданные после удаления директории
+        """
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
@@ -727,16 +770,22 @@ class AloneWidgetWindow(QWidget):
         self.directory_choose.clear()
         self.fill_directory_combobox()
 
-    # удаление выбранной директории
     def del_dir_func(self) -> None:
+        """
+        Удаление выбранной директории
+        """
         dir_to_del = self.photo_directory
         dialog_del = DelDirConfirm(dir_to_del)
         dialog_del.clear_info.connect(self.clear_after_dir_del)
         if dialog_del.exec():
             pass
 
-    # отображения статуса фото в соцсетях
     def show_social_networks(self, photoname: str, photodirectory: str) -> None:
+        """
+        Отображения статуса фото в соцсетях
+        :param photoname: название файла
+        :param photodirectory: путь директории фотографии
+        """
         def fill_sn_widgets(sn_names: list[str], sn_tags: dict) -> None:
             i = 0
             self.socnet_group.setRowCount(len(sn_names))
@@ -811,7 +860,7 @@ class AloneWidgetWindow(QWidget):
                 self.socnet_group.setFixedWidth(self.socnet_group.columnWidth(0) + self.socnet_group.columnWidth(1) + 2)
                 self.socnet_group.setFixedHeight(self.socnet_group.rowCount() * self.socnet_group.rowHeight(0) + 2)
 
-        def edit_tags():
+        def edit_tags() -> None:
             match self.sender().currentText():
                 case 'Не выбрано':
                     new_status_bd = 'No value'
@@ -831,8 +880,10 @@ class AloneWidgetWindow(QWidget):
 
         fill_sn_widgets(sn_names, sn_tags)
 
-    # обновить дизайн при изменении настроек
     def after_change_settings(self) -> None:
+        """
+        Обновить дизайн при изменении настроек
+        """
         self.thumb_row = Settings.get_thumbs_row()
 
         self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
@@ -840,19 +891,23 @@ class AloneWidgetWindow(QWidget):
 
         self.show_thumbnails()
 
-    # нажатие "добавить файлы", контроль наличия хоть какой-то папки
     def add_files_to_dir(self) -> None:
+        """
+        Нажатие "добавить файлы", контроль наличия хоть какой-то папки
+        """
         if self.directory_choose.currentText():
             self.add_photo_signal.emit(self.directory_choose.currentText())
         else:
             pass
 
 
-# подтвердить удаление фото
 class DelPhotoConfirm(QDialog):
+    """
+    Подтвердить удаление фото
+    """
     clear_info = QtCore.pyqtSignal()
 
-    def __init__(self, photoname, photodirectory):
+    def __init__(self, photoname: str, photodirectory: str):
         super(DelPhotoConfirm, self).__init__()
         self.photoname = photoname
         self.photodirectory = photodirectory
@@ -888,8 +943,12 @@ class DelPhotoConfirm(QDialog):
         btn_ok.clicked.connect(lambda: self.do_del(photoname, photodirectory))
         btn_cancel.clicked.connect(self.reject)
 
-    # при подтверждении - удалить фото, его миниатюру и записи в БД
     def do_del(self, photoname: str, photodirectory: str) -> None:
+        """
+        При подтверждении - удалить фото, его миниатюру и записи в БД
+        :param photoname:
+        :param photodirectory:
+        """
         logging.info(f"File removing {photodirectory + '/' + photoname}")
         os.remove(photodirectory + '/' + photoname)
         Thumbnail.delete_thumbnail_alone(photoname, photodirectory)
@@ -898,11 +957,13 @@ class DelPhotoConfirm(QDialog):
         self.accept()
 
 
-# подтвердить удаление выбранной папки
 class DelDirConfirm(QDialog):
+    """
+    Подтвердить удаление выбранной папки
+    """
     clear_info = QtCore.pyqtSignal()
 
-    def __init__(self, photodirectory):
+    def __init__(self, photodirectory: str):
         super(DelDirConfirm, self).__init__()
         self.photodirectory = photodirectory
 
@@ -938,8 +999,10 @@ class DelDirConfirm(QDialog):
         btn_ok.clicked.connect(self.do_del)
         btn_cancel.clicked.connect(self.reject)
 
-    # при подтверждении - удалить всех фото из папки, его миниатюру и записи в БД
     def do_del(self) -> None:
+        """
+        При подтверждении - удалить всех фото из папки, его миниатюру и записи в БД
+        """
         logging.info(f"Directory removing {self.photodirectory}")
         Thumbnail.delete_thumb_dir(self.photodirectory)
         PhotoDataDB.del_alone_dir(self.photodirectory)
@@ -949,8 +1012,10 @@ class DelDirConfirm(QDialog):
         self.accept()
 
 
-# Окошко подтверждения желания очистить метаданные
 class ConfirmClear(QDialog):
+    """
+    Окошко подтверждения желания очистить метаданные
+    """
     accept_signal = QtCore.pyqtSignal()
     reject_signal = QtCore.pyqtSignal()
 

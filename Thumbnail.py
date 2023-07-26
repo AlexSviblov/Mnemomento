@@ -282,9 +282,9 @@ def delete_thumb_dir(photodirectory: str) -> None:
 def file_rename(file_directory: str, old_file_name: str, new_file_name: str) -> None:
     """
     Переименовать миниатюру при переименовании файла фотографии
-    :param file_directory:
-    :param old_file_name:
-    :param new_file_name:
+    :param file_directory: директория фотографии
+    :param old_file_name:старое название файла
+    :param new_file_name: новое название файла
     """
     destination_thumbs = Settings.get_destination_thumb()
     dir_splitted = file_directory.split('/')

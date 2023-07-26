@@ -533,7 +533,7 @@ def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, c
     return fullpaths
 
 
-def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[float, float] | bool | Any]], int, tuple[float | Any, ...] | tuple[float, float]]:
+def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float, float], str, str, str, bool], int, tuple[float, float]]:
     """
     Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
     метаданных каждый раз. Заодно здесь же вычисляется, как центрировать и отдалять карту OSM.

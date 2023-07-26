@@ -28,6 +28,9 @@ system_scale = Screenconfig.monitor_info()[1]
 
 
 class SocialNetworks(QWidget):
+    """
+    Соц.сети
+    """
     social_network_changed = QtCore.pyqtSignal()
     resize_signal = QtCore.pyqtSignal(int, int)
 
@@ -45,7 +48,7 @@ class SocialNetworks(QWidget):
 
         self.show_social_networks()
 
-    def make_dafeult_gui(self):
+    def make_dafeult_gui(self) -> None:
         self.setStyleSheet(stylesheet2)
 
         # Создание окна
@@ -74,8 +77,10 @@ class SocialNetworks(QWidget):
         self.networks_group.setLayout(self.group_layout)
         self.layout.addWidget(self.networks_group, 1, 0, 1, 2)
 
-    # задать стили для всего модуля в зависимости от выбранной темы
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet8
@@ -99,8 +104,10 @@ class SocialNetworks(QWidget):
         except AttributeError:
             pass
 
-    # отобразить введённые соцсети
     def show_social_networks(self) -> None:
+        """
+        Отобразить введённые соцсети
+        """
         for i in reversed(range(self.group_layout.count())):
             self.group_layout.itemAt(i).widget().deleteLater()
 
@@ -146,8 +153,10 @@ class SocialNetworks(QWidget):
         self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
 
-    # добавление соцсети
     def add_func(self) -> None:
+        """
+        Добавление соцсети
+        """
         dialog_add = AddSN()
         dialog_add.social_network_changed.connect(self.social_network_changed.emit)
         if dialog_add.exec():
@@ -155,8 +164,10 @@ class SocialNetworks(QWidget):
 
         self.show_social_networks()
 
-    # редактирование имени соцсети
     def func_red(self) -> None:
+        """
+        Редактирование имени соцсети
+        """
         net_name = self.sender().objectName()
         red_dialog = RedSN(net_oldname=net_name)
         red_dialog.social_network_changed.connect(self.social_network_changed.emit)
@@ -165,8 +176,10 @@ class SocialNetworks(QWidget):
 
         self.show_social_networks()
 
-    # удаление соцсети
     def func_del(self) -> None:
+        """
+        Удаление соцсети
+        """
         net_name = self.sender().objectName()
         del_dialog = DelSN(net_name=net_name)
         del_dialog.social_network_changed.connect(self.social_network_changed.emit)
@@ -176,8 +189,10 @@ class SocialNetworks(QWidget):
         self.show_social_networks()
 
 
-# добавление новой соцсети
 class AddSN(QDialog):
+    """
+    Добавление новой соцсети
+    """
     social_network_changed = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -195,7 +210,7 @@ class AddSN(QDialog):
 
         self.make_gui()
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.setWindowTitle('Добавить соцсеть')
         self.resize(600, 90)
         self.setStyleSheet(stylesheet2)
@@ -227,18 +242,22 @@ class AddSN(QDialog):
         self.layout.addWidget(self.btn_cnl, 1, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
-    def func_ok(self):
+    def func_ok(self) -> None:
         self.check_empty()
 
-    # проверка заполнения полей ввода
     def check_empty(self) -> None:
+        """
+        Проверка заполнения полей ввода
+        """
         if self.enter_name.text() != '':
             self.do_func()
         else:
             return
 
-    # после подтверждения добавления
     def do_func(self) -> None:
+        """
+        После подтверждения добавления
+        """
         sql_str = f'ALTER TABLE socialnetworks ADD COLUMN {self.enter_name.text()} TEXT DEFAULT \'No value\''
         try:
             cur.execute(sql_str)
@@ -253,11 +272,13 @@ class AddSN(QDialog):
         self.accept()
 
 
-# переименование соцсети
 class RedSN(QDialog):
+    """
+    Переименование соцсети
+    """
     social_network_changed = QtCore.pyqtSignal()
 
-    def __init__(self, net_oldname):
+    def __init__(self, net_oldname: str):
         super(RedSN, self).__init__()
         self.net_oldname = net_oldname
 
@@ -272,7 +293,7 @@ class RedSN(QDialog):
 
         self.make_gui()
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.setWindowTitle('Редактирование названия')
         self.resize(600, 90)
         self.setStyleSheet(stylesheet2)
@@ -316,19 +337,26 @@ class RedSN(QDialog):
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
-    # запуск проверки check_empty
     def func_ok(self) -> None:
+        """
+        Запуск проверки check_empty
+        :return:
+        """
         self.check_empty()
 
-    # проверка заполнения полей ввода
     def check_empty(self) -> None:
+        """
+        Проверка заполнения полей ввода
+        """
         if self.new_name.text() != '':
             self.do_func()
         else:
             return
 
-    # после проверки на пустоту - редактировать
     def do_func(self) -> None:
+        """
+        После проверки на пустоту - редактировать
+        """
         sql_str = f'ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {self.new_name.text()}'
         try:
             cur.execute(sql_str)
@@ -343,8 +371,10 @@ class RedSN(QDialog):
         self.accept()
 
 
-# удалить соцсеть
 class DelSN(QDialog):
+    """
+    Удалить соцсеть
+    """
     social_network_changed = QtCore.pyqtSignal()
 
     def __init__(self, net_name: str):
@@ -360,7 +390,7 @@ class DelSN(QDialog):
 
         self.make_gui()
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.setStyleSheet(stylesheet2)
 
         self.setWindowTitle('Редактирование названия')
@@ -396,8 +426,10 @@ class DelSN(QDialog):
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
         self.btn_cnl.clicked.connect(lambda: self.close())
 
-    # после подтверждения удаления
     def do_func(self) -> None:
+        """
+        После подтверждения удаления. Само удаление
+        """
         sql_str = f'ALTER TABLE socialnetworks DROP COLUMN {self.net_name}'
         cur.execute(sql_str)
         conn.commit()

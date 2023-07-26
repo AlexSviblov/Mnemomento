@@ -39,8 +39,10 @@ system_scale = Screenconfig.monitor_info()[1]
 mutex = QtCore.QMutex()
 
 
-# объект окна настроек
 class StatisticsWin(QMainWindow):
+    """
+    Объект окна настроек
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
         self.stylesheet_color()
@@ -54,8 +56,10 @@ class StatisticsWin(QMainWindow):
         self.setCentralWidget(widget)
         self.resize(widget.size())
 
-    # задать стили для всего модуля в зависимости от выбранной темы
     def stylesheet_color(self) -> None:
+        """
+        Задать стили для всего модуля в зависимости от выбранной темы
+        """
         global stylesheet1
         global stylesheet2
         global stylesheet5
@@ -83,8 +87,10 @@ class StatisticsWin(QMainWindow):
         self.setStyleSheet(stylesheet2)
 
 
-# сами настройки (виджет)
 class StatisticsWidget(QWidget):
+    """
+    Сами настройки (виджет)
+    """
     update_main_widget = pyqtSignal()
     cancel_signal = pyqtSignal()
 
@@ -196,7 +202,10 @@ class StatisticsWidget(QWidget):
         self.progress_layout.addWidget(self.progressbar_fl, 0, 6, 1, 1)
 
     def start_calculate(self):
-        def start():
+        """
+        Запуск всех вычислений
+        """
+        def start() -> None:
             self.progress_group.setFixedHeight(int(60))
             QtCore.QCoreApplication.processEvents()
             self.reset_counter()
@@ -217,7 +226,7 @@ class StatisticsWidget(QWidget):
             self.paths_process.files.connect(lambda fl: finish(fl))
             self.paths_process.start()
 
-        def finish(files_list):
+        def finish(files_list: list[str]) -> None:
             self.all_files = files_list
             self.number_of_operations = len(self.all_files)
 
@@ -232,12 +241,20 @@ class StatisticsWidget(QWidget):
         start()
 
     def take_hour_dict(self) -> None:
+        """
+        Запустить сбор статистики времени съёмки
+        """
         self.time_looter = HoursLooter(self.all_files)
         self.time_looter.changed.connect(self.change_progressbar_hours)
         self.time_looter.start()
         self.time_looter.finished.connect(lambda result: self.take_hour_ready(result))
 
     def take_hour_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики времени
+        съёмки
+        :param result: словарь, где ключи - временной интервал съёмки, значение - сколько фото с таких значением
+        """
         self.progressbar_hours.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -247,6 +264,10 @@ class StatisticsWidget(QWidget):
         self.make_hour_graphic(result)
 
     def make_hour_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график времени съёмки
+        :param hd: словарь, где ключи - время съёмки, значение - сколько фото с таких значением
+        """
         x_values = list(hd.keys())
         y_values = list(hd.values())
         hover_text = ["00:00-1:00", "1:00-2:00", "2:00-3:00", "3:00-4:00", "4:00-5:00", "5:00-6:00", "6:00-7:00",
@@ -265,12 +286,19 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def take_camera_dict(self) -> None:
+        """
+        Запустить сбор статистики камер
+        """
         self.camera_looter = CameraLooter(self.all_files)
         self.camera_looter.changed.connect(self.change_progressbar_camera)
         self.camera_looter.start()
         self.camera_looter.finished.connect(lambda result: self.take_camera_ready(result))
 
     def take_camera_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики камер
+        :param result: словарь, где ключи - камеры, значение - сколько фото с таких значением
+        """
         self.progressbar_camera.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -280,6 +308,10 @@ class StatisticsWidget(QWidget):
         self.make_camera_graphic(result)
 
     def make_camera_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график камер
+        :param hd: словарь, где ключи - камеры, значение - сколько фото с таких значением
+        """
         sizes = list(hd.values())
         names = list(hd.keys())
         fig = go.Figure(data=go.Pie(values=sizes, labels=names))
@@ -289,12 +321,19 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def take_lens_dict(self) -> None:
+        """
+        Запустить сбор статистики объективов
+        """
         self.lens_looter = LensLooter(self.all_files)
         self.lens_looter.changed.connect(self.change_progressbar_lens)
         self.lens_looter.start()
         self.lens_looter.finished.connect(lambda result: self.take_lens_ready(result))
 
     def take_lens_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики объективов
+        :param result: словарь, где ключи - объективы, значение - сколько фото с таких значением
+        """
         self.progressbar_lens.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -304,6 +343,10 @@ class StatisticsWidget(QWidget):
         self.make_lens_graphic(result)
 
     def make_lens_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график объективов
+        :param hd: словарь, где ключи - объективы, значение - сколько фото с таких значением
+        """
         sizes = list(hd.values())
         names = list(hd.keys())
         fig = go.Figure(data=go.Pie(values=sizes, labels=names))
@@ -313,12 +356,19 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def take_iso_dict(self) -> None:
+        """
+        Запустить сбор статистики ISO
+        """
         self.iso_looter = IsoLooter(self.all_files)
         self.iso_looter.changed.connect(self.change_progressbar_iso)
         self.iso_looter.start()
         self.iso_looter.finished.connect(lambda result: self.take_iso_ready(result))
 
     def take_iso_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики ISO
+        :param result: словарь, где ключи - ISO, значение - сколько фото с таких значением
+        """
         self.progressbar_iso.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -328,6 +378,10 @@ class StatisticsWidget(QWidget):
         self.make_iso_graphic(result)
 
     def make_iso_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график ISO
+        :param hd: словарь, где ключи - ISO, значение - сколько фото с таких значением
+        """
         iso_values = list(hd.keys())
         y_values = list(hd.values())
         hover_text = iso_values
@@ -353,12 +407,19 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def take_fnumber_dict(self) -> None:
+        """
+        Запустить сбор статистики диафрагмы
+        """
         self.fnumber_looter = FnumberLooter(self.all_files)
         self.fnumber_looter.changed.connect(self.change_progressbar_fnumber)
         self.fnumber_looter.start()
         self.fnumber_looter.finished.connect(lambda result: self.take_fnumber_ready(result))
 
     def take_fnumber_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики диафрагмы
+        :param result: словарь, где ключи - диафрагма, значение - сколько фото с таких значением
+        """
         self.progressbar_fnumber.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -368,6 +429,10 @@ class StatisticsWidget(QWidget):
         self.make_fnumber_graphic(result)
 
     def make_fnumber_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график диафрагмы
+        :param hd: словарь, где ключи - диафрагма, значение - сколько фото с таких значением
+        """
         fnumber_values = list(hd.keys())
         y_values = list(hd.values())
         hover_text = fnumber_values
@@ -393,12 +458,19 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def take_exposuretime_dict(self) -> None:
+        """
+        Запустить сбор статистики выдержки
+        """
         self.exposuretime_looter = ExposureTimeLooter(self.all_files)
         self.exposuretime_looter.changed.connect(self.change_progressbar_expotime)
         self.exposuretime_looter.start()
         self.exposuretime_looter.finished.connect(lambda result: self.take_exposuretime_ready(result))
 
     def take_exposuretime_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики выдержки
+        :param result: словарь, где ключи - выдержка, значение - сколько фото с таких значением
+        """
         self.progressbar_expotime.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -408,6 +480,10 @@ class StatisticsWidget(QWidget):
         self.make_exposuretime_graphic(result)
 
     def make_exposuretime_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график выдержки
+        :param hd: словарь, где ключи - выдержка, значение - сколько фото с таких значением
+        """
         def clear_labels(float_times_list, labels_enter):
             near_cleared = []
             labels = list(labels_enter)
@@ -453,12 +529,20 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def take_fl_dict(self) -> None:
+        """
+        Запустить сбор статистики фокусного расстояния
+        """
         self.fl_looter = FocalLengthLooter(self.all_files)
         self.fl_looter.changed.connect(self.change_progressbar_fl)
         self.fl_looter.start()
         self.fl_looter.finished.connect(lambda result: self.take_fl_ready(result))
 
     def take_fl_ready(self, result: dict) -> None:
+        """
+        Убрать прогрессбары, если все прогрессбары скрыты (все данные собраны), отрисовать график статистики фокусного
+        расстояния
+        :param result: словарь, где ключи - фокусное расстояние, значение - сколько фото с таких значением
+        """
         self.progressbar_fl.hide()
         if not self.progressbar_hours.isVisible() and not self.progressbar_fl.isVisible() and not self.progressbar_iso.isVisible() and not self.progressbar_camera.isVisible() and not self.progressbar_lens.isVisible() and not self.progressbar_fnumber.isVisible() and not self.progressbar_expotime.isVisible():
             self.progress_group.setFixedHeight(int(0))
@@ -468,6 +552,10 @@ class StatisticsWidget(QWidget):
         self.make_fl_graphic(result)
 
     def make_fl_graphic(self, hd: dict) -> None:
+        """
+        Нарисовать график фокусного расстояния
+        :param hd: словарь, где ключи - фокусное расстояние, значение - сколько фото с таких значением
+        """
         fl_values = list(hd.keys())
         y_values = list(hd.values())
         hover_text = fl_values
@@ -492,6 +580,9 @@ class StatisticsWidget(QWidget):
         QtCore.QCoreApplication.processEvents()
 
     def update_colors(self) -> None:
+        """
+        Нарисовать графики по итогам сбора данных
+        """
         self.parent().stylesheet_color()
 
         self.make_hour_graphic(self.result_hour)
@@ -505,6 +596,9 @@ class StatisticsWidget(QWidget):
         self.start_btn.setStyleSheet(stylesheet8)
 
     def reset_counter(self):
+        """
+        Сбросить все счётчики (для повторного отображения статистики)
+        """
         self.counter_hours = 0
         self.counter_camera = 0
         self.counter_lens = 0
@@ -514,6 +608,9 @@ class StatisticsWidget(QWidget):
         self.counter_expotime = 0
 
     def change_progressbar_hours(self):
+        """
+        Обновление прогрессбара статистики времени съёмки
+        """
         self.counter_hours += 1
         old_value = self.progressbar_hours.value()
         new_value = int((self.counter_hours/self.number_of_operations)*100)
@@ -522,6 +619,9 @@ class StatisticsWidget(QWidget):
             self.progressbar_hours.update()
 
     def change_progressbar_camera(self):
+        """
+        Обновление прогрессбара статистики камер
+        """
         self.counter_camera += 1
         old_value = self.progressbar_camera.value()
         new_value = int((self.counter_camera / self.number_of_operations)*100)
@@ -530,6 +630,9 @@ class StatisticsWidget(QWidget):
             self.progressbar_camera.update()
 
     def change_progressbar_lens(self):
+        """
+        Обновление прогрессбара статистики объективов
+        """
         self.counter_lens += 1
         old_value = self.progressbar_lens.value()
         new_value = int((self.counter_lens / self.number_of_operations)*100)
@@ -538,6 +641,9 @@ class StatisticsWidget(QWidget):
             self.progressbar_lens.update()
 
     def change_progressbar_iso(self):
+        """
+        Обновление прогрессбара статистики ISO
+        """
         self.counter_iso += 1
         old_value = self.progressbar_iso.value()
         new_value = int((self.counter_iso / self.number_of_operations)*100)
@@ -546,6 +652,9 @@ class StatisticsWidget(QWidget):
             self.progressbar_iso.update()
 
     def change_progressbar_fnumber(self):
+        """
+        Обновление прогрессбара статистики диафрагмы
+        """
         self.counter_fnumber += 1
         old_value = self.progressbar_fnumber.value()
         new_value = int((self.counter_fnumber / self.number_of_operations)*100)
@@ -554,6 +663,9 @@ class StatisticsWidget(QWidget):
             self.progressbar_fnumber.update()
 
     def change_progressbar_expotime(self):
+        """
+        Обновление прогрессбара статистики выдержки
+        """
         self.counter_expotime += 1
         old_value = self.progressbar_expotime.value()
         new_value = int((self.counter_expotime / self.number_of_operations)*100)
@@ -562,6 +674,9 @@ class StatisticsWidget(QWidget):
             self.progressbar_expotime.update()
 
     def change_progressbar_fl(self):
+        """
+        Обновление прогрессбара статистики фокусного расстояния
+        """
         self.counter_fl += 1
         old_value = self.progressbar_fl.value()
         new_value = int((self.counter_fl / self.number_of_operations)*100)
@@ -569,8 +684,11 @@ class StatisticsWidget(QWidget):
             self.progressbar_fl.setValue(new_value)
             self.progressbar_fl.update()
 
-    # заполнение полей сортировки по дате
     def fill_date(self, mode: str) -> None:
+        """
+        Заполнение полей сортировки по дате
+        :param mode: режим заполнения (полная дата (год+месяц+день), месяц (+день) или день
+        """
         # Получение годов
         def get_years() -> None:
             self.date_year.clear()
@@ -603,8 +721,10 @@ class StatisticsWidget(QWidget):
                 pass
             self.date_year.addItem('All')
 
-        # Получение месяцев в году
         def get_months() -> None:
+            """
+            Получение месяцев в году
+            """
             self.date_month.clear()
             year = self.date_year.currentText()
             if year == 'All':
@@ -629,8 +749,10 @@ class StatisticsWidget(QWidget):
                     self.date_month.addItem(str(month))
                 self.date_month.addItem('All')
 
-        # Получение дней в месяце
         def get_days() -> None:
+            """
+            Получение дней в месяце
+            """
             self.date_day.clear()
             year = self.date_year.currentText()
             month = self.date_month.currentText()
@@ -666,8 +788,10 @@ class StatisticsWidget(QWidget):
                 get_months()
                 get_days()
 
-    # выбор способа группировки
     def fill_sort_groupbox(self) -> None:
+        """
+        Выбор способа группировки
+        """
         self.group_type = QComboBox(self)
         self.group_type.addItem('')
         self.group_type.addItem('Дата')
@@ -681,8 +805,10 @@ class StatisticsWidget(QWidget):
 
         self.layout_type.addWidget(self.group_type, 0, 0, 1, 1)
 
-    # заполнить нужное поле в зависимости от выбранного типа группировки
     def set_sort_layout(self) -> None:
+        """
+        Заполнить нужное поле в зависимости от выбранного типа группировки
+        """
         for i in reversed(range(self.layout_type.count())):
             if self.layout_type.itemAt(i).widget().objectName() != 'sort':
                 self.layout_type.itemAt(i).widget().hide()
@@ -698,14 +824,19 @@ class StatisticsWidget(QWidget):
                 self.fill_sort_nothing()
 
     def fill_sort_nothing(self):
+        """
+        Очистка полей группировки
+        """
         for i in reversed(range(self.layout_type.count())):
             if self.layout_type.itemAt(i).widget().objectName() != 'sort':
                 self.layout_type.itemAt(i).widget().hide()
                 self.layout_type.itemAt(i).widget().deleteLater()
                 QtCore.QCoreApplication.processEvents()
 
-    # заполнить поле группировки по дате
     def fill_sort_date(self) -> None:
+        """
+        Заполнить поле группировки по дате
+        """
         self.year_lbl = QLabel(self)
         self.year_lbl.setFont(font14)
         self.year_lbl.setStyleSheet(stylesheet2)
@@ -759,8 +890,10 @@ class StatisticsWidget(QWidget):
         self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
         self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
 
-    # заполнить поле группировки по оборудованию
     def fill_sort_equipment(self) -> None:
+        """
+        Заполнить поле группировки по оборудованию
+        """
         self.camera_choose = QComboBox(self)
         self.camera_choose.setFont(font14)
         self.camera_choose.setFixedHeight(int(30 * system_scale) + 1)
@@ -793,6 +926,9 @@ class StatisticsWidget(QWidget):
 
 
 class HoursLooter(QtCore.QThread):
+    """
+    Сбор статистики по времени съёмки (часовой интервал в сутках)
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -833,6 +969,9 @@ class HoursLooter(QtCore.QThread):
 
 
 class CameraLooter(QtCore.QThread):
+    """
+    Сбор статистики по камерам
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -840,8 +979,6 @@ class CameraLooter(QtCore.QThread):
         QThread.__init__(self)
         self.all_files = files
         self.camera_dict = {}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -893,6 +1030,9 @@ class CameraLooter(QtCore.QThread):
 
 
 class LensLooter(QtCore.QThread):
+    """
+    Сбор статистики по объективам
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -900,8 +1040,6 @@ class LensLooter(QtCore.QThread):
         QThread.__init__(self)
         self.all_files = files
         self.lens_dict = {}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -953,6 +1091,9 @@ class LensLooter(QtCore.QThread):
 
 
 class IsoLooter(QtCore.QThread):
+    """
+    Сбор статистики по светочувтвительности ISO
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -960,8 +1101,6 @@ class IsoLooter(QtCore.QThread):
         QThread.__init__(self)
         self.all_files = files
         self.iso_dict = {}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -1000,6 +1139,9 @@ class IsoLooter(QtCore.QThread):
 
 
 class FnumberLooter(QtCore.QThread):
+    """
+    Сбор статистики значения диафрагмы
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -1007,8 +1149,6 @@ class FnumberLooter(QtCore.QThread):
         QThread.__init__(self)
         self.all_files = files
         self.fnumber_dict = {}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -1047,6 +1187,9 @@ class FnumberLooter(QtCore.QThread):
         
 
 class ExposureTimeLooter(QtCore.QThread):
+    """
+    Сбор статистики выдержки
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -1054,8 +1197,6 @@ class ExposureTimeLooter(QtCore.QThread):
         QThread.__init__(self)
         self.all_files = files
         self.time_dict = {}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -1106,6 +1247,9 @@ class ExposureTimeLooter(QtCore.QThread):
 
 
 class FocalLengthLooter(QtCore.QThread):
+    """
+    Сбор статистики фокусного расстояния
+    """
     finished = QtCore.pyqtSignal(dict)
     changed = QtCore.pyqtSignal(int)
 
@@ -1113,8 +1257,6 @@ class FocalLengthLooter(QtCore.QThread):
         QThread.__init__(self)
         self.all_files = files
         self.fl_dict = {}
-
-        # self._init = False
 
     def run(self):
         for file in self.all_files:
@@ -1153,6 +1295,9 @@ class FocalLengthLooter(QtCore.QThread):
 
 
 class FilesPaths(QtCore.QThread):
+    """
+    Сбор всех путей файлов, подходящих под выбранную группу
+    """
     files = QtCore.pyqtSignal(list)
 
     def __init__(self, type_filter='', arg1='All', arg2='All', arg3='All'):

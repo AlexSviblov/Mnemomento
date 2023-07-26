@@ -146,7 +146,7 @@ class MainWindow(QMainWindow):
 
         self.start_show()
 
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         """
         Задать стили для всего модуля в зависимости от выбранной темы
         """
@@ -729,8 +729,8 @@ class ProgressBar(QWidget):
         self.transfer_info.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.transfer_info, 3, 0, 1, 3)
 
-    def progressbar_set_max(self, max: int) -> None:
-        self.progressbar.setMaximum(max)
+    def progressbar_set_max(self, max_val: int) -> None:
+        self.progressbar.setMaximum(max_val)
 
     def progressbar_set_value(self, value: int) -> None:
         self.progressbar.setValue(value)
@@ -1012,7 +1012,7 @@ class ConstMaker(QtCore.QThread):
     progress = pyqtSignal(int)
     finished = pyqtSignal(list, list)
 
-    def __init__(self, file_list):
+    def __init__(self, file_list: list[str]):
         QThread.__init__(self)
         self._init = False
 
@@ -1079,7 +1079,7 @@ class AloneMaker(QtCore.QThread):
     progress = pyqtSignal(int)
     finished = pyqtSignal(list)
 
-    def __init__(self, photo_directory, photo_files_list, mode, exists_dir):
+    def __init__(self, photo_directory: str, photo_files_list: list[str], mode: str, exists_dir: str):
         QThread.__init__(self)
         self._init = False
 
@@ -1096,8 +1096,7 @@ class AloneMaker(QtCore.QThread):
     def run(self):
         files_errors = []
         logging.info(f"MainWindow - File list sent for adding in additional catalog: {self.files_list}")
-        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[
-            -1]) and self.mode == "dir":
+        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
             self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
             logging.info(f"MainWindow - Creating directory {self.photo_directory.split('/')[-1]} in programm")
             os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
@@ -1134,8 +1133,7 @@ class AloneMaker(QtCore.QThread):
 
             self.finished.emit(['finish', self.photo_directory.split('/')[-1]])
 
-        elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[
-            -1]) and self.mode == "dir":
+        elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
             logging.info(
                 f"MainWindow - Directory {self.photo_directory.split('/')[-1]} have been already exist in program")
             self.finished.emit(['error'])
@@ -1179,7 +1177,7 @@ class TimeMaker(QtCore.QThread):
     progress = pyqtSignal(int)
     finished = pyqtSignal()
 
-    def __init__(self, photo_files_list):
+    def __init__(self, photo_files_list: list[str]):
         QThread.__init__(self)
 
         self._init = False

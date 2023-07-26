@@ -76,7 +76,7 @@ class RecoveryWidget(QWidget):
 
         self.resize(800, 220)
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.lbl_len_photos = QLabel(self)
         self.lbl_len_photos.setText("Записей в таблице данных о фотографиях:")
         self.lbl_len_photos.setFont(font14)
@@ -220,7 +220,7 @@ class RecoveryLoadingWin(QDialog):
 
         self.resize(300, 100)
 
-    def set_process_lbl(self, text):
+    def set_process_lbl(self, text: str) -> None:
         self.process_lbl.setText(f"{text}")
 
 

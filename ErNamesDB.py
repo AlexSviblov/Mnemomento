@@ -56,7 +56,7 @@ class ViewBDDialog(QWidget):
 
         self.my_size()
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.setLayout(self.layout)
 
         self.table.setFont(font12)
@@ -96,7 +96,7 @@ class ViewBDDialog(QWidget):
         self.table.itemChanged.connect(self.edit_element)
         self.edit_btn.clicked.connect(self.edit_indicator)
 
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         """
         Задать стили для всего модуля в зависимости от выбранной темы
         """
@@ -289,7 +289,7 @@ class AddBDDialog(QDialog):
 
         self.make_gui()
 
-    def make_gui(self):
+    def make_gui(self) -> None:
         self.btn_ok.setText('Ввод')
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font12)
@@ -455,7 +455,7 @@ class DelBDDialog(QDialog):
     """
     Удалить подмену
     """
-    def __init__(self, del_object_ername, del_object_normname):
+    def __init__(self, del_object_ername: str, del_object_normname: str):
         super(DelBDDialog, self).__init__()
         # Создание окна
         self.setWindowTitle('Исправление неправильного считывания')

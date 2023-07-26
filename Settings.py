@@ -57,7 +57,7 @@ class SettingWin(QMainWindow):
         self.setCentralWidget(settings)
         self.resize(settings.size())
 
-    def stylesheet_color(self):
+    def stylesheet_color(self) -> None:
         """
         Задать стили для всего модуля в зависимости от выбранной темы
         """
@@ -552,7 +552,7 @@ class TransferFiles(QDialog):
     """
     photo_transfered = QtCore.pyqtSignal()
 
-    def __init__(self, parent, code, old_media, new_media, old_thumb, new_thumb):
+    def __init__(self, parent, code: int, old_media: str, new_media: str, old_thumb: str, new_thumb: str):
         super(TransferFiles, self).__init__(parent)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setStyleSheet(stylesheet2)
@@ -634,7 +634,7 @@ class DoTransfer(QtCore.QThread):
     """
     finished = QtCore.pyqtSignal()
 
-    def __init__(self, code, old_media, new_media, old_thumb, new_thumb):
+    def __init__(self, code: int, old_media: str, new_media: str, old_thumb: str, new_thumb: str):
         QThread.__init__(self)
         self.old_media = old_media
         self.new_media = new_media
