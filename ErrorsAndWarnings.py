@@ -63,7 +63,7 @@ class PhotoExists(QDialog):
 
         self.resize(self.lbl.width()+20, self.lbl.height() + self.btn_ok.height() + 20)
 
-        self.btn_ok.clicked.connect(lambda: self.close())
+        self.btn_ok.clicked.connect(self.close)
 
 
 class EditExifErrorWin(QDialog):
@@ -75,21 +75,26 @@ class EditExifErrorWin(QDialog):
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Ошибка ввода данных')
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Ошибка ввода метаданных')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
+
+        self.lbl.setText('Ошибка ввода метаданных')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class ExistFileRenameError1(QDialog):
@@ -103,21 +108,25 @@ class ExistFileRenameError1(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Файл не был переименован')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Имена файлов всё ещё совпадают')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText('Имена файлов всё ещё совпадают')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class ExistFileRenameError2(QDialog):
@@ -130,21 +139,25 @@ class ExistFileRenameError2(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Файл с таким именем уже существует')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Файл с таким именем уже существует')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText('Файл с таким именем уже существует')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class ErNamesDBWarn(QDialog):
@@ -161,27 +174,33 @@ class ErNamesDBWarn(QDialog):
         self.setWindowTitle('ОШИБКА')
         match code:
             case 1:
-                text = "Не введено, некорректное наименование, подлежащее исправлению"
+                self.text = "Не введено, некорректное наименование, подлежащее исправлению"
             case 2:
-                text = "Не введено корректное именование"
+                self.text = "Не введено корректное именование"
             case 3:
-                text = "Ошибка доступа к базе пользовательских поправок"
+                self.text = "Ошибка доступа к базе пользовательских поправок"
+            case _:
+                self.text = ""
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText(text)
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText(self.text)
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class ExistAloneDir(QDialog):
@@ -194,21 +213,25 @@ class ExistAloneDir(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Директория уже существует')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Папка с таким именем уже есть в программе')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText('Папка с таким именем уже есть в программе')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class ErNamesDBErrorWin(QDialog):
@@ -221,21 +244,26 @@ class ErNamesDBErrorWin(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('ОШИБКА')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Ошибка доступа к базе данных ErrorNames.db')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+        self.make_gui()
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
+
+        self.lbl.setText('Ошибка доступа к базе данных ErrorNames.db')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class RenameTransferingPhoto(QDialog):
@@ -248,23 +276,27 @@ class RenameTransferingPhoto(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Предупреждение')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('При смены даты съёмки фотографии основного каталога, она переносится.\n'
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
+
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
+
+        self.lbl.setText('При смене даты съёмки фотографии основного каталога, она переносится.\n'
                     'Переносимые фотографии не переименовываются (возможно, когда-то появится такая функция).\n'
                     'Если вам всё ещё необходимо переименовать файл - сделайте это заново.')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class SettingsReadError(QDialog):
@@ -277,21 +309,25 @@ class SettingsReadError(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('ОШИБКА')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Не удалось считать файл с настройками.')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText('Не удалось считать файл с настройками.')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class FilesReadErrorWin(QDialog):
@@ -304,24 +340,28 @@ class FilesReadErrorWin(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('ОШИБКА доступа к файлам')
 
-        str_show = 'Данные файлы не удалось перенести, возможно они открыты в другой программе или повреждены:'
+        self.str_show = 'Данные файлы не удалось перенести, возможно они открыты в другой программе или повреждены:'
         for file in files:
-            str_show += f'\n{file}'
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText(str_show)
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+            self.str_show += f'\n{file}'
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText(self.str_show)
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class EditCommentErrorWin(QDialog):
@@ -333,23 +373,28 @@ class EditCommentErrorWin(QDialog):
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Комментарий плохого формата')
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText(f'К сожалению, комментарии к JPEG могут содержать только английские буквы,\n'
-                    f'цифры и специальные символы.\n'
-                    f'Недопустимый символ - {symbol}')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.str_show = f'К сожалению, комментарии к JPEG могут содержать только английские буквы,\n' \
+                        f'цифры и специальные символы.\n' \
+                        f'Недопустимый символ - {symbol}'
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self):
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText(self.str_show)
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)
 
 
 class EditCommentError(Exception):
@@ -409,18 +454,22 @@ class ExistFileError(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle('Файл не найден')
 
-        layout = QGridLayout(self)
-        self.setLayout(layout)
-        lbl = QLabel(self)
-        lbl.setText('Файл не найден')
-        lbl.setFont(font14)
-        lbl.setStyleSheet(stylesheet2)
+        self.layout = QGridLayout(self)
+        self.lbl = QLabel(self)
+        self.btn = QPushButton(self)
+        self.make_gui()
 
-        btn = QPushButton(self)
-        btn.setText('Ок')
-        btn.setFont(font14)
-        btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
 
-        layout.addWidget(lbl, 0, 0, 1, 1)
-        layout.addWidget(btn, 1, 0, 1, 1)
+        self.lbl.setText('Файл не найден')
+        self.lbl.setFont(font14)
+        self.lbl.setStyleSheet(stylesheet2)
+
+        self.btn.setText('Ок')
+        self.btn.setFont(font14)
+        self.btn.setStyleSheet(stylesheet8)
+        self.btn.clicked.connect(self.close)
+
+        self.layout.addWidget(self.lbl, 0, 0, 1, 1)
+        self.layout.addWidget(self.btn, 1, 0, 1, 1)

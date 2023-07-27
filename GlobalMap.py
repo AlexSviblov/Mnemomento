@@ -160,6 +160,8 @@ class GlobalMapWidget(QWidget):
                     lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
 
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
+            case _:
+                return
 
         self.progressbar.setValue(0)
         self.progressbar.update()

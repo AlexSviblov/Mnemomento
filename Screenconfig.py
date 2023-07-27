@@ -390,8 +390,6 @@ style_dict = {'light': light_style, 'dark': dark_style}
 
 def monitor_info() -> tuple[tuple[int, int], float]:
     """
-    Получить разрешение экрана и выставленный в ОС масштаб
-    :return: разрешение (ш*в), масштаб
     """
     screen_size = ctypes.windll.user32.GetSystemMetrics(0), ctypes.windll.user32.GetSystemMetrics(1)
 

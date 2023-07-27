@@ -620,7 +620,7 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
                 try:
                     if int(new_value.split('/')[0]) < 0 or int(new_value.split('/')[1]) < 0:
                         make_error()
-                except Exception:
+                except (IndexError, ValueError):
                     make_error()
             else:
                 try:
@@ -946,7 +946,6 @@ def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
 
     match meta_orientation:
         case 1:
-            im_flipped = im
             photo_show = photo_file
             orientation = 1
         case 2:
@@ -987,7 +986,6 @@ def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
             photo_show = photo_file + '_temp'
             orientation = 0
         case _:
-            im_flipped = im
             photo_show = photo_file
             orientation = 1
 

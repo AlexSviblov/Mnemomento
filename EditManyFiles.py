@@ -330,6 +330,8 @@ class ManyPhotoEdit(QWidget):
                 lines = [self.new_gps_lat_line, self.new_gps_lon_line]
             case "Комментарий":
                 lines = [self.new_usercomment_line]
+            case _:
+                return
 
         if self.sender().checkState():
             for line in lines:
@@ -727,7 +729,6 @@ class ManyPhotoEdit(QWidget):
                     return
                 else:
                     photo_list = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
-
             case 'Оборудование':
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
@@ -743,6 +744,8 @@ class ManyPhotoEdit(QWidget):
                     lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
 
                 photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
+            case _:
+                return
 
         if not photo_list:
             try:
@@ -1188,31 +1191,39 @@ class ConfirmClear(QDialog):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.layout = QGridLayout()
-        self.setLayout(self.layout)
 
         self.lbl = QLabel()
+
+        self.btn_ok = QPushButton(self)
+        self.btn_cancel = QPushButton(self)
+
+        self.make_gui()
+
+    def make_gui(self) -> None:
+        self.setLayout(self.layout)
+
         self.lbl.setText(f'Вы точно хотите очистить метаданные?')
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
-        btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
-        btn_ok.setFont(font12)
-        btn_ok.setStyleSheet(stylesheet8)
-        btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
-        btn_cancel.setFont(font12)
-        btn_cancel.setStyleSheet(stylesheet8)
+        self.btn_ok.setText('Подтверждение')
+        self.btn_ok.setFont(font12)
+        self.btn_ok.setStyleSheet(stylesheet8)
 
-        self.layout.addWidget(btn_ok, 1, 0, 1, 1)
-        self.layout.addWidget(btn_cancel, 1, 1, 1, 1)
+        self.btn_cancel.setText('Отмена')
+        self.btn_cancel.setFont(font12)
+        self.btn_cancel.setStyleSheet(stylesheet8)
 
-        btn_ok.clicked.connect(self.accept_signal.emit)
-        btn_ok.clicked.connect(self.close)
-        btn_cancel.clicked.connect(self.reject_signal.emit)
-        btn_cancel.clicked.connect(self.close)
+        self.btn_ok.clicked.connect(self.accept_signal.emit)
+        self.btn_ok.clicked.connect(self.close)
+        self.btn_cancel.clicked.connect(self.reject_signal.emit)
+        self.btn_cancel.clicked.connect(self.close)
+
+        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+        self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
+
 
 
 class DoEditing(QtCore.QThread):
@@ -1232,7 +1243,6 @@ class DoEditing(QtCore.QThread):
         self._init = False
 
     def run(self):
-        # Metadata.massive_exif_edit(self.photo_list, self.modify_dict)
         for file in self.photo_list:
             name = file.split('/')[-1]
             directory = file[:(-1) * (len(name) + 1)]
@@ -1273,7 +1283,6 @@ class DoEditing(QtCore.QThread):
 
                     shutil.move(file, f"{new_path}/{photo_name}")
                     Thumbnail.make_const_thumbnails(new_path, photo_name)
-                    # PhotoDataDB.catalog_after_transfer(photo_name, new_path, old_path)
                     PhotoDataDB.filename_after_transfer(old_name, photo_name, old_path, new_path, 0)
 
                 self.finished.emit(0)

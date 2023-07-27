@@ -45,7 +45,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
 
     error, day, month, year = Metadata.date_from_exif(file_metadata)
 
-    fileexist = ''
+    file_exist = ''
     file_permission_error = ''
 
     if mode == 'copy':
@@ -53,7 +53,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
             
             if os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):
                 if os.path.exists(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}"):
-                    fileexist = file_full[-1]
+                    file_exist = file_full[-1]
                 else:
                     shutil.copy2(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
                     Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
@@ -73,7 +73,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
         else:   # error == 1
             if os.path.isdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info"):
                 if os.path.exists(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}"):
-                    fileexist = file_full[-1]
+                    file_exist = file_full[-1]
                 else:
                     shutil.copy2(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
                     Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
@@ -91,7 +91,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
         if error == 0:
             if os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):    # папка назначения существует
                 if os.path.exists(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}"):
-                    fileexist = file_full[-1]         # файл с таким именем уже есть
+                    file_exist = file_full[-1]         # файл с таким именем уже есть
                 else:
                     try:
                         shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
@@ -117,7 +117,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
         else:   # error == 1, т.е. даты в exif нет
             if os.path.isdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info"):
                 if os.path.exists(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}"):
-                    fileexist = file_full[-1]
+                    file_exist = file_full[-1]
                 else:
                     try:
                         shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
@@ -138,7 +138,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 except PermissionError:
                     file_permission_error = file_full[-1]
 
-    return fileexist, file_permission_error
+    return file_exist, file_permission_error
 
 
 def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name: str = '', type_add: str = 'dir') -> None:
@@ -183,6 +183,7 @@ def del_alone_dir(photo_directory: str) -> None:
     photo_list = Thumbnail.get_images_list(photo_directory)
     for file in photo_list:
         os.remove(f"{photo_directory}/{file}")
+        print(f"{photo_directory}/{file}")
     os.rmdir(photo_directory)
 
 
@@ -193,9 +194,9 @@ def clear_empty_dirs(path) -> None:
     :return: удаляются пустые папки (если есть папка месяца, где 1 пустой день и больше ничего, то при 1 закрытии
     удалится только пустая папка дня, а уже при следующем, пустая папка месяца)
     """
-    for d in os.listdir(path):
-        a = os.path.join(path, d)
-        if os.path.isdir(a):
-            clear_empty_dirs(a)
-            if not os.listdir(a):
-                os.rmdir(a)
+    for bigger_directory in os.listdir(path):
+        smaller_directory = os.path.join(path, bigger_directory)
+        if os.path.isdir(smaller_directory):
+            clear_empty_dirs(smaller_directory)
+            if not os.listdir(smaller_directory):
+                os.rmdir(smaller_directory)
