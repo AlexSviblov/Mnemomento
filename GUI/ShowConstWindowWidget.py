@@ -11,7 +11,7 @@ from pathlib import Path
 
 from Database import PhotoDataDB
 from GUI import Screenconfig, EditFiles, ErrorsAndWarnings, Settings
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from Explorer import Thumbnail
 
 from GUI.Screenconfig import font14, font12
@@ -418,12 +418,12 @@ class ConstWidgetWindow(QWidget):
                 if camera == "All":
                     camera_exif = "All"
                 else:
-                    camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
+                    camera_exif = MetadataPhoto.equip_name_check_reverse(camera, "camera")
 
                 if lens == "All":
                     lens_exif = "All"
                 else:
-                    lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
+                    lens_exif = MetadataPhoto.equip_name_check_reverse(lens, "lens")
 
                 photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, search_comment, comment_text)
             case "Соцсети":
@@ -573,10 +573,10 @@ class ConstWidgetWindow(QWidget):
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
 
         try:
-            metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.last_clicked_name,
+            metadata = MetadataPhoto.fast_filter_exif(MetadataPhoto.fast_read_exif(self.photo_file), self.last_clicked_name,
                                                  self.photo_directory)
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
-            metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name,
+            metadata = MetadataPhoto.filter_exif(MetadataPhoto.read_exif(self.photo_file), self.last_clicked_name,
                                             self.photo_directory)
         except FileNotFoundError:
             win_err = ErrorsAndWarnings.ExistFileError(self)

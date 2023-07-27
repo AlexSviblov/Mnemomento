@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import QApplication, QPushButton
 from PyQt5 import QtWebEngineWidgets
 import plotly.graph_objects as go
 
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from Database import PhotoDataDB
 from GUI import Screenconfig, Settings
 
@@ -1011,7 +1011,7 @@ class CameraLooter(QtCore.QThread):
                 pass
             else:
                 mutex.lock()
-                normname = Metadata.equip_solo_name_check(camera, "camera")
+                normname = MetadataPhoto.equip_solo_name_check(camera, "camera")
                 mutex.unlock()
                 if normname == camera:
                     result[camera] = self.camera_dict[camera]
@@ -1072,7 +1072,7 @@ class LensLooter(QtCore.QThread):
                 pass
             else:
                 mutex.lock()
-                normname = Metadata.equip_solo_name_check(lens, "lens")
+                normname = MetadataPhoto.equip_solo_name_check(lens, "lens")
                 mutex.unlock()
                 if normname == lens:
                     result[lens] = self.lens_dict[lens]
@@ -1317,12 +1317,12 @@ class FilesPaths(QtCore.QThread):
             if camera == "All":
                 camera_exif = "All"
             else:
-                camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
+                camera_exif = MetadataPhoto.equip_name_check_reverse(camera, "camera")
 
             if lens == "All":
                 lens_exif = "All"
             else:
-                lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
+                lens_exif = MetadataPhoto.equip_name_check_reverse(lens, "lens")
             photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, "")
             result = photo_list
         else:   # if not filter

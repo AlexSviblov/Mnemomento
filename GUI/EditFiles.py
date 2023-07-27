@@ -4,7 +4,7 @@ import math
 import shutil
 
 from Database import PhotoDataDB
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from GUI import Screenconfig, Settings, ShowConstWindowWidget, OnlyShowWidget, ErrorsAndWarnings
 from Explorer import Thumbnail
 
@@ -732,7 +732,7 @@ class EditExifData(QDialog):
         :return:
         """
         # все необходимые метаданные вместе
-        data = Metadata.exif_show_edit(photodirectory + "/" + photoname)
+        data = MetadataPhoto.exif_show_edit(photodirectory + "/" + photoname)
 
         # преобразовать данные для отображения
         def date_convert(data_dict):
@@ -1095,12 +1095,12 @@ class EditExifData(QDialog):
         """
         # Перезаписать в exif и БД новые метаданные
         def rewriting(photo_name: str, photo_directory: str, modify_dict) -> None:
-            Metadata.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
+            MetadataPhoto.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
             PhotoDataDB.edit_in_database(photo_name, photo_directory, modify_dict)
 
         # проверка введённых пользователем метаданных
         def check_enter(editing_type_int: int, new_text_str: str) -> None:
-            Metadata.exif_check_edit(editing_type_int, new_text_str)
+            MetadataPhoto.exif_check_edit(editing_type_int, new_text_str)
 
         # проверка введённых пользователем метаданных
         for editing_type in list(new_value_dict.keys()):
@@ -1197,7 +1197,7 @@ class EditExifData(QDialog):
         """
         def accepted():
             if "No_Date_Info" in self.photodirectory:
-                Metadata.clear_exif(self.photoname, self.photodirectory)
+                MetadataPhoto.clear_exif(self.photoname, self.photodirectory)
                 PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
                 self.get_metadata(self.photoname, self.photodirectory)
                 self.close()
@@ -1216,7 +1216,7 @@ class EditExifData(QDialog):
                 # self.photoname = "IMG_0866.jpg"
                 if not os.path.exists(
                         Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname):
-                    Metadata.clear_exif(self.photoname, self.photodirectory)
+                    MetadataPhoto.clear_exif(self.photoname, self.photodirectory)
                     PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
                     shutil.move(self.photodirectory + "/" + self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname)
                     PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info", self.photodirectory)
@@ -1271,7 +1271,7 @@ class EditExifData(QDialog):
         movement = self.sender().text()
 
         im = Image.open(f"{self.photodirectory}/{self.photoname}")
-        file_exif = Metadata.read_exif(f"{self.photodirectory}/{self.photoname}")
+        file_exif = MetadataPhoto.read_exif(f"{self.photodirectory}/{self.photoname}")
 
         match movement:
             case "Повернуть на 90° по часовой":
@@ -1488,7 +1488,7 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, "new")
-            Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, modify_dict)
+            MetadataPhoto.exif_rewrite_edit(new_new_name, self.old_photo_dir, modify_dict)
             PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], modify_dict)
         else:       # переименовывается файл в папке назначения
             new_old_name = self.old_name.text() + "." + self.format
@@ -1503,7 +1503,7 @@ class EqualNames(QDialog):
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
             Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, "old")
-            Metadata.exif_rewrite_edit(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
+            MetadataPhoto.exif_rewrite_edit(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
             PhotoDataDB.edit_in_database(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
         self.file_rename_transfer_signal.emit()
         self.close()

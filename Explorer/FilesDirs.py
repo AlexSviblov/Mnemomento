@@ -2,7 +2,7 @@ import os
 import shutil
 
 from GUI import ErrorsAndWarnings, Settings
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from Explorer import Thumbnail
 from Database import PhotoDataDB
 
@@ -37,11 +37,11 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
     for i in range(len(file_full)-1):
         file_dir += file_full[i] + "/"      # file_dir = C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/ , file_full[-1] = IMG_3805.jpg
     try:
-        file_metadata = Metadata.read_exif(file)
+        file_metadata = MetadataPhoto.read_exif(file)
     except ErrorsAndWarnings.FileReadError:
         return "", file
 
-    error, day, month, year = Metadata.date_from_exif(file_metadata)
+    error, day, month, year = MetadataPhoto.date_from_exif(file_metadata)
 
     file_exist = ""
     file_permission_error = ""
@@ -54,7 +54,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                     file_exist = file_full[-1]
                 else:
                     shutil.copy2(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
-                    Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
+                    MetadataPhoto.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
                     Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
                     PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
             else:
@@ -65,7 +65,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 if not os.path.isdir(f"{destination}{str(year)}/{str(month)}/{str(day)}"):
                     os.mkdir(f"{destination}{str(year)}/{str(month)}/{str(day)}")
                     shutil.copy2(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}")
-                    Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
+                    MetadataPhoto.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
                     Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
                     PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
         else:   # error == 1
@@ -74,7 +74,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                     file_exist = file_full[-1]
                 else:
                     shutil.copy2(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
-                    Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
+                    MetadataPhoto.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
                     Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
                     PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)
             else:
@@ -82,7 +82,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 os.mkdir(f"{destination}No_Date_Info/No_Date_Info")
                 os.mkdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
                 shutil.copy2(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}")
-                Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
+                MetadataPhoto.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
                 Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
                 PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)
     else:   # mode == "cut"
@@ -93,7 +93,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 else:
                     try:
                         shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
-                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
+                        MetadataPhoto.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
                         Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
                         PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
                     except PermissionError:
@@ -107,7 +107,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                     os.mkdir(f"{destination}{str(year)}/{str(month)}/{str(day)}")
                     try:
                         shutil.move(file, f"{destination}{str(year)}/{str(month)}/{str(day)}/")
-                        Metadata.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
+                        MetadataPhoto.check_photo_rotation(f"{destination}{str(year)}/{str(month)}/{str(day)}/{file_full[-1]}", file_metadata)
                         Thumbnail.make_const_thumbnails(f"{destination}{str(year)}/{str(month)}/{str(day)}", file_full[-1])
                         PhotoDataDB.add_to_database(file_full[-1], f"{destination}{str(year)}/{str(month)}/{str(day)}", file_metadata)
                     except PermissionError:
@@ -119,7 +119,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 else:
                     try:
                         shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
-                        Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
+                        MetadataPhoto.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
                         Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])
                         PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)
                     except PermissionError:
@@ -130,7 +130,7 @@ def transfer_const_photos(file: str) -> tuple[str, str] | None:
                 os.mkdir(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info")
                 try:
                     shutil.move(file, f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/")
-                    Metadata.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
+                    MetadataPhoto.check_photo_rotation(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info/{file_full[-1]}", file_metadata)
                     Thumbnail.make_const_thumbnails(f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_full[-1])       # создать миниатюру
                     PhotoDataDB.add_to_database(file_full[-1], f"{destination}No_Date_Info/No_Date_Info/No_Date_Info", file_metadata)           # добавить файл в БД
                 except PermissionError:
@@ -151,7 +151,7 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name:
     destination = Settings.get_destination_media() + "/Media/Photo/alone/"
     mode = Settings.get_photo_transfer_mode()
     try:
-        file_metadata = Metadata.read_exif(photofile)
+        file_metadata = MetadataPhoto.read_exif(photofile)
     except ErrorsAndWarnings.FileReadError:
         raise ErrorsAndWarnings.FileReadError
 
@@ -167,7 +167,7 @@ def transfer_alone_photos(photo_directory: str, photofile: str, exists_dir_name:
     else:   # mode == "cut"
         shutil.move(photofile, f"{destination}{photo_directory_lastname}/{photofile_lastname}")
 
-    Metadata.check_photo_rotation(f"{destination}{photo_directory_lastname}/{photofile_lastname}", file_metadata)
+    MetadataPhoto.check_photo_rotation(f"{destination}{photo_directory_lastname}/{photofile_lastname}", file_metadata)
     Thumbnail.make_alone_thumbnails(photo_directory_lastname, f"{destination}{photo_directory_lastname}/{photofile_lastname}", photofile_lastname)
     PhotoDataDB.add_to_database(photofile_lastname, f"{destination}{photo_directory_lastname}", file_metadata)
 

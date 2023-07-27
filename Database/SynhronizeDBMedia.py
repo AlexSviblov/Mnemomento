@@ -3,7 +3,7 @@ import sqlite3
 import datetime
 
 from Explorer import FilesDirs, Thumbnail
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from GUI import Settings
 
 conn = sqlite3.connect("PhotoDB.db", check_same_thread=False)
@@ -109,8 +109,8 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
         if not answer_photo or not answer_socnets:
             additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
             # camera, lens, shootingdate, GPS = "Canon EOS 200D", "EF-S 10-18 mm", "2020.05.20 14:21:20", ""
-            camera, lens, shootingdatetime, gps, usercomment = Metadata.exif_for_db(
-                Metadata.read_exif(f"{photodirectory}/{photoname}"))
+            camera, lens, shootingdatetime, gps, usercomment = MetadataPhoto.exif_for_db(
+                MetadataPhoto.read_exif(f"{photodirectory}/{photoname}"))
             if shootingdatetime != "":
                 shootingdate = shootingdatetime[:10]
             else:

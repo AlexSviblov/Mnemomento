@@ -2,8 +2,9 @@ import datetime
 import logging
 import os
 import sqlite3
+from typing import Tuple, List, Any
 
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from GUI import Settings
 
 conn = sqlite3.connect(f"file:{os.getcwd()}\\PhotoDB.db", check_same_thread=False, uri=True)
@@ -21,7 +22,7 @@ def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None
     additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
 
     # camera, lens, shootingdate, GPS = "Canon EOS 200D", "EF-S 10-18 mm", "2020.05.20 14:21:20", "No Data"
-    camera, lens, shootingdatetime, GPS, usercomment = Metadata.exif_for_db(metadata)
+    camera, lens, shootingdatetime, GPS, usercomment = MetadataPhoto.exif_for_db(metadata)
     if shootingdatetime != "":
         shootingdate = shootingdatetime[:10]
     else:
@@ -244,7 +245,7 @@ def get_equipment() -> tuple[list[str], list[str]]:
     for i in range(len(camera_all_data)):
         camera_counter[f"{camera_all_data[i][0]}"] = camera_all_data[i][1]
 
-    cameras_list = Metadata.equip_name_check_with_counter(camera_counter, "camera")
+    cameras_list = MetadataPhoto.equip_name_check_with_counter(camera_counter, "camera")
 
     sql_str_get_lens = "SELECT lens, count(lens) FROM photos GROUP BY lens"
     cur.execute(sql_str_get_lens)
@@ -253,7 +254,7 @@ def get_equipment() -> tuple[list[str], list[str]]:
     for i in range(len(lens_all_data)):
         lens_counter[f"{lens_all_data[i][0]}"] = lens_all_data[i][1]
 
-    lens_list = Metadata.equip_name_check_with_counter(lens_counter, "lens")
+    lens_list = MetadataPhoto.equip_name_check_with_counter(lens_counter, "lens")
 
     return cameras_list, lens_list,
 
@@ -532,7 +533,7 @@ def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, c
     return fullpaths
 
 
-def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float, float], str, str, str, bool], int, tuple[float, float]]:
+def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[float, float] | bool | Any]], int, tuple[float | Any, ...] | tuple[float, float]]:
     """
     Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
     метаданных каждый раз. Заодно здесь же вычисляется, как центрировать и отдалять карту OSM.
@@ -557,7 +558,7 @@ def get_global_map_info(fullpaths: list[str]) -> tuple[list[str, tuple[float, fl
         all_db_data = cur.fetchall()[0]
         gps_from_db = all_db_data[0]
         camera_db = all_db_data[1]
-        camera = Metadata.equip_name_check([camera_db], "camera")[0]
+        camera = MetadataPhoto.equip_name_check([camera_db], "camera")[0]
         shootingdate = all_db_data[2]
         if gps_from_db == "":
             pass

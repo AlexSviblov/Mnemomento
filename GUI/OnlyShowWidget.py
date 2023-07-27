@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
 
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from GUI import Screenconfig, Settings, ErrorsAndWarnings
 
 stylesheet1 = str()
@@ -252,14 +252,14 @@ class WidgetWindow(QWidget):
         # self.photo_file = "C:/Users/user/Pictures/IMG_0454.jpg"
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
-        show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)  # размещение большой картинки
+        show_photo, orientation = MetadataPhoto.onlyshow_rotation(self.photo_file)  # размещение большой картинки
         pixmap = QtGui.QPixmap(show_photo)
 
         try:
-            metadata = Metadata.fast_filter_exif(Metadata.fast_read_exif(self.photo_file), self.button_text,
+            metadata = MetadataPhoto.fast_filter_exif(MetadataPhoto.fast_read_exif(self.photo_file), self.button_text,
                                                  self.photo_directory)
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
-            metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
+            metadata = MetadataPhoto.filter_exif(MetadataPhoto.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
         self.photo_rotation = metadata["Rotation"]  # "ver" or "gor"
         if orientation == 1:
@@ -957,7 +957,7 @@ class EditExifData(QDialog):
         :param photoname:
         :param photodirectory:
         """
-        data = Metadata.exif_show_edit(photodirectory + "/" + photoname)
+        data = MetadataPhoto.exif_show_edit(photodirectory + "/" + photoname)
 
         # Дата и время съёмки из формата exif в формат QDateTime
         def date_convert(data_dict: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
@@ -1239,7 +1239,7 @@ class EditExifData(QDialog):
             :param photo_directory:
             :param modify_dict:
             """
-            Metadata.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
+            MetadataPhoto.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
 
         def check_enter(editing_type_int: int, new_text_str: str) -> None:
             """
@@ -1247,7 +1247,7 @@ class EditExifData(QDialog):
             :param editing_type_int:
             :param new_text_str:
             """
-            Metadata.exif_check_edit(editing_type_int, new_text_str)
+            MetadataPhoto.exif_check_edit(editing_type_int, new_text_str)
 
         # проверка введённых пользователем метаданных
         for editing_type in list(new_value_dict.keys()):
@@ -1269,7 +1269,7 @@ class EditExifData(QDialog):
         Очистка exif
         """
         def accepted():
-            Metadata.clear_exif(self.photoname, self.photodirectory)
+            MetadataPhoto.clear_exif(self.photoname, self.photodirectory)
             self.get_metadata(self.photoname, self.photodirectory)
             self.edited_signal.emit()
 

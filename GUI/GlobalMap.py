@@ -2,7 +2,7 @@ import os
 import folium
 import base64
 from Database import PhotoDataDB
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from GUI import Screenconfig, Settings
 
 from PyQt5 import QtWebEngineWidgets, QtGui, QtCore
@@ -14,25 +14,99 @@ from PIL import Image
 from PIL import ImageFile
 from folium import IFrame
 
-from GUI.FoliumRemastered import LatLngPopup
+from GUI.FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 
-from GUI.Screenconfig import font14
+from GUI.Screenconfig import font16, font14
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 stylesheet1 = str()
 stylesheet2 = str()
-stylesheet3 = str()
 stylesheet5 = str()
-stylesheet6 = str()
-stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 map_tiles = str()
 
 
 system_scale = Screenconfig.monitor_info()[1]
+
+
+class MapStartChooseWidget(QWidget):
+    search_signal = QtCore.pyqtSignal()
+    global_signal = QtCore.pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        self.layout_main = QGridLayout(self)
+
+        self.btn_search = QPushButton(self)
+        self.btn_global = QPushButton(self)
+
+        self.empty1 = QLabel(self)
+        self.empty2 = QLabel(self)
+        self.empty3 = QLabel(self)
+        self.empty4 = QLabel(self)
+
+        self.stylesheet_color()
+        self.make_gui()
+
+    def stylesheet_color(self) -> None:
+        global stylesheet2
+        global stylesheet5
+        global stylesheet8
+        global stylesheet9
+
+        theme = Settings.get_theme_color()
+        style = Screenconfig.style_dict
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+
+        try:
+            self.setStyleSheet(stylesheet2)
+            self.btn_search.setStyleSheet(stylesheet8)
+            self.btn_global.setStyleSheet(stylesheet8)
+            self.empty1.setStyleSheet(stylesheet2)
+            self.empty2.setStyleSheet(stylesheet2)
+            self.empty3.setStyleSheet(stylesheet2)
+            self.empty4.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
+
+    def make_gui(self) -> None:
+        self.setLayout(self.layout_main)
+
+        self.btn_search.setText("Поиск")
+        self.btn_global.setText("Карта")
+
+        self.btn_search.setFont(font16)
+        self.btn_global.setFont(font16)
+
+        self.btn_search.setFixedSize(200, 200)
+        self.btn_global.setFixedSize(200, 200)
+
+        self.empty1.setMinimumSize(5, 5)
+        self.empty1.setMaximumSize(400, 400)
+
+        self.empty2.setMinimumSize(5, 5)
+        self.empty2.setMaximumSize(400, 400)
+
+        self.empty3.setMinimumSize(5, 5)
+        self.empty4.setMaximumSize(400, 400)
+
+        self.empty4.setMinimumSize(5, 5)
+        self.empty4.setMaximumSize(400, 400)
+
+        self.layout_main.addWidget(self.btn_search, 1, 1, 1, 1)
+        self.layout_main.addWidget(self.btn_global, 1, 2, 1, 1)
+        self.layout_main.addWidget(self.empty1, 0, 0, 1, 1)
+        self.layout_main.addWidget(self.empty2, 0, 3, 1, 1)
+        self.layout_main.addWidget(self.empty3, 2, 0, 1, 1)
+        self.layout_main.addWidget(self.empty4, 2, 3, 1, 1)
+
+        self.btn_global.clicked.connect(self.global_signal.emit)
+        self.btn_search.clicked.connect(self.search_signal.emit)
 
 
 class GlobalMapWidget(QWidget):
@@ -89,24 +163,17 @@ class GlobalMapWidget(QWidget):
         self.show_shortcut.activated.connect(self.pre_make_show_map)
 
     def stylesheet_color(self) -> None:
-        global stylesheet1
         global stylesheet2
         global stylesheet5
         global stylesheet8
         global stylesheet9
-        global loading_icon
         global map_tiles
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f"{theme}"]["stylesheet1"]
         stylesheet2 = style[f"{theme}"]["stylesheet2"]
-        stylesheet3 = style[f"{theme}"]["stylesheet3"]
-        stylesheet6 = style[f"{theme}"]["stylesheet6"]
-        stylesheet7 = style[f"{theme}"]["stylesheet7"]
         stylesheet8 = style[f"{theme}"]["stylesheet8"]
         stylesheet9 = style[f"{theme}"]["stylesheet9"]
-        loading_icon = style[f"{theme}"]["loading_icon"]
         map_tiles = style[f"{theme}"]["map_tiles"]
 
         try:
@@ -151,12 +218,12 @@ class GlobalMapWidget(QWidget):
                 if camera == "All":
                     camera_exif = "All"
                 else:
-                    camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
+                    camera_exif = MetadataPhoto.equip_name_check_reverse(camera, "camera")
 
                 if lens == "All":
                     lens_exif = "All"
                 else:
-                    lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
+                    lens_exif = MetadataPhoto.equip_name_check_reverse(lens, "lens")
 
                 full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, "")
             case _:
@@ -639,3 +706,71 @@ class PathsLooter(QtCore.QThread):
         except IndexError:
             map_points_combo, zoom_level, map_center = "", "", ""
         self.finished.emit((map_points_combo, zoom_level, map_center))
+
+
+class LocationSearcherWidget(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.layout_main = QGridLayout(self)
+
+        self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+
+        self.groupbox_photos = QGroupBox(self)
+        self.scroll_area = QScrollArea(self)
+        self.layout_group = QGridLayout(self)
+
+        self.stylesheet_color()
+        self.make_gui()
+
+    def stylesheet_color(self) -> None:
+        global stylesheet1
+        global stylesheet2
+
+        theme = Settings.get_theme_color()
+        style = Screenconfig.style_dict
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+
+        try:
+            self.setStyleSheet(stylesheet2)
+            self.groupbox_photos.setStyleSheet(stylesheet1)
+            self.scroll_area.setStyleSheet(stylesheet2)
+        except AttributeError:
+            pass
+
+    def make_gui(self) -> None:
+        def make_map() -> None:
+            self.map_gps_widget.page().setBackgroundColor(QtCore.Qt.transparent)
+
+            map_gps = folium.Map(location=(55.755833, 37.61777), zoom_start=14)
+            map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
+
+            popup = LatLngPopup()
+            map_gps.add_child(popup)
+
+            page = WebEnginePage(self.map_gps_widget)
+            page.coordinates_transfer.connect(self.get_photo_for_place)
+            self.map_gps_widget.setPage(page)
+
+            self.map_gps_widget.setHtml(map_gps.get_root().render())
+            self.layout_main.addWidget(self.map_gps_widget, 0, 0, 1, 1)
+
+        def make_scroll_area() -> None:
+            self.groupbox_photos.setLayout(self.layout_group)
+
+            self.scroll_area.setWidgetResizable(True)
+            self.scroll_area.setWidget(self.groupbox_photos)
+
+            self.layout_main.addWidget(self.scroll_area, 0, 1, 1, 1)
+
+        self.setLayout(self.layout_main)
+        make_map()
+        make_scroll_area()
+
+    def get_photo_for_place(self, js_msg):
+        # TODO: поиск фото в базе с близкиим координатами, отображение и т.д.
+        row = 0
+        for symbol in js_msg:
+            lbl = QLabel(symbol)
+            self.layout_group.addWidget(lbl, row, 0, 1, 1)
+            row += 1

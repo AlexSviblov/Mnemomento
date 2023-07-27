@@ -13,7 +13,7 @@ from GUI.FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 
 from Database import PhotoDataDB
 from GUI import Screenconfig, ErrorsAndWarnings, Settings
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 from Explorer import Thumbnail
 
 stylesheet1 = str()
@@ -369,8 +369,8 @@ class ManyPhotoEdit(QWidget):
             page.coordinates_transfer.connect(lambda msg: write_coords_to_lines(msg))
             self.map_gps_widget.setPage(page)
 
-            self.popup = LatLngPopup()
-            self.map_gps.add_child(self.popup)
+            popup = LatLngPopup()
+            self.map_gps.add_child(popup)
             self.map_gps_widget.setHtml(self.map_gps.get_root().render())
 
             self.layout_outside.addWidget(self.map_gps_widget, 1, 3, 1, 1)
@@ -730,12 +730,12 @@ class ManyPhotoEdit(QWidget):
                 if camera == "All":
                     camera_exif = "All"
                 else:
-                    camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
+                    camera_exif = MetadataPhoto.equip_name_check_reverse(camera, "camera")
 
                 if lens == "All":
                     lens_exif = "All"
                 else:
-                    lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
+                    lens_exif = MetadataPhoto.equip_name_check_reverse(lens, "lens")
 
                 photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, "")
             case _:
@@ -953,7 +953,7 @@ class ManyPhotoEdit(QWidget):
             for file in self.get_edit_list():
                 name = file.split("/")[-1]
                 directory = file[:(-1) * (len(name) + 1)]
-                Metadata.clear_exif(name, directory)
+                MetadataPhoto.clear_exif(name, directory)
                 PhotoDataDB.clear_metadata(name, directory)
                 shutil.move(f"{directory}/{name}", f"{Settings.get_destination_media()}/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/{name}")
 
@@ -1011,7 +1011,7 @@ class ManyPhotoEdit(QWidget):
         """
         # проверка введённых пользователем метаданных
         def check_enter(editing_type_int: int, new_text_str: str) -> None:
-            Metadata.exif_check_edit(editing_type_int, new_text_str)
+            MetadataPhoto.exif_check_edit(editing_type_int, new_text_str)
 
         def finished_animation():
             self.empty1.show()
@@ -1078,7 +1078,7 @@ class ManyPhotoEdit(QWidget):
         column = self.table_compare.columnCount() - 1
         self.table_positions[photo] = column
         self.table_compare.setHorizontalHeaderItem(column, QTableWidgetItem(photo.split("/")[-1]))
-        current_data = Metadata.massive_table_data(photo)
+        current_data = MetadataPhoto.massive_table_data(photo)
         str_maker = str(current_data["Производитель"])
         str_camera = str(current_data["Камера"])
         str_lens = str(current_data["Объектив"])
@@ -1239,7 +1239,7 @@ class DoEditing(QtCore.QThread):
         for file in self.photo_list:
             name = file.split("/")[-1]
             directory = file[:(-1) * (len(name) + 1)]
-            Metadata.exif_rewrite_edit(name, directory, self.modify_dict)
+            MetadataPhoto.exif_rewrite_edit(name, directory, self.modify_dict)
 
         PhotoDataDB.massive_edit_metadata(self.photo_list, self.modify_dict)
 

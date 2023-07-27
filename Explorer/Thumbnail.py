@@ -4,7 +4,7 @@ from PIL import Image
 from PIL import ImageFile
 
 from GUI import Settings
-from Metadata import Metadata
+from Metadata import MetadataPhoto
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -150,7 +150,7 @@ def make_thumbnails_view(photo_file: str) -> None:
     image.thumbnail((250, 250))
     image.save(destination_thumbs + "/thumbnail/view" + f"/thumbnail_{photo_name}")
     image.close()
-    Metadata.onlyshow_thumbnail_orientation(photo_file, destination_thumbs + "/thumbnail/view" + f"/thumbnail_{photo_name}")
+    MetadataPhoto.onlyshow_thumbnail_orientation(photo_file, destination_thumbs + "/thumbnail/view" + f"/thumbnail_{photo_name}")
 
 
 def delete_exists() -> None:

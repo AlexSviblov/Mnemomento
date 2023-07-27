@@ -6,18 +6,18 @@ logging.basicConfig(filename=f"log.txt",
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     datefmt="%d-%b-%y %H:%M:%S", level=logging.WARNING)
 
-# def my_excepthook(e_type, value, traceback):
-#     print("EXCEPTHOOK")
-#     show_str = ""
-#     for line in format_exception(e_type, value, traceback):
-#         show_str += line
-#     print(show_str)
-#     logging.exception(f"{datetime.datetime.now()} - EXCEPTHOOK - Unhandled error:\n{show_str}")
-#     error = QMessageBox()
-#     error.setText(show_str)
-#     error.exec_()
-#
-# sys.excepthook = my_excepthook
+def my_excepthook(e_type, value, traceback):
+    print("EXCEPTHOOK")
+    show_str = ""
+    for line in format_exception(e_type, value, traceback):
+        show_str += line
+    print(show_str)
+    logging.exception(f"{datetime.datetime.now()} - EXCEPTHOOK - Unhandled error:\n{show_str}")
+    error = QMessageBox()
+    error.setText(show_str)
+    error.exec_()
+
+sys.excepthook = my_excepthook
 
 import os
 import json
@@ -31,18 +31,14 @@ from GUI import AboutSoft, Screenconfig, EditManyFiles, ErNamesDB, GlobalMap, On
     ShowConstWindowWidget, SocialNetworks, ErrorsAndWarnings, StatisticsModule, RecoveryModule, Settings
 from Explorer import FilesDirs, Thumbnail
 
+from GUI.Screenconfig import font16, font14, font12, font10, font8, font6
+
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet4 = str()
 stylesheet5 = str()
 stylesheet8 = str()
 stylesheet10 = str()
-
-font16 = QtGui.QFont("Times", 16)
-font14 = QtGui.QFont("Times", 14)
-font12 = QtGui.QFont("Times", 12)
-font10 = QtGui.QFont("Times", 10)
-font8 = QtGui.QFont("Times", 8)
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -162,8 +158,8 @@ class MainWindow(QMainWindow):
             theme = Settings.get_theme_color()
         except (FileNotFoundError, PermissionError, FileExistsError) as e:
             logging.error(f"MainWindow - Cannot be read settings file")
-            win = ErrorsAndWarnings.SettingsReadError(self)
-            win.show()
+            error_win = ErrorsAndWarnings.SettingsReadError(self)
+            error_win.show()
             raise e
 
         style = Screenconfig.style_dict
@@ -400,12 +396,12 @@ class MainWindow(QMainWindow):
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(files[1])
         elif files[0] == "error":
-            win = ErrorsAndWarnings.ExistAloneDir(self)
-            win.show()
+            error_win = ErrorsAndWarnings.ExistAloneDir(self)
+            error_win.show()
             self.start_show()
         else:
-            win = ErrorsAndWarnings.PhotoExists(self, files, "alone")
-            win.show()
+            error_win = ErrorsAndWarnings.PhotoExists(self, files, "alone")
+            error_win.show()
             self.show_main_alone_widget()
         self.add_files_progress = None
 
@@ -449,7 +445,19 @@ class MainWindow(QMainWindow):
         """
         Карта снимков
         """
-        widget = GlobalMap.GlobalMapWidget()
+        def search_map():
+            chosen_widget = GlobalMap.LocationSearcherWidget()
+            self.stylesheet_color()
+            self.setCentralWidget(chosen_widget)
+
+        def global_map():
+            chosen_widget = GlobalMap.GlobalMapWidget()
+            self.stylesheet_color()
+            self.setCentralWidget(chosen_widget)
+
+        widget = GlobalMap.MapStartChooseWidget()
+        widget.global_signal.connect(global_map)
+        widget.search_signal.connect(search_map)
         self.stylesheet_color()
         self.setCentralWidget(widget)
 
@@ -487,7 +495,7 @@ class MainWindow(QMainWindow):
         """
         try:
             self.window_db = ErrorNamesDBWindow(self)
-        except Exception:
+        except (FileNotFoundError, PermissionError, FileExistsError):
             logging.exception(f"MainWindow - Error in {type(self)} - Cannot open ErrorNames.db")
             er_win = ErrorsAndWarnings.ErNamesDBErrorWin(self)
             er_win.show()
@@ -615,6 +623,10 @@ class MainWindow(QMainWindow):
             else:
                 # Если были выбраны "Соцсети", но в настройках их отключили
                 pass
+        elif type(self.centralWidget()) == GlobalMap.MapStartChooseWidget:
+            self.centralWidget().stylesheet_color()
+        elif type(self.centralWidget() == GlobalMap.LocationSearcherWidget):
+            self.centralWidget().stylesheet_color()
         else:
             pass
 
@@ -869,7 +881,7 @@ class StartShow(QWidget):
         str_to_show = ""
         try:
             size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + "/Media/Photo/const/")
-        except:
+        except Exception:
             self.const_stats.setText(str_to_show)
             return
 
@@ -1203,30 +1215,31 @@ class TimeMaker(QtCore.QThread):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
+    # TODO: переделать
     with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
 
-        if os.path.isdir(settings["files"]["destination_dir"]) and os.path.isdir(settings["files"]["thumbs_dir"]):
-            pass
-        else:
-            with open("settings.json", "w") as json_file:
-                bsl = "\\"
-                new_set = {
-                    "files":
-                        {
-                            "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
-                            "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}",
-                            "transfer_mode": "copy"
-                        },
-                    "view":
-                        {
-                            "thumbs_row": "2",
-                            "color_theme": "light",
-                            "social_networks_status": 2,
-                            "sort_type": "name-up"
-                        }
-                }
-                json.dump(new_set, json_file)
+    if os.path.isdir(settings["files"]["destination_dir"]) and os.path.isdir(settings["files"]["thumbs_dir"]):
+        pass
+    else:
+        with open("settings.json", "w") as json_file:
+            bsl = "\\"
+            new_set = {
+                "files":
+                    {
+                        "destination_dir": f"{os.getcwd().replace(bsl, '/')}",
+                        "thumbs_dir": f"{os.getcwd().replace(bsl, '/')}",
+                        "transfer_mode": "copy"
+                    },
+                "view":
+                    {
+                        "thumbs_row": "2",
+                        "color_theme": "light",
+                        "social_networks_status": 2,
+                        "sort_type": "name-up"
+                    }
+            }
+            json.dump(new_set, json_file)
 
     try:
         win = MainWindow()
@@ -1238,9 +1251,11 @@ if __name__ == "__main__":
     sys.exit(app.exec_())
 
 
-# TODO: Проверка наличия папки из настроек при включении ПО
-# TODO: Обернуть в try-except всё, где могут быть вылеты
 # TODO: Добавить учёт видео (высасывать дату-время, продолжительность, камеру). Сделать возможность построения маршрута (скорее всего отдельный файл, либо таблица под видео в базе с текстовым столбцом под это)
 # TODO: Рефакторинг кода
 # TODO: PDF
 # TODO: режим, где тыкаешь на точку на карте, а тебе показыватся фото, сделанные примерно там в меню миниатюр
+# TODO: дохуя аттрибутов класса переделать в локлаьные переменные, либо определять в init
+# TODO: переделать алгоритм при запуске ПО (проверка настроек)
+# TODO: сделать Excepthook'и
+# TODO: Наделать try-except'ов
