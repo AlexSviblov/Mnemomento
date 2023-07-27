@@ -699,7 +699,7 @@ class Notification(QDialog):
         btn.setText("Ок")
         btn.setFont(font14)
         btn.setStyleSheet(stylesheet8)
-        btn.clicked.connect(lambda: self.close())
+        btn.clicked.connect(self.close)
 
         layout.addWidget(lbl, 0, 0, 1, 1)
         layout.addWidget(btn, 1, 0, 1, 1)

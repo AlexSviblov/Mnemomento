@@ -220,7 +220,7 @@ class StatisticsWidget(QWidget):
                     arg1 = self.camera_choose.currentText()
                     arg2 = self.lens_choose.currentText()
                 case _:
-                    raise ValueError
+                    pass
 
             self.paths_process = FilesPaths(type_filter=sort_type, arg1=arg1, arg2=arg2, arg3=arg3)
             self.paths_process.files.connect(lambda fl: finish(fl))

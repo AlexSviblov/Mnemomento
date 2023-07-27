@@ -240,7 +240,7 @@ class AddSN(QDialog):
         self.btn_cnl.setFont(font14)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 1, 1, 1, 1)
-        self.btn_cnl.clicked.connect(lambda: self.close())
+        self.btn_cnl.clicked.connect(elf.close)
 
     def func_ok(self) -> None:
         self.check_empty()
@@ -335,7 +335,7 @@ class RedSN(QDialog):
         self.btn_cnl.setFont(font14)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
-        self.btn_cnl.clicked.connect(lambda: self.close())
+        self.btn_cnl.clicked.connect(self.close)
 
     def func_ok(self) -> None:
         """
@@ -424,7 +424,7 @@ class DelSN(QDialog):
         self.btn_cnl.setFont(font14)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
-        self.btn_cnl.clicked.connect(lambda: self.close())
+        self.btn_cnl.clicked.connect(self.close)
 
     def do_func(self) -> None:
         """

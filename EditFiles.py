@@ -1191,7 +1191,7 @@ class EditExifData(QDialog):
                         else:
                             pass
 
-                        window_equal.file_rename_transfer_signal.connect(lambda: self.close())
+                        window_equal.file_rename_transfer_signal.connect(self.close)
         else:
             rewriting(photoname, photodirectory, new_value_dict)
             self.edited_signal.emit()
@@ -1232,7 +1232,7 @@ class EditExifData(QDialog):
                     else:
                         pass
 
-                    window_equal.file_rename_transfer_signal.connect(lambda: self.close())
+                    window_equal.file_rename_transfer_signal.connect(self.close)
                     window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit("No_Date_Info", "No_Date_Info", "No_Date_Info"))
 
                 self.get_metadata(self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info")
@@ -1425,7 +1425,7 @@ class EqualNames(QDialog):
         self.btn_cnl.setFont(font12)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 4, 2, 1, 2)
-        self.btn_cnl.clicked.connect(lambda: self.close())
+        self.btn_cnl.clicked.connect(self.close)
 
     def show_photos(self) -> None:
         """

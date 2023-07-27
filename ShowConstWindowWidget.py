@@ -208,7 +208,7 @@ class ConstWidgetWindow(QWidget):
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
                         for file in Path(dir_to_find_year + name).rglob("*"):
-                            if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
+                            if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                 k = 1
                         if k == 1:
                             k = 0
@@ -889,9 +889,7 @@ class ConstWidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
-        photoname = self.last_clicked_name
-        photodirectory = self.last_clicked_dir
-        dialog_del = DelPhotoConfirm(photoname, photodirectory)
+        dialog_del = DelPhotoConfirm(self.last_clicked_name, self.last_clicked_dir)
         dialog_del.clear_info.connect(self.clear_after_del)
         if dialog_del.exec():
             self.last_clicked = ""
@@ -903,10 +901,7 @@ class ConstWidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
-        photoname = self.last_clicked_name
-        photodirectory = self.last_clicked_dir
-
-        if not os.path.exists(f"{photodirectory}/{photoname}"):
+        if not os.path.exists(f"{self.last_clicked_dir}/{self.last_clicked_name}"):
             return
 
         match self.group_type.currentText():
@@ -923,7 +918,6 @@ class ConstWidgetWindow(QWidget):
 
         def re_show() -> None:
             if self.group_type.currentText() == "Дата":
-                # self.showinfo()
                 pass
             else:
                 self.pic.clear()
@@ -979,8 +973,9 @@ class ConstWidgetWindow(QWidget):
                     self.layout_inside_thumbs.itemAt(i).widget().click()
                     break
 
-        dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory,
-                                   chosen_group_type=self.group_type.currentText())
+        dialog_edit = EditFiles.EditExifData(parent=self, photoname=self.last_clicked_name,
+                                             photodirectory=self.last_clicked_dir,
+                                             chosen_group_type=self.group_type.currentText())
         dialog_edit.show()
 
         if self.group_type.currentText() == "Дата":
@@ -1181,7 +1176,7 @@ class ConstWidgetWindow(QWidget):
                 self.comment_line.setDisabled(True)
                 self.type_show_thumbnails()
 
-        self.comment_check.stateChanged.connect(lambda: comment_line_block())
+        self.comment_check.stateChanged.connect(comment_line_block)
 
         self.comment_line = QLineEdit(self)
         self.comment_line.setFont(font14)

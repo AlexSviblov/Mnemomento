@@ -1,13 +1,30 @@
+import logging
 import sys
+import datetime
+from traceback import format_exception
+from PyQt5.QtWidgets import *
+
+logging.basicConfig(filename=f"logs/log.txt",
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    datefmt="%d-%b-%y %H:%M:%S", level=logging.WARNING)
+
+def my_excepthook(e_type, value, traceback):
+    print("EXCEPTHOOK")
+    show_str = ""
+    for line in format_exception(e_type, value, traceback):
+        show_str += line
+
+    logging.exception(f"{datetime.datetime.now()} - EXCEPTHOOK - Unhandled error:\n{show_str}")
+    error = QMessageBox()
+    error.setText(show_str)
+    error.exec_()
+
 import os
 import json
-import logging
-import datetime
 
 import PyQt5.QtWinExtras
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import *
 from pathlib import Path
 
 import AboutSoft
@@ -40,10 +57,6 @@ font10 = QtGui.QFont("Times", 10)
 font8 = QtGui.QFont("Times", 8)
 
 system_scale = Screenconfig.monitor_info()[1]
-
-logging.basicConfig(filename=f"logs/log.txt",
-                    format="%(asctime)s - %(levelname)s - %(message)s",
-                    datefmt="%d-%b-%y %H:%M:%S", level=logging.WARNING)
 
 
 class MainWindow(QMainWindow):
@@ -503,33 +516,6 @@ class MainWindow(QMainWindow):
         self.window_db.resize(self.window_db.size())
         self.window_db.adjustSize()
 
-    def closeEvent(self, event) -> None:
-        """
-        Закрытие программы -> удалить созданное для разового просмотра
-        """
-        self.clear_view_close()
-        logging.info("MainWindow - Correct program exit")
-
-    def clear_view_close(self) -> None:
-        """
-        Удалить созданное для разового просмотра
-        """
-        try:
-            Thumbnail.delete_exists()
-            path = Settings.get_destination_media() + "/Media/Photo/const/"
-            FilesDirs.clear_empty_dirs(path)
-            logging.info("MainWindow - Empty directories of main catalog were cleared")
-        except FileNotFoundError:
-            pass
-
-        try:
-            Thumbnail.delete_exists()
-            path = Settings.get_destination_thumb() + "/thumbnail/const/"
-            FilesDirs.clear_empty_dirs(path)
-            logging.info("MainWindow - OnlyShow directory was cleared")
-        except FileNotFoundError:
-            pass
-
     def social_networks_func(self) -> None:
         """
         Соцсети
@@ -697,6 +683,33 @@ class MainWindow(QMainWindow):
         """
         win_about = AboutSoft.AboutInfo(self)
         win_about.show()
+
+    def closeEvent(self, event) -> None:
+        """
+        Закрытие программы -> удалить созданное для разового просмотра
+        """
+        self.clear_view_close()
+        logging.info("MainWindow - Correct program exit")
+
+    def clear_view_close(self) -> None:
+        """
+        Удалить созданное для разового просмотра
+        """
+        try:
+            Thumbnail.delete_exists()
+            path = Settings.get_destination_media() + "/Media/Photo/const/"
+            FilesDirs.clear_empty_dirs(path)
+            logging.info("MainWindow - Empty directories of main catalog were cleared")
+        except FileNotFoundError:
+            pass
+
+        try:
+            Thumbnail.delete_exists()
+            path = Settings.get_destination_thumb() + "/thumbnail/const/"
+            FilesDirs.clear_empty_dirs(path)
+            logging.info("MainWindow - OnlyShow directory was cleared")
+        except FileNotFoundError:
+            pass
 
 
 class ProgressBar(QWidget):
@@ -1231,6 +1244,14 @@ if __name__ == "__main__":
         win = MainWindow()
         win.show()
     except:
-        logging.exception(f"ALL PROGRAM ERROR - ")
+        logging.exception(f"MainWindow ERROR - ")
 
     sys.exit(app.exec_())
+
+
+# TODO: Проверка наличия папки из настроек при включении ПО
+# TODO: Обернуть в try-except всё, где могут быть вылеты
+# TODO: Добавить учёт видео (высасывать дату-время, продолжительность, камеру). Сделать возможность построения маршрута (скорее всего отдельный файл, либо таблица под видео в базе с текстовым столбцом под это)
+# TODO: Рефакторинг кода
+# TODO: PDF
+# TODO: режим, где тыкаешь на точку на карте, а тебе показыватся фото, сделанные примерно там в меню миниатюр
