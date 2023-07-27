@@ -1,12 +1,10 @@
 import os
 import shutil
-from typing import Tuple
 
-import ErrorsAndWarnings
-import Settings
-import Metadata
-import Thumbnail
-import PhotoDataDB
+from GUI import ErrorsAndWarnings, Settings
+from Metadata import Metadata
+from Explorer import Thumbnail
+from Database import PhotoDataDB
 
 
 def make_files_list_from_dir(directory: str) -> list[str]:

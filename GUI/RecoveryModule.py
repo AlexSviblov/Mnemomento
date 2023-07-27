@@ -1,14 +1,12 @@
 import logging
-import os
 import sys
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QThread, pyqtSignal
 
-import Screenconfig
-import Settings
-import SynhronizeDBMedia
+from Database import SynhronizeDBMedia
+from GUI import Screenconfig, Settings
 
 
 stylesheet1 = str()

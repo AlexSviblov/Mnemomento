@@ -3,8 +3,8 @@ import shutil
 from PIL import Image
 from PIL import ImageFile
 
-import Settings
-import Metadata
+from GUI import Settings
+from Metadata import Metadata
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 

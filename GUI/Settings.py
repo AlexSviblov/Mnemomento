@@ -17,9 +17,8 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import QMovie
 from PyQt5.QtCore import QThread, pyqtSignal
 
-import ErrorsAndWarnings
-import PhotoDataDB
-import Screenconfig
+from Database import PhotoDataDB
+from GUI import Screenconfig, ErrorsAndWarnings
 
 font14 = QtGui.QFont("Times", 14)
 

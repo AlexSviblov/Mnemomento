@@ -1,10 +1,9 @@
 import os
 import folium
 import base64
-import PhotoDataDB
-import Metadata
-import Screenconfig
-import Settings
+from Database import PhotoDataDB
+from Metadata import Metadata
+from GUI import Screenconfig, Settings
 
 from PyQt5 import QtWebEngineWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
@@ -15,9 +14,9 @@ from PIL import Image
 from PIL import ImageFile
 from folium import IFrame
 
-from FoliumRemastered import LatLngPopup
+from GUI.FoliumRemastered import LatLngPopup
 
-from Screenconfig import font14, font12
+from GUI.Screenconfig import font14
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 

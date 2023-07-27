@@ -1,26 +1,20 @@
 import logging
 import os
 import shutil
-import sys
 import folium
-import json
 import math
-from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
+from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from pathlib import Path
 
-from FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
+from GUI.FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 
-import ErrorsAndWarnings
-import PhotoDataDB
-import Screenconfig
-import Metadata
-import Settings
-import Thumbnail
-import EditFiles
-
+from Database import PhotoDataDB
+from GUI import Screenconfig, ErrorsAndWarnings, Settings
+from Metadata import Metadata
+from Explorer import Thumbnail
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -1223,7 +1217,6 @@ class ConfirmClear(QDialog):
 
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
-
 
 
 class DoEditing(QtCore.QThread):

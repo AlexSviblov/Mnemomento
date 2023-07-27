@@ -8,14 +8,10 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 
-import EditFiles
-import FilesDirs
-import PhotoDataDB
-import Metadata
-import Screenconfig
-import Settings
-import Thumbnail
-
+from Explorer import FilesDirs, Thumbnail
+from Database import PhotoDataDB
+from Metadata import Metadata
+from GUI import Screenconfig, EditFiles, Settings
 
 stylesheet1 = str()
 stylesheet2 = str()

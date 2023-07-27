@@ -1,9 +1,7 @@
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
-import sys
 
-import Screenconfig
-import Settings
+from GUI import Screenconfig, Settings
 
 
 stylesheet1 = str()

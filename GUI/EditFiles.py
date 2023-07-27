@@ -1,17 +1,12 @@
-import logging
 import os
 import folium
 import math
 import shutil
 
-import ErrorsAndWarnings
-import OnlyShowWidget
-import PhotoDataDB
-import Metadata
-import Screenconfig
-import Settings
-import ShowConstWindowWidget
-import Thumbnail
+from Database import PhotoDataDB
+from Metadata import Metadata
+from GUI import Screenconfig, Settings, ShowConstWindowWidget, OnlyShowWidget, ErrorsAndWarnings
+from Explorer import Thumbnail
 
 from PyQt5 import QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtWidgets import *
@@ -20,8 +15,8 @@ from PIL import Image
 from PIL import ImageFile
 import exiftool
 
-from FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
-from Screenconfig import font14, font12
+from GUI.FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
+from GUI.Screenconfig import font14, font12
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -1207,17 +1202,20 @@ class EditExifData(QDialog):
                 self.get_metadata(self.photoname, self.photodirectory)
                 self.close()
             else:
-                if not os.path.exists(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/"):
+                if not os.path.exists(
+                        Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/"):
                     os.mkdir(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/")
                     os.mkdir(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/")
-                    os.mkdir(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/")
+                    os.mkdir(
+                        Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/")
 
                 photodirectory_splitted = self.photodirectory.split("/")
                 new_date_splitted = [photodirectory_splitted[-3], photodirectory_splitted[-2], photodirectory_splitted[-1]]
                 old_date_splitted = ["No_Date_Info", "No_Date_Info", "No_Date_Info"]
                 # self.photodirectory = "C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30"
                 # self.photoname = "IMG_0866.jpg"
-                if not os.path.exists(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname):
+                if not os.path.exists(
+                        Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname):
                     Metadata.clear_exif(self.photoname, self.photodirectory)
                     PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
                     shutil.move(self.photodirectory + "/" + self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname)

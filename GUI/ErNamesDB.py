@@ -5,9 +5,7 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
-import ErrorsAndWarnings
-import Screenconfig
-import Settings
+from GUI import Screenconfig, Settings, ErrorsAndWarnings
 
 
 stylesheet1 = str()

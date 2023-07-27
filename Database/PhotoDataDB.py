@@ -2,10 +2,9 @@ import datetime
 import logging
 import os
 import sqlite3
-from typing import Tuple, List, Any
 
-import Metadata
-import Settings
+from Metadata import Metadata
+from GUI import Settings
 
 conn = sqlite3.connect(f"file:{os.getcwd()}\\PhotoDB.db", check_same_thread=False, uri=True)
 cur = conn.cursor()

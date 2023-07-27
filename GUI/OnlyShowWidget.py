@@ -2,17 +2,14 @@ import logging
 import math
 import folium
 import os
-import json
 from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import *
 from math import ceil
 from PyQt5.QtCore import Qt
 
-import Metadata
-import Screenconfig
-import Settings
-import ErrorsAndWarnings
+from Metadata import Metadata
+from GUI import Screenconfig, Settings, ErrorsAndWarnings
 
 stylesheet1 = str()
 stylesheet2 = str()

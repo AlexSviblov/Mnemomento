@@ -2,7 +2,7 @@ import logging
 import sqlite3
 import piexif
 import exiftool
-import ErrorsAndWarnings
+from GUI import ErrorsAndWarnings
 from PIL import Image, ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True

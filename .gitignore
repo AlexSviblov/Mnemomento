@@ -8,7 +8,6 @@
 /venv/
 /test/
 /tests/
-/logs/
-/Helpful/
 /installer-upd.iss
 /setupscript.iss
+/log.txt

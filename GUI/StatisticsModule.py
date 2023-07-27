@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 
@@ -9,17 +8,15 @@ from PyQt5.QtCore import QThread, pyqtSignal
 import exiftool
 from pathlib import Path
 
-from PyQt5.QtWidgets import QDialog, QApplication, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QApplication, QPushButton
 
 from PyQt5 import QtWebEngineWidgets
-import plotly.express as px
 import plotly.graph_objects as go
 
-import ErrorsAndWarnings
-import Metadata
-import PhotoDataDB
-import Screenconfig
-import Settings
+from Metadata import Metadata
+from Database import PhotoDataDB
+from GUI import Screenconfig, Settings
+
 
 font14 = QtGui.QFont("Times", 14)
 

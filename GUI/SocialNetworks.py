@@ -1,14 +1,12 @@
 import logging
-import os
 import sys
 import sqlite3
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 
-import PhotoDataDB
-import Screenconfig
-import Settings
+from Database import PhotoDataDB
+from GUI import Screenconfig, Settings
 
 
 stylesheet1 = str()

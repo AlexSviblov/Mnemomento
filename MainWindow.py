@@ -1,23 +1,23 @@
 import logging
 import sys
-import datetime
-from traceback import format_exception
 from PyQt5.QtWidgets import *
 
-logging.basicConfig(filename=f"logs/log.txt",
+logging.basicConfig(filename=f"log.txt",
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     datefmt="%d-%b-%y %H:%M:%S", level=logging.WARNING)
 
-def my_excepthook(e_type, value, traceback):
-    print("EXCEPTHOOK")
-    show_str = ""
-    for line in format_exception(e_type, value, traceback):
-        show_str += line
-
-    logging.exception(f"{datetime.datetime.now()} - EXCEPTHOOK - Unhandled error:\n{show_str}")
-    error = QMessageBox()
-    error.setText(show_str)
-    error.exec_()
+# def my_excepthook(e_type, value, traceback):
+#     print("EXCEPTHOOK")
+#     show_str = ""
+#     for line in format_exception(e_type, value, traceback):
+#         show_str += line
+#     print(show_str)
+#     logging.exception(f"{datetime.datetime.now()} - EXCEPTHOOK - Unhandled error:\n{show_str}")
+#     error = QMessageBox()
+#     error.setText(show_str)
+#     error.exec_()
+#
+# sys.excepthook = my_excepthook
 
 import os
 import json
@@ -27,21 +27,9 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
 from pathlib import Path
 
-import AboutSoft
-import EditManyFiles
-import OnlyShowWidget
-import Screenconfig
-import ShowAloneWindowWidget
-import ShowConstWindowWidget
-import SocialNetworks
-import StatisticsModule
-import Thumbnail
-import ErNamesDB
-import FilesDirs
-import ErrorsAndWarnings
-import Settings
-import RecoveryModule
-import GlobalMap
+from GUI import AboutSoft, Screenconfig, EditManyFiles, ErNamesDB, GlobalMap, OnlyShowWidget, ShowAloneWindowWidget, \
+    ShowConstWindowWidget, SocialNetworks, ErrorsAndWarnings, StatisticsModule, RecoveryModule, Settings
+from Explorer import FilesDirs, Thumbnail
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -1243,8 +1231,9 @@ if __name__ == "__main__":
     try:
         win = MainWindow()
         win.show()
-    except:
-        logging.exception(f"MainWindow ERROR - ")
+    except Exception as e:
+        print(str(type(e).__name__) + str(e) + str(e.__traceback__))
+        logging.exception(f"MainWindow ERROR - {str(type(e).__name__) + str(e) + str(e.__traceback__)}")
 
     sys.exit(app.exec_())
 

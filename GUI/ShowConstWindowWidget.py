@@ -9,15 +9,12 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeySequence
 from pathlib import Path
 
-import ErrorsAndWarnings
-import PhotoDataDB
-import Screenconfig
-import Metadata
-import Settings
-import Thumbnail
-import EditFiles
+from Database import PhotoDataDB
+from GUI import Screenconfig, EditFiles, ErrorsAndWarnings, Settings
+from Metadata import Metadata
+from Explorer import Thumbnail
 
-from Screenconfig import font14, font12
+from GUI.Screenconfig import font14, font12
 
 
 stylesheet1 = str()
@@ -580,7 +577,7 @@ class ConstWidgetWindow(QWidget):
                                                  self.photo_directory)
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.last_clicked_name,
-                                                 self.photo_directory)
+                                            self.photo_directory)
         except FileNotFoundError:
             win_err = ErrorsAndWarnings.ExistFileError(self)
             win_err.show()
