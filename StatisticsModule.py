@@ -21,7 +21,7 @@ import PhotoDataDB
 import Screenconfig
 import Settings
 
-font14 = QtGui.QFont('Times', 14)
+font14 = QtGui.QFont("Times", 14)
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -47,7 +47,7 @@ class StatisticsWin(QMainWindow):
         super().__init__(parent)
         self.stylesheet_color()
         # Создание окна
-        self.setWindowTitle('Статистика основного каталога')
+        self.setWindowTitle("Статистика основного каталога")
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1000, 300)
@@ -73,16 +73,16 @@ class StatisticsWin(QMainWindow):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet5 = style[f'{theme}']['stylesheet5']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
-        text_color = style[f'{theme}']['statistics']['text_color']
-        plot_back_color = style[f'{theme}']['statistics']['plot_back_color']
-        bar_color = style[f'{theme}']['statistics']['bar_color']
-        area_color = style[f'{theme}']['statistics']['area_color']
-        bar_time_color = style[f'{theme}']['statistics']['bar_time_color']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet5 = style[f"{theme}"]["stylesheet5"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
+        text_color = style[f"{theme}"]["statistics"]["text_color"]
+        plot_back_color = style[f"{theme}"]["statistics"]["plot_back_color"]
+        bar_color = style[f"{theme}"]["statistics"]["bar_color"]
+        area_color = style[f"{theme}"]["statistics"]["area_color"]
+        bar_time_color = style[f"{theme}"]["statistics"]["bar_time_color"]
 
         self.setStyleSheet(stylesheet2)
 
@@ -96,7 +96,7 @@ class StatisticsWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Статистика основного каталога')
+        self.setWindowTitle("Статистика основного каталога")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1366, 720)
         self.setStyleSheet(stylesheet2)
@@ -134,7 +134,7 @@ class StatisticsWidget(QWidget):
         self.layout.addWidget(self.graphic_fl, 0, 3, 1, 1)
 
         self.start_btn = QPushButton(self)
-        self.start_btn.setText('Показать')
+        self.start_btn.setText("Показать")
         self.layout.addWidget(self.start_btn, 2, 0, 1, 1)
         self.start_btn.setStyleSheet(stylesheet8)
         self.start_btn.setFont(font14)
@@ -210,17 +210,17 @@ class StatisticsWidget(QWidget):
             QtCore.QCoreApplication.processEvents()
             self.reset_counter()
             sort_type = self.group_type.currentText()
-            arg1, arg2, arg3 = '', '', ''
+            arg1, arg2, arg3 = "", "", ""
             match sort_type:
-                case 'Дата':
+                case "Дата":
                     arg1 = self.date_year.currentText()
                     arg2 = self.date_month.currentText()
                     arg3 = self.date_day.currentText()
-                case 'Оборудование':
+                case "Оборудование":
                     arg1 = self.camera_choose.currentText()
                     arg2 = self.lens_choose.currentText()
                 case _:
-                    pass
+                    raise ValueError
 
             self.paths_process = FilesPaths(type_filter=sort_type, arg1=arg1, arg2=arg2, arg3=arg3)
             self.paths_process.files.connect(lambda fl: finish(fl))
@@ -274,15 +274,15 @@ class StatisticsWidget(QWidget):
                       "7:00-8:00", "8:00-9:00", "9:00-10:00", "10:00-11:00", "11:00-12:00", "12:00-13:00", "13:00-14:00",
                       "14:00-15:00", "15:00-16:00", "16:00-17:00", "17:00-18:00", "18:00-19:00", "19:00-20:00",
                       "20:00-21:00", "21:00-22:00", "22:00-23:00", "23:00-00:00"]
-        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
-                                    text=hover_text, textposition='none', marker_color=bar_color))
-        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Время съёмки',
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate="%{text} (%{y})<extra></extra>",
+                                    text=hover_text, textposition="none", marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text="Время съёмки",
                           title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
                           font_color=text_color, title_font_color=text_color)
         fig.update_traces(width=1)
         fig.update_xaxes(tickvals=[-0.5, 1.5, 3.5, 5.5, 7.5, 9.5, 11.5, 13.5, 15.5, 17.5, 19.5, 21.5],
                          ticktext=[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22])
-        self.graphic_hours.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_hours.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def take_camera_dict(self) -> None:
@@ -315,9 +315,9 @@ class StatisticsWidget(QWidget):
         sizes = list(hd.values())
         names = list(hd.keys())
         fig = go.Figure(data=go.Pie(values=sizes, labels=names))
-        fig.update_layout(autosize=True, title_text='Камеры', title_x=0.5, paper_bgcolor=area_color,
+        fig.update_layout(autosize=True, title_text="Камеры", title_x=0.5, paper_bgcolor=area_color,
                           plot_bgcolor=plot_back_color, font_color=text_color, title_font_color=text_color)
-        self.graphic_camera.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_camera.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def take_lens_dict(self) -> None:
@@ -350,9 +350,9 @@ class StatisticsWidget(QWidget):
         sizes = list(hd.values())
         names = list(hd.keys())
         fig = go.Figure(data=go.Pie(values=sizes, labels=names))
-        fig.update_layout(autosize=True, title_text='Объективы', title_x=0.5, paper_bgcolor=area_color,
+        fig.update_layout(autosize=True, title_text="Объективы", title_x=0.5, paper_bgcolor=area_color,
                           plot_bgcolor=plot_back_color, font_color=text_color, title_font_color=text_color)
-        self.graphic_lens.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_lens.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def take_iso_dict(self) -> None:
@@ -386,9 +386,9 @@ class StatisticsWidget(QWidget):
         y_values = list(hd.values())
         hover_text = iso_values
         x_values = [i for i in range(0, len(iso_values))]
-        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
-                                    text=hover_text, textposition='none', marker_color=bar_color))
-        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='ISO',
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate="%{text} (%{y})<extra></extra>",
+                                    text=hover_text, textposition="none", marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text="ISO",
                           title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
                           font_color=text_color, title_font_color=text_color)
 
@@ -403,7 +403,7 @@ class StatisticsWidget(QWidget):
         fig.update_xaxes(tickvals=list(tick_dict.keys()),
                          ticktext=list(tick_dict.values()))
 
-        self.graphic_iso.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_iso.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def take_fnumber_dict(self) -> None:
@@ -437,9 +437,9 @@ class StatisticsWidget(QWidget):
         y_values = list(hd.values())
         hover_text = fnumber_values
         x_values = [i for i in range(0, len(fnumber_values))]
-        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
-                                    text=hover_text, textposition='none', marker_color=bar_color))
-        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Диафрагма',
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate="%{text} (%{y})<extra></extra>",
+                                    text=hover_text, textposition="none", marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text="Диафрагма",
                           title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
                           font_color=text_color, title_font_color=text_color)
 
@@ -454,7 +454,7 @@ class StatisticsWidget(QWidget):
 
         fig.update_xaxes(tickvals=list(tick_dict.keys()),
                          ticktext=list(tick_dict.values()))
-        self.graphic_fnumber.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_fnumber.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def take_exposuretime_dict(self) -> None:
@@ -494,20 +494,20 @@ class StatisticsWidget(QWidget):
                     else:
                         if abs(float_times_list[i] - float_times_list[j]) < 2:
                             if float_times_list[j] in near_cleared:
-                                labels[i] = ''
+                                labels[i] = ""
                             else:
                                 if float_times_list[i] >= 0.1 and labels[i]:
                                     labels[i] = str(round(float(labels[i]), 2))
                                 near_cleared.append(float_times_list[i])
-                                labels[j] = ''
+                                labels[j] = ""
             return labels
 
         sizes = list(hd.values())
         times = list(hd.keys())
         float_times = []
         for t in times:
-            if len(t.split('/')) == 2:
-                float_value_buf = float(int(t.split('/')[0]) / int(t.split('/')[1]))
+            if len(t.split("/")) == 2:
+                float_value_buf = float(int(t.split("/")[0]) / int(t.split("/")[1]))
                 float_value = float(((-1) * (1 / float_value_buf) / 50)+0.3)
             else:
                 float_value = float(t)
@@ -516,16 +516,16 @@ class StatisticsWidget(QWidget):
         hover_text = []
         for time in times:
             hover_text.append(time[:7])
-        fig = go.Figure(data=go.Bar(x=float_times, y=sizes, hovertemplate='%{text} (%{y})<extra></extra>',
-                                    text=hover_text, textposition='none', marker_color=bar_time_color))
-        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Выдержка',
+        fig = go.Figure(data=go.Bar(x=float_times, y=sizes, hovertemplate="%{text} (%{y})<extra></extra>",
+                                    text=hover_text, textposition="none", marker_color=bar_time_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text="Выдержка",
                           title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
                           font_color=text_color, title_font_color=text_color)
         fig.update_xaxes(tickvals=list(float_times),
                          ticktext=clear_labels(float_times, times))
         fig.update_traces(width=0.02)
 
-        self.graphic_exposuretime.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_exposuretime.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def take_fl_dict(self) -> None:
@@ -560,9 +560,9 @@ class StatisticsWidget(QWidget):
         y_values = list(hd.values())
         hover_text = fl_values
         x_values = [i for i in range(0, len(fl_values))]
-        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate='%{text} (%{y})<extra></extra>',
-                                    text=hover_text, textposition='none', marker_color=bar_color))
-        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text='Фокусное расстояние',
+        fig = go.Figure(data=go.Bar(x=x_values, y=y_values, hovertemplate="%{text} (%{y})<extra></extra>",
+                                    text=hover_text, textposition="none", marker_color=bar_color))
+        fig.update_layout(modebar_remove=["lasso", "select", "select2d"], autosize=True, title_text="Фокусное расстояние",
                           title_x=0.5, paper_bgcolor=area_color, plot_bgcolor=plot_back_color,
                           font_color=text_color, title_font_color=text_color)
 
@@ -576,7 +576,7 @@ class StatisticsWidget(QWidget):
 
         fig.update_xaxes(tickvals=list(tick_dict.keys()),
                          ticktext=list(tick_dict.values()))
-        self.graphic_fl.setHtml(fig.to_html(include_plotlyjs='cdn'))
+        self.graphic_fl.setHtml(fig.to_html(include_plotlyjs="cdn"))
         QtCore.QCoreApplication.processEvents()
 
     def update_colors(self) -> None:
@@ -694,13 +694,13 @@ class StatisticsWidget(QWidget):
             self.date_year.clear()
             j = 0
             k = 0
-            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            dir_to_find_year = Settings.get_destination_media() + "/Media/Photo/const/"
             all_files_and_dirs = os.listdir(dir_to_find_year)
             dir_list = list()
             for name in all_files_and_dirs:
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
-                        for file in Path(dir_to_find_year + name).rglob('*'):
+                        for file in Path(dir_to_find_year + name).rglob("*"):
                             if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                 k = 1
                         if k == 1:
@@ -710,16 +710,16 @@ class StatisticsWidget(QWidget):
             dir_list.sort(reverse=True)
             i = 0
             for year in dir_list:
-                if dir_list[i] != 'No_Date_Info':
+                if dir_list[i] != "No_Date_Info":
                     self.date_year.addItem(str(year))
                 else:
                     j = 1
                 i += 1
             if j == 1:
-                self.date_year.addItem('No_Date_Info')
+                self.date_year.addItem("No_Date_Info")
             else:
                 pass
-            self.date_year.addItem('All')
+            self.date_year.addItem("All")
 
         def get_months() -> None:
             """
@@ -727,17 +727,17 @@ class StatisticsWidget(QWidget):
             """
             self.date_month.clear()
             year = self.date_year.currentText()
-            if year == 'All':
-                self.date_month.addItem('All')
+            if year == "All":
+                self.date_month.addItem("All")
             else:
-                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                dir_to_find_month = Settings.get_destination_media() + "/Media/Photo/const/" + year + "/"
                 all_files_and_dirs = os.listdir(dir_to_find_month)
                 dir_list = list()
                 k = 0
                 for name in all_files_and_dirs:
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
-                            for file in Path(dir_to_find_month + name).rglob('*'):
+                            for file in Path(dir_to_find_month + name).rglob("*"):
                                 if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     k = 1
                             if k == 1:
@@ -747,7 +747,7 @@ class StatisticsWidget(QWidget):
                 dir_list.sort(reverse=True)
                 for month in dir_list:
                     self.date_month.addItem(str(month))
-                self.date_month.addItem('All')
+                self.date_month.addItem("All")
 
         def get_days() -> None:
             """
@@ -756,10 +756,10 @@ class StatisticsWidget(QWidget):
             self.date_day.clear()
             year = self.date_year.currentText()
             month = self.date_month.currentText()
-            if year == 'All' or month == 'All':
-                self.date_day.addItem('All')
+            if year == "All" or month == "All":
+                self.date_day.addItem("All")
             else:
-                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                dir_to_find_day = Settings.get_destination_media() + "/Media/Photo/const/" + year + "/" + month + "/"
                 all_files_and_dirs = os.listdir(dir_to_find_day)
                 dir_list = list()
                 for name in all_files_and_dirs:
@@ -770,18 +770,18 @@ class StatisticsWidget(QWidget):
                 dir_list.sort(reverse=True)
                 for day in dir_list:
                     self.date_day.addItem(str(day))
-                self.date_day.addItem('All')
+                self.date_day.addItem("All")
 
         match mode:
-            case 'date':
+            case "date":
                 get_years()
                 get_months()
                 get_days()
-            case 'year':
+            case "year":
                 get_years()
-            case 'month':
+            case "month":
                 get_months()
-            case 'day':
+            case "day":
                 get_days()
             case _:
                 get_years()
@@ -793,10 +793,10 @@ class StatisticsWidget(QWidget):
         Выбор способа группировки
         """
         self.group_type = QComboBox(self)
-        self.group_type.addItem('')
-        self.group_type.addItem('Дата')
-        self.group_type.addItem('Оборудование')
-        self.group_type.setObjectName('sort')
+        self.group_type.addItem("")
+        self.group_type.addItem("Дата")
+        self.group_type.addItem("Оборудование")
+        self.group_type.setObjectName("sort")
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)
         self.group_type.setFixedWidth(int(152 * system_scale) + 1)
@@ -810,15 +810,15 @@ class StatisticsWidget(QWidget):
         Заполнить нужное поле в зависимости от выбранного типа группировки
         """
         for i in reversed(range(self.layout_type.count())):
-            if self.layout_type.itemAt(i).widget().objectName() != 'sort':
+            if self.layout_type.itemAt(i).widget().objectName() != "sort":
                 self.layout_type.itemAt(i).widget().hide()
                 self.layout_type.itemAt(i).widget().deleteLater()
                 QtCore.QCoreApplication.processEvents()
 
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 self.fill_sort_date()
-            case 'Оборудование':
+            case "Оборудование":
                 self.fill_sort_equipment()
             case _:
                 self.fill_sort_nothing()
@@ -828,7 +828,7 @@ class StatisticsWidget(QWidget):
         Очистка полей группировки
         """
         for i in reversed(range(self.layout_type.count())):
-            if self.layout_type.itemAt(i).widget().objectName() != 'sort':
+            if self.layout_type.itemAt(i).widget().objectName() != "sort":
                 self.layout_type.itemAt(i).widget().hide()
                 self.layout_type.itemAt(i).widget().deleteLater()
                 QtCore.QCoreApplication.processEvents()
@@ -873,12 +873,12 @@ class StatisticsWidget(QWidget):
         self.date_day.setFixedWidth(int(140 * system_scale) + 1)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
-        self.fill_date('date')
+        self.fill_date("date")
 
         if not self.year_lbl.text():
-            self.year_lbl.setText('Год:')
-            self.month_lbl.setText('    Месяц:')
-            self.day_lbl.setText('    День:')
+            self.year_lbl.setText("Год:")
+            self.month_lbl.setText("    Месяц:")
+            self.day_lbl.setText("    День:")
 
         self.date_day.setFixedHeight(int(30 * system_scale) + 1)
         self.date_month.setFixedHeight(int(30 * system_scale) + 1)
@@ -887,8 +887,8 @@ class StatisticsWidget(QWidget):
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
 
-        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
-        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date("month"))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date("day"))
 
     def fill_sort_equipment(self) -> None:
         """
@@ -910,16 +910,16 @@ class StatisticsWidget(QWidget):
         lens_max_len = 0
 
         for camera in cameras:
-            self.camera_choose.addItem(f'{camera}')
+            self.camera_choose.addItem(f"{camera}")
             if len(camera) > camera_max_len:
                 camera_max_len = len(camera)
-        self.camera_choose.addItem('All')
+        self.camera_choose.addItem("All")
 
         for lens in lenses:
-            self.lens_choose.addItem(f'{lens}')
+            self.lens_choose.addItem(f"{lens}")
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
-        self.lens_choose.addItem('All')
+        self.lens_choose.addItem("All")
 
         self.camera_choose.setFixedWidth(int((camera_max_len * 12) * system_scale) + 1)
         self.lens_choose.setFixedWidth(int((lens_max_len * 12) * system_scale) + 1)
@@ -941,7 +941,7 @@ class HoursLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                hour = piexif.load(file)['Exif'][36867].decode('utf-8')[-8:-6]
+                hour = piexif.load(file)["Exif"][36867].decode("utf-8")[-8:-6]
                 self.hours_dict[int(hour)] += 1
             except (ValueError, KeyError) as error:
                 if type(error) == ValueError:
@@ -950,7 +950,7 @@ class HoursLooter(QtCore.QThread):
                             hour_exif = et.execute("-EXIF:DateTimeOriginal", file)
                             if hour_exif:
                                 try:
-                                    hour = int(hour_exif.split(':')[-2])
+                                    hour = int(hour_exif.split(":")[-2])
                                     try:
                                         self.hours_dict[hour] += 1
                                     except KeyError:
@@ -983,7 +983,7 @@ class CameraLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                camera = piexif.load(file)['0th'][272].decode('utf-8')
+                camera = piexif.load(file)["0th"][272].decode("utf-8")
                 if camera:
                     try:
                         self.camera_dict[camera] += 1
@@ -995,7 +995,7 @@ class CameraLooter(QtCore.QThread):
                         with exiftool.ExifToolHelper() as et:
                             camera_exif = et.execute("-EXIF:Model", file)
                             if camera_exif:
-                                camera = camera_exif.split(':')[-1]
+                                camera = camera_exif.split(":")[-1]
                                 try:
                                     self.camera_dict[camera] += 1
                                 except KeyError:
@@ -1014,7 +1014,7 @@ class CameraLooter(QtCore.QThread):
                 pass
             else:
                 mutex.lock()
-                normname = Metadata.equip_solo_name_check(camera, 'camera')
+                normname = Metadata.equip_solo_name_check(camera, "camera")
                 mutex.unlock()
                 if normname == camera:
                     result[camera] = self.camera_dict[camera]
@@ -1044,7 +1044,7 @@ class LensLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                lens = piexif.load(file)['Exif'][42036].decode('utf-8')
+                lens = piexif.load(file)["Exif"][42036].decode("utf-8")
                 if lens:
                     try:
                         self.lens_dict[lens] += 1
@@ -1056,7 +1056,7 @@ class LensLooter(QtCore.QThread):
                         with exiftool.ExifToolHelper() as et:
                             lens_exif = et.execute("-EXIF:LensModel", file)
                             if lens_exif:
-                                lens = lens_exif.split(':')[-1]
+                                lens = lens_exif.split(":")[-1]
                                 try:
                                     self.lens_dict[lens] += 1
                                 except KeyError:
@@ -1075,7 +1075,7 @@ class LensLooter(QtCore.QThread):
                 pass
             else:
                 mutex.lock()
-                normname = Metadata.equip_solo_name_check(lens, 'lens')
+                normname = Metadata.equip_solo_name_check(lens, "lens")
                 mutex.unlock()
                 if normname == lens:
                     result[lens] = self.lens_dict[lens]
@@ -1105,7 +1105,7 @@ class IsoLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                iso = piexif.load(file)['Exif'][34855]
+                iso = piexif.load(file)["Exif"][34855]
                 if iso:
                     try:
                         self.iso_dict[int(iso)] += 1
@@ -1118,7 +1118,7 @@ class IsoLooter(QtCore.QThread):
                             iso_exif = et.execute("-EXIF:ISO", file)
                             if iso_exif:
                                 try:
-                                    iso = int(iso_exif.split(':')[-1])
+                                    iso = int(iso_exif.split(":")[-1])
                                     try:
                                         self.iso_dict[iso] += 1
                                     except KeyError:
@@ -1153,7 +1153,7 @@ class FnumberLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                fnumber = piexif.load(file)['Exif'][33437][0]/piexif.load(file)['Exif'][33437][1]
+                fnumber = piexif.load(file)["Exif"][33437][0]/piexif.load(file)["Exif"][33437][1]
                 if fnumber:
                     try:
                         self.fnumber_dict[fnumber] += 1
@@ -1166,7 +1166,7 @@ class FnumberLooter(QtCore.QThread):
                             fnumber_exif = et.execute("-EXIF:FNumber", file)
                             if fnumber_exif:
                                 try:
-                                    fnumber = float(fnumber_exif.split(':')[-1])
+                                    fnumber = float(fnumber_exif.split(":")[-1])
                                     try:
                                         self.fnumber_dict[fnumber] += 1
                                     except KeyError:
@@ -1201,7 +1201,7 @@ class ExposureTimeLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                time = piexif.load(file)['Exif'][33434][0]/piexif.load(file)['Exif'][33434][1]
+                time = piexif.load(file)["Exif"][33434][0]/piexif.load(file)["Exif"][33434][1]
                 if time:
                     if time >= 0.1:
                         expo_time = str(time)
@@ -1222,7 +1222,7 @@ class ExposureTimeLooter(QtCore.QThread):
                             time_exif = et.execute("-EXIF:ExposureTime", file)
                             if time_exif:
                                 try:
-                                    time_raw = float(time_exif.split(':')[-1])
+                                    time_raw = float(time_exif.split(":")[-1])
                                     if time_raw > 0.1:
                                         time = str(time_raw)
                                     else:
@@ -1261,7 +1261,7 @@ class FocalLengthLooter(QtCore.QThread):
     def run(self):
         for file in self.all_files:
             try:
-                fl = piexif.load(file)['Exif'][37386][0]/piexif.load(file)['Exif'][37386][1]
+                fl = piexif.load(file)["Exif"][37386][0]/piexif.load(file)["Exif"][37386][1]
                 if fl:
                     try:
                         self.fl_dict[fl] += 1
@@ -1274,7 +1274,7 @@ class FocalLengthLooter(QtCore.QThread):
                             fl_exif = et.execute("-EXIF:FocalLength", file)
                             if fl_exif:
                                 try:
-                                    fl = int(fl_exif.split(':')[-1])
+                                    fl = int(fl_exif.split(":")[-1])
                                     try:
                                         self.fl_dict[fl] += 1
                                     except KeyError:
@@ -1300,7 +1300,7 @@ class FilesPaths(QtCore.QThread):
     """
     files = QtCore.pyqtSignal(list)
 
-    def __init__(self, type_filter='', arg1='All', arg2='All', arg3='All'):
+    def __init__(self, type_filter="", arg1="All", arg2="All", arg3="All"):
         QThread.__init__(self)
         self.type_filter = type_filter
         self.arg1 = arg1
@@ -1308,37 +1308,37 @@ class FilesPaths(QtCore.QThread):
         self.arg3 = arg3
 
     def run(self):
-        if self.type_filter == 'Дата':
+        if self.type_filter == "Дата":
             year = self.arg1
             month = self.arg2
             day = self.arg3
-            photo_list = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
+            photo_list = PhotoDataDB.get_date_photo_list(year, month, day, False, "")
             result = photo_list
-        elif self.type_filter == 'Оборудование':
+        elif self.type_filter == "Оборудование":
             camera = self.arg1
             lens = self.arg2
-            if camera == 'All':
-                camera_exif = 'All'
+            if camera == "All":
+                camera_exif = "All"
             else:
-                camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+                camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
 
-            if lens == 'All':
-                lens_exif = 'All'
+            if lens == "All":
+                lens_exif = "All"
             else:
-                lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
-            photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
+                lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
+            photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, "")
             result = photo_list
         else:   # if not filter
             all_files = []
-            main_catalog = Settings.get_destination_media() + r'/Media/Photo/const'
+            main_catalog = Settings.get_destination_media() + r"/Media/Photo/const"
             for root, dirs, files in os.walk(main_catalog):
                 for file in files:
                     if file.endswith(".jpg") or file.endswith(".JPG"):
                         root_name = str(root)
-                        root_name = root_name.replace(r'\\', '/')
-                        root_name = root_name.replace('\\', '/')
-                        root_name = root_name.replace('//', '/')
-                        name = root_name + '/' + file
+                        root_name = root_name.replace(r"\\", "/")
+                        root_name = root_name.replace("\\", "/")
+                        root_name = root_name.replace("//", "/")
+                        name = root_name + "/" + file
                         all_files.append(name)
             result = all_files
 

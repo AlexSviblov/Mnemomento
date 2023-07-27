@@ -7,7 +7,7 @@ import Metadata
 import Settings
 import Thumbnail
 
-conn = sqlite3.connect('PhotoDB.db', check_same_thread=False)
+conn = sqlite3.connect("PhotoDB.db", check_same_thread=False)
 cur = conn.cursor()
 
 
@@ -46,9 +46,9 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
                 sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_photos_db[i][0]}\' " \
                            f"AND filename = \'{all_photos_db[i][1]}\'"
                 cur.execute(sql_str2)
-                if '/alone/' in all_photos_db[i][0]:
+                if "/alone/" in all_photos_db[i][0]:
                     FilesDirs.transfer_const_photos(f"{all_photos_db[i][0]}/{all_photos_db[i][1]}")
-                elif '/const/' in all_photos_db[i][0]:
+                elif "/const/" in all_photos_db[i][0]:
                     FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}", f"{all_photos_db[i][1]}")
         else:
             sql_str_del = f"DELETE FROM photos WHERE catalog = \'{all_photos_db[i][0]}\' AND filename = \'{all_photos_db[i][1]}\'"
@@ -61,9 +61,9 @@ def check_exists_from_db(all_photos_db: list[list[str]], all_socnets_db: list[li
                 cur.execute(sql_str1)
                 sql_str2 = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' AND filename = \'{all_socnets_db[i][1]}\'"
                 cur.execute(sql_str2)
-                if '/alone/' in all_socnets_db[i][0]:
+                if "/alone/" in all_socnets_db[i][0]:
                     FilesDirs.transfer_const_photos(f"{all_socnets_db[i][0]}/{all_socnets_db[i][1]}")
-                elif '/const/' in all_socnets_db[i][0]:
+                elif "/const/" in all_socnets_db[i][0]:
                     FilesDirs.transfer_alone_photos(f"{all_photos_db[i][0]}", f"{all_socnets_db[i][1]}")
         else:
             sql_str = f"DELETE FROM socialnetworks WHERE catalog = \'{all_socnets_db[i][0]}\' and filename = \'{all_socnets_db[i][1]}\'"
@@ -78,11 +78,11 @@ def research_all_media_photos() -> list[list[str]]:
     :return: список абсолютных путей.
     """
     filelist = []
-    path = Settings.get_destination_media() + '/Media/Photo'
+    path = Settings.get_destination_media() + "/Media/Photo"
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.endswith(".jpg") or file.endswith(".JPG"):
-                filelist.append([root.replace('\\', '/'), file])
+                filelist.append([root.replace("\\", "/"), file])
 
     return filelist
 
@@ -109,7 +109,7 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
 
         if not answer_photo or not answer_socnets:
             additiontime = datetime.datetime.now().strftime("%Y.%m.%d %H:%M:%S")
-            # camera, lens, shootingdate, GPS = 'Canon EOS 200D', 'EF-S 10-18 mm', '2020.05.20 14:21:20', ""
+            # camera, lens, shootingdate, GPS = "Canon EOS 200D", "EF-S 10-18 mm", "2020.05.20 14:21:20", ""
             camera, lens, shootingdatetime, gps, usercomment = Metadata.exif_for_db(Metadata.read_exif(f"{photodirectory}/{photoname}"))
             if shootingdatetime != "":
                 shootingdate = shootingdatetime[:10]
@@ -117,22 +117,22 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
                 shootingdate = shootingdatetime
 
             if not answer_photo:
-                sql_str1 = f'INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
-                           f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{gps}\', \'{usercomment}\')'
+                sql_str1 = f"INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
+                           f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{gps}\', \'{usercomment}\')"
 
                 cur.execute(sql_str1)
 
             if not answer_socnets:
-                sql_str_get_nets = 'PRAGMA table_info(socialnetworks)'
+                sql_str_get_nets = "PRAGMA table_info(socialnetworks)"
                 cur.execute(sql_str_get_nets)
                 all_column_names = cur.fetchall()
                 if len(all_column_names) == 3:
-                    sql_str2 = f'INSERT INTO socialnetworks VALUES (\'{photoname}\',\'{photodirectory}\',\'{shootingdate}\')'
+                    sql_str2 = f"INSERT INTO socialnetworks VALUES (\'{photoname}\',\'{photodirectory}\',\'{shootingdate}\')"
                 else:
-                    sn_str = r''
+                    sn_str = r""
                     for i in range(len(all_column_names) - 3):
-                        sn_str += ',\'No value\' '
-                    sql_str2 = f'INSERT INTO socialnetworks VALUES (\'{photoname}\',\'{photodirectory}\',\'{shootingdate}\'{sn_str})'
+                        sn_str += ",\'No value\' "
+                    sql_str2 = f"INSERT INTO socialnetworks VALUES (\'{photoname}\',\'{photodirectory}\',\'{shootingdate}\'{sn_str})"
 
                 cur.execute(sql_str2)
 
@@ -180,47 +180,47 @@ def thumbnail_photo_conformity() -> None:
     :return: создаются или удаляются миниатюры
     """
     thumb_list = research_all_thumbnails()
-    destination_media = Settings.get_destination_media() + '/Media/Photo/'
+    destination_media = Settings.get_destination_media() + "/Media/Photo/"
     for file in thumb_list:
-        if 'thumbnail_' not in file:
+        if "thumbnail_" not in file:
             os.remove(file)
         else:
-            path_splitted = file.split('/')
+            path_splitted = file.split("/")
             file_name = path_splitted[-1][10:]
-            if 'const' in path_splitted:
+            if "const" in path_splitted:
                 date_part = f"{path_splitted[-4]}/{path_splitted[-3]}/{path_splitted[-2]}/"
-                photo_way = destination_media + 'const/' + date_part + file_name
+                photo_way = destination_media + "const/" + date_part + file_name
                 if os.path.exists(photo_way):
                     pass
                 else:
                     os.remove(file)
-            elif 'alone' in path_splitted:
+            elif "alone" in path_splitted:
                 dir_name_part = path_splitted[-2]
-                photo_way = destination_media + 'alone/' + dir_name_part + '/' + file_name
+                photo_way = destination_media + "alone/" + dir_name_part + "/" + file_name
                 if os.path.exists(photo_way):
                     pass
                 else:
                     os.remove(file)
-            elif 'view' in path_splitted:
+            elif "view" in path_splitted:
                 pass
             else:
                 os.remove(file)
 
-    destination_thumbs = Settings.get_destination_thumb() + '/thumbnail/'
+    destination_thumbs = Settings.get_destination_thumb() + "/thumbnail/"
     photo_paths = get_photo_db_ways()
     for combo in photo_paths:
-        catalog_splitted = combo[0].split('/')
-        if 'const' in catalog_splitted:
+        catalog_splitted = combo[0].split("/")
+        if "const" in catalog_splitted:
             date_part = f"{catalog_splitted[-3]}/{catalog_splitted[-2]}/{catalog_splitted[-1]}/"
-            thumbnail_way = destination_thumbs + 'const/' + date_part + 'thumbnail_' + combo[1]
+            thumbnail_way = destination_thumbs + "const/" + date_part + "thumbnail_" + combo[1]
             if os.path.exists(thumbnail_way):
                 pass
             else:
                 Thumbnail.make_const_thumbnails(combo[0], combo[1])
 
-        elif 'alone' in catalog_splitted:
-            catalog_name = combo[0].split('/')[-1]
-            thumbnail_way = destination_thumbs + 'alone/' + catalog_name + '/' + 'thumbnail_' + combo[1]
+        elif "alone" in catalog_splitted:
+            catalog_name = combo[0].split("/")[-1]
+            thumbnail_way = destination_thumbs + "alone/" + catalog_name + "/" + "thumbnail_" + combo[1]
             if os.path.exists(thumbnail_way):
                 pass
             else:
@@ -233,10 +233,10 @@ def research_all_thumbnails() -> list[str]:
     :return: список путей файлов, которые передаются как список из 1 элемента, надо бы это поправить
     """
     filelist = []
-    path = Settings.get_destination_thumb() + '/thumbnail'
+    path = Settings.get_destination_thumb() + "/thumbnail"
     for root, dirs, files in os.walk(path):
         for file in files:
             if file.endswith(".jpg") or file.endswith(".JPG"):
-                filelist.append(root.replace('\\', '/') + '/' + file)
+                filelist.append(root.replace("\\", "/") + "/" + file)
 
     return filelist

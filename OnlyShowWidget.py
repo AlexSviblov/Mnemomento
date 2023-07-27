@@ -25,8 +25,8 @@ icon_explorer = str()
 icon_view = str()
 icon_edit = str()
 
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
+font14 = QtGui.QFont("Times", 14)
+font12 = QtGui.QFont("Times", 12)
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -88,7 +88,7 @@ class WidgetWindow(QWidget):
         self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
         self.metadata_show.setStyleSheet(stylesheet6)
 
-        self.last_clicked = ''
+        self.last_clicked = ""
 
         self.layout_btns = QGridLayout(self)
         self.layout_btns.setSpacing(0)
@@ -132,16 +132,16 @@ class WidgetWindow(QWidget):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
-        icon_explorer = style[f'{theme}']['icon_explorer']
-        icon_view = style[f'{theme}']['icon_view']
-        icon_edit = style[f'{theme}']['icon_edit']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet3 = style[f"{theme}"]["stylesheet3"]
+        stylesheet6 = style[f"{theme}"]["stylesheet6"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
+        icon_explorer = style[f"{theme}"]["icon_explorer"]
+        icon_view = style[f"{theme}"]["icon_view"]
+        icon_edit = style[f"{theme}"]["icon_edit"]
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
@@ -166,7 +166,7 @@ class WidgetWindow(QWidget):
         self.thumbnails_list = list()
 
         for file in os.listdir(
-                Settings.get_destination_thumb() + '/thumbnail/view/'):  # получение списка созданных миниатюр
+                Settings.get_destination_thumb() + "/thumbnail/view/"):  # получение списка созданных миниатюр
             if file.endswith(".jpg") or file.endswith(".JPG"):
                 self.thumbnails_list.append(file)
 
@@ -179,14 +179,14 @@ class WidgetWindow(QWidget):
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(
-                        Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
+                        Settings.get_destination_thumb() + f"/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}")  # создание объекта картинки
                     iqon.pixmap(150, 150)  # задание размера картинки
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)  # помещение картинки на кнопку
                     self.button.setIconSize(QtCore.QSize(150, 150))
                     self.button.setText(
-                        f'{self.thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
+                        f"{self.thumbnails_list[j * self.thumb_row + i][10:]}")  # добавление названия фото
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.clicked.connect(self.showinfo)
             else:
@@ -194,13 +194,13 @@ class WidgetWindow(QWidget):
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(
-                        Settings.get_destination_thumb() + f'/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}')
+                        Settings.get_destination_thumb() + f"/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}")
                     iqon.pixmap(150, 150)
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)
                     self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{self.thumbnails_list[j * self.thumb_row + i][10:]}')
+                    self.button.setText(f"{self.thumbnails_list[j * self.thumb_row + i][10:]}")
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.clicked.connect(self.showinfo)
 
@@ -216,16 +216,16 @@ class WidgetWindow(QWidget):
         if self.gps_coordinates:
             self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
             gps_dict = self.gps_coordinates
-            gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+            gps_coords = [float(gps_dict.split(",")[0]), float(gps_dict.split(",")[1])]
 
             self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
-            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color="red")).add_to(self.map_gps)
             self.map_gps_widget.setHtml(self.map_gps.get_root().render())
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                 self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-            else:  # self.photo_rotation == 'ver'
+            else:  # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 self.map_gps_widget.setFixedWidth(self.metadata_show.width())
                 self.map_gps_widget.setFixedHeight(self.height() - self.metadata_show.height() - 100)
@@ -243,7 +243,7 @@ class WidgetWindow(QWidget):
         try:
             self.button_text = self.sender().text()
         except AttributeError:
-            if self.last_clicked == '':
+            if self.last_clicked == "":
                 return
             else:
                 self.button_text = self.last_clicked
@@ -252,7 +252,7 @@ class WidgetWindow(QWidget):
 
         self.pic.clear()  # очистка от того, что показано сейчас
 
-        # self.photo_file = 'C:/Users/user/Pictures/IMG_0454.jpg'
+        # self.photo_file = "C:/Users/user/Pictures/IMG_0454.jpg"
         self.photo_file = self.photo_directory + self.button_text  # получение информации о нажатой кнопке
 
         show_photo, orientation = Metadata.onlyshow_rotation(self.photo_file)  # размещение большой картинки
@@ -264,22 +264,22 @@ class WidgetWindow(QWidget):
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
-        self.photo_rotation = metadata['Rotation']  # 'ver' or 'gor'
+        self.photo_rotation = metadata["Rotation"]  # "ver" or "gor"
         if orientation == 1:
             pass
         else:
-            if self.photo_rotation == 'ver':
-                self.photo_rotation = 'gor'
+            if self.photo_rotation == "ver":
+                self.photo_rotation = "gor"
             else:
-                self.photo_rotation = 'ver'
+                self.photo_rotation = "ver"
 
         params = list(metadata.keys())
-        params.remove('Rotation')
+        params.remove("Rotation")
 
         try:
-            self.gps_coordinates = metadata['GPS']
+            self.gps_coordinates = metadata["GPS"]
         except KeyError:
-            self.gps_coordinates = ''
+            self.gps_coordinates = ""
         rows = 0
         for param in params:
             if metadata[param]:
@@ -307,7 +307,7 @@ class WidgetWindow(QWidget):
 
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
 
-        if self.photo_rotation == 'gor':
+        if self.photo_rotation == "gor":
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
 
@@ -320,7 +320,7 @@ class WidgetWindow(QWidget):
             self.pic.show()
             self.set_minimum_size.emit(
                 self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
-        else:  # self.photo_rotation == 'ver'
+        else:  # self.photo_rotation == "ver"
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
             self.pixmap2 = pixmap.scaled(
@@ -345,10 +345,10 @@ class WidgetWindow(QWidget):
         :param photo_list:
         :return:
         """
-        photo_splitted = photo_list[0].split('/')
-        photo_dir = ''
+        photo_splitted = photo_list[0].split("/")
+        photo_dir = ""
         for i in range(0, len(photo_splitted) - 1):
-            photo_dir += photo_splitted[i] + '/'
+            photo_dir += photo_splitted[i] + "/"
 
         return photo_dir
 
@@ -434,7 +434,7 @@ class WidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
-        path = self.photo_file  # 'C:/Users/user/Pictures/IMG_0454.jpg'
+        path = self.photo_file  # "C:/Users/user/Pictures/IMG_0454.jpg"
         os.startfile(path)
 
     def call_explorer(self) -> None:
@@ -444,8 +444,8 @@ class WidgetWindow(QWidget):
         if not self.pic.isVisible() or not self.last_clicked:
             return
 
-        open_path = self.photo_file  # 'C:/Users/user/Pictures/IMG_0454.jpg'
-        path = open_path.replace('/', '\\')
+        open_path = self.photo_file  # "C:/Users/user/Pictures/IMG_0454.jpg"
+        path = open_path.replace("/", "\\")
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
 
@@ -471,7 +471,7 @@ class EditExifData(QDialog):
         super().__init__(parent)
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Редактирование метаданных')
+        self.setWindowTitle("Редактирование метаданных")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.photoname = photoname
@@ -520,7 +520,7 @@ class EditExifData(QDialog):
         self.get_metadata(photoname, photodirectory)
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    def make_map(self, coordinates: list[int, int], filename: str):
+    def make_map(self, coordinates: tuple[float, float], filename: str):
         """
         Создание карты и метки на ней
         :param coordinates:
@@ -536,7 +536,7 @@ class EditExifData(QDialog):
 
         if coordinates[0] != 0 and coordinates[1] != 0:
             self.map_gps = folium.Map(location=coordinates, zoom_start=14)
-            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color="red")).add_to(self.map_gps)
         else:
             self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
@@ -574,9 +574,9 @@ class EditExifData(QDialog):
         self.tab_technic_settings = QWidget(self)
         self.tab_GPS = QWidget(self)
 
-        self.tabs.addTab(self.tab_date, 'Дата')
-        self.tabs.addTab(self.tab_technic_settings, 'Оборудование и настройки')
-        self.tabs.addTab(self.tab_GPS, 'GPS')
+        self.tabs.addTab(self.tab_date, "Дата")
+        self.tabs.addTab(self.tab_technic_settings, "Оборудование и настройки")
+        self.tabs.addTab(self.tab_GPS, "GPS")
 
         self.tabs.setFont(font12)
 
@@ -691,13 +691,13 @@ class EditExifData(QDialog):
         self.lens_line = QLineEdit(self)
 
         self.time_line = QLineEdit(self)
-        self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[./]\d+')))
+        self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\d+[./]\d+")))
 
         self.iso_line = QLineEdit(self)
         self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
         self.fnumber_line = QLineEdit(self)
-        self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[.]\d+')))
+        self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\d+[.]\d+")))
 
         self.flength_line = QLineEdit(self)
         self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
@@ -767,10 +767,10 @@ class EditExifData(QDialog):
 
         self.latitude_fn_line = QLineEdit(self)  # широта
         self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
-            QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+            QtCore.QRegExp("^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$")))
         self.longitude_fn_line = QLineEdit(self)  # долгота
         self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(
-            QtCore.QRegExp('^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+            QtCore.QRegExp("^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$")))
 
         self.latitude_fn_lbl.setFont(font12)
         self.longitude_fn_lbl.setFont(font12)
@@ -826,25 +826,25 @@ class EditExifData(QDialog):
         self.longitude_dmc_sec_lbl.setText("Секунды:")
 
         self.latitude_dmc_deg_line = QLineEdit(self)  # широта
-        self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:90|[0-9]|[1-8][0-9])')))
+        self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:90|[0-9]|[1-8][0-9])")))
 
         self.latitude_dmc_min_line = QLineEdit(self)  # широта
-        self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
+        self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:60|[0-9]|[1-5][0-9])")))
 
         self.latitude_dmc_sec_line = QLineEdit(self)  # широта
         self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-            QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+            QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$")))
 
         self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
         self.longitude_dmc_deg_line.setValidator(
-            QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
+            QtGui.QRegExpValidator(QtCore.QRegExp("(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])")))
 
         self.longitude_dmc_min_line = QLineEdit(self)  # долгота
-        self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
+        self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:60|[0-9]|[1-5][0-9])")))
 
         self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
         self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-            QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$')))
+            QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$")))
 
         self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
@@ -960,13 +960,13 @@ class EditExifData(QDialog):
         :param photoname:
         :param photodirectory:
         """
-        data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
+        data = Metadata.exif_show_edit(photodirectory + "/" + photoname)
 
         # Дата и время съёмки из формата exif в формат QDateTime
         def date_convert(data_dict: dict[str, str]) -> tuple[int, int, int, int, int, int, str, int, int]:
             try:
-                date_part = data_dict['Время съёмки'].split(' ')[0]
-                time_part = data_dict['Время съёмки'].split(' ')[1]
+                date_part = data_dict["Время съёмки"].split(" ")[0]
+                time_part = data_dict["Время съёмки"].split(" ")[1]
             except IndexError:
                 date_part = "0000:00:00"
                 time_part = "00:00:00"
@@ -979,9 +979,9 @@ class EditExifData(QDialog):
             second_int = int(time_part.split(":")[2])
 
             try:
-                zone_pm_sign = data_dict['Часовой пояс'][0]
-                zone_hour_int = int(data_dict['Часовой пояс'][1:].split(':')[0])
-                zone_min_int = int(data_dict['Часовой пояс'][1:].split(':')[1])
+                zone_pm_sign = data_dict["Часовой пояс"][0]
+                zone_hour_int = int(data_dict["Часовой пояс"][1:].split(":")[0])
+                zone_min_int = int(data_dict["Часовой пояс"][1:].split(":")[1])
             except IndexError:
                 zone_pm_sign = "+"
                 zone_hour_int = int("00")
@@ -1007,24 +1007,24 @@ class EditExifData(QDialog):
             """
             Заполнить поля второй вкладки
             """
-            self.maker_line.setText(str(data['Производитель']))
-            self.camera_line.setText(str(data['Камера']))
-            self.lens_line.setText(str(data['Объектив']))
-            self.time_line.setText(str(data['Выдержка']))
-            self.iso_line.setText(str(data['ISO']))
-            self.fnumber_line.setText(str(data['Диафрагма']))
-            self.flength_line.setText(str(data['Фокусное расстояние']))
-            self.serialbody_line.setText(str(data['Серийный номер камеры']))
-            self.seriallens_line.setText(str(data['Серийный номер объектива']))
+            self.maker_line.setText(str(data["Производитель"]))
+            self.camera_line.setText(str(data["Камера"]))
+            self.lens_line.setText(str(data["Объектив"]))
+            self.time_line.setText(str(data["Выдержка"]))
+            self.iso_line.setText(str(data["ISO"]))
+            self.fnumber_line.setText(str(data["Диафрагма"]))
+            self.flength_line.setText(str(data["Фокусное расстояние"]))
+            self.serialbody_line.setText(str(data["Серийный номер камеры"]))
+            self.seriallens_line.setText(str(data["Серийный номер объектива"]))
 
         def fill_gps() -> None:
             """
             Заполнить вкладку GPS
             """
-            coords_all = data['Координаты']
+            coords_all = data["Координаты"]
             try:
-                latitude_part = float(coords_all.split(',')[0])
-                longitude_part = float(coords_all.split(',')[1])
+                latitude_part = float(coords_all.split(",")[0])
+                longitude_part = float(coords_all.split(",")[1])
             except ValueError:
                 latitude_part = 0
                 longitude_part = 0
@@ -1296,7 +1296,7 @@ class ConfirmClear(QDialog):
         super(ConfirmClear, self).__init__(parent)
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Подтверждение очистки')
+        self.setWindowTitle("Подтверждение очистки")
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -1304,18 +1304,18 @@ class ConfirmClear(QDialog):
         self.setLayout(self.layout)
 
         self.lbl = QLabel()
-        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setText(f"Вы точно хотите очистить метаданные?")
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 

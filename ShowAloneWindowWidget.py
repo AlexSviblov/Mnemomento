@@ -30,8 +30,8 @@ icon_edit = str()
 icon_delete = str()
 
 
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
+font14 = QtGui.QFont("Times", 14)
+font12 = QtGui.QFont("Times", 12)
 
 
 system_scale = Screenconfig.monitor_info()[1]
@@ -85,7 +85,7 @@ class AloneWidgetWindow(QWidget):
         self.layout_directory_choose.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         self.directory_lbl = QLabel(self)
-        self.directory_lbl.setText('Папка для просмотра:')
+        self.directory_lbl.setText("Папка для просмотра:")
         self.directory_lbl.setFixedWidth(int(200*system_scale)+1)
         self.directory_lbl.setFont(font14)
         self.directory_lbl.setStyleSheet(stylesheet2)
@@ -101,7 +101,7 @@ class AloneWidgetWindow(QWidget):
         self.layout_directory_choose.addWidget(self.directory_choose, 0, 1, 1, 1)
 
         self.directory_delete = QPushButton(self)
-        self.directory_delete.setText('Удалить папку')
+        self.directory_delete.setText("Удалить папку")
         self.directory_delete.setFont(font14)
         self.directory_delete.setStyleSheet(stylesheet8)
         self.layout_directory_choose.addWidget(self.directory_delete, 0, 2, 1, 1)
@@ -109,7 +109,7 @@ class AloneWidgetWindow(QWidget):
         self.directory_delete.setFixedWidth(int(200*system_scale)+1)
 
         self.photo_filter = QCheckBox(self)
-        self.photo_filter.setText('Фильтр')
+        self.photo_filter.setText("Фильтр")
         self.photo_filter.setFont(font14)
         self.photo_filter.setStyleSheet(stylesheet2)
         if self.soc_net_setting:
@@ -126,10 +126,10 @@ class AloneWidgetWindow(QWidget):
         self.sn_status = QComboBox(self)
         self.sn_status.setFont(font14)
         self.sn_status.setStyleSheet(stylesheet9)
-        self.sn_status.addItem('Не выбрано')
-        self.sn_status.addItem('Не публиковать')
-        self.sn_status.addItem('Опубликовать')
-        self.sn_status.addItem('Опубликовано')
+        self.sn_status.addItem("Не выбрано")
+        self.sn_status.addItem("Не публиковать")
+        self.sn_status.addItem("Опубликовать")
+        self.sn_status.addItem("Опубликовано")
         self.sn_status.setFixedWidth(int(164*system_scale)+1)
         self.layout_directory_choose.addWidget(self.sn_status, 0, 5, 1, 1)
         self.socnet_choose.currentTextChanged.connect(self.show_thumbnails)
@@ -158,7 +158,7 @@ class AloneWidgetWindow(QWidget):
 
         self.directory_choose.currentTextChanged.connect(self.show_thumbnails)
 
-        self.last_clicked = ''
+        self.last_clicked = ""
 
         self.layout_btns = QGridLayout(self)
         self.layout_btns.setSpacing(0)
@@ -220,17 +220,17 @@ class AloneWidgetWindow(QWidget):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
-        icon_explorer = style[f'{theme}']['icon_explorer']
-        icon_view = style[f'{theme}']['icon_view']
-        icon_edit = style[f'{theme}']['icon_edit']
-        icon_delete = style[f'{theme}']['icon_delete']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet3 = style[f"{theme}"]["stylesheet3"]
+        stylesheet6 = style[f"{theme}"]["stylesheet6"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
+        icon_explorer = style[f"{theme}"]["icon_explorer"]
+        icon_view = style[f"{theme}"]["icon_view"]
+        icon_edit = style[f"{theme}"]["icon_edit"]
+        icon_delete = style[f"{theme}"]["icon_delete"]
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -264,17 +264,17 @@ class AloneWidgetWindow(QWidget):
         else:   # self.photo_filter.checkState() == 2:
             socnets = PhotoDataDB.get_socialnetworks()
             if not socnets:
-                self.socnet_choose.addItem('Нет данных')
+                self.socnet_choose.addItem("Нет данных")
                 self.sn_status.hide()
             else:
                 net_max_length = 0
                 for net in socnets:
-                    if net[0:9] != 'numnumnum':
-                        self.socnet_choose.addItem(f'{net}')
+                    if net[0:9] != "numnumnum":
+                        self.socnet_choose.addItem(f"{net}")
                         if len(net) > net_max_length:
                             net_max_length = len(net)
                     else:
-                        self.socnet_choose.addItem(f'{net[9:]}')
+                        self.socnet_choose.addItem(f"{net[9:]}")
                         if len(net) - 9 > net_max_length:
                             net_max_length = len(net) - 9
                     self.socnet_choose.setFixedWidth(int((net_max_length*12+30)*system_scale)+1)
@@ -285,7 +285,7 @@ class AloneWidgetWindow(QWidget):
         """
         Заполнить список папок
         """
-        photo_alone_dir = Settings.get_destination_media() + '/Media/Photo/alone/'
+        photo_alone_dir = Settings.get_destination_media() + "/Media/Photo/alone/"
         all_files_and_dirs = os.listdir(photo_alone_dir)
         dir_list = list()
         self.max_dir_name_len = 0
@@ -305,14 +305,16 @@ class AloneWidgetWindow(QWidget):
         """
         status = self.sn_status.currentText()
         match status:
-            case 'Не выбрано':
-                return_status = 'No value'
-            case 'Не публиковать':
-                return_status = 'No publicate'
-            case 'Опубликовать':
-                return_status = 'Will publicate'
-            case 'Опубликовано':
-                return_status = 'Publicated'
+            case "Не выбрано":
+                return_status = "No value"
+            case "Не публиковать":
+                return_status = "No publicate"
+            case "Опубликовать":
+                return_status = "Will publicate"
+            case "Опубликовано":
+                return_status = "Publicated"
+            case _:
+                raise ValueError
         return return_status
 
     def show_thumbnails(self) -> None:
@@ -338,8 +340,8 @@ class AloneWidgetWindow(QWidget):
 
         full_thumbnails_list = list()
 
-        self.photo_directory = Settings.get_destination_media() + f'/Media/Photo/alone/{self.chosen_directory}'
-        self.thumbnail_directory = Settings.get_destination_thumb() + f'/thumbnail/alone/{self.chosen_directory}'
+        self.photo_directory = Settings.get_destination_media() + f"/Media/Photo/alone/{self.chosen_directory}"
+        self.thumbnail_directory = Settings.get_destination_thumb() + f"/thumbnail/alone/{self.chosen_directory}"
 
         flaw_thumbs, excess_thumbs = Thumbnail.research_flaw_thumbnails(self.photo_directory, self.thumbnail_directory)
 
@@ -370,13 +372,13 @@ class AloneWidgetWindow(QWidget):
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
+                    iqon = QtGui.QIcon(f"{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}")  # создание объекта картинки
                     iqon.pixmap(150, 150)  # задание размера картинки
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)  # помещение картинки на кнопку
                     self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')  # добавление названия фото
+                    self.button.setText(f"{thumbnails_list[j * self.thumb_row + i][10:]}")  # добавление названия фото
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
@@ -385,13 +387,13 @@ class AloneWidgetWindow(QWidget):
                 for i in range(0, self.thumb_row):
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}')
+                    iqon = QtGui.QIcon(f"{self.thumbnail_directory}/{thumbnails_list[j * self.thumb_row + i]}")
                     iqon.pixmap(150, 150)
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)
                     self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f'{thumbnails_list[j * self.thumb_row + i][10:]}')
+                    self.button.setText(f"{thumbnails_list[j * self.thumb_row + i][10:]}")
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
@@ -409,12 +411,12 @@ class AloneWidgetWindow(QWidget):
         if self.gps_coordinates:
             self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
             gps_dict = self.gps_coordinates
-            gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+            gps_coords = [float(gps_dict.split(",")[0]), float(gps_dict.split(",")[1])]
 
             self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
-            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color="red")).add_to(self.map_gps)
             self.map_gps_widget.setHtml(self.map_gps.get_root().render())
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
@@ -422,7 +424,7 @@ class AloneWidgetWindow(QWidget):
                 else:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                     self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-            else: # self.photo_rotation == 'ver'
+            else: # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.metadata_show.width())
@@ -447,7 +449,7 @@ class AloneWidgetWindow(QWidget):
         try:
             self.button_text = self.sender().text()
         except AttributeError:
-            if self.last_clicked == '':
+            if self.last_clicked == "":
                 return
             else:
                 self.button_text = self.last_clicked
@@ -459,10 +461,10 @@ class AloneWidgetWindow(QWidget):
         # очистка от того, что показано сейчас
         self.pic.clear()
         # получение информации о нажатой кнопке
-        self.photo_file = self.photo_directory + '/' + self.button_text
+        self.photo_file = self.photo_directory + "/" + self.button_text
 
-        jsondata_wr = {'last_opened_photo': self.photo_file}
-        with open('last_opened.json', 'w') as json_file:
+        jsondata_wr = {"last_opened_photo": self.photo_file}
+        with open("last_opened.json", "w") as json_file:
             json.dump(jsondata_wr, json_file)
         # размещение большой картинки
         self.pixmap = QtGui.QPixmap(self.photo_file)
@@ -472,14 +474,14 @@ class AloneWidgetWindow(QWidget):
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
             metadata = Metadata.filter_exif(Metadata.read_exif(self.photo_file), self.button_text, self.photo_directory)
 
-        self.photo_rotation = metadata['Rotation']
+        self.photo_rotation = metadata["Rotation"]
 
         try:
-            self.gps_coordinates = metadata['GPS']
+            self.gps_coordinates = metadata["GPS"]
         except KeyError:
-            self.gps_coordinates = ''
+            self.gps_coordinates = ""
         params = list(metadata.keys())
-        params.remove('Rotation')
+        params.remove("Rotation")
 
         rows = 0
         for param in params:
@@ -509,7 +511,7 @@ class AloneWidgetWindow(QWidget):
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0) + 1)
 
         if self.soc_net_setting:
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
                 self.metadata_show.show()
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
@@ -519,7 +521,7 @@ class AloneWidgetWindow(QWidget):
                 self.pic.show()
                 self.layout_show.addWidget(self.socnet_group, 1, 2, 1, 1)
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
-            else:  # self.photo_rotation == 'ver'
+            else:  # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
                 self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
@@ -535,7 +537,7 @@ class AloneWidgetWindow(QWidget):
             else:
                 self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 100)
         else:
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
                 self.metadata_show.show()
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40, self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
@@ -547,7 +549,7 @@ class AloneWidgetWindow(QWidget):
                     self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
                 else:
                     self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
-            else:  # self.photo_rotation == 'ver'
+            else:  # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_directory_choose.height() - 30,
@@ -581,7 +583,7 @@ class AloneWidgetWindow(QWidget):
         if not self.pic.isVisible():
             return
 
-        if self.photo_rotation == 'gor':
+        if self.photo_rotation == "gor":
             self.pixmap2 = self.pixmap.scaled(
                 self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40,
                 self.size().height() - self.groupbox_directory_choose.height() - self.metadata_show.height() - 40,
@@ -610,7 +612,7 @@ class AloneWidgetWindow(QWidget):
         except (RuntimeError, AttributeError):
             return
 
-        if self.photo_rotation == 'gor':
+        if self.photo_rotation == "gor":
             self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
             if self.soc_net_setting:
                 self.map_gps_widget.setFixedWidth(
@@ -619,7 +621,7 @@ class AloneWidgetWindow(QWidget):
             else:
                 self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                 self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-        else:  # self.photo_rotation == 'ver'
+        else:  # self.photo_rotation == "ver"
             self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
             if self.soc_net_setting:
                 self.map_gps_widget.setFixedWidth(self.metadata_show.width())
@@ -703,7 +705,7 @@ class AloneWidgetWindow(QWidget):
             return
 
         open_path = self.photo_file
-        path = open_path.replace('/', '\\')
+        path = open_path.replace("/", "\\")
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
 
@@ -720,7 +722,7 @@ class AloneWidgetWindow(QWidget):
         dialog_del.clear_info.connect(self.clear_after_ph_del)
         if dialog_del.exec():
             pass
-            self.last_clicked = ''
+            self.last_clicked = ""
 
     def edit_photo_func(self) -> None:
         """
@@ -744,7 +746,7 @@ class AloneWidgetWindow(QWidget):
         if not os.path.exists(f"{photodirectory}/{photoname}"):
             return
 
-        dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory, chosen_group_type='None')
+        dialog_edit = EditFiles.EditExifData(parent=self, photoname=photoname, photodirectory=photodirectory, chosen_group_type="None")
         dialog_edit.show()
         dialog_edit.edited_signal.connect(self.showinfo)
         dialog_edit.renamed_signal.connect(lambda n: renamed_re_show(n))
@@ -805,7 +807,7 @@ class AloneWidgetWindow(QWidget):
                 self.sn_lbl.setFont(font14)
                 self.sn_lbl.setStyleSheet(stylesheet2)
 
-                if name[:9] != 'numnumnum':
+                if name[:9] != "numnumnum":
                     self.sn_lbl.setText(f"{name}")
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
@@ -817,20 +819,20 @@ class AloneWidgetWindow(QWidget):
                 self.sn_tag_choose.setFont(font14)
                 self.sn_tag_choose.setStyleSheet(stylesheet9)
                 self.sn_tag_choose.setObjectName(name)
-                self.sn_tag_choose.addItem('Не выбрано')
-                self.sn_tag_choose.addItem('Не публиковать')
-                self.sn_tag_choose.addItem('Опубликовать')
-                self.sn_tag_choose.addItem('Опубликовано')
+                self.sn_tag_choose.addItem("Не выбрано")
+                self.sn_tag_choose.addItem("Не публиковать")
+                self.sn_tag_choose.addItem("Опубликовать")
+                self.sn_tag_choose.addItem("Опубликовано")
 
-                match sn_tags[f'{name}']:
-                    case 'No value':
-                        self.sn_tag_choose.setCurrentText('Не выбрано')
-                    case 'No publicate':
-                        self.sn_tag_choose.setCurrentText('Не публиковать')
-                    case 'Will publicate':
-                        self.sn_tag_choose.setCurrentText('Опубликовать')
-                    case 'Publicated':
-                        self.sn_tag_choose.setCurrentText('Опубликовано')
+                match sn_tags[f"{name}"]:
+                    case "No value":
+                        self.sn_tag_choose.setCurrentText("Не выбрано")
+                    case "No publicate":
+                        self.sn_tag_choose.setCurrentText("Не публиковать")
+                    case "Will publicate":
+                        self.sn_tag_choose.setCurrentText("Опубликовать")
+                    case "Publicated":
+                        self.sn_tag_choose.setCurrentText("Опубликовано")
 
                 self.sn_tag_choose.currentTextChanged.connect(edit_tags)
 
@@ -844,7 +846,7 @@ class AloneWidgetWindow(QWidget):
 
                 self.socnet_group_header = self.socnet_group.horizontalHeader()
 
-                if self.photo_rotation == 'gor':
+                if self.photo_rotation == "gor":
                     self.socnet_group.setColumnWidth(0, self.max_name_len * 12)
                     self.socnet_group.setColumnWidth(1, 180)
                 else:
@@ -862,14 +864,16 @@ class AloneWidgetWindow(QWidget):
 
         def edit_tags() -> None:
             match self.sender().currentText():
-                case 'Не выбрано':
-                    new_status_bd = 'No value'
-                case 'Не публиковать':
-                    new_status_bd = 'No publicate'
-                case 'Опубликовать':
-                    new_status_bd = 'Will publicate'
-                case 'Опубликовано':
-                    new_status_bd = 'Publicated'
+                case "Не выбрано":
+                    new_status_bd = "No value"
+                case "Не публиковать":
+                    new_status_bd = "No publicate"
+                case "Опубликовать":
+                    new_status_bd = "Will publicate"
+                case "Опубликовано":
+                    new_status_bd = "Publicated"
+                case _:
+                    raise ValueError
 
             network = self.sender().objectName()
             PhotoDataDB.edit_sn_tags(photoname, photodirectory, new_status_bd, network)
@@ -914,7 +918,7 @@ class DelPhotoConfirm(QDialog):
 
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Подтверждение удаления')
+        self.setWindowTitle("Подтверждение удаления")
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -922,18 +926,18 @@ class DelPhotoConfirm(QDialog):
         self.setLayout(self.layout)
 
         self.lbl = QLabel()
-        self.lbl.setText(f'Вы точно хотите удалить {self.photoname}?')
+        self.lbl.setText(f"Вы точно хотите удалить {self.photoname}?")
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 
@@ -950,7 +954,7 @@ class DelPhotoConfirm(QDialog):
         :param photodirectory:
         """
         logging.info(f"File removing {photodirectory + '/' + photoname}")
-        os.remove(photodirectory + '/' + photoname)
+        os.remove(photodirectory + "/" + photoname)
         Thumbnail.delete_thumbnail_alone(photoname, photodirectory)
         PhotoDataDB.del_from_database(photoname, photodirectory)
         self.clear_info.emit()
@@ -969,7 +973,7 @@ class DelDirConfirm(QDialog):
 
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Подтверждение удаления')
+        self.setWindowTitle("Подтверждение удаления")
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -977,19 +981,19 @@ class DelDirConfirm(QDialog):
         self.setLayout(self.layout)
 
         self.lbl = QLabel()
-        dir_name = self.photodirectory.split('/')[-1]
-        self.lbl.setText(f'Вы точно хотите удалить папку {dir_name}?')
+        dir_name = self.photodirectory.split("/")[-1]
+        self.lbl.setText(f"Вы точно хотите удалить папку {dir_name}?")
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 
@@ -1024,7 +1028,7 @@ class ConfirmClear(QDialog):
 
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Подтверждение очистки')
+        self.setWindowTitle("Подтверждение очистки")
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -1032,18 +1036,18 @@ class ConfirmClear(QDialog):
         self.setLayout(self.layout)
 
         self.lbl = QLabel()
-        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setText(f"Вы точно хотите очистить метаданные?")
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 

@@ -15,8 +15,8 @@ class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
     # перехват сообщений, которые кидает JS в консоль, сообщение в консоль я плюю сам в шаблоне класса folium.features.ClickForLatLng
     def javaScriptConsoleMessage(self, level, msg, line, sourceID):
         try:
-            float(msg.split(',')[0])
-            float(msg.split(',')[1])
+            float(msg.split(",")[0])
+            float(msg.split(",")[1])
         except ValueError:
             logging.info(f"JS map message: {msg}")
         else:

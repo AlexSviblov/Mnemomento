@@ -2,12 +2,12 @@ import ctypes
 import os
 from PyQt5 import QtGui
 
-font16 = QtGui.QFont('Times', 16)
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
-font10 = QtGui.QFont('Times', 10)
-font8 = QtGui.QFont('Times', 8)
-font6 = QtGui.QFont('Times', 6)
+font16 = QtGui.QFont("Times", 16)
+font14 = QtGui.QFont("Times", 14)
+font12 = QtGui.QFont("Times", 12)
+font10 = QtGui.QFont("Times", 10)
+font8 = QtGui.QFont("Times", 8)
+font6 = QtGui.QFont("Times", 6)
 
 stylesheet1_light = """
                     border: 1px;
@@ -159,15 +159,15 @@ stylesheet11_light = """
                                     background-color: #F0F0F0;
                                 }
                             """
-icon_explorer_light = os.getcwd() + '/icons/explorer_light.png'
-icon_view_light = os.getcwd() + '/icons/view_light.png'
-icon_edit_light = os.getcwd() + '/icons/edit_light.png'
-icon_delete_light = os.getcwd() + '/icons/delete_light.png'
-loading_icon_light = os.getcwd() + '/icons/loading_light.gif'
+icon_explorer_light = os.getcwd() + "/icons/explorer_light.png"
+icon_view_light = os.getcwd() + "/icons/view_light.png"
+icon_edit_light = os.getcwd() + "/icons/edit_light.png"
+icon_delete_light = os.getcwd() + "/icons/delete_light.png"
+loading_icon_light = os.getcwd() + "/icons/loading_light.gif"
 statistics_text_color_light = "black"
 statistics_plot_back_color_light = "white"
 statistics_bar_time_color_light = "black"
-statistics_bar_color_light = 'blue'
+statistics_bar_color_light = "blue"
 statistics_area_color_light = "#F4F4F4"
 
 stylesheet1_dark = """
@@ -322,70 +322,70 @@ stylesheet11_dark = """
                                 }
 
                             """
-icon_explorer_dark = os.getcwd() + '/icons/explorer_dark.png'
-icon_view_dark = os.getcwd() + '/icons/view_dark.png'
-icon_edit_dark = os.getcwd() + '/icons/edit_dark.png'
-icon_delete_dark = os.getcwd() + '/icons/delete_dark.png'
-loading_icon_dark = os.getcwd() + '/icons/loading_dark.gif'
+icon_explorer_dark = os.getcwd() + "/icons/explorer_dark.png"
+icon_view_dark = os.getcwd() + "/icons/view_dark.png"
+icon_edit_dark = os.getcwd() + "/icons/edit_dark.png"
+icon_delete_dark = os.getcwd() + "/icons/delete_dark.png"
+loading_icon_dark = os.getcwd() + "/icons/loading_dark.gif"
 statistics_text_color_dark = "white"
 statistics_plot_back_color_dark = "#585858"
 statistics_bar_time_color_dark = "yellow"
 statistics_bar_color_dark = "#fff100"
 statistics_area_color_dark = "#181818"
 
-light_style = {'stylesheet1': stylesheet1_light,
-               'stylesheet2': stylesheet2_light,
-               'stylesheet3': stylesheet3_light,
-               'stylesheet4': stylesheet4_light,
-               'stylesheet5': stylesheet5_light,
-               'stylesheet6': stylesheet6_light,
-               'stylesheet7': stylesheet7_light,
-               'stylesheet8': stylesheet8_light,
-               'stylesheet9': stylesheet9_light,
-               'stylesheet10': stylesheet10_light,
-               'stylesheet11': stylesheet11_light,
-               'icon_explorer': icon_explorer_light,
-               'icon_view': icon_view_light,
-               'icon_edit': icon_edit_light,
-               'icon_delete': icon_delete_light,
-               'loading_icon': loading_icon_light,
-               'map_tiles': "OpenStreetMap",
-               'statistics': {
-                   'text_color': statistics_text_color_light,
-                   'plot_back_color': statistics_plot_back_color_light,
-                   'bar_time_color': statistics_bar_time_color_light,
-                   'bar_color': statistics_bar_color_light,
-                   'area_color': statistics_area_color_light
+light_style = {"stylesheet1": stylesheet1_light,
+               "stylesheet2": stylesheet2_light,
+               "stylesheet3": stylesheet3_light,
+               "stylesheet4": stylesheet4_light,
+               "stylesheet5": stylesheet5_light,
+               "stylesheet6": stylesheet6_light,
+               "stylesheet7": stylesheet7_light,
+               "stylesheet8": stylesheet8_light,
+               "stylesheet9": stylesheet9_light,
+               "stylesheet10": stylesheet10_light,
+               "stylesheet11": stylesheet11_light,
+               "icon_explorer": icon_explorer_light,
+               "icon_view": icon_view_light,
+               "icon_edit": icon_edit_light,
+               "icon_delete": icon_delete_light,
+               "loading_icon": loading_icon_light,
+               "map_tiles": "OpenStreetMap",
+               "statistics": {
+                   "text_color": statistics_text_color_light,
+                   "plot_back_color": statistics_plot_back_color_light,
+                   "bar_time_color": statistics_bar_time_color_light,
+                   "bar_color": statistics_bar_color_light,
+                   "area_color": statistics_area_color_light
                }
                }
 
-dark_style = {'stylesheet1': stylesheet1_dark,
-              'stylesheet2': stylesheet2_dark,
-              'stylesheet3': stylesheet3_dark,
-              'stylesheet4': stylesheet4_dark,
-              'stylesheet5': stylesheet5_dark,
-              'stylesheet6': stylesheet6_dark,
-              'stylesheet7': stylesheet7_dark,
-              'stylesheet8': stylesheet8_dark,
-              'stylesheet9': stylesheet9_dark,
-              'stylesheet10': stylesheet10_dark,
-              'stylesheet11': stylesheet11_dark,
-              'icon_explorer': icon_explorer_dark,
-              'icon_view': icon_view_dark,
-              'icon_edit': icon_edit_dark,
-              'icon_delete': icon_delete_dark,
-              'loading_icon': loading_icon_dark,
-              'map_tiles': "OpenStreetMap",
-              'statistics': {
-                  'text_color': statistics_text_color_dark,
-                  'plot_back_color': statistics_plot_back_color_dark,
-                  'bar_time_color': statistics_bar_time_color_dark,
-                  'bar_color': statistics_bar_color_dark,
-                  'area_color': statistics_area_color_dark
+dark_style = {"stylesheet1": stylesheet1_dark,
+              "stylesheet2": stylesheet2_dark,
+              "stylesheet3": stylesheet3_dark,
+              "stylesheet4": stylesheet4_dark,
+              "stylesheet5": stylesheet5_dark,
+              "stylesheet6": stylesheet6_dark,
+              "stylesheet7": stylesheet7_dark,
+              "stylesheet8": stylesheet8_dark,
+              "stylesheet9": stylesheet9_dark,
+              "stylesheet10": stylesheet10_dark,
+              "stylesheet11": stylesheet11_dark,
+              "icon_explorer": icon_explorer_dark,
+              "icon_view": icon_view_dark,
+              "icon_edit": icon_edit_dark,
+              "icon_delete": icon_delete_dark,
+              "loading_icon": loading_icon_dark,
+              "map_tiles": "OpenStreetMap",
+              "statistics": {
+                  "text_color": statistics_text_color_dark,
+                  "plot_back_color": statistics_plot_back_color_dark,
+                  "bar_time_color": statistics_bar_time_color_dark,
+                  "bar_color": statistics_bar_color_dark,
+                  "area_color": statistics_area_color_dark
               }
               }
 
-style_dict = {'light': light_style, 'dark': dark_style}
+style_dict = {"light": light_style, "dark": dark_style}
 
 
 def monitor_info() -> tuple[tuple[int, int], float]:

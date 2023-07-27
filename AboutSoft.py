@@ -11,8 +11,8 @@ stylesheet2 = str()
 stylesheet8 = str()
 
 
-font10 = QtGui.QFont('Times', 10)
-font14 = QtGui.QFont('Times', 14)
+font10 = QtGui.QFont("Times", 10)
+font14 = QtGui.QFont("Times", 14)
 
 
 def stylesheet_color():
@@ -22,9 +22,9 @@ def stylesheet_color():
 
     theme = Settings.get_theme_color()
     style = Screenconfig.style_dict
-    stylesheet1 = style[f'{theme}']['stylesheet1']
-    stylesheet2 = style[f'{theme}']['stylesheet2']
-    stylesheet8 = style[f'{theme}']['stylesheet8']
+    stylesheet1 = style[f"{theme}"]["stylesheet1"]
+    stylesheet2 = style[f"{theme}"]["stylesheet2"]
+    stylesheet8 = style[f"{theme}"]["stylesheet8"]
 
 
 class AboutInfo(QDialog):
@@ -35,7 +35,7 @@ class AboutInfo(QDialog):
         super(AboutInfo, self).__init__(parent)
         stylesheet_color()
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle('О программе')
+        self.setWindowTitle("О программе")
         self.setStyleSheet(stylesheet2)
 
         self.layout = QGridLayout(self)
@@ -78,7 +78,7 @@ class AboutInfo(QDialog):
         self.lbl.setFont(font10)
         self.layout.addWidget(self.lbl, 0, 0, 1, 1)
 
-        self.btn_ok.setText('Ок')
+        self.btn_ok.setText("Ок")
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)

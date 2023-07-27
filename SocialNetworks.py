@@ -18,10 +18,10 @@ icon_edit = str()
 icon_delete = str()
 
 
-conn = sqlite3.connect('PhotoDB.db')  # соединение с БД
+conn = sqlite3.connect("PhotoDB.db")  # соединение с БД
 cur = conn.cursor()
 
-font14 = QtGui.QFont('Times', 14)
+font14 = QtGui.QFont("Times", 14)
 
 
 system_scale = Screenconfig.monitor_info()[1]
@@ -52,7 +52,7 @@ class SocialNetworks(QWidget):
         self.setStyleSheet(stylesheet2)
 
         # Создание окна
-        self.setWindowTitle('Соцсети')
+        self.setWindowTitle("Соцсети")
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(200, 200)
@@ -60,7 +60,7 @@ class SocialNetworks(QWidget):
         self.setLayout(self.layout)
         self.layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        self.add_btn.setText('Добавить')
+        self.add_btn.setText("Добавить")
         self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
         self.add_btn.clicked.connect(self.add_func)
         self.add_btn.setFont(font14)
@@ -89,11 +89,11 @@ class SocialNetworks(QWidget):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        icon_edit = style[f'{theme}']['icon_edit']
-        icon_delete = style[f'{theme}']['icon_delete']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        icon_edit = style[f"{theme}"]["icon_edit"]
+        icon_delete = style[f"{theme}"]["icon_delete"]
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -116,10 +116,10 @@ class SocialNetworks(QWidget):
         for i in range(0, len(networks)):
             soc_net_lbl = QLabel(self)
             soc_net_lbl.setFont(font14)
-            if networks[i][0:9] != 'numnumnum':
-                soc_net_lbl.setText(f'{networks[i]}')
+            if networks[i][0:9] != "numnumnum":
+                soc_net_lbl.setText(f"{networks[i]}")
             else:
-                soc_net_lbl.setText(f'{networks[i][9:]}')
+                soc_net_lbl.setText(f"{networks[i][9:]}")
 
             if len(soc_net_lbl.text()) > max_sn_name:
                 max_sn_name = len(soc_net_lbl.text())
@@ -130,7 +130,7 @@ class SocialNetworks(QWidget):
             btn_red.setStyleSheet(stylesheet1)
             btn_red.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
             btn_red.setIcon(QtGui.QIcon(icon_edit))
-            btn_red.setToolTip('Редактировать название')
+            btn_red.setToolTip("Редактировать название")
             btn_red.setObjectName(networks[i])
             btn_red.clicked.connect(self.func_red)
             self.group_layout.addWidget(btn_red, i, 1, 1, 1)
@@ -139,7 +139,7 @@ class SocialNetworks(QWidget):
             btn_del.setStyleSheet(stylesheet1)
             btn_del.setFixedSize(int(50*system_scale)+1, int(50*system_scale)+1)
             btn_del.setIcon(QtGui.QIcon(icon_delete))
-            btn_del.setToolTip('Удалить соцсеть')
+            btn_del.setToolTip("Удалить соцсеть")
             btn_del.setObjectName(networks[i])
             btn_del.clicked.connect(self.func_del)
             self.group_layout.addWidget(btn_del, i, 2, 1, 1)
@@ -211,13 +211,13 @@ class AddSN(QDialog):
         self.make_gui()
 
     def make_gui(self) -> None:
-        self.setWindowTitle('Добавить соцсеть')
+        self.setWindowTitle("Добавить соцсеть")
         self.resize(600, 90)
         self.setStyleSheet(stylesheet2)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
-        self.text_lbl.setText('Введите название соцсети:')
+        self.text_lbl.setText("Введите название соцсети:")
         self.text_lbl.setFont(font14)
         self.text_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.text_lbl, 0, 0, 1, 1)
@@ -230,13 +230,13 @@ class AddSN(QDialog):
         self.enter_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.enter_name, 0, 1, 1, 1)
 
-        self.btn_ok.setText('Ввод')
+        self.btn_ok.setText("Ввод")
         self.btn_ok.setFont(font14)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
-        self.btn_cnl.setText('Отмена')
+        self.btn_cnl.setText("Отмена")
         self.btn_cnl.setFont(font14)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 1, 1, 1, 1)
@@ -249,7 +249,7 @@ class AddSN(QDialog):
         """
         Проверка заполнения полей ввода
         """
-        if self.enter_name.text() != '':
+        if self.enter_name.text() != "":
             self.do_func()
         else:
             return
@@ -258,12 +258,12 @@ class AddSN(QDialog):
         """
         После подтверждения добавления
         """
-        sql_str = f'ALTER TABLE socialnetworks ADD COLUMN {self.enter_name.text()} TEXT DEFAULT \'No value\''
+        sql_str = f"ALTER TABLE socialnetworks ADD COLUMN {self.enter_name.text()} TEXT DEFAULT \'No value\'"
         try:
             cur.execute(sql_str)
         except sqlite3.OperationalError:  # название колонны не может начинаться с цифр и некоторых потенциально служебных символов
-            textwithnum = 'numnumnum' + self.enter_name.text()
-            sql_str = f'ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\''
+            textwithnum = "numnumnum" + self.enter_name.text()
+            sql_str = f"ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\'"
             cur.execute(sql_str)
         conn.commit()
         logging.info(f"New social network added {self.enter_name.text()}")
@@ -294,7 +294,7 @@ class RedSN(QDialog):
         self.make_gui()
 
     def make_gui(self) -> None:
-        self.setWindowTitle('Редактирование названия')
+        self.setWindowTitle("Редактирование названия")
         self.resize(600, 90)
         self.setStyleSheet(stylesheet2)
 
@@ -302,12 +302,12 @@ class RedSN(QDialog):
 
         self.setLayout(self.layout)
 
-        self.old_name_lbl.setText('Старое название:')
+        self.old_name_lbl.setText("Старое название:")
         self.old_name_lbl.setFont(font14)
         self.old_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_name_lbl, 0, 0, 1, 1)
 
-        if self.net_oldname[0:9] != 'numnumnum':
+        if self.net_oldname[0:9] != "numnumnum":
             self.old_name.setText(self.net_oldname)
         else:
             self.old_name.setText(self.net_oldname[9:])
@@ -316,7 +316,7 @@ class RedSN(QDialog):
         self.old_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
-        self.new_name_lbl.setText('Новое название:')
+        self.new_name_lbl.setText("Новое название:")
         self.new_name_lbl.setFont(font14)
         self.new_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.new_name_lbl, 1, 0, 1, 1)
@@ -325,13 +325,13 @@ class RedSN(QDialog):
         self.new_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.new_name, 1, 1, 1, 1)
 
-        self.btn_ok.setText('Ввод')
+        self.btn_ok.setText("Ввод")
         self.btn_ok.setFont(font14)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.func_ok)
 
-        self.btn_cnl.setText('Отмена')
+        self.btn_cnl.setText("Отмена")
         self.btn_cnl.setFont(font14)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
@@ -348,7 +348,7 @@ class RedSN(QDialog):
         """
         Проверка заполнения полей ввода
         """
-        if self.new_name.text() != '':
+        if self.new_name.text() != "":
             self.do_func()
         else:
             return
@@ -357,12 +357,12 @@ class RedSN(QDialog):
         """
         После проверки на пустоту - редактировать
         """
-        sql_str = f'ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {self.new_name.text()}'
+        sql_str = f"ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {self.new_name.text()}"
         try:
             cur.execute(sql_str)
         except sqlite3.OperationalError:  # название колонны не может начинаться с цифр и некоторых потенциально служебных символов
-            textwithnum = 'numnumnum' + self.new_name.text()
-            sql_str = f'ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {textwithnum}'
+            textwithnum = "numnumnum" + self.new_name.text()
+            sql_str = f"ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {textwithnum}"
             cur.execute(sql_str)
         conn.commit()
         logging.info(f"Social network {self.net_oldname} renamed into {self.new_name.text()}")
@@ -393,19 +393,19 @@ class DelSN(QDialog):
     def make_gui(self) -> None:
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Редактирование названия')
+        self.setWindowTitle("Редактирование названия")
         self.resize(600, 80)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.setLayout(self.layout)
 
-        self.old_name_lbl.setText('Вы уверены, что хотите удалить:')
+        self.old_name_lbl.setText("Вы уверены, что хотите удалить:")
         self.old_name_lbl.setFont(font14)
         self.old_name_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_name_lbl, 0, 0, 1, 1)
 
-        if self.net_name[0:9] != 'numnumnum':
+        if self.net_name[0:9] != "numnumnum":
             self.old_name.setText(self.net_name)
         else:
             self.old_name.setText(self.net_name[9:])
@@ -414,13 +414,13 @@ class DelSN(QDialog):
         self.old_name.setStyleSheet(stylesheet1)
         self.layout.addWidget(self.old_name, 0, 1, 1, 1)
 
-        self.btn_ok.setText('Подтвердить')
+        self.btn_ok.setText("Подтвердить")
         self.btn_ok.setFont(font14)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 2, 0, 1, 1)
         self.btn_ok.clicked.connect(self.do_func)
 
-        self.btn_cnl.setText('Отмена')
+        self.btn_cnl.setText("Отмена")
         self.btn_cnl.setFont(font14)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 2, 1, 1, 1)
@@ -430,7 +430,7 @@ class DelSN(QDialog):
         """
         После подтверждения удаления. Само удаление
         """
-        sql_str = f'ALTER TABLE socialnetworks DROP COLUMN {self.net_name}'
+        sql_str = f"ALTER TABLE socialnetworks DROP COLUMN {self.net_name}"
         cur.execute(sql_str)
         conn.commit()
 

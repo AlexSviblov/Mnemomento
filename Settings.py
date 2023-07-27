@@ -21,7 +21,7 @@ import ErrorsAndWarnings
 import PhotoDataDB
 import Screenconfig
 
-font14 = QtGui.QFont('Times', 14)
+font14 = QtGui.QFont("Times", 14)
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -43,7 +43,7 @@ class SettingWin(QMainWindow):
         super().__init__(parent)
         self.stylesheet_color()
         # Создание окна
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle("Настройки")
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1000, 300)
@@ -70,12 +70,12 @@ class SettingWin(QMainWindow):
 
         theme = get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
-        loading_icon = style[f'{theme}']['loading_icon']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
+        loading_icon = style[f"{theme}"]["loading_icon"]
 
 
 class SettingWidget(QWidget):
@@ -87,7 +87,7 @@ class SettingWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle("Настройки")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setMinimumSize(1000, 300)
 
@@ -104,14 +104,14 @@ class SettingWidget(QWidget):
         self.layout.addWidget(self.tabs, 0, 0, 1, 3)
 
         self.btn_ok = QPushButton(self)
-        self.btn_ok.setText('Сохранить')
+        self.btn_ok.setText("Сохранить")
         self.btn_ok.setFont(font14)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.check_changes)
 
         self.btn_cancel = QPushButton(self)
-        self.btn_cancel.setText('Отмена')
+        self.btn_cancel.setText("Отмена")
         self.btn_cancel.setFont(font14)
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cancel, 1, 2, 1, 1)
@@ -133,7 +133,7 @@ class SettingWidget(QWidget):
             self.layout_files = QGridLayout(self)
 
             self.media_space_lbl = QLabel(self)
-            self.media_space_lbl.setText('Хранилище фотографий:')
+            self.media_space_lbl.setText("Хранилище фотографий:")
             self.media_space_lbl.setFont(font14)
             self.media_space_lbl.setStyleSheet(stylesheet2)
             self.layout_files.addWidget(self.media_space_lbl, 0, 0, 1, 1)
@@ -144,14 +144,14 @@ class SettingWidget(QWidget):
             self.layout_files.addWidget(self.media_space_line, 0, 1, 1, 1)
 
             self.media_space_choose = QPushButton(self)
-            self.media_space_choose.setText('Выбрать путь')
+            self.media_space_choose.setText("Выбрать путь")
             self.media_space_choose.setFont(font14)
             self.media_space_choose.setStyleSheet(stylesheet8)
             self.layout_files.addWidget(self.media_space_choose, 0, 2, 1, 1)
             self.media_space_choose.clicked.connect(self.dir_media_choose)
 
             self.thumbs_space_lbl = QLabel(self)
-            self.thumbs_space_lbl.setText('Место хранения миниатюр:')
+            self.thumbs_space_lbl.setText("Место хранения миниатюр:")
             self.thumbs_space_lbl.setFont(font14)
             self.thumbs_space_lbl.setStyleSheet(stylesheet2)
             self.layout_files.addWidget(self.thumbs_space_lbl, 1, 0, 1, 1)
@@ -162,14 +162,14 @@ class SettingWidget(QWidget):
             self.layout_files.addWidget(self.thumbs_space_line, 1, 1, 1, 1)
 
             self.thumbs_space_choose = QPushButton(self)
-            self.thumbs_space_choose.setText('Выбрать путь')
+            self.thumbs_space_choose.setText("Выбрать путь")
             self.thumbs_space_choose.setFont(font14)
             self.thumbs_space_choose.setStyleSheet(stylesheet8)
             self.layout_files.addWidget(self.thumbs_space_choose, 1, 2, 1, 1)
             self.thumbs_space_choose.clicked.connect(self.dir_thumb_choose)
 
             self.transfer_mode_lbl = QLabel(self)
-            self.transfer_mode_lbl.setText('Режим переноса фото:')
+            self.transfer_mode_lbl.setText("Режим переноса фото:")
             self.transfer_mode_lbl.setFont(font14)
             self.setStyleSheet(stylesheet2)
             self.layout_files.addWidget(self.transfer_mode_lbl, 2, 0, 1, 1)
@@ -177,8 +177,8 @@ class SettingWidget(QWidget):
             self.transfer_mode_choose = QComboBox(self)
             self.transfer_mode_choose.setFont(font14)
             self.transfer_mode_choose.setStyleSheet(stylesheet9)
-            self.transfer_mode_choose.addItem('copy')
-            self.transfer_mode_choose.addItem('cut')
+            self.transfer_mode_choose.addItem("copy")
+            self.transfer_mode_choose.addItem("cut")
             self.layout_files.addWidget(self.transfer_mode_choose, 2, 1, 1, 1)
 
             self.logs_lbl = QLabel(self)
@@ -197,7 +197,7 @@ class SettingWidget(QWidget):
             self.logs_btn = QPushButton(self)
             self.logs_btn.setStyleSheet(stylesheet8)
             self.logs_btn.setFont(font14)
-            self.logs_btn.setText('Очистить логи')
+            self.logs_btn.setText("Очистить логи")
             self.layout_files.addWidget(self.logs_btn, 3, 2, 1, 1)
             self.logs_btn.clicked.connect(self.clear_logs)
 
@@ -209,19 +209,19 @@ class SettingWidget(QWidget):
             self.num_thumbs_lbl = QLabel(self)
             self.num_thumbs_lbl.setFont(font14)
             self.num_thumbs_lbl.setStyleSheet(stylesheet2)
-            self.num_thumbs_lbl.setText('Миниатюр в ряд:')
+            self.num_thumbs_lbl.setText("Миниатюр в ряд:")
             self.layout_view.addWidget(self.num_thumbs_lbl, 0, 0, 1, 1)
 
             self.num_thumbs_choose = QComboBox(self)
             self.num_thumbs_choose.setFont(font14)
             self.num_thumbs_choose.setStyleSheet(stylesheet1)
-            self.num_thumbs_choose.addItem('2')
-            self.num_thumbs_choose.addItem('3')
-            self.num_thumbs_choose.addItem('4')
+            self.num_thumbs_choose.addItem("2")
+            self.num_thumbs_choose.addItem("3")
+            self.num_thumbs_choose.addItem("4")
             self.layout_view.addWidget(self.num_thumbs_choose, 0, 1, 1, 1)
 
             self.theme_lbl = QLabel(self)
-            self.theme_lbl.setText('Тема:')
+            self.theme_lbl.setText("Тема:")
             self.theme_lbl.setFont(font14)
             self.theme_lbl.setStyleSheet(stylesheet2)
             self.layout_view.addWidget(self.theme_lbl, 1, 0, 1, 1)
@@ -229,9 +229,9 @@ class SettingWidget(QWidget):
             self.theme_choose = QComboBox(self)
             self.theme_choose.setFont(font14)
             self.theme_choose.setStyleSheet(stylesheet9)
-            self.theme_choose.addItem('light')
-            self.theme_choose.addItem('dark')
-            self.theme_choose.addItem('auto')
+            self.theme_choose.addItem("light")
+            self.theme_choose.addItem("dark")
+            self.theme_choose.addItem("auto")
             self.layout_view.addWidget(self.theme_choose, 1, 1, 1, 1)
 
             self.socnet_lbl = QLabel(self)
@@ -327,15 +327,15 @@ class SettingWidget(QWidget):
         make_view()
         make_hotkeys()
 
-        self.tabs.addTab(self.tab_files, 'Файлы')
-        self.tabs.addTab(self.tab_view, 'Внешний вид')
-        self.tabs.addTab(self.tab_hotkeys, 'Горячие клавиши')
+        self.tabs.addTab(self.tab_files, "Файлы")
+        self.tabs.addTab(self.tab_view, "Внешний вид")
+        self.tabs.addTab(self.tab_hotkeys, "Горячие клавиши")
 
     def dir_media_choose(self) -> None:
         """
         Выбор папки хранения фото
         """
-        dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '')
+        dir_chosen = QFileDialog.getExistingDirectory(self, "Выбрать папку", "")
         if dir_chosen:
             self.media_space_line.setText(dir_chosen)
         else:
@@ -345,7 +345,7 @@ class SettingWidget(QWidget):
         """
         Выбор папки хранения миниатюр
         """
-        dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '')
+        dir_chosen = QFileDialog.getExistingDirectory(self, "Выбрать папку", "")
         if dir_chosen:
             self.thumbs_space_line.setText(dir_chosen)
         else:
@@ -373,21 +373,21 @@ class SettingWidget(QWidget):
                     self.sort_choose.setCurrentText("Имя файла /\\")
 
         try:
-            with open('settings.json', 'r') as json_file:
+            with open("settings.json", "r") as json_file:
                 settings = json.load(json_file)
         except FileNotFoundError:
             win = ErrorsAndWarnings.SettingsReadError(self)
             win.show()
             return
 
-        self.old_media_dir = settings['files']['destination_dir']
-        self.old_thumb_dir = settings['files']['thumbs_dir']
-        mode = settings['files']['transfer_mode']
-        self.old_num_thumbs = settings['view']["thumbs_row"]
-        self.old_theme_color = settings['view']["color_theme"]
-        self.old_socnet_status = settings['view']["social_networks_status"]
-        self.old_sort_type = settings['view']["sort_type"]
-        show_sort_type(settings['view']["sort_type"])
+        self.old_media_dir = settings["files"]["destination_dir"]
+        self.old_thumb_dir = settings["files"]["thumbs_dir"]
+        mode = settings["files"]["transfer_mode"]
+        self.old_num_thumbs = settings["view"]["thumbs_row"]
+        self.old_theme_color = settings["view"]["color_theme"]
+        self.old_socnet_status = settings["view"]["social_networks_status"]
+        self.old_sort_type = settings["view"]["sort_type"]
+        show_sort_type(settings["view"]["sort_type"])
 
         self.media_space_line.setText(self.old_media_dir)
         self.thumbs_space_line.setText(self.old_thumb_dir)
@@ -401,7 +401,7 @@ class SettingWidget(QWidget):
             self.socnet_choose.setChecked(QtCore.Qt.Unchecked)
 
         try:
-            with open('hotkeys.json', 'r') as json_file:
+            with open("hotkeys.json", "r") as json_file:
                 hotkeys = json.load(json_file)
         except FileNotFoundError:
             win = ErrorsAndWarnings.SettingsReadError(self)
@@ -481,8 +481,8 @@ class SettingWidget(QWidget):
                 }
         }
 
-        with open('settings.json', 'w') as json_file:
-            json.dump(jsondata_wr, json_file, sort_keys=True, indent=4, separators=(',', ': '))
+        with open("settings.json", "w") as json_file:
+            json.dump(jsondata_wr, json_file, sort_keys=True, indent=4, separators=(",", ": "))
 
         logging.info(f"Settings - Settings changed - {jsondata_wr}")
         self.parent().stylesheet_color()
@@ -527,20 +527,20 @@ class SettingWidget(QWidget):
         """
         Открыть папку с логами, 1 файл указывается в пути, чтобы открыть уже саму папку, а не рабочую папку программы с выделенной папкой "логи"
         """
-        path = os.getcwd() + r'\logs'
+        path = os.getcwd() + r"\logs"
         file = os.listdir(path)[0]
-        full_path = path + '\\' + file
-        os.system(f'explorer /select,\"{full_path}\"')
+        full_path = path + "\\" + file
+        os.system(f"explorer /select,\"{full_path}\"")
 
     def clear_logs(self) -> None:
         """
         Очистка папки логов, лог сегодняшнего дня не очищается, так как используется самой программой во время работы
         """
-        path = os.getcwd() + r'\logs'
+        path = os.getcwd() + r"\logs"
         files = os.listdir(path)
         for file in files:
             try:
-                os.remove(path + '\\' + file)
+                os.remove(path + "\\" + file)
             except PermissionError:
                 pass
         logging.info(f"Settings - Logs cleared")
@@ -572,20 +572,20 @@ class TransferFiles(QDialog):
 
         match code:
             case 1:
-                self.text_info.setText('Была изменена директория хранения фотографий')
+                self.text_info.setText("Была изменена директория хранения фотографий")
             case 2:
-                self.text_info.setText('Была изменена директория хранения миниатюр')
+                self.text_info.setText("Была изменена директория хранения миниатюр")
             case 3:
-                self.text_info.setText('Были изменены директории хранения фотографий и  миниатюр')
+                self.text_info.setText("Были изменены директории хранения фотографий и  миниатюр")
 
         self.accept_btn = QPushButton(self)
-        self.accept_btn.setText('Начать')
+        self.accept_btn.setText("Начать")
         self.accept_btn.setFont(font14)
         self.accept_btn.setStyleSheet(stylesheet8)
         self.accept_btn.clicked.connect(self.func_accept)
 
         self.reject_btn = QPushButton(self)
-        self.reject_btn.setText('Отмена')
+        self.reject_btn.setText("Отмена")
         self.reject_btn.setFont(font14)
         self.reject_btn.setStyleSheet(stylesheet8)
         self.reject_btn.clicked.connect(self.func_reject)
@@ -601,7 +601,7 @@ class TransferFiles(QDialog):
 
         self.label = QLabel(self)
         self.text = QLabel(self)
-        self.text.setText('Загрузка, подождите')
+        self.text.setText("Загрузка, подождите")
         self.text.setStyleSheet(stylesheet2)
         self.text.setFont(font14)
         self.movie = QMovie(loading_icon)
@@ -647,35 +647,35 @@ class DoTransfer(QtCore.QThread):
     def run(self):
         match self.code:
             case 1:
-                shutil.copytree(self.old_media + r'/Media', self.old_media + r'/Media_reserve')
-                shutil.copy(os.getcwd() + '/PhotoDB.db', os.getcwd() + '/PhotoDB_reserve.db')
+                shutil.copytree(self.old_media + r"/Media", self.old_media + r"/Media_reserve")
+                shutil.copy(os.getcwd() + "/PhotoDB.db", os.getcwd() + "/PhotoDB_reserve.db")
 
-                shutil.move(self.old_media + r'/Media', self.new_media)
+                shutil.move(self.old_media + r"/Media", self.new_media)
                 new_catalogs, old_catalogs = PhotoDataDB.transfer_media_ways(self.old_media, self.new_media)
                 for i in range(len(new_catalogs)):
                     PhotoDataDB.transfer_media(new_catalogs[i], old_catalogs[i])
 
-                shutil.rmtree(self.old_media + r'/Media_reserve')
-                os.remove(os.getcwd() + '/PhotoDB_reserve.db')
+                shutil.rmtree(self.old_media + r"/Media_reserve")
+                os.remove(os.getcwd() + "/PhotoDB_reserve.db")
 
             case 2:
-                shutil.copytree(self.old_thumb + r'/thumbnail', self.old_thumb + r'/thumbnail_reserve')
-                shutil.move(self.old_thumb + r'/thumbnail', self.new_thumb)
-                shutil.rmtree(self.old_thumb + r'/thumbnail_reserve')
+                shutil.copytree(self.old_thumb + r"/thumbnail", self.old_thumb + r"/thumbnail_reserve")
+                shutil.move(self.old_thumb + r"/thumbnail", self.new_thumb)
+                shutil.rmtree(self.old_thumb + r"/thumbnail_reserve")
             case 3:
-                shutil.copytree(self.old_media + r'/Media', self.old_media + r'/Media_reserve')
-                shutil.copy(os.getcwd() + '/PhotoDB.db', os.getcwd() + '/PhotoDB_reserve.db')
-                shutil.copytree(self.old_thumb + r'/thumbnail', self.old_thumb + r'/thumbnail_reserve')
+                shutil.copytree(self.old_media + r"/Media", self.old_media + r"/Media_reserve")
+                shutil.copy(os.getcwd() + "/PhotoDB.db", os.getcwd() + "/PhotoDB_reserve.db")
+                shutil.copytree(self.old_thumb + r"/thumbnail", self.old_thumb + r"/thumbnail_reserve")
 
-                shutil.move(self.old_media + r'/Media', self.new_media)
+                shutil.move(self.old_media + r"/Media", self.new_media)
                 new_catalogs, old_catalogs = PhotoDataDB.transfer_media_ways(self.old_media, self.new_media)
                 for i in range(len(new_catalogs)):
                     PhotoDataDB.transfer_media(new_catalogs[i], old_catalogs[i])
-                shutil.move(self.old_thumb + r'/thumbnail', self.new_thumb)
+                shutil.move(self.old_thumb + r"/thumbnail", self.new_thumb)
 
-                shutil.rmtree(self.old_media + r'/Media_reserve')
-                os.remove(os.getcwd() + '/PhotoDB_reserve.db')
-                shutil.rmtree(self.old_media + r'/thumbnail_reserve')
+                shutil.rmtree(self.old_media + r"/Media_reserve")
+                os.remove(os.getcwd() + "/PhotoDB_reserve.db")
+                shutil.rmtree(self.old_media + r"/thumbnail_reserve")
 
         self.finished.emit()
 
@@ -687,16 +687,16 @@ class Notification(QDialog):
     def __init__(self, parent):
         super(Notification, self).__init__(parent)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle('Сохранено')
+        self.setWindowTitle("Сохранено")
         layout = QGridLayout(self)
         self.setLayout(layout)
         lbl = QLabel(self)
-        lbl.setText('Настройки сохранены')
+        lbl.setText("Настройки сохранены")
         lbl.setFont(font14)
         lbl.setStyleSheet(stylesheet2)
 
         btn = QPushButton(self)
-        btn.setText('Ок')
+        btn.setText("Ок")
         btn.setFont(font14)
         btn.setStyleSheet(stylesheet8)
         btn.clicked.connect(lambda: self.close())
@@ -710,9 +710,9 @@ def get_destination_media() -> str:
     Получить путь хранения медиа - для других модулей
     :return: путь каталогов
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    destination_media = settings['files']['destination_dir']
+    destination_media = settings["files"]["destination_dir"]
     return destination_media
 
 
@@ -721,9 +721,9 @@ def get_destination_thumb() -> str:
     Получить путь хранения миниатюр - для других модулей
     :return: путь миниатюр
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    destination_thumb = settings['files']['thumbs_dir']
+    destination_thumb = settings["files"]["thumbs_dir"]
     return destination_thumb
 
 
@@ -732,9 +732,9 @@ def get_thumbs_row() -> int:
     Количество миниатюр в строке
     :return: сколько миниатюр умещать в один ряд
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    thumbs_row = int(settings['view']['thumbs_row'])
+    thumbs_row = int(settings["view"]["thumbs_row"])
     return thumbs_row
 
 
@@ -743,9 +743,9 @@ def get_photo_transfer_mode() -> str:
     Режим переноса фото при добавлении
     :return: копировать добавляемые файлы или вырезать
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    transfer_mode = settings['files']['transfer_mode']
+    transfer_mode = settings["files"]["transfer_mode"]
     return transfer_mode
 
 
@@ -754,10 +754,10 @@ def get_theme_color() -> str:
     Выбранная визуальная тема
     :return: тёмная или светлая тема
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    theme_color = settings['view']['color_theme']
-    if theme_color == 'auto':
+    theme_color = settings["view"]["color_theme"]
+    if theme_color == "auto":
         import darkdetect
         theme_color = darkdetect.theme().lower()
     return theme_color
@@ -768,9 +768,9 @@ def get_socnet_status() -> int:
     Включены или отключены соцсети
     :return: включены или отключены соц.сети
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    socnet_status = int(settings['view']['social_networks_status'])
+    socnet_status = int(settings["view"]["social_networks_status"])
     return socnet_status
 
 
@@ -779,9 +779,9 @@ def get_sort_type() -> str:
     Сортировка фото в основном каталоге
     :return: возвращает тип, в каком порядке сортировать файлы
     """
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
-    sort_type = settings['view']['sort_type']
+    sort_type = settings["view"]["sort_type"]
     return sort_type
 
 
@@ -791,7 +791,7 @@ def get_hotkeys() -> dict:
     :return: словарь с горячими клавишами
     """
     try:
-        with open('hotkeys.json', 'r') as json_file:
+        with open("hotkeys.json", "r") as json_file:
             hotkeys = json.load(json_file)
         return hotkeys
     except FileNotFoundError:
@@ -803,8 +803,8 @@ def get_hotkeys() -> dict:
             "show_stat_map": "Enter"
         }
 
-        with open('hotkeys.json', 'w') as json_file:
-            json.dump(hotkeys_default, json_file, sort_keys=True, indent=4, separators=(',', ': '))
+        with open("hotkeys.json", "w") as json_file:
+            json.dump(hotkeys_default, json_file, sort_keys=True, indent=4, separators=(",", ": "))
 
 
 if __name__ == "__main__":

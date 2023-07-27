@@ -17,7 +17,7 @@ stylesheet8 = str()
 loading_icon = str()
 
 
-font14 = QtGui.QFont('Times', 14)
+font14 = QtGui.QFont("Times", 14)
 
 
 class RecoveryWin(QMainWindow):
@@ -28,7 +28,7 @@ class RecoveryWin(QMainWindow):
         super().__init__(parent)
         self.stylesheet_color()
         # Создание окна
-        self.setWindowTitle('Восстановление')
+        self.setWindowTitle("Восстановление")
         self.setStyleSheet(stylesheet2)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -47,10 +47,10 @@ class RecoveryWin(QMainWindow):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        loading_icon = style[f'{theme}']['loading_icon']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        loading_icon = style[f"{theme}"]["loading_icon"]
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -66,7 +66,7 @@ class RecoveryWidget(QWidget):
     def __init__(self, parent):
         super().__init__(parent)
         self.setStyleSheet(stylesheet2)
-        self.setWindowTitle('Восстановление')
+        self.setWindowTitle("Восстановление")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.layout = QGridLayout(self)
@@ -198,13 +198,13 @@ class RecoveryLoadingWin(QDialog):
         super().__init__(parent)
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
-        self.setWindowTitle('Загрузка')
+        self.setWindowTitle("Загрузка")
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.label = QLabel(self)
         self.text = QLabel(self)
-        self.text.setText('Загрузка, подождите')
+        self.text.setText("Загрузка, подождите")
         self.text.setStyleSheet(stylesheet2)
         self.text.setFont(font14)
         self.movie = QMovie(loading_icon)

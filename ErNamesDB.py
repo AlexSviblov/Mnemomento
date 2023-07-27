@@ -20,11 +20,11 @@ stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 
-conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)  # соединение с БД
+conn = sqlite3.connect("ErrorNames.db", check_same_thread=False)  # соединение с БД
 
 cur = conn.cursor()
 
-font12 = QtGui.QFont('Times', 12)
+font12 = QtGui.QFont("Times", 12)
 
 system_scale = Screenconfig.monitor_info()[1]
 
@@ -39,7 +39,7 @@ class ViewBDDialog(QWidget):
         super().__init__(parent)
         self.stylesheet_color()
         # Создание окна
-        self.setWindowTitle('База исправлений')
+        self.setWindowTitle("База исправлений")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.setStyleSheet(stylesheet2)
 
@@ -69,12 +69,12 @@ class ViewBDDialog(QWidget):
         self.get_bd_info()
         self.layout.addWidget(self.table, 1, 0, 1, 3, alignment=Qt.AlignCenter)
 
-        self.add_btn.setText('Добавить')
+        self.add_btn.setText("Добавить")
         self.add_btn.setFont(font12)
         self.add_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.add_btn, 0, 0, 1, 1)
 
-        self.del_btn.setText('Удалить')
+        self.del_btn.setText("Удалить")
         self.del_btn.setFont(font12)
         self.del_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.del_btn, 0, 1, 1, 1)
@@ -82,12 +82,12 @@ class ViewBDDialog(QWidget):
         self.add_btn.clicked.connect(self.call_add)
         self.del_btn.clicked.connect(self.call_del)
 
-        self.edit_btn.setText('Редактировать')
+        self.edit_btn.setText("Редактировать")
         self.edit_btn.setFont(font12)
         self.edit_btn.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.edit_btn, 0, 2, 1, 1)
 
-        self.edit_mode.setText('Режим редактирования')
+        self.edit_mode.setText("Режим редактирования")
         self.edit_mode.setFont(font12)
         self.layout.addWidget(self.edit_mode, 2, 0, 1, 1)
         self.edit_mode.hide()
@@ -112,15 +112,15 @@ class ViewBDDialog(QWidget):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet4 = style[f'{theme}']['stylesheet4']
-        stylesheet5 = style[f'{theme}']['stylesheet5']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet3 = style[f"{theme}"]["stylesheet3"]
+        stylesheet4 = style[f"{theme}"]["stylesheet4"]
+        stylesheet5 = style[f"{theme}"]["stylesheet5"]
+        stylesheet6 = style[f"{theme}"]["stylesheet6"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
 
         self.setStyleSheet(stylesheet2)
 
@@ -165,11 +165,13 @@ class ViewBDDialog(QWidget):
             self.new_element = self.table.currentItem().text()
             match self.new_element:
                 case 0:
-                    col_name = 'type'
+                    col_name = "type"
                 case 1:
-                    col_name = 'exifname'
+                    col_name = "exifname"
                 case 2:
-                    col_name = 'normname'
+                    col_name = "normname"
+                case _:
+                    raise ValueError
 
             sql_red_str = f"UPDATE ernames SET {col_name} = '{self.new_element}' WHERE {col_name} = '{self.old_element}'"
             cur.execute(sql_red_str)
@@ -202,14 +204,16 @@ class ViewBDDialog(QWidget):
         all_results = cur.fetchall()
         self.row_num = len(all_results)
         self.table.setRowCount(self.row_num)
-        self.table.setHorizontalHeaderLabels(['Тип', 'Ошибочное отображение', 'Верное название'])
+        self.table.setHorizontalHeaderLabels(["Тип", "Ошибочное отображение", "Верное название"])
         for i in range(0, len(all_results)):
-            if all_results[i][0] == 'maker':
-                type_str = 'Производитель'
-            elif all_results[i][0] == 'lens':
-                type_str = 'Объектив'
-            elif all_results[i][0] == 'camera':
-                type_str = 'Камера'
+            if all_results[i][0] == "maker":
+                type_str = "Производитель"
+            elif all_results[i][0] == "lens":
+                type_str = "Объектив"
+            elif all_results[i][0] == "camera":
+                type_str = "Камера"
+            else:
+                type_str = "error"
             self.table.setItem(i, 0, QTableWidgetItem(type_str))
             self.table.setItem(i, 1, QTableWidgetItem(str(all_results[i][1])))
             self.table.setItem(i, 2, QTableWidgetItem(str(all_results[i][2])))
@@ -270,7 +274,7 @@ class AddBDDialog(QDialog):
     def __init__(self):
         super(AddBDDialog, self).__init__()
         # Создание окна
-        self.setWindowTitle('Исправление неправильных названий')
+        self.setWindowTitle("Исправление неправильных названий")
         self.resize(600, 90)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
@@ -290,13 +294,13 @@ class AddBDDialog(QDialog):
         self.make_gui()
 
     def make_gui(self) -> None:
-        self.btn_ok.setText('Ввод')
+        self.btn_ok.setText("Ввод")
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font12)
         self.btn_ok.setFixedHeight(int(30*system_scale)+1)
         self.layout_win.addWidget(self.btn_ok, 3, 0, 1, 1)
 
-        self.btn_cancel.setText('Отмена')
+        self.btn_cancel.setText("Отмена")
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font12)
         self.btn_cancel.setFixedHeight(int(30*system_scale)+1)
@@ -305,21 +309,21 @@ class AddBDDialog(QDialog):
         self.btn_ok.clicked.connect(self.check_empty)
         self.btn_cancel.clicked.connect(self.reject)
 
-        self.type_lbl.setText('Тип неправильно отображаемого названия:')
+        self.type_lbl.setText("Тип неправильно отображаемого названия:")
         self.type_lbl.setFont(font12)
         self.layout_win.addWidget(self.type_lbl, 0, 0, 1, 1)
 
-        self.error_label.setText('Неправильное название:')
+        self.error_label.setText("Неправильное название:")
         self.error_label.setFont(font12)
         self.layout_win.addWidget(self.error_label, 1, 0, 1, 1)
 
-        self.norm_label.setText('Правильное название:')
+        self.norm_label.setText("Правильное название:")
         self.norm_label.setFont(font12)
         self.layout_win.addWidget(self.norm_label, 2, 0, 1, 1)
 
-        self.type_combobox.addItem('Производитель')
-        self.type_combobox.addItem('Камера')
-        self.type_combobox.addItem('Объектив')
+        self.type_combobox.addItem("Производитель")
+        self.type_combobox.addItem("Камера")
+        self.type_combobox.addItem("Объектив")
         self.type_combobox.setFont(font12)
         self.type_combobox.setFixedHeight(int(40*system_scale)+1)
         self.type_combobox.setStyleSheet(stylesheet9)
@@ -339,14 +343,14 @@ class AddBDDialog(QDialog):
         """
         Проверка заполнения полей ввода
         """
-        if self.error_text.text() == '':
+        if self.error_text.text() == "":
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=1)
             warning.show()
             return
         else:
             pass
 
-        if self.norm_text.text() == '':
+        if self.norm_text.text() == "":
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=2)
             warning.show()
             return
@@ -373,22 +377,22 @@ class AddBDDialog(QDialog):
         self.norm_text.hide()
 
         self.confirm_label = QtWidgets.QLabel()
-        self.confirm_label.setText('Правильно ли введены данные?\n')
+        self.confirm_label.setText("Правильно ли введены данные?\n")
         self.confirm_label.setFont(font12)
         self.layout_win.addWidget(self.confirm_label, 0, 0, 1, 2)
 
         self.entered_info = QtWidgets.QLabel()
         self.entered_info.setFont(font12)
         self.entered_info.setText(
-            f'Тип: {self.type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n')
+            f"Тип: {self.type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n")
         self.layout_win.addWidget(self.entered_info, 1, 0, 1, 2)
 
         self.btn_ok_c = QPushButton(self)
-        self.btn_ok_c.setText('Ввод')
+        self.btn_ok_c.setText("Ввод")
         self.btn_ok_c.setFont(font12)
         self.btn_ok_c.setStyleSheet(stylesheet8)
         self.btn_cancel_c = QPushButton(self)
-        self.btn_cancel_c.setText('Отмена')
+        self.btn_cancel_c.setText("Отмена")
         self.btn_cancel_c.setFont(font12)
         self.btn_cancel_c.setStyleSheet(stylesheet8)
 
@@ -427,11 +431,13 @@ class AddBDDialog(QDialog):
         """
         match self.type_combobox.currentIndex():
             case 0:
-                equip_type = 'maker'
+                equip_type = "maker"
             case 1:
-                equip_type = 'camera'
+                equip_type = "camera"
             case 2:
-                equip_type = 'lens'
+                equip_type = "lens"
+            case _:
+                raise ValueError
 
         enter_1 = "INSERT INTO ernames(type,exifname,normname) VALUES(?,?,?)"
         enter_2 = (equip_type, self.error_entered, self.norm_entered)
@@ -458,7 +464,7 @@ class DelBDDialog(QDialog):
     def __init__(self, del_object_ername: str, del_object_normname: str):
         super(DelBDDialog, self).__init__()
         # Создание окна
-        self.setWindowTitle('Исправление неправильного считывания')
+        self.setWindowTitle("Исправление неправильного считывания")
         self.resize(400, 100)
         self.setStyleSheet(stylesheet2)
 
@@ -471,17 +477,17 @@ class DelBDDialog(QDialog):
         self.del_obj_normname = del_object_normname
 
         self.obj_lbl = QLabel()
-        self.obj_lbl.setText(f'Вы точно хотите удалить {self.del_obj_ername} -> {self.del_obj_normname}?')
+        self.obj_lbl.setText(f"Вы точно хотите удалить {self.del_obj_ername} -> {self.del_obj_normname}?")
         self.layout_win.addWidget(self.obj_lbl, 0, 0, 1, 2)
         self.obj_lbl.setFont(font12)
         self.obj_lbl.setStyleSheet(stylesheet2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 
@@ -513,7 +519,7 @@ class SuccessWindowClass(QDialog):
         self.answer = None
         self.resize(100, 100)
 
-        self.setWindowTitle('ГОТОВО')
+        self.setWindowTitle("ГОТОВО")
         self.setStyleSheet(stylesheet2)
 
         self.layout_all = QGridLayout(self)

@@ -83,7 +83,7 @@ class ConstWidgetWindow(QWidget):
         self.groupbox_sort.setStyleSheet(stylesheet2)
         self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
 
-        self.fill_sort_comment('Дата')
+        self.fill_sort_comment("Дата")
         self.fill_sort_groupbox()
         self.fill_sort_date()
         self.groupbox_sort.setLayout(self.layout_type)
@@ -105,7 +105,7 @@ class ConstWidgetWindow(QWidget):
         self.metadata_show.setDisabled(True)
         self.metadata_show.hide()
 
-        self.last_clicked = ''
+        self.last_clicked = ""
 
         self.resized_signal.connect(self.resize_func)
         self.oldsize = QtCore.QSize(0, 0)
@@ -160,17 +160,17 @@ class ConstWidgetWindow(QWidget):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
-        icon_explorer = style[f'{theme}']['icon_explorer']
-        icon_view = style[f'{theme}']['icon_view']
-        icon_edit = style[f'{theme}']['icon_edit']
-        icon_delete = style[f'{theme}']['icon_delete']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet3 = style[f"{theme}"]["stylesheet3"]
+        stylesheet6 = style[f"{theme}"]["stylesheet6"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
+        icon_explorer = style[f"{theme}"]["icon_explorer"]
+        icon_view = style[f"{theme}"]["icon_view"]
+        icon_edit = style[f"{theme}"]["icon_edit"]
+        icon_delete = style[f"{theme}"]["icon_delete"]
 
         try:
             self.groupbox_thumbs.setStyleSheet(stylesheet1)
@@ -201,13 +201,13 @@ class ConstWidgetWindow(QWidget):
             self.date_year.clear()
             j = 0
             k = 0
-            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            dir_to_find_year = Settings.get_destination_media() + "/Media/Photo/const/"
             all_files_and_dirs = os.listdir(dir_to_find_year)
             dir_list = list()
             for name in all_files_and_dirs:
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
-                        for file in Path(dir_to_find_year + name).rglob('*'):
+                        for file in Path(dir_to_find_year + name).rglob("*"):
                             if (os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG")):
                                 k = 1
                         if k == 1:
@@ -217,16 +217,16 @@ class ConstWidgetWindow(QWidget):
             dir_list.sort(reverse=True)
             i = 0
             for year in dir_list:
-                if dir_list[i] != 'No_Date_Info':
+                if dir_list[i] != "No_Date_Info":
                     self.date_year.addItem(str(year))
                 else:
                     j = 1
                 i += 1
             if j == 1:
-                self.date_year.addItem('No_Date_Info')
+                self.date_year.addItem("No_Date_Info")
             else:
                 pass
-            self.date_year.addItem('All')
+            self.date_year.addItem("All")
 
         def get_months() -> None:
             """
@@ -234,16 +234,16 @@ class ConstWidgetWindow(QWidget):
             """
             self.date_month.clear()
             year = self.date_year.currentText()
-            if year == 'All':
-                self.date_month.addItem('All')
+            if year == "All":
+                self.date_month.addItem("All")
             else:
-                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                dir_to_find_month = Settings.get_destination_media() + "/Media/Photo/const/" + year + "/"
                 all_files_and_dirs = os.listdir(dir_to_find_month)
                 dir_list = list()
                 for name in all_files_and_dirs:
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
-                            for file in Path(dir_to_find_month + name).rglob('*'):
+                            for file in Path(dir_to_find_month + name).rglob("*"):
                                 if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     dir_list.append(name)
                                     break
@@ -251,7 +251,7 @@ class ConstWidgetWindow(QWidget):
                 dir_list.sort(reverse=True)
                 for month in dir_list:
                     self.date_month.addItem(str(month))
-                self.date_month.addItem('All')
+                self.date_month.addItem("All")
 
         def get_days() -> None:
             """
@@ -260,10 +260,10 @@ class ConstWidgetWindow(QWidget):
             self.date_day.clear()
             year = self.date_year.currentText()
             month = self.date_month.currentText()
-            if year == 'All' or month == 'All':
-                self.date_day.addItem('All')
+            if year == "All" or month == "All":
+                self.date_day.addItem("All")
             else:
-                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                dir_to_find_day = Settings.get_destination_media() + "/Media/Photo/const/" + year + "/" + month + "/"
                 all_files_and_dirs = os.listdir(dir_to_find_day)
                 dir_list = list()
                 for name in all_files_and_dirs:
@@ -274,16 +274,16 @@ class ConstWidgetWindow(QWidget):
                 dir_list.sort(reverse=True)
                 for day in dir_list:
                     self.date_day.addItem(str(day))
-                self.date_day.addItem('All')
+                self.date_day.addItem("All")
 
         match mode:
-            case 'date':
+            case "date":
                 get_years()
-            case 'year':
+            case "year":
                 get_years()
-            case 'month':
+            case "month":
                 get_months()
-            case 'day':
+            case "day":
                 get_days()
             case _:
                 get_years()
@@ -297,20 +297,20 @@ class ConstWidgetWindow(QWidget):
         thumb_names = list()
         thumbnails_list = list()
         for photo in photo_list:
-            photo_splitted = photo.split('/')
+            photo_splitted = photo.split("/")
             thumb_dir = Settings.get_destination_thumb() + \
-                        f'/thumbnail/const/{photo_splitted[-4]}/{photo_splitted[-3]}/{photo_splitted[-2]}/'
+                        f"/thumbnail/const/{photo_splitted[-4]}/{photo_splitted[-3]}/{photo_splitted[-2]}/"
             thumb_names.append(photo_splitted[-1])
 
-            if os.path.exists(thumb_dir + 'thumbnail_' + photo_splitted[-1]):
-                thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
+            if os.path.exists(thumb_dir + "thumbnail_" + photo_splitted[-1]):
+                thumbnails_list.append(thumb_dir + "thumbnail_" + photo_splitted[-1])
             else:
-                photo_dir = ''
+                photo_dir = ""
                 for i in range(len(photo_splitted) - 1):
-                    photo_dir += photo_splitted[i] + '/'
-                Thumbnail.make_or_del_thumbnails([f'{photo_splitted[-1]}'], [], photo_dir[:-1],
+                    photo_dir += photo_splitted[i] + "/"
+                Thumbnail.make_or_del_thumbnails([f"{photo_splitted[-1]}"], [], photo_dir[:-1],
                                                  thumb_dir[:-1])
-                thumbnails_list.append(thumb_dir + 'thumbnail_' + photo_splitted[-1])
+                thumbnails_list.append(thumb_dir + "thumbnail_" + photo_splitted[-1])
 
         return thumbnails_list
 
@@ -319,12 +319,12 @@ class ConstWidgetWindow(QWidget):
         Выбор функции показа миниатюр в зависимости от выбранной группировки
         """
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 if not self.date_day.currentText() or not self.date_month.currentText() or not self.date_year.currentText():
                     return
-            case 'Оборудование':
+            case "Оборудование":
                 pass
-            case 'Соцсети':
+            case "Соцсети":
                 if not self.socnet_choose.currentText() or not self.sn_status.currentText():
                     return
 
@@ -402,10 +402,10 @@ class ConstWidgetWindow(QWidget):
             comment_text = self.comment_line.text()
         else:
             search_comment = False
-            comment_text = ''
+            comment_text = ""
 
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 year = self.date_year.currentText()
                 month = self.date_month.currentText()
                 day = self.date_day.currentText()
@@ -414,30 +414,32 @@ class ConstWidgetWindow(QWidget):
                     return
                 else:
                     photo_list = PhotoDataDB.get_date_photo_list(year, month, day, search_comment, comment_text)
-            case 'Оборудование':
+            case "Оборудование":
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
 
-                if camera == 'All':
-                    camera_exif = 'All'
+                if camera == "All":
+                    camera_exif = "All"
                 else:
-                    camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+                    camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
 
-                if lens == 'All':
-                    lens_exif = 'All'
+                if lens == "All":
+                    lens_exif = "All"
                 else:
-                    lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+                    lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
 
                 photo_list = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, search_comment, comment_text)
-            case 'Соцсети':
+            case "Соцсети":
                 network = self.socnet_choose.currentText()
-                if network == 'Нет данных':
+                if network == "Нет данных":
                     unlock_show()
                     return
                 else:
                     pass
 
                 photo_list = PhotoDataDB.get_sn_photo_list(network, self.sn_status.currentText(), search_comment, comment_text)
+            case _:
+                raise ValueError
 
         if not photo_list:
             self.groupbox_thumbs.setMinimumHeight(self.height() - 100)
@@ -448,7 +450,7 @@ class ConstWidgetWindow(QWidget):
         unlock_show()
         QtCore.QCoreApplication.processEvents()
 
-    def fill_scroll_thumbs(self, thumbnails_list: str, photo_list: str) -> None:
+    def fill_scroll_thumbs(self, thumbnails_list: list[str], photo_list: list[str]) -> None:
         """
         Функция отображения кнопок с миниатюрами
         :param thumbnails_list:
@@ -462,15 +464,15 @@ class ConstWidgetWindow(QWidget):
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
                     self.button = QtWidgets.QToolButton(self)  # создание кнопки
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')  # создание объекта картинки
+                    iqon = QtGui.QIcon(f"{thumbnails_list[j * self.thumb_row + i]}")  # создание объекта картинки
                     iqon.pixmap(150, 150)  # задание размера картинки
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)  # помещение картинки на кнопку
                     self.button.setIconSize(QtCore.QSize(150, 150))
-                    filename_show = thumbnails_list[j * self.thumb_row + i].split('/')[-1][10:]
-                    self.button.setText(f'{filename_show}')  # добавление названия фото
-                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
+                    filename_show = thumbnails_list[j * self.thumb_row + i].split("/")[-1][10:]
+                    self.button.setText(f"{filename_show}")  # добавление названия фото
+                    self.button.setObjectName(f"{photo_list[j * self.thumb_row + i]}")
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
@@ -479,15 +481,15 @@ class ConstWidgetWindow(QWidget):
                 for i in range(0, self.thumb_row):
                     self.button = QtWidgets.QToolButton(self)
                     self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
-                    iqon = QtGui.QIcon(f'{thumbnails_list[j * self.thumb_row + i]}')
+                    iqon = QtGui.QIcon(f"{thumbnails_list[j * self.thumb_row + i]}")
                     iqon.pixmap(150, 150)
                     self.button.setMinimumHeight(180)
                     self.button.setFixedWidth(160)
                     self.button.setIcon(iqon)
                     self.button.setIconSize(QtCore.QSize(150, 150))
-                    filename_show = thumbnails_list[j * self.thumb_row + i].split('/')[-1][10:]
-                    self.button.setText(f'{filename_show}')  # добавление названия фото
-                    self.button.setObjectName(f'{photo_list[j * self.thumb_row + i]}')
+                    filename_show = thumbnails_list[j * self.thumb_row + i].split("/")[-1][10:]
+                    self.button.setText(f"{filename_show}")  # добавление названия фото
+                    self.button.setObjectName(f"{photo_list[j * self.thumb_row + i]}")
                     self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
                     self.button.setStyleSheet(stylesheet1)
                     self.button.clicked.connect(self.showinfo)
@@ -505,12 +507,12 @@ class ConstWidgetWindow(QWidget):
         if self.gps_coordinates:
             self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
             gps_dict = self.gps_coordinates
-            gps_coords = [float(gps_dict.split(',')[0]), float(gps_dict.split(',')[1])]
+            gps_coords = [float(gps_dict.split(",")[0]), float(gps_dict.split(",")[1])]
 
             self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
-            folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color="red")).add_to(self.map_gps)
             self.map_gps_widget.setHtml(self.map_gps.get_root().render())
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - self.socnet_group.width() - 40)
@@ -518,7 +520,7 @@ class ConstWidgetWindow(QWidget):
                 else:
                     self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                     self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-            else: # self.photo_rotation == 'ver'
+            else: # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 if self.soc_net_setting:
                     self.map_gps_widget.setFixedWidth(self.metadata_show.width())
@@ -556,10 +558,10 @@ class ConstWidgetWindow(QWidget):
 
         self.pic.clear()  # очистка от того, что показано сейчас
 
-        photo_directory_parts = self.photo_path.split('/')
-        self.photo_directory = ''
+        photo_directory_parts = self.photo_path.split("/")
+        self.photo_directory = ""
         for i in range(0, len(photo_directory_parts) - 1):
-            self.photo_directory += photo_directory_parts[i] + '/'
+            self.photo_directory += photo_directory_parts[i] + "/"
 
         self.last_clicked_name = photo_directory_parts[-1]
         self.last_clicked_dir = self.photo_directory[:-1]
@@ -567,8 +569,8 @@ class ConstWidgetWindow(QWidget):
 
         self.photo_file = self.photo_path  # получение информации о нажатой кнопке
 
-        jsondata_wr = {'last_opened_photo': self.photo_file}
-        with open('last_opened.json', 'w') as json_file:
+        jsondata_wr = {"last_opened_photo": self.photo_file}
+        with open("last_opened.json", "w") as json_file:
             json.dump(jsondata_wr, json_file)
 
         self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
@@ -585,14 +587,14 @@ class ConstWidgetWindow(QWidget):
             self.type_show_thumbnails()
             return
 
-        self.photo_rotation = metadata['Rotation']
+        self.photo_rotation = metadata["Rotation"]
 
         try:
-            self.gps_coordinates = metadata['GPS']
+            self.gps_coordinates = metadata["GPS"]
         except KeyError:
-            self.gps_coordinates = ''
+            self.gps_coordinates = ""
         params = list(metadata.keys())
-        params.remove('Rotation')
+        params.remove("Rotation")
 
         rows = 0
         for param in params:
@@ -622,7 +624,7 @@ class ConstWidgetWindow(QWidget):
         self.metadata_show.setFixedHeight(self.metadata_show.rowCount() * self.metadata_show.rowHeight(0))
 
         if self.soc_net_setting:
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
 
                 self.metadata_show.show()
@@ -644,7 +646,7 @@ class ConstWidgetWindow(QWidget):
                 else:
                     self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.socnet_group.width() + self.groupbox_btns.width() + 200)
 
-            else:  # self.photo_rotation == 'ver'
+            else:  # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
                 self.layout_show.addWidget(self.socnet_group, 2, 1, 1, 1)
@@ -658,7 +660,7 @@ class ConstWidgetWindow(QWidget):
 
                 self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
         else:
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
                 self.metadata_show.show()
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 200, self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
@@ -671,7 +673,7 @@ class ConstWidgetWindow(QWidget):
                     self.set_minimum_size.emit(self.scroll_area.width() + self.pixmap2.width() + self.groupbox_btns.width() + 160)
                 else:
                     self.set_minimum_size.emit(self.scroll_area.width() + self.metadata_show.width() + self.groupbox_btns.width() + 160)
-            else:  # self.photo_rotation == 'ver'
+            else:  # self.photo_rotation == "ver"
                 self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
                 self.metadata_show.show()
                 self.pixmap2 = self.pixmap.scaled(self.size().width() - self.metadata_show.width() - self.groupbox_btns.width() - self.scroll_area.width() - 50, self.size().height() - self.groupbox_sort.height() - 30,
@@ -706,7 +708,7 @@ class ConstWidgetWindow(QWidget):
 
         self.type_show_thumbnails()
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 old_year = self.date_year.currentText()
                 old_month = self.date_month.currentText()
                 old_day = self.date_day.currentText()
@@ -714,13 +716,13 @@ class ConstWidgetWindow(QWidget):
                 self.date_year.setCurrentText(old_year)
                 self.date_month.setCurrentText(old_month)
                 self.date_day.setCurrentText(old_day)
-            case 'Соцсети':
+            case "Соцсети":
                 old_network = self.socnet_choose.currentText()
                 old_status = self.sn_status.currentText()
                 self.fill_sort_socnets()
                 self.socnet_choose.setCurrentText(old_network)
                 self.sn_status.setCurrentText(old_status)
-            case 'Оборудование':
+            case "Оборудование":
                 old_camera = self.camera_choose.currentText()
                 old_lens = self.lens_choose.currentText()
                 self.fill_sort_equipment()
@@ -748,7 +750,7 @@ class ConstWidgetWindow(QWidget):
         if not self.pic.isVisible():
             return
 
-        if self.photo_rotation == 'gor':
+        if self.photo_rotation == "gor":
             self.pixmap2 = self.pixmap.scaled(
                 self.size().width() - self.groupbox_btns.width() - self.scroll_area.width() - 40,
                 self.size().height() - self.groupbox_sort.height() - self.metadata_show.height() - 40,
@@ -777,7 +779,7 @@ class ConstWidgetWindow(QWidget):
         except (RuntimeError, AttributeError):
             return
 
-        if self.photo_rotation == 'gor':
+        if self.photo_rotation == "gor":
             self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
             if self.soc_net_setting:
                 self.map_gps_widget.setFixedWidth(
@@ -786,7 +788,7 @@ class ConstWidgetWindow(QWidget):
             else:
                 self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
                 self.map_gps_widget.setFixedHeight(self.metadata_show.height())
-        else:  # self.photo_rotation == 'ver'
+        else:  # self.photo_rotation == "ver"
             self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
             if self.soc_net_setting:
                 self.map_gps_widget.setFixedWidth(self.metadata_show.width())
@@ -876,7 +878,7 @@ class ConstWidgetWindow(QWidget):
             return
 
         open_path = self.last_clicked
-        path = open_path.replace('/', '\\')
+        path = open_path.replace("/", "\\")
         exp_str = f'explorer /select,\"{path}\"'
         os.system(exp_str)
 
@@ -892,7 +894,7 @@ class ConstWidgetWindow(QWidget):
         dialog_del = DelPhotoConfirm(photoname, photodirectory)
         dialog_del.clear_info.connect(self.clear_after_del)
         if dialog_del.exec():
-            self.last_clicked = ''
+            self.last_clicked = ""
 
     def edit_exif_func(self) -> None:
         """
@@ -908,30 +910,30 @@ class ConstWidgetWindow(QWidget):
             return
 
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 old_year = self.date_year.currentText()
                 old_month = self.date_month.currentText()
                 old_day = self.date_day.currentText()
-            case 'Соцсети':
+            case "Соцсети":
                 old_network = self.socnet_choose.currentText()
                 old_status = self.sn_status.currentText()
-            case 'Оборудование':
+            case "Оборудование":
                 old_camera = self.camera_choose.currentText()
                 old_lens = self.lens_choose.currentText()
 
         def re_show() -> None:
-            if self.group_type.currentText() == 'Дата':
+            if self.group_type.currentText() == "Дата":
                 # self.showinfo()
                 pass
             else:
                 self.pic.clear()
                 self.metadata_show.clear()
                 self.metadata_show.hide()
-                if self.group_type.currentText() == 'Соцсети':
+                if self.group_type.currentText() == "Соцсети":
                     self.socnet_choose.setCurrentText(old_network)
                     self.sn_status.setCurrentText(old_status)
                     self.type_show_thumbnails()
-                elif self.group_type.currentText() == 'Оборудование':
+                elif self.group_type.currentText() == "Оборудование":
                     self.fill_sort_equipment()
                     self.camera_choose.setCurrentText(old_camera)
                     self.lens_choose.setCurrentText(old_lens)
@@ -951,11 +953,11 @@ class ConstWidgetWindow(QWidget):
             except (RuntimeError, AttributeError):
                 pass
 
-            if self.group_type.currentText() == 'Соцсети':
+            if self.group_type.currentText() == "Соцсети":
                 self.socnet_choose.setCurrentText(old_network)
                 self.sn_status.setCurrentText(old_status)
                 self.type_show_thumbnails()
-            elif self.group_type.currentText() == 'Оборудование':
+            elif self.group_type.currentText() == "Оборудование":
                 self.fill_sort_equipment()
                 self.camera_choose.setCurrentText(old_camera)
                 self.lens_choose.setCurrentText(old_lens)
@@ -966,10 +968,10 @@ class ConstWidgetWindow(QWidget):
                 self.date_day.setCurrentText(old_day)
                 self.type_show_thumbnails()
 
-            last_splitted = self.last_clicked.split('/')
-            button_text = ''
+            last_splitted = self.last_clicked.split("/")
+            button_text = ""
             for k in range(len(last_splitted) - 1):
-                button_text += last_splitted[k] + '/'
+                button_text += last_splitted[k] + "/"
             button_text += new_name
 
             for i in reversed(range(self.layout_inside_thumbs.count())):
@@ -981,7 +983,7 @@ class ConstWidgetWindow(QWidget):
                                    chosen_group_type=self.group_type.currentText())
         dialog_edit.show()
 
-        if self.group_type.currentText() == 'Дата':
+        if self.group_type.currentText() == "Дата":
             dialog_edit.movement_signal.connect(lambda y, m, d: self.get_date(y, m, d))
 
         if self.pic.isVisible():
@@ -1002,8 +1004,8 @@ class ConstWidgetWindow(QWidget):
         """
         self.socnet_group.clear()
         self.socnet_group.hide()
-        self.group_type.setCurrentText('Дата')
-        self.fill_date('date')
+        self.group_type.setCurrentText("Дата")
+        self.fill_date("date")
         self.pic.clear()
         self.pic.hide()
         self.metadata_show.clear()
@@ -1013,10 +1015,10 @@ class ConstWidgetWindow(QWidget):
         self.date_month.setCurrentText(month)
         self.date_day.setCurrentText(day)
 
-        last_splitted = self.last_clicked.split('/')
-        button_text = ''
+        last_splitted = self.last_clicked.split("/")
+        button_text = ""
         for k in range(len(last_splitted)-4):
-            button_text += last_splitted[k] + '/'
+            button_text += last_splitted[k] + "/"
         button_text += f"{year}/{month}/{day}/{last_splitted[-1]}"
 
         for i in reversed(range(self.layout_inside_thumbs.count())):
@@ -1051,7 +1053,7 @@ class ConstWidgetWindow(QWidget):
                 self.sn_lbl.setFont(font14)
                 self.sn_lbl.setStyleSheet(stylesheet2)
 
-                if name[:9] != 'numnumnum':
+                if name[:9] != "numnumnum":
                     self.sn_lbl.setText(f"{name}")
                 else:
                     self.sn_lbl.setText(f"{name[9:]}")
@@ -1063,20 +1065,20 @@ class ConstWidgetWindow(QWidget):
                 self.sn_tag_choose.setFont(font14)
                 self.sn_tag_choose.setStyleSheet(stylesheet9)
                 self.sn_tag_choose.setObjectName(name)
-                self.sn_tag_choose.addItem('Не выбрано')
-                self.sn_tag_choose.addItem('Не публиковать')
-                self.sn_tag_choose.addItem('Опубликовать')
-                self.sn_tag_choose.addItem('Опубликовано')
+                self.sn_tag_choose.addItem("Не выбрано")
+                self.sn_tag_choose.addItem("Не публиковать")
+                self.sn_tag_choose.addItem("Опубликовать")
+                self.sn_tag_choose.addItem("Опубликовано")
 
-                match sn_tags[f'{name}']:
-                    case 'No value':
-                        self.sn_tag_choose.setCurrentText('Не выбрано')
-                    case 'No publicate':
-                        self.sn_tag_choose.setCurrentText('Не публиковать')
-                    case 'Will publicate':
-                        self.sn_tag_choose.setCurrentText('Опубликовать')
-                    case 'Publicated':
-                        self.sn_tag_choose.setCurrentText('Опубликовано')
+                match sn_tags[f"{name}"]:
+                    case "No value":
+                        self.sn_tag_choose.setCurrentText("Не выбрано")
+                    case "No publicate":
+                        self.sn_tag_choose.setCurrentText("Не публиковать")
+                    case "Will publicate":
+                        self.sn_tag_choose.setCurrentText("Опубликовать")
+                    case "Publicated":
+                        self.sn_tag_choose.setCurrentText("Опубликовано")
 
                 self.sn_tag_choose.currentTextChanged.connect(edit_tags)
                 self.sn_tag_choose.currentTextChanged.connect(refresh_thumbs)
@@ -1094,7 +1096,7 @@ class ConstWidgetWindow(QWidget):
 
             self.socnet_group_header = self.socnet_group.horizontalHeader()
 
-            if self.photo_rotation == 'gor':
+            if self.photo_rotation == "gor":
                 self.socnet_group.setColumnWidth(0, self.max_name_len * 12)
                 self.socnet_group.setColumnWidth(1, 180)
             else:
@@ -1112,20 +1114,22 @@ class ConstWidgetWindow(QWidget):
 
         def edit_tags() -> None:
             match self.sender().currentText():
-                case 'Не выбрано':
-                    new_status_bd = 'No value'
-                case 'Не публиковать':
-                    new_status_bd = 'No publicate'
-                case 'Опубликовать':
-                    new_status_bd = 'Will publicate'
-                case 'Опубликовано':
-                    new_status_bd = 'Publicated'
+                case "Не выбрано":
+                    new_status_bd = "No value"
+                case "Не публиковать":
+                    new_status_bd = "No publicate"
+                case "Опубликовать":
+                    new_status_bd = "Will publicate"
+                case "Опубликовано":
+                    new_status_bd = "Publicated"
+                case _:
+                    raise ValueError
 
             network = self.sender().objectName()
             PhotoDataDB.edit_sn_tags(photoname, photodirectory, new_status_bd, network)
 
         def refresh_thumbs() -> None:
-            if self.group_type.currentText() == 'Соцсети':
+            if self.group_type.currentText() == "Соцсети":
                 if self.socnet_choose.currentText() == self.sender().objectName() or self.socnet_choose.currentText() == self.sender().objectName()[
                                                                                                                          9:]:
                     self.type_show_thumbnails()
@@ -1143,10 +1147,10 @@ class ConstWidgetWindow(QWidget):
         Выбор способа группировки
         """
         self.group_type = QComboBox(self)
-        self.group_type.addItem('Дата')
+        self.group_type.addItem("Дата")
         if self.soc_net_setting:
-            self.group_type.addItem('Соцсети')
-        self.group_type.addItem('Оборудование')
+            self.group_type.addItem("Соцсети")
+        self.group_type.addItem("Оборудование")
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)
         self.group_type.setFixedWidth(int(152*system_scale)+1)
@@ -1187,7 +1191,7 @@ class ConstWidgetWindow(QWidget):
         self.comment_line.setDisabled(True)
         self.comment_line.editingFinished.connect(self.type_show_thumbnails)
 
-        if group_type == 'Дата':
+        if group_type == "Дата":
             self.layout_type.addWidget(self.empty_sort, 0, 7, 1, 1)
             self.layout_type.addWidget(self.comment_check, 0, 8, 1, 1, alignment=Qt.AlignRight)
             self.layout_type.addWidget(self.comment_line, 0, 9, 1, 1, alignment=Qt.AlignRight)
@@ -1237,9 +1241,9 @@ class ConstWidgetWindow(QWidget):
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
         if not self.year_lbl.text():
-            self.year_lbl.setText('Год:')
-            self.month_lbl.setText('    Месяц:')
-            self.day_lbl.setText('    День:')
+            self.year_lbl.setText("Год:")
+            self.month_lbl.setText("    Месяц:")
+            self.day_lbl.setText("    День:")
 
         self.date_day.setFixedHeight(int(30*system_scale)+1)
         self.date_month.setFixedHeight(int(30*system_scale)+1)
@@ -1248,11 +1252,11 @@ class ConstWidgetWindow(QWidget):
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
 
-        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
-        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date("month"))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date("day"))
         self.date_day.currentTextChanged.connect(self.type_show_thumbnails)
 
-        self.fill_date('date')
+        self.fill_date("date")
 
     def fill_sort_socnets(self) -> None:
         """
@@ -1266,17 +1270,17 @@ class ConstWidgetWindow(QWidget):
         socnets = PhotoDataDB.get_socialnetworks()
 
         if not socnets:
-            self.socnet_choose.addItem('Нет данных')
+            self.socnet_choose.addItem("Нет данных")
             self.socnet_choose.setFixedWidth(int(150*system_scale)+1)
         else:
             socnet_max_len = 0
             for net in socnets:
-                if net[0:9] != 'numnumnum':
-                    self.socnet_choose.addItem(f'{net}')
+                if net[0:9] != "numnumnum":
+                    self.socnet_choose.addItem(f"{net}")
                     if len(net) > socnet_max_len:
                         socnet_max_len = len(net)
                 else:
-                    self.socnet_choose.addItem(f'{net[9:]}')
+                    self.socnet_choose.addItem(f"{net[9:]}")
                     if len(net) - 9 > socnet_max_len:
                         socnet_max_len = len(net) - 9
 
@@ -1288,10 +1292,10 @@ class ConstWidgetWindow(QWidget):
             self.sn_status.setFont(font14)
             self.sn_status.setFixedHeight(int(30*system_scale)+1)
             self.sn_status.setStyleSheet(stylesheet9)
-            self.sn_status.addItem('Не выбрано')
-            self.sn_status.addItem('Не публиковать')
-            self.sn_status.addItem('Опубликовать')
-            self.sn_status.addItem('Опубликовано')
+            self.sn_status.addItem("Не выбрано")
+            self.sn_status.addItem("Не публиковать")
+            self.sn_status.addItem("Опубликовать")
+            self.sn_status.addItem("Опубликовано")
             self.sn_status.setFixedWidth(int(164*system_scale)+1)
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
@@ -1318,16 +1322,16 @@ class ConstWidgetWindow(QWidget):
         lens_max_len = 0
 
         for camera in cameras:
-            self.camera_choose.addItem(f'{camera}')
+            self.camera_choose.addItem(f"{camera}")
             if len(camera) > camera_max_len:
                 camera_max_len = len(camera)
-        self.camera_choose.addItem('All')
+        self.camera_choose.addItem("All")
 
         for lens in lenses:
-            self.lens_choose.addItem(f'{lens}')
+            self.lens_choose.addItem(f"{lens}")
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
-        self.lens_choose.addItem('All')
+        self.lens_choose.addItem("All")
 
         self.camera_choose.setFixedWidth(int((camera_max_len*12)*system_scale)+1)
         self.lens_choose.setFixedWidth(int((lens_max_len*12)*system_scale)+1)
@@ -1353,15 +1357,15 @@ class ConstWidgetWindow(QWidget):
         QtCore.QCoreApplication.processEvents()
 
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 self.fill_sort_date()
-                self.fill_sort_comment('Дата')
-            case 'Соцсети':
+                self.fill_sort_comment("Дата")
+            case "Соцсети":
                 self.fill_sort_socnets()
-                self.fill_sort_comment('Соцсети')
-            case 'Оборудование':
+                self.fill_sort_comment("Соцсети")
+            case "Оборудование":
                 self.fill_sort_equipment()
-                self.fill_sort_comment('Оборудование')
+                self.fill_sort_comment("Оборудование")
 
         self.make_buttons()
 
@@ -1381,7 +1385,7 @@ class ConstWidgetWindow(QWidget):
         Фото повернули, переназначить иконку на повёрнутую
         """
         destination_thumbs = Settings.get_destination_thumb()
-        photo_way_splitted = self.last_clicked.split('/')
+        photo_way_splitted = self.last_clicked.split("/")
         year = photo_way_splitted[-4]
         month = photo_way_splitted[-3]
         day = photo_way_splitted[-2]
@@ -1416,7 +1420,7 @@ class DelPhotoConfirm(QDialog):
 
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Подтверждение удаления')
+        self.setWindowTitle("Подтверждение удаления")
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -1424,18 +1428,18 @@ class DelPhotoConfirm(QDialog):
         self.setLayout(self.layout)
 
         self.lbl = QLabel()
-        self.lbl.setText(f'Вы точно хотите удалить {self.photoname}?')
+        self.lbl.setText(f"Вы точно хотите удалить {self.photoname}?")
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 
@@ -1453,7 +1457,7 @@ class DelPhotoConfirm(QDialog):
         :return:
         """
         logging.info(f"Removing file {photodirectory + '/' + photoname}")
-        os.remove(photodirectory + '/' + photoname)
+        os.remove(photodirectory + "/" + photoname)
         Thumbnail.delete_thumbnail_const(photoname, photodirectory)
         PhotoDataDB.del_from_database(photoname, photodirectory)
         self.clear_info.emit()

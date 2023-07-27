@@ -54,7 +54,7 @@ class EditExifData(QDialog):
 
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Редактирование метаданных')
+        self.setWindowTitle("Редактирование метаданных")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.photoname = photoname
@@ -157,13 +157,13 @@ class EditExifData(QDialog):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet3 = style[f"{theme}"]["stylesheet3"]
+        stylesheet6 = style[f"{theme}"]["stylesheet6"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
 
         try:
             self.setStyleSheet(stylesheet2)
@@ -256,7 +256,7 @@ class EditExifData(QDialog):
         # если координаты ненулевые - центруем карту по координатам фотографии
         if coordinates[0] != 0 and coordinates[1] != 0:
             self.map_gps = folium.Map(location=coordinates, zoom_start=14)
-            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color='red')).add_to(self.map_gps)
+            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color="red")).add_to(self.map_gps)
         else:
             self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
@@ -274,8 +274,8 @@ class EditExifData(QDialog):
 
         # записать выплюнутые в логи координаты в нужные поля
         def write_coords_to_lines(msg: str):
-            self.latitude_fn_line.setText(msg.split(',')[0])
-            self.longitude_fn_line.setText(msg.split(',')[1])
+            self.latitude_fn_line.setText(msg.split(",")[0])
+            self.longitude_fn_line.setText(msg.split(",")[1])
 
         page.coordinates_transfer.connect(lambda msg: write_coords_to_lines(msg))
 
@@ -393,11 +393,11 @@ class EditExifData(QDialog):
             self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
             self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
-            self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[./]\d+')))
+            self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\d+[./]\d+")))
 
             self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
-            self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('\d+[.]\d+')))
+            self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\d+[.]\d+")))
 
             self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
 
@@ -456,10 +456,10 @@ class EditExifData(QDialog):
             self.longitude_fn_lbl.setText("Долгота:")
 
             self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$')))
+                QtCore.QRegExp("^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$")))
 
             self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
-                '^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$')))
+                "^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$")))
 
             self.latitude_fn_lbl.setFont(font12)
             self.longitude_fn_lbl.setFont(font12)
@@ -504,20 +504,20 @@ class EditExifData(QDialog):
 
             self.longitude_dmc_sec_lbl.setText("Секунды:")
 
-            self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:90|[0-9]|[1-8][0-9])')))
+            self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:90|[0-9]|[1-8][0-9])")))
 
-            self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
+            self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:60|[0-9]|[1-5][0-9])")))
 
             self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
+                QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$")))
 
             self.longitude_dmc_deg_line.setValidator(
-                QtGui.QRegExpValidator(QtCore.QRegExp('(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])')))
+                QtGui.QRegExpValidator(QtCore.QRegExp("(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])")))
 
-            self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp('(?:60|[0-9]|[1-5][0-9])')))
+            self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:60|[0-9]|[1-5][0-9])")))
 
             self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-                QtCore.QRegExp('^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$')))
+                QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,2})?))$")))
 
             self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
             self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)
@@ -662,7 +662,7 @@ class EditExifData(QDialog):
             self.photo_rotate_right.setFixedWidth(300)
 
         def make_tab_usercomment():
-            self.usercomment_lbl.setText('Комментарий')
+            self.usercomment_lbl.setText("Комментарий")
             self.usercomment_lbl.setFont(font14)
             self.usercomment_lbl.setStyleSheet(stylesheet2)
             self.usercomment_lbl.setAlignment(Qt.AlignCenter)
@@ -704,11 +704,11 @@ class EditExifData(QDialog):
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
 
-        self.tabs.addTab(self.tab_date, 'Дата')
-        self.tabs.addTab(self.tab_technic_settings, 'Оборудование и настройки')
-        self.tabs.addTab(self.tab_GPS, 'GPS')
-        self.tabs.addTab(self.tab_file, 'Файл')
-        self.tabs.addTab(self.tab_comment, 'Комментарий')
+        self.tabs.addTab(self.tab_date, "Дата")
+        self.tabs.addTab(self.tab_technic_settings, "Оборудование и настройки")
+        self.tabs.addTab(self.tab_GPS, "GPS")
+        self.tabs.addTab(self.tab_file, "Файл")
+        self.tabs.addTab(self.tab_comment, "Комментарий")
 
         self.tabs.setFont(font12)
 
@@ -737,13 +737,13 @@ class EditExifData(QDialog):
         :return:
         """
         # все необходимые метаданные вместе
-        data = Metadata.exif_show_edit(photodirectory + '/' + photoname)
+        data = Metadata.exif_show_edit(photodirectory + "/" + photoname)
 
         # преобразовать данные для отображения
         def date_convert(data_dict):
             try:
-                date_part = data_dict['Время съёмки'].split(' ')[0]
-                time_part = data_dict['Время съёмки'].split(' ')[1]
+                date_part = data_dict["Время съёмки"].split(" ")[0]
+                time_part = data_dict["Время съёмки"].split(" ")[1]
             except IndexError:
                 date_part = "0000:00:00"
                 time_part = "00:00:00"
@@ -774,9 +774,9 @@ class EditExifData(QDialog):
                 second_int = 0
 
             try:
-                zone_pm_sign = data_dict['Часовой пояс'][0]
-                zone_hour_int = int(data_dict['Часовой пояс'][1:].split(':')[0])
-                zone_min_int = int(data_dict['Часовой пояс'][1:].split(':')[1])
+                zone_pm_sign = data_dict["Часовой пояс"][0]
+                zone_hour_int = int(data_dict["Часовой пояс"][1:].split(":")[0])
+                zone_min_int = int(data_dict["Часовой пояс"][1:].split(":")[1])
             except IndexError:
                 zone_pm_sign = "+"
                 zone_hour_int = int("00")
@@ -797,21 +797,21 @@ class EditExifData(QDialog):
                                 self.table.rowCount() * self.table.rowHeight(0) + self.btn_ok.height() + 60)
 
         def fill_equip_set():
-            self.maker_line.setText(str(data['Производитель']))
-            self.camera_line.setText(str(data['Камера']))
-            self.lens_line.setText(str(data['Объектив']))
-            self.time_line.setText(str(data['Выдержка']))
-            self.iso_line.setText(str(data['ISO']))
-            self.fnumber_line.setText(str(data['Диафрагма']))
-            self.flength_line.setText(str(data['Фокусное расстояние']))
-            self.serialbody_line.setText(str(data['Серийный номер камеры']))
-            self.seriallens_line.setText(str(data['Серийный номер объектива']))
+            self.maker_line.setText(str(data["Производитель"]))
+            self.camera_line.setText(str(data["Камера"]))
+            self.lens_line.setText(str(data["Объектив"]))
+            self.time_line.setText(str(data["Выдержка"]))
+            self.iso_line.setText(str(data["ISO"]))
+            self.fnumber_line.setText(str(data["Диафрагма"]))
+            self.flength_line.setText(str(data["Фокусное расстояние"]))
+            self.serialbody_line.setText(str(data["Серийный номер камеры"]))
+            self.seriallens_line.setText(str(data["Серийный номер объектива"]))
 
         def fill_gps():
-            coords_all = data['Координаты']
+            coords_all = data["Координаты"]
             try:
-                latitude_part = float(coords_all.split(',')[0])
-                longitude_part = float(coords_all.split(',')[1])
+                latitude_part = float(coords_all.split(",")[0])
+                longitude_part = float(coords_all.split(",")[1])
             except ValueError:
                 latitude_part = 0
                 longitude_part = 0
@@ -846,15 +846,15 @@ class EditExifData(QDialog):
             self.longitude_dmc_sec_line.setText(str(longitude_sec))
 
         def fill_comment():
-            self.usercomment_text.setText(str(data['Комментарий']))
+            self.usercomment_text.setText(str(data["Комментарий"]))
 
         self.table.setColumnCount(2)
         self.table.setRowCount(len(data)-1)
         keys = list(data.keys())
-        keys.remove('Комментарий')
+        keys.remove("Комментарий")
 
         for parameter in range(len(data)-1):
-            if keys[parameter] != 'Комментарий':
+            if keys[parameter] != "Комментарий":
                 self.table.setItem(parameter, 0, QTableWidgetItem(keys[parameter]))
                 self.table.item(parameter, 0).setFlags(Qt.ItemIsEditable)
                 self.table.setItem(parameter, 1, QTableWidgetItem(str(data[keys[parameter]])))
@@ -882,22 +882,22 @@ class EditExifData(QDialog):
         :param file_directory:
         :return:
         """
-        file_name_splitted = file_name.split('.')
+        file_name_splitted = file_name.split(".")
         self.picture_file_format = file_name_splitted[1]
         file_name_show = file_name_splitted[0]
-        self.old_filename = file_name.split('.')[0]
+        self.old_filename = file_name.split(".")[0]
         self.filename_line.setText(f"{file_name_show}")
 
         size = os.path.getsize(f"{file_directory}/{file_name}")
 
         if size < 1024:
-            str_size = f'{round(size, 3)} байт\n'
+            str_size = f"{round(size, 3)} байт\n"
         elif size < 1024**2:
-            str_size = f'{round(size/1024, 3)} килобайт\n'
+            str_size = f"{round(size/1024, 3)} килобайт\n"
         elif size < 1024**3:
-            str_size = f'{round(size/(1024**2), 3)} мегабайт\n'
+            str_size = f"{round(size/(1024**2), 3)} мегабайт\n"
         else:
-            str_size = f'{round(size/(1024**3), 3)} гигабайт\n'
+            str_size = f"{round(size/(1024**3), 3)} гигабайт\n"
 
         self.file_size_line.setText(str_size)
 
@@ -1081,7 +1081,7 @@ class EditExifData(QDialog):
         if self.new_filename == self.old_filename:
             pass
         else:
-            new_file_name = self.new_filename + '.' + self.picture_file_format
+            new_file_name = self.new_filename + "." + self.picture_file_format
             if os.path.exists(f"{self.photodirectory}/{new_file_name}"):
                 win_err = ErrorsAndWarnings.ExistFileRenameError2(self)
                 win_err.show()
@@ -1126,20 +1126,19 @@ class EditExifData(QDialog):
             date_dict[11] = new_value_dict[11]
             new_value_dict.pop(11)
         # Если меняется дата -> проверка на перенос файла в новую папку
-        # if editing_type == 11 and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
-            if photodirectory[-12:] == 'No_Date_Info':
+            if photodirectory[-12:] == "No_Date_Info":
                 new_date = photodirectory[-38:]
             else:
                 new_date = photodirectory[-10:]
             old_date = new_text[:10]
-            new_date_splitted = new_date.split('/')
-            old_date_splitted = old_date.split(':')
+            new_date_splitted = new_date.split("/")
+            old_date_splitted = old_date.split(":")
             if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
                 rewriting(photoname, photodirectory, new_value_dict)
                 rewriting(photoname, photodirectory, date_dict)
                 self.edited_signal_no_move.emit()
             else:   # другая дата, требуется перенос файла
-                destination = Settings.get_destination_media() + '/Media/Photo/const'
+                destination = Settings.get_destination_media() + "/Media/Photo/const"
                 year_new = new_date_splitted[0]
                 month_new = new_date_splitted[1]
                 day_new = new_date_splitted[2]
@@ -1148,20 +1147,20 @@ class EditExifData(QDialog):
                 month_old = old_date_splitted[1]
                 day_old = old_date_splitted[2]
 
-                new_file_fullname = destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new) + '/' + photoname
-                if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old)):    # папки назначения нет -> сравнивать не надо
-                    if not os.path.isdir(destination + '/' + str(year_old)):
-                        os.mkdir(destination + '/' + str(year_old))
-                    if not os.path.isdir(destination + '/' + str(year_old) + '/' + str(month_old)):
-                        os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old))
-                    os.mkdir(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
+                new_file_fullname = destination + "/" + str(year_new) + "/" + str(month_new) + "/" + str(day_new) + "/" + photoname
+                if not os.path.isdir(destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old)):    # папки назначения нет -> сравнивать не надо
+                    if not os.path.isdir(destination + "/" + str(year_old)):
+                        os.mkdir(destination + "/" + str(year_old))
+                    if not os.path.isdir(destination + "/" + str(year_old) + "/" + str(month_old)):
+                        os.mkdir(destination + "/" + str(year_old) + "/" + str(month_old))
+                    os.mkdir(destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old))
                     rewriting(photoname, photodirectory, new_value_dict)
                     rewriting(photoname, photodirectory, date_dict)
-                    shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                    PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
-                                                       destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
+                    shutil.move(new_file_fullname, destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old))
+                    PhotoDataDB.catalog_after_transfer(photoname, destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old),
+                                                       destination + "/" + str(year_new) + "/" + str(month_new) + "/" + str(day_new))
                     Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
-                    if self.chosen_group_type == 'Дата':
+                    if self.chosen_group_type == "Дата":
                         self.movement_signal.emit(year_old, month_old, day_old)
                     else:
                         pass
@@ -1169,14 +1168,14 @@ class EditExifData(QDialog):
                         # заново присвоить ему objectName, чтобы снять с его метаданные
                     self.close()
                 else:
-                    if not os.path.exists(destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old) + '/' + photoname):
+                    if not os.path.exists(destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old) + "/" + photoname):
                         rewriting(photoname, photodirectory, new_value_dict)
                         rewriting(photoname, photodirectory, date_dict)
-                        shutil.move(new_file_fullname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old))
-                        PhotoDataDB.catalog_after_transfer(photoname, destination + '/' + str(year_old) + '/' + str(month_old) + '/' + str(day_old),
-                                                           destination + '/' + str(year_new) + '/' + str(month_new) + '/' + str(day_new))
+                        shutil.move(new_file_fullname, destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old))
+                        PhotoDataDB.catalog_after_transfer(photoname, destination + "/" + str(year_old) + "/" + str(month_old) + "/" + str(day_old),
+                                                           destination + "/" + str(year_new) + "/" + str(month_new) + "/" + str(day_new))
                         Thumbnail.transfer_diff_date_thumbnail(photoname, new_date_splitted, old_date_splitted)
-                        if self.chosen_group_type == 'Дата':
+                        if self.chosen_group_type == "Дата":
                             self.movement_signal.emit(year_old, month_old, day_old)
                         else:
                             pass
@@ -1187,7 +1186,7 @@ class EditExifData(QDialog):
                     else:
                         window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, new_text)
                         window_equal.show()
-                        if self.chosen_group_type == 'Дата':
+                        if self.chosen_group_type == "Дата":
                             window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit(year_old, month_old, day_old))
                         else:
                             pass
@@ -1202,41 +1201,41 @@ class EditExifData(QDialog):
         Записать новые метаданные
         """
         def accepted():
-            if 'No_Date_Info' in self.photodirectory:
+            if "No_Date_Info" in self.photodirectory:
                 Metadata.clear_exif(self.photoname, self.photodirectory)
                 PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
                 self.get_metadata(self.photoname, self.photodirectory)
                 self.close()
             else:
-                if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/'):
-                    os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/')
-                    os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/')
-                    os.mkdir(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/')
+                if not os.path.exists(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/"):
+                    os.mkdir(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/")
+                    os.mkdir(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/")
+                    os.mkdir(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/")
 
-                photodirectory_splitted = self.photodirectory.split('/')
+                photodirectory_splitted = self.photodirectory.split("/")
                 new_date_splitted = [photodirectory_splitted[-3], photodirectory_splitted[-2], photodirectory_splitted[-1]]
-                old_date_splitted = ['No_Date_Info', 'No_Date_Info', 'No_Date_Info']
-                # self.photodirectory = 'C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30'
-                # self.photoname = 'IMG_0866.jpg'
-                if not os.path.exists(Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname):
+                old_date_splitted = ["No_Date_Info", "No_Date_Info", "No_Date_Info"]
+                # self.photodirectory = "C:/Users/user/PycharmProjects/PhotoProgramm/Media/Photo/const/2021/10/30"
+                # self.photoname = "IMG_0866.jpg"
+                if not os.path.exists(Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname):
                     Metadata.clear_exif(self.photoname, self.photodirectory)
                     PhotoDataDB.clear_metadata(self.photoname, self.photodirectory)
-                    shutil.move(self.photodirectory + '/' + self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/' + self.photoname)
-                    PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info', self.photodirectory)
+                    shutil.move(self.photodirectory + "/" + self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info/" + self.photoname)
+                    PhotoDataDB.catalog_after_transfer(self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info", self.photodirectory)
                     Thumbnail.transfer_diff_date_thumbnail(self.photoname, new_date_splitted, old_date_splitted)
-                    self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info')
+                    self.movement_signal.emit("No_Date_Info", "No_Date_Info", "No_Date_Info")
                 else:
                     window_equal = EqualNames(self, self.photoname, old_date_splitted, new_date_splitted, "No_Date_Info:No_Date_Info:No_Date_Info")
                     window_equal.show()
-                    if self.chosen_group_type == 'Дата':
-                        window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+                    if self.chosen_group_type == "Дата":
+                        window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit("No_Date_Info", "No_Date_Info", "No_Date_Info"))
                     else:
                         pass
 
                     window_equal.file_rename_transfer_signal.connect(lambda: self.close())
-                    window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit('No_Date_Info', 'No_Date_Info', 'No_Date_Info'))
+                    window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit("No_Date_Info", "No_Date_Info", "No_Date_Info"))
 
-                self.get_metadata(self.photoname, Settings.get_destination_media() + '/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info')
+                self.get_metadata(self.photoname, Settings.get_destination_media() + "/Media/Photo/const/No_Date_Info/No_Date_Info/No_Date_Info")
             self.close()
             self.edited_signal.emit()
 
@@ -1288,12 +1287,12 @@ class EditExifData(QDialog):
             case _:
                 im_flipped = im
 
-        im_flipped.save(f"{self.photodirectory}/{self.photoname}", 'jpeg', quality=95, subsampling=0)
+        im_flipped.save(f"{self.photodirectory}/{self.photoname}", "jpeg", quality=95, subsampling=0)
         im.close()
         im_flipped.close()
 
         for key in list(file_exif.keys()):
-            if 'EXIF' in key or 'Composite' in key:
+            if "EXIF" in key or "Composite" in key:
                 pass
             else:
                 file_exif.pop(key)
@@ -1305,10 +1304,10 @@ class EditExifData(QDialog):
 
         modify_dict = {}
         try:
-            modify_dict['EXIF:GPSLatitudeRef'] = file_exif['EXIF:GPSLatitudeRef']
-            modify_dict['EXIF:GPSLatitude'] = file_exif['EXIF:GPSLatitude']
-            modify_dict['EXIF:GPSLongitudeRef'] = file_exif['EXIF:GPSLongitudeRef']
-            modify_dict['EXIF:GPSLongitude'] = file_exif['EXIF:GPSLongitude']
+            modify_dict["EXIF:GPSLatitudeRef"] = file_exif["EXIF:GPSLatitudeRef"]
+            modify_dict["EXIF:GPSLatitude"] = file_exif["EXIF:GPSLatitude"]
+            modify_dict["EXIF:GPSLongitudeRef"] = file_exif["EXIF:GPSLongitudeRef"]
+            modify_dict["EXIF:GPSLongitude"] = file_exif["EXIF:GPSLongitude"]
 
             with exiftool.ExifToolHelper() as et:
                 et.set_tags(f"{self.photodirectory}/{self.photoname}",
@@ -1321,12 +1320,12 @@ class EditExifData(QDialog):
                                                                                       QtCore.Qt.KeepAspectRatio)
         self.thumbnail.setPixmap(self.pixmap)
 
-        if 'const' in self.photodirectory.split('/'):
+        if "const" in self.photodirectory.split("/"):
             Thumbnail.delete_thumbnail_const(self.photoname, self.photodirectory)
             Thumbnail.make_const_thumbnails(self.photodirectory, self.photoname)
-        elif 'alone' in self.photodirectory.split('/'):
+        elif "alone" in self.photodirectory.split("/"):
             Thumbnail.delete_thumbnail_alone(self.photoname, self.photodirectory)
-            Thumbnail.make_alone_thumbnails(self.photodirectory.split('/')[-1], f"{self.photodirectory}/{self.photoname}", self.photoname)
+            Thumbnail.make_alone_thumbnails(self.photodirectory.split("/")[-1], f"{self.photodirectory}/{self.photoname}", self.photoname)
 
         QtCore.QCoreApplication.processEvents()
 
@@ -1343,13 +1342,13 @@ class EqualNames(QDialog):
         super(EqualNames, self).__init__(parent)
         self.full_exif_date = full_exif_date
         # Создание окна
-        self.setWindowTitle('Конфликт имён файлов')
+        self.setWindowTitle("Конфликт имён файлов")
         self.resize(600, 90)
         # new - в котором изменили дату
         # old - который уже есть в папке с этой датой
         self.file_full_name = filesname
-        self.filename = filesname.split('.')[0]
-        self.format = filesname.split('.')[1]
+        self.filename = filesname.split(".")[0]
+        self.format = filesname.split(".")[1]
         self.old_date = old_date
         self.new_date = new_date
 
@@ -1363,20 +1362,20 @@ class EqualNames(QDialog):
 
     def make_gui(self) -> None:
         self.text_lbl = QLabel(self)
-        self.text_lbl.setText('В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?')
+        self.text_lbl.setText("В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?")
         self.text_lbl.setAlignment(Qt.AlignCenter)
         self.text_lbl.setFont(font12)
         self.text_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.text_lbl, 0, 0, 1, 4)
 
         self.old_top_lbl = QLabel(self)
-        self.old_top_lbl.setText('Фото уже существующее в папке')
+        self.old_top_lbl.setText("Фото уже существующее в папке")
         self.old_top_lbl.setFont(font12)
         self.old_top_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_top_lbl, 1, 0, 1, 2)
 
         self.new_top_lbl = QLabel(self)
-        self.new_top_lbl.setText('Фото перемещаемое из-за изменения даты')
+        self.new_top_lbl.setText("Фото перемещаемое из-за изменения даты")
         self.new_top_lbl.setFont(font12)
         self.new_top_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.new_top_lbl, 1, 2, 1, 2)
@@ -1390,7 +1389,7 @@ class EqualNames(QDialog):
         self.layout.addWidget(self.pic_new, 2, 2, 1, 2)
 
         self.old_checkbox = QCheckBox(self)
-        self.old_checkbox.setObjectName('old_checkbox')
+        self.old_checkbox.setObjectName("old_checkbox")
         self.layout.addWidget(self.old_checkbox, 3, 0, 1, 1)
 
         self.old_name = QLineEdit(self)
@@ -1401,9 +1400,9 @@ class EqualNames(QDialog):
         self.old_name.setDisabled(True)
 
         self.new_checkbox = QCheckBox(self)
-        self.new_checkbox.setObjectName('new_checkbox')
+        self.new_checkbox.setObjectName("new_checkbox")
         self.layout.addWidget(self.new_checkbox, 3, 2, 1, 1)
-        self.new_checkbox.setCheckState(2)
+        self.new_checkbox.setCheckState(QtCore.Qt.Checked)
 
         self.new_name = QLineEdit(self)
         self.new_name.setText(self.filename)
@@ -1415,14 +1414,14 @@ class EqualNames(QDialog):
         self.new_checkbox.stateChanged.connect(self.check_disable)
 
         self.btn_ok = QPushButton(self)
-        self.btn_ok.setText('Переименовать')
+        self.btn_ok.setText("Переименовать")
         self.btn_ok.setFont(font12)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 4, 0, 1, 2)
         self.btn_ok.clicked.connect(lambda: self.ok_check(self.new_name.text(), self.old_name.text()))
 
         self.btn_cnl = QPushButton(self)
-        self.btn_cnl.setText('Не переносить (отменить изменение даты)')
+        self.btn_cnl.setText("Не переносить (отменить изменение даты)")
         self.btn_cnl.setFont(font12)
         self.btn_cnl.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_cnl, 4, 2, 1, 2)
@@ -1432,8 +1431,8 @@ class EqualNames(QDialog):
         """
         Показать в уменьшенном виде 2 фото, у которых совпали названия
         """
-        self.old_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/'
-        self.new_photo_dir = Settings.get_destination_media() + '/Media/Photo/const/' + f'{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/'
+        self.old_photo_dir = Settings.get_destination_media() + "/Media/Photo/const/" + f"{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/"
+        self.new_photo_dir = Settings.get_destination_media() + "/Media/Photo/const/" + f"{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/"
         pixmap_old = QtGui.QPixmap(self.old_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
         pixmap_new = QtGui.QPixmap(self.new_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
         self.pic_old.setPixmap(pixmap_old)
@@ -1444,24 +1443,24 @@ class EqualNames(QDialog):
         Какое фото выбрано для переименования, а какое остаётся со своим имеем
         """
         last_changed = self.sender().objectName()
-        if last_changed == 'old_checkbox':
+        if last_changed == "old_checkbox":
             if self.old_checkbox.checkState():  # поставили галочку
                 self.new_name.setDisabled(True)
                 self.old_name.setDisabled(False)
-                self.new_checkbox.setCheckState(0)
+                self.new_checkbox.setCheckState(QtCore.Qt.Unchecked)
             else:
                 self.new_name.setDisabled(False)
                 self.old_name.setDisabled(True)
-                self.new_checkbox.setCheckState(2)
-        else:   # last_changed == 'new_checkbox'
+                self.new_checkbox.setCheckState(QtCore.Qt.Checked)
+        else:   # last_changed == "new_checkbox"
             if self.new_checkbox.checkState():  # поставили галочку
                 self.new_name.setDisabled(False)
                 self.old_name.setDisabled(True)
-                self.old_checkbox.setCheckState(0)
+                self.old_checkbox.setCheckState(QtCore.Qt.Unchecked)
             else:
                 self.new_name.setDisabled(True)
                 self.old_name.setDisabled(False)
-                self.old_checkbox.setCheckState(2)
+                self.old_checkbox.setCheckState(QtCore.Qt.Checked)
 
     def ok_check(self, new_enter_text: str, old_enter_text: str) -> None:
         """
@@ -1478,23 +1477,23 @@ class EqualNames(QDialog):
         modify_dict = {11: self.full_exif_date}
 
         if self.new_checkbox.checkState():  # переименовывается переносимый файл
-            new_new_name = self.new_name.text() + '.' + self.format
+            new_new_name = self.new_name.text() + "." + self.format
 
             if os.path.exists(self.old_photo_dir + new_new_name):
                 err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
                 err_win.show()
                 return
 
-            os.rename(self.new_photo_dir + self.file_full_name, self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg')
-            shutil.move(self.new_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg', self.old_photo_dir)
-            os.rename(self.old_photo_dir + 'aaabbbcccddddeeefffggghhh.jpg', self.old_photo_dir + new_new_name)
+            os.rename(self.new_photo_dir + self.file_full_name, self.new_photo_dir + "aaabbbcccddddeeefffggghhh.jpg")
+            shutil.move(self.new_photo_dir + "aaabbbcccddddeeefffggghhh.jpg", self.old_photo_dir)
+            os.rename(self.old_photo_dir + "aaabbbcccddddeeefffggghhh.jpg", self.old_photo_dir + new_new_name)
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_new_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 0)
-            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, 'new')
+            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_new_name, "new")
             Metadata.exif_rewrite_edit(new_new_name, self.old_photo_dir, modify_dict)
             PhotoDataDB.edit_in_database(new_new_name, self.old_photo_dir[:-1], modify_dict)
         else:       # переименовывается файл в папке назначения
-            new_old_name = self.old_name.text() + '.' + self.format
+            new_old_name = self.old_name.text() + "." + self.format
 
             if os.path.exists(self.old_photo_dir + new_old_name):
                 err_win = ErrorsAndWarnings.ExistFileRenameError2(self)
@@ -1505,7 +1504,7 @@ class EqualNames(QDialog):
             shutil.move(self.new_photo_dir + self.file_full_name, self.old_photo_dir)
 
             PhotoDataDB.filename_after_transfer(self.file_full_name, new_old_name, self.new_photo_dir[:-1], self.old_photo_dir[:-1], 1)
-            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, 'old')
+            Thumbnail.transfer_equal_date_thumbnail(self.file_full_name, self.file_full_name, self.old_date, self.new_date, new_old_name, "old")
             Metadata.exif_rewrite_edit(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
             PhotoDataDB.edit_in_database(self.file_full_name, self.old_photo_dir[:-1], modify_dict)
         self.file_rename_transfer_signal.emit()
@@ -1523,7 +1522,7 @@ class ConfirmClear(QDialog):
         super(ConfirmClear, self).__init__(parent)
         self.setStyleSheet(stylesheet2)
 
-        self.setWindowTitle('Подтверждение очистки')
+        self.setWindowTitle("Подтверждение очистки")
         self.resize(400, 100)
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
@@ -1531,18 +1530,18 @@ class ConfirmClear(QDialog):
         self.setLayout(self.layout)
 
         self.lbl = QLabel()
-        self.lbl.setText(f'Вы точно хотите очистить метаданные?')
+        self.lbl.setText(f"Вы точно хотите очистить метаданные?")
         self.lbl.setFont(font12)
         self.lbl.setStyleSheet(stylesheet2)
         self.lbl.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.lbl, 0, 0, 1, 2)
 
         btn_ok = QPushButton(self)
-        btn_ok.setText('Подтверждение')
+        btn_ok.setText("Подтверждение")
         btn_ok.setFont(font12)
         btn_ok.setStyleSheet(stylesheet8)
         btn_cancel = QPushButton(self)
-        btn_cancel.setText('Отмена')
+        btn_cancel.setText("Отмена")
         btn_cancel.setFont(font12)
         btn_cancel.setStyleSheet(stylesheet8)
 

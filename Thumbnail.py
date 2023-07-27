@@ -31,21 +31,21 @@ def make_const_thumbnails(directory: str, file: str) -> None:
     :return: в нужной папке в каталоге хранения миниатюр создаётся миниатюра добавленной в основной каталог фотографии.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    directory_splitted = directory.split('/')
+    directory_splitted = directory.split("/")
     year = directory_splitted[-3]
     month = directory_splitted[-2]
     day = directory_splitted[-1]
-    if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + year):
-        os.mkdir(destination_thumbs + '/thumbnail/const/' + year)
-    if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month):
-        os.mkdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month)
-    if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month + '/' + day):
-        os.mkdir(destination_thumbs + '/thumbnail/const/' + year + '/' + month + '/' + day)
+    if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + year):
+        os.mkdir(destination_thumbs + "/thumbnail/const/" + year)
+    if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + year + "/" + month):
+        os.mkdir(destination_thumbs + "/thumbnail/const/" + year + "/" + month)
+    if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + year + "/" + month + "/" + day):
+        os.mkdir(destination_thumbs + "/thumbnail/const/" + year + "/" + month + "/" + day)
 
-    image = Image.open(r"{}".format(directory + '/' + file))
+    image = Image.open(r"{}".format(directory + "/" + file))
     image.thumbnail((250, 250))
-    date = year + '/' + month + '/' + day
-    image.save(destination_thumbs + f'/thumbnail/const/{date}/thumbnail_{file}')
+    date = year + "/" + month + "/" + day
+    image.save(destination_thumbs + f"/thumbnail/const/{date}/thumbnail_{file}")
     image.close()
 
 
@@ -59,12 +59,12 @@ def make_alone_thumbnails(directory_lastname: str, photofile: str, photofile_las
     :return:
     """
     destination_thumbs = Settings.get_destination_thumb()
-    if not os.path.isdir(destination_thumbs + '/thumbnail/alone/' + directory_lastname):
-        os.mkdir(destination_thumbs + '/thumbnail/alone/' + directory_lastname)
+    if not os.path.isdir(destination_thumbs + "/thumbnail/alone/" + directory_lastname):
+        os.mkdir(destination_thumbs + "/thumbnail/alone/" + directory_lastname)
 
     image = Image.open(r"{}".format(photofile))
     image.thumbnail((250, 250))
-    image.save(destination_thumbs + '/thumbnail/alone/' + directory_lastname + f'/thumbnail_{photofile_lastname}')
+    image.save(destination_thumbs + "/thumbnail/alone/" + directory_lastname + f"/thumbnail_{photofile_lastname}")
     image.close()
 
 
@@ -81,24 +81,24 @@ def research_flaw_thumbnails(photo_directory: str, thumbnail_directory: str) -> 
     чтобы память не занимали впустую.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    thumbnail_directory_splitted = thumbnail_directory.split('/')
-    if '/const/' in thumbnail_directory:
+    thumbnail_directory_splitted = thumbnail_directory.split("/")
+    if "/const/" in thumbnail_directory:
         thumb_year = thumbnail_directory_splitted[-3]
         thumb_month = thumbnail_directory_splitted[-2]
         thumb_day = thumbnail_directory_splitted[-1]
         if not os.path.isdir(thumbnail_directory):
-            if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month):
-                if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + thumb_year):
-                    os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year)
+            if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + thumb_year + "/" + thumb_month):
+                if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + thumb_year):
+                    os.mkdir(destination_thumbs + "/thumbnail/const/" + thumb_year)
                 else:
-                    os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month)
+                    os.mkdir(destination_thumbs + "/thumbnail/const/" + thumb_year + "/" + thumb_month)
             else:
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + thumb_year + '/' + thumb_month + '/' + thumb_day)
+                os.mkdir(destination_thumbs + "/thumbnail/const/" + thumb_year + "/" + thumb_month + "/" + thumb_day)
 
-    elif '/alone/' in thumbnail_directory:
+    elif "/alone/" in thumbnail_directory:
         alone_dir = thumbnail_directory_splitted[-1]
         if not os.path.isdir(thumbnail_directory):
-            os.mkdir(destination_thumbs + '/thumbnail/alone/' + alone_dir)
+            os.mkdir(destination_thumbs + "/thumbnail/alone/" + alone_dir)
 
     thumbsfull_already = get_images_list(thumbnail_directory)
     thumbs_already = list()
@@ -124,14 +124,14 @@ def make_or_del_thumbnails(flaw_thumbnails: list, excess_thumbs: list, photo_dir
     """
     if flaw_thumbnails:
         for file in flaw_thumbnails:
-            image = Image.open(r"{}".format(photo_directory + '/' + file))
+            image = Image.open(r"{}".format(photo_directory + "/" + file))
             image.thumbnail((250, 250))
-            image.save(thumbnail_directory + f'/thumbnail_{file}')
+            image.save(thumbnail_directory + f"/thumbnail_{file}")
             image.close()
 
     if excess_thumbs:
         for file in excess_thumbs:
-            os.remove(thumbnail_directory + '/thumbnail_' + file)
+            os.remove(thumbnail_directory + "/thumbnail_" + file)
 
 
 def make_thumbnails_view(photo_file: str) -> None:
@@ -144,13 +144,13 @@ def make_thumbnails_view(photo_file: str) -> None:
     :return: миниатюра для переданного фото (а в общем контексте - всем выбранным для разового просмотра файла) создана.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    photo_splitted = photo_file.split('/')
+    photo_splitted = photo_file.split("/")
     photo_name = photo_splitted[-1]     # C:/Users/Александр/Desktop/PVF/Фото/2022/Июнь/25Настя/IMG_4090.jpg
     image = Image.open(r"{}".format(photo_file))
     image.thumbnail((250, 250))
-    image.save(destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
+    image.save(destination_thumbs + "/thumbnail/view" + f"/thumbnail_{photo_name}")
     image.close()
-    Metadata.onlyshow_thumbnail_orientation(photo_file, destination_thumbs + '/thumbnail/view' + f'/thumbnail_{photo_name}')
+    Metadata.onlyshow_thumbnail_orientation(photo_file, destination_thumbs + "/thumbnail/view" + f"/thumbnail_{photo_name}")
 
 
 def delete_exists() -> None:
@@ -161,9 +161,9 @@ def delete_exists() -> None:
     :return: папка view в диреткории хранения миниатюр пуста.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    existing_thumbs = get_images_list(destination_thumbs + '/thumbnail/view/')
+    existing_thumbs = get_images_list(destination_thumbs + "/thumbnail/view/")
     for file in existing_thumbs:
-        os.remove(destination_thumbs + '/thumbnail/view/' + file)
+        os.remove(destination_thumbs + "/thumbnail/view/" + file)
 
 
 def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
@@ -175,10 +175,10 @@ def delete_thumbnail_const(photoname: str, photodirectory: str) -> None:
     :return: миниатюра удалена.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    dir_splitted = photodirectory.split('/')
-    date_part = dir_splitted[-3]+'/'+dir_splitted[-2]+'/'+dir_splitted[-1]
-    thumb_dir = destination_thumbs + '/thumbnail/const/' + date_part
-    os.remove(thumb_dir + '/thumbnail_' + photoname)
+    dir_splitted = photodirectory.split("/")
+    date_part = dir_splitted[-3]+"/"+dir_splitted[-2]+"/"+dir_splitted[-1]
+    thumb_dir = destination_thumbs + "/thumbnail/const/" + date_part
+    os.remove(thumb_dir + "/thumbnail_" + photoname)
 
 
 def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[str], new_date: list[str], rename_name: str, chosen: str) -> None:
@@ -197,27 +197,27 @@ def transfer_equal_date_thumbnail(old_name: str, new_name: str, old_date: list[s
     """
     destination_thumbs = Settings.get_destination_thumb()
 
-    if chosen == 'old':    # переименовывают файл уже находящийся в папке
+    if chosen == "old":    # переименовывают файл уже находящийся в папке
         try:
-            os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
-                      destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
+            os.rename(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + f"/thumbnail_{old_name}",
+                      destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + f"/thumbnail_{rename_name}")
         except FileExistsError:
-            os.remove(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
-            os.rename(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{old_name}',
-                      destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + f'/thumbnail_{rename_name}')
-        shutil.move(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
-                    destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
-    else:   # chosen == 'new' - переименовывают переносимый файл
+            os.remove(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + f"/thumbnail_{rename_name}")
+            os.rename(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + f"/thumbnail_{old_name}",
+                      destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + f"/thumbnail_{rename_name}")
+        shutil.move(destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{new_name}",
+                    destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + "/")
+    else:   # chosen == "new" - переименовывают переносимый файл
         try:
-            os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
-                      destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
+            os.rename(destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{new_name}",
+                      destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{rename_name}")
         except FileExistsError:
-            os.remove(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
-            os.rename(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{new_name}',
-                      destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}')
+            os.remove(destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{rename_name}")
+            os.rename(destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{new_name}",
+                      destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{rename_name}")
 
-        shutil.move(destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + f'/thumbnail_{rename_name}',
-                    destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
+        shutil.move(destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + f"/thumbnail_{rename_name}",
+                    destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + "/")
 
 
 def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: list[str]) -> None:
@@ -230,19 +230,19 @@ def transfer_diff_date_thumbnail(photoname: str, new_date: list[str], old_date: 
     :return: миниатюра перенесена.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    new_dir = destination_thumbs + '/thumbnail/const/' + new_date[0] + '/' + new_date[1] + '/' + new_date[2] + '/thumbnail_'
-    old_dir = destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/'
+    new_dir = destination_thumbs + "/thumbnail/const/" + new_date[0] + "/" + new_date[1] + "/" + new_date[2] + "/thumbnail_"
+    old_dir = destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + "/"
     if not os.path.isdir(old_dir):
-        if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1]):
-            if not os.path.isdir(destination_thumbs + '/thumbnail/const/' + old_date[0]):
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/')
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/')
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
+        if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1]):
+            if not os.path.isdir(destination_thumbs + "/thumbnail/const/" + old_date[0]):
+                os.mkdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/")
+                os.mkdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/")
+                os.mkdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + "/")
             else:
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/')
-                os.mkdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
+                os.mkdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/")
+                os.mkdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + "/")
         else:
-            os.mkdir(destination_thumbs + '/thumbnail/const/' + old_date[0] + '/' + old_date[1] + '/' + old_date[2] + '/')
+            os.mkdir(destination_thumbs + "/thumbnail/const/" + old_date[0] + "/" + old_date[1] + "/" + old_date[2] + "/")
     shutil.move(new_dir + photoname, old_dir)
 
 
@@ -255,10 +255,10 @@ def delete_thumbnail_alone(photoname: str, photodirectory: str) -> None:
     :return: миниатюра удалена.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    dir_splitted = photodirectory.split('/')
+    dir_splitted = photodirectory.split("/")
     dir_name = dir_splitted[-1]
-    thumb_dir = destination_thumbs + '/thumbnail/alone/' + dir_name
-    os.remove(thumb_dir + '/thumbnail_' + photoname)
+    thumb_dir = destination_thumbs + "/thumbnail/alone/" + dir_name
+    os.remove(thumb_dir + "/thumbnail_" + photoname)
 
 
 def delete_thumb_dir(photodirectory: str) -> None:
@@ -269,14 +269,14 @@ def delete_thumb_dir(photodirectory: str) -> None:
     :return: удалены и миниатюры, и их папка.
     """
     destination_thumbs = Settings.get_destination_thumb()
-    photo_dir_splitted = photodirectory.split('/')
+    photo_dir_splitted = photodirectory.split("/")
     dir_name = photo_dir_splitted[-1]
-    thumb_dir = destination_thumbs + '/thumbnail/alone/' + dir_name
+    thumb_dir = destination_thumbs + "/thumbnail/alone/" + dir_name
     thumb_list = get_images_list(thumb_dir)
     for file in thumb_list:
-        os.remove(destination_thumbs + f'/thumbnail/alone/{dir_name}/{file}')
+        os.remove(destination_thumbs + f"/thumbnail/alone/{dir_name}/{file}")
 
-    os.rmdir(destination_thumbs + f'/thumbnail/alone/{dir_name}')
+    os.rmdir(destination_thumbs + f"/thumbnail/alone/{dir_name}")
 
 
 def file_rename(file_directory: str, old_file_name: str, new_file_name: str) -> None:
@@ -287,12 +287,12 @@ def file_rename(file_directory: str, old_file_name: str, new_file_name: str) -> 
     :param new_file_name: новое название файла
     """
     destination_thumbs = Settings.get_destination_thumb()
-    dir_splitted = file_directory.split('/')
-    if 'const' in dir_splitted:
-        catalog_part = '/thumbnail/const/' + dir_splitted[-3]+'/'+dir_splitted[-2]+'/'+dir_splitted[-1] + '/'
-    else:    # 'alone' in dir_splitted
-        catalog_part = '/thumbnail/alone/' + dir_splitted[-1] + '/'
+    dir_splitted = file_directory.split("/")
+    if "const" in dir_splitted:
+        catalog_part = "/thumbnail/const/" + dir_splitted[-3]+"/"+dir_splitted[-2]+"/"+dir_splitted[-1] + "/"
+    else:    # "alone" in dir_splitted
+        catalog_part = "/thumbnail/alone/" + dir_splitted[-1] + "/"
     thumb_dir = destination_thumbs + catalog_part
-    old_thumb_file = f'thumbnail_{old_file_name}'
-    new_thumb_file = f'thumbnail_{new_file_name}'
+    old_thumb_file = f"thumbnail_{old_file_name}"
+    new_thumb_file = f"thumbnail_{new_file_name}"
     shutil.move(thumb_dir + old_thumb_file, thumb_dir + new_thumb_file)

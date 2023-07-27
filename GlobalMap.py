@@ -45,7 +45,7 @@ class GlobalMapWidget(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Настройки')
+        self.setWindowTitle("Настройки")
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.stylesheet_color()
 
@@ -78,7 +78,7 @@ class GlobalMapWidget(QWidget):
         self.set_sort_layout()
 
         self.btn_show = QPushButton(self)
-        self.btn_show.setText('Показать')
+        self.btn_show.setText("Показать")
         self.btn_show.setFont(font14)
         self.btn_show.setStyleSheet(stylesheet8)
         self.btn_show.setFixedWidth(int(100*system_scale)+1)
@@ -100,15 +100,15 @@ class GlobalMapWidget(QWidget):
 
         theme = Settings.get_theme_color()
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet3 = style[f'{theme}']['stylesheet3']
-        stylesheet6 = style[f'{theme}']['stylesheet6']
-        stylesheet7 = style[f'{theme}']['stylesheet7']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet9 = style[f'{theme}']['stylesheet9']
-        loading_icon = style[f'{theme}']['loading_icon']
-        map_tiles = style[f'{theme}']['map_tiles']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet3 = style[f"{theme}"]["stylesheet3"]
+        stylesheet6 = style[f"{theme}"]["stylesheet6"]
+        stylesheet7 = style[f"{theme}"]["stylesheet7"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet9 = style[f"{theme}"]["stylesheet9"]
+        loading_icon = style[f"{theme}"]["loading_icon"]
+        map_tiles = style[f"{theme}"]["map_tiles"]
 
         try:
             self.groupbox_sort.setStyleSheet(stylesheet2)
@@ -133,33 +133,33 @@ class GlobalMapWidget(QWidget):
         self.progressbar.show()
         self.progressbar.setMaximum(100)
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 year = self.date_year.currentText()
                 month = self.date_month.currentText()
                 day = self.date_day.currentText()
                 if not year or not month or not day:
                     return
                 else:
-                    full_paths = PhotoDataDB.get_date_photo_list(year, month, day, False, '')
-            case 'Соцсети':
+                    full_paths = PhotoDataDB.get_date_photo_list(year, month, day, False, "")
+            case "Соцсети":
                 socnet = self.socnet_choose.currentText()
                 status = self.sn_status.currentText()
-                full_paths = PhotoDataDB.get_sn_photo_list(socnet, status, False, '')
-            case 'Оборудование':
+                full_paths = PhotoDataDB.get_sn_photo_list(socnet, status, False, "")
+            case "Оборудование":
                 camera = self.camera_choose.currentText()
                 lens = self.lens_choose.currentText()
 
-                if camera == 'All':
-                    camera_exif = 'All'
+                if camera == "All":
+                    camera_exif = "All"
                 else:
-                    camera_exif = Metadata.equip_name_check_reverse(camera, 'camera')
+                    camera_exif = Metadata.equip_name_check_reverse(camera, "camera")
 
-                if lens == 'All':
-                    lens_exif = 'All'
+                if lens == "All":
+                    lens_exif = "All"
                 else:
-                    lens_exif = Metadata.equip_name_check_reverse(lens, 'lens')
+                    lens_exif = Metadata.equip_name_check_reverse(lens, "lens")
 
-                full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, '')
+                full_paths = PhotoDataDB.get_equip_photo_list(camera_exif, camera, lens_exif, lens, False, "")
             case _:
                 return
 
@@ -207,7 +207,7 @@ class GlobalMapWidget(QWidget):
                             '});'
                             'marker.setIcon(icon);'
                             'return marker};')
-                options_dict = {'spiderfyOnMaxZoom': False, 'singleMarkerMode': True}
+                options_dict = {"spiderfyOnMaxZoom": False, "singleMarkerMode": True}
 
                 folium.plugins.FastMarkerCluster(locations, callback=callback, options=options_dict).add_to(self.map_gps)
                 QtCore.QCoreApplication.processEvents()
@@ -217,7 +217,7 @@ class GlobalMapWidget(QWidget):
                 for photo in map_points_combo:
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
-                    folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color='red', icon='glyphicon glyphicon-camera')).add_to(self.marker_cluster)
+                    folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color="red", icon="glyphicon glyphicon-camera")).add_to(self.marker_cluster)
 
                     self.progressbar.setValue(int((progress / len(map_points_combo)) * 99 + 1))
                     self.progressbar.update()
@@ -260,13 +260,13 @@ class GlobalMapWidget(QWidget):
             self.date_year.clear()
             j = 0
             k = 0
-            dir_to_find_year = Settings.get_destination_media() + '/Media/Photo/const/'
+            dir_to_find_year = Settings.get_destination_media() + "/Media/Photo/const/"
             all_files_and_dirs = os.listdir(dir_to_find_year)
             dir_list = list()
             for name in all_files_and_dirs:
                 if os.path.isdir(dir_to_find_year + name):
                     if len(os.listdir(dir_to_find_year + name)) >= 1:
-                        for file in Path(dir_to_find_year + name).rglob('*'):
+                        for file in Path(dir_to_find_year + name).rglob("*"):
                             if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                 k = 1
                         if k == 1:
@@ -276,32 +276,32 @@ class GlobalMapWidget(QWidget):
             dir_list.sort(reverse=True)
             i = 0
             for year in dir_list:
-                if dir_list[i] != 'No_Date_Info':
+                if dir_list[i] != "No_Date_Info":
                     self.date_year.addItem(str(year))
                 else:
                     j = 1
                 i += 1
             if j == 1:
-                self.date_year.addItem('No_Date_Info')
+                self.date_year.addItem("No_Date_Info")
             else:
                 pass
-            self.date_year.addItem('All')
+            self.date_year.addItem("All")
 
         # Получение месяцев в году
         def get_months() -> None:
             self.date_month.clear()
             year = self.date_year.currentText()
-            if year == 'All':
-                self.date_month.addItem('All')
+            if year == "All":
+                self.date_month.addItem("All")
             else:
-                dir_to_find_month = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/'
+                dir_to_find_month = Settings.get_destination_media() + "/Media/Photo/const/" + year + "/"
                 all_files_and_dirs = os.listdir(dir_to_find_month)
                 dir_list = list()
                 k = 0
                 for name in all_files_and_dirs:
                     if os.path.isdir(dir_to_find_month + name):
                         if len(os.listdir(dir_to_find_month + name)) >= 1:
-                            for file in Path(dir_to_find_month + name).rglob('*'):
+                            for file in Path(dir_to_find_month + name).rglob("*"):
                                 if os.path.isfile(file) and str(file).endswith(".jpg") or str(file).endswith(".JPG"):
                                     k = 1
                             if k == 1:
@@ -311,17 +311,17 @@ class GlobalMapWidget(QWidget):
                 dir_list.sort(reverse=True)
                 for month in dir_list:
                     self.date_month.addItem(str(month))
-                self.date_month.addItem('All')
+                self.date_month.addItem("All")
 
         # Получение дней в месяце
         def get_days() -> None:
             self.date_day.clear()
             year = self.date_year.currentText()
             month = self.date_month.currentText()
-            if year == 'All' or month == 'All':
-                self.date_day.addItem('All')
+            if year == "All" or month == "All":
+                self.date_day.addItem("All")
             else:
-                dir_to_find_day = Settings.get_destination_media() + '/Media/Photo/const/' + year + '/' + month + '/'
+                dir_to_find_day = Settings.get_destination_media() + "/Media/Photo/const/" + year + "/" + month + "/"
                 all_files_and_dirs = os.listdir(dir_to_find_day)
                 dir_list = list()
                 for name in all_files_and_dirs:
@@ -332,18 +332,18 @@ class GlobalMapWidget(QWidget):
                 dir_list.sort(reverse=True)
                 for day in dir_list:
                     self.date_day.addItem(str(day))
-                self.date_day.addItem('All')
+                self.date_day.addItem("All")
 
         match mode:
-            case 'date':
+            case "date":
                 get_years()
                 get_months()
                 get_days()
-            case 'year':
+            case "year":
                 get_years()
-            case 'month':
+            case "month":
                 get_months()
-            case 'day':
+            case "day":
                 get_days()
             case _:
                 get_years()
@@ -355,10 +355,10 @@ class GlobalMapWidget(QWidget):
         Выбор способа группировки
         """
         self.group_type = QComboBox(self)
-        self.group_type.addItem('Дата')
+        self.group_type.addItem("Дата")
         if self.soc_net_setting:
-            self.group_type.addItem('Соцсети')
-        self.group_type.addItem('Оборудование')
+            self.group_type.addItem("Соцсети")
+        self.group_type.addItem("Оборудование")
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
         self.group_type.setFont(font14)
         self.group_type.setFixedWidth(int(152*system_scale)+1)
@@ -407,12 +407,12 @@ class GlobalMapWidget(QWidget):
         self.date_day.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
-        self.fill_date('date')
+        self.fill_date("date")
 
         if not self.year_lbl.text():
-            self.year_lbl.setText('Год:')
-            self.month_lbl.setText('    Месяц:')
-            self.day_lbl.setText('    День:')
+            self.year_lbl.setText("Год:")
+            self.month_lbl.setText("    Месяц:")
+            self.day_lbl.setText("    День:")
 
         self.date_day.setFixedHeight(int(30*system_scale)+1)
         self.date_month.setFixedHeight(int(30*system_scale)+1)
@@ -421,8 +421,8 @@ class GlobalMapWidget(QWidget):
         self.month_lbl.setFixedHeight(30)
         self.year_lbl.setFixedHeight(30)
 
-        self.date_year.currentTextChanged.connect(lambda: self.fill_date('month'))
-        self.date_month.currentTextChanged.connect(lambda: self.fill_date('day'))
+        self.date_year.currentTextChanged.connect(lambda: self.fill_date("month"))
+        self.date_month.currentTextChanged.connect(lambda: self.fill_date("day"))
 
     def fill_sort_socnets(self) -> None:
         """
@@ -436,17 +436,17 @@ class GlobalMapWidget(QWidget):
         socnets = PhotoDataDB.get_socialnetworks()
 
         if not socnets:
-            self.socnet_choose.addItem('Нет данных')
+            self.socnet_choose.addItem("Нет данных")
             self.socnet_choose.setFixedWidth(int(150*system_scale)+1)
         else:
             socnet_max_len = 0
             for net in socnets:
-                if net[0:9] != 'numnumnum':
-                    self.socnet_choose.addItem(f'{net}')
+                if net[0:9] != "numnumnum":
+                    self.socnet_choose.addItem(f"{net}")
                     if len(net) > socnet_max_len:
                         socnet_max_len = len(net)
                 else:
-                    self.socnet_choose.addItem(f'{net[9:]}')
+                    self.socnet_choose.addItem(f"{net[9:]}")
                     if len(net) - 9 > socnet_max_len:
                         socnet_max_len = len(net) - 9
 
@@ -456,10 +456,10 @@ class GlobalMapWidget(QWidget):
             self.sn_status.setFont(font14)
             self.sn_status.setFixedHeight(int(30*system_scale)+1)
             self.sn_status.setStyleSheet(stylesheet9)
-            self.sn_status.addItem('Не выбрано')
-            self.sn_status.addItem('Не публиковать')
-            self.sn_status.addItem('Опубликовать')
-            self.sn_status.addItem('Опубликовано')
+            self.sn_status.addItem("Не выбрано")
+            self.sn_status.addItem("Не публиковать")
+            self.sn_status.addItem("Опубликовать")
+            self.sn_status.addItem("Опубликовано")
             self.sn_status.setFixedWidth(int(164*system_scale)+1)
             self.layout_type.addWidget(self.sn_status, 0, 2, 1, 1)
 
@@ -483,16 +483,16 @@ class GlobalMapWidget(QWidget):
         lens_max_len = 0
 
         for camera in cameras:
-            self.camera_choose.addItem(f'{camera}')
+            self.camera_choose.addItem(f"{camera}")
             if len(camera) > camera_max_len:
                 camera_max_len = len(camera)
-        self.camera_choose.addItem('All')
+        self.camera_choose.addItem("All")
 
         for lens in lenses:
-            self.lens_choose.addItem(f'{lens}')
+            self.lens_choose.addItem(f"{lens}")
             if len(lens) > lens_max_len:
                 lens_max_len = len(lens)
-        self.lens_choose.addItem('All')
+        self.lens_choose.addItem("All")
 
         self.camera_choose.setFixedWidth(int((camera_max_len * 12)*system_scale)+1)
         self.lens_choose.setFixedWidth(int((lens_max_len * 12)*system_scale)+1)
@@ -507,11 +507,11 @@ class GlobalMapWidget(QWidget):
             QtCore.QCoreApplication.processEvents()
 
         match self.group_type.currentText():
-            case 'Дата':
+            case "Дата":
                 self.fill_sort_date()
-            case 'Соцсети':
+            case "Соцсети":
                 self.fill_sort_socnets()
-            case 'Оборудование':
+            case "Оборудование":
                 self.fill_sort_equipment()
 
     def popup_html(self, photo_name: str, shooting_date: str, camera: str, thumbnail_way: str) -> IFrame:
@@ -524,12 +524,12 @@ class GlobalMapWidget(QWidget):
         :return:
         """
         if shooting_date != "":
-            date_splitted = shooting_date.split('.')
+            date_splitted = shooting_date.split(".")
             date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
         else:
             date_show = ""
 
-        encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
+        encoded = base64.b64encode(open(f"{thumbnail_way}", "rb").read())
         html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
         html = f"""
        <html>
@@ -556,9 +556,9 @@ class GlobalMapWidget(QWidget):
         width, height = im.size
 
         if width > height:
-            iframe = IFrame(html_show(encoded.decode('UTF-8')), width=380, height=380)
+            iframe = IFrame(html_show(encoded.decode("UTF-8")), width=380, height=380)
         else:
-            iframe = IFrame(html_show(encoded.decode('UTF-8')), width=380, height=410)
+            iframe = IFrame(html_show(encoded.decode("UTF-8")), width=380, height=410)
 
         return iframe
 
@@ -580,12 +580,12 @@ class GlobalMapWidget(QWidget):
             thumbnail_way = photo[4]
 
             if shooting_date != "":
-                date_splitted = shooting_date.split('.')
+                date_splitted = shooting_date.split(".")
                 date_show = f"{date_splitted[-1]}.{date_splitted[-2]}.{date_splitted[-3]}"
             else:
                 date_show = ""
 
-            encoded = base64.b64encode(open(f'{thumbnail_way}', 'rb').read())
+            encoded = base64.b64encode(open(f"{thumbnail_way}", "rb").read())
             if i == 0:
                 html_img_str = '<center><img src="data:image/png;base64,{}"></center>'
             else:
@@ -613,7 +613,7 @@ class GlobalMapWidget(QWidget):
                        </table></center>
                         """
             html_show = html.format
-            html_result += html_show(encoded.decode('UTF-8'))
+            html_result += html_show(encoded.decode("UTF-8"))
             i += 1
 
         html_result += """</html>
@@ -638,5 +638,5 @@ class PathsLooter(QtCore.QThread):
         try:
             map_points_combo, zoom_level, map_center = PhotoDataDB.get_global_map_info(self.full_paths)
         except IndexError:
-            map_points_combo, zoom_level, map_center = '', '', ''
+            map_points_combo, zoom_level, map_center = "", "", ""
         self.finished.emit((map_points_combo, zoom_level, map_center))

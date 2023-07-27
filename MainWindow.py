@@ -33,17 +33,17 @@ stylesheet5 = str()
 stylesheet8 = str()
 stylesheet10 = str()
 
-font16 = QtGui.QFont('Times', 16)
-font14 = QtGui.QFont('Times', 14)
-font12 = QtGui.QFont('Times', 12)
-font10 = QtGui.QFont('Times', 10)
-font8 = QtGui.QFont('Times', 8)
+font16 = QtGui.QFont("Times", 16)
+font14 = QtGui.QFont("Times", 14)
+font12 = QtGui.QFont("Times", 12)
+font10 = QtGui.QFont("Times", 10)
+font8 = QtGui.QFont("Times", 8)
 
 system_scale = Screenconfig.monitor_info()[1]
 
 logging.basicConfig(filename=f"logs/log.txt",
-                    format='%(asctime)s - %(levelname)s - %(message)s',
-                    datefmt='%d-%b-%y %H:%M:%S', level=logging.WARNING)
+                    format="%(asctime)s - %(levelname)s - %(message)s",
+                    datefmt="%d-%b-%y %H:%M:%S", level=logging.WARNING)
 
 
 class MainWindow(QMainWindow):
@@ -66,19 +66,19 @@ class MainWindow(QMainWindow):
         self.menubar.setFont(font8)
         self.menubar.setStyleSheet(stylesheet4)
 
-        self.add_menu = self.menubar.addMenu('Добавить')
+        self.add_menu = self.menubar.addMenu("Добавить")
         self.add_menu.setStyleSheet(stylesheet10)
 
-        add_const_files_bar = QAction('Добавить файлы в основной каталог', self)
+        add_const_files_bar = QAction("Добавить файлы в основной каталог", self)
         add_const_files_bar.triggered.connect(self.func_add_const_files)
 
-        add_const_directory_bar = QAction('Добавить папку в основной каталог', self)
+        add_const_directory_bar = QAction("Добавить папку в основной каталог", self)
         add_const_directory_bar.triggered.connect(self.func_add_const_dir)
 
-        add_const_megadir_bar = QAction('Добавить папку с вложенными папками в основной каталог', self)
+        add_const_megadir_bar = QAction("Добавить папку с вложенными папками в основной каталог", self)
         add_const_megadir_bar.triggered.connect(self.func_add_const_megadir_const)
 
-        add_const_alone_directory = QAction('Добавить папку в дополнительный каталог', self)
+        add_const_alone_directory = QAction("Добавить папку в дополнительный каталог", self)
         add_const_alone_directory.triggered.connect(self.func_add_alone_dir)
 
         self.add_menu.addAction(add_const_files_bar)
@@ -86,19 +86,19 @@ class MainWindow(QMainWindow):
         self.add_menu.addAction(add_const_megadir_bar)
         self.add_menu.addAction(add_const_alone_directory)
 
-        self.view_menu = self.menubar.addMenu('Посмотреть')
+        self.view_menu = self.menubar.addMenu("Посмотреть")
         self.view_menu.setStyleSheet(stylesheet10)
 
-        view_dir = QAction('Разовый просмотр папки', self)
+        view_dir = QAction("Разовый просмотр папки", self)
         view_dir.triggered.connect(self.func_view_dir)
 
-        view_files = QAction('Разовый просмотр файлов', self)
+        view_files = QAction("Разовый просмотр файлов", self)
         view_files.triggered.connect(self.func_view_files)
 
-        view_const_dir = QAction('Просмотр основного каталога', self)
+        view_const_dir = QAction("Просмотр основного каталога", self)
         view_const_dir.triggered.connect(self.show_main_const_widget)
 
-        view_alone_dir = QAction('Просмотр дополнительного каталога', self)
+        view_alone_dir = QAction("Просмотр дополнительного каталога", self)
         view_alone_dir.triggered.connect(self.show_main_alone_widget)
 
         self.view_menu.addAction(view_dir)
@@ -106,39 +106,39 @@ class MainWindow(QMainWindow):
         self.view_menu.addAction(view_const_dir)
         self.view_menu.addAction(view_alone_dir)
 
-        self.bases_menu = self.menubar.addMenu('Данные')
+        self.bases_menu = self.menubar.addMenu("Данные")
         self.bases_menu.setStyleSheet(stylesheet10)
 
-        database_ernames_menu = QAction('Исправление именований оборудования', self)
+        database_ernames_menu = QAction("Исправление именований оборудования", self)
         database_ernames_menu.triggered.connect(self.db_ernames_view_func)
 
-        social_networks_menu = QAction('Социальные сети', self)
+        social_networks_menu = QAction("Социальные сети", self)
         social_networks_menu.triggered.connect(self.social_networks_func)
 
-        massive_edit_menu = QAction('Множественное редактирование метаданных', self)
+        massive_edit_menu = QAction("Множественное редактирование метаданных", self)
         massive_edit_menu.triggered.connect(self.massive_edit_func)
 
         self.bases_menu.addAction(database_ernames_menu)
         self.bases_menu.addAction(social_networks_menu)
         self.bases_menu.addAction(massive_edit_menu)
 
-        statistics_menu = QAction('Статистика', self)
+        statistics_menu = QAction("Статистика", self)
         self.menubar.addAction(statistics_menu)
         statistics_menu.triggered.connect(self.statistics_func)
 
-        global_map = QAction('Карта', self)
+        global_map = QAction("Карта", self)
         self.menubar.addAction(global_map)
         global_map.triggered.connect(self.show_global_map)
 
-        settings_menu = QAction('Настройки', self)
+        settings_menu = QAction("Настройки", self)
         self.menubar.addAction(settings_menu)
         settings_menu.triggered.connect(self.settings_func)
 
-        recovery = QAction('Восстановление', self)
+        recovery = QAction("Восстановление", self)
         self.menubar.addAction(recovery)
         recovery.triggered.connect(self.recovery_func)
 
-        about = QAction('О программе', self)
+        about = QAction("О программе", self)
         self.menubar.addAction(about)
         about.triggered.connect(self.func_about)
 
@@ -166,12 +166,12 @@ class MainWindow(QMainWindow):
             raise e
 
         style = Screenconfig.style_dict
-        stylesheet1 = style[f'{theme}']['stylesheet1']
-        stylesheet2 = style[f'{theme}']['stylesheet2']
-        stylesheet4 = style[f'{theme}']['stylesheet4']
-        stylesheet5 = style[f'{theme}']['stylesheet5']
-        stylesheet8 = style[f'{theme}']['stylesheet8']
-        stylesheet10 = style[f'{theme}']['stylesheet10']
+        stylesheet1 = style[f"{theme}"]["stylesheet1"]
+        stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        stylesheet4 = style[f"{theme}"]["stylesheet4"]
+        stylesheet5 = style[f"{theme}"]["stylesheet5"]
+        stylesheet8 = style[f"{theme}"]["stylesheet8"]
+        stylesheet10 = style[f"{theme}"]["stylesheet10"]
 
         self.setStyleSheet(stylesheet2)
         try:
@@ -186,7 +186,7 @@ class MainWindow(QMainWindow):
         """
         Добавить в основной каталог на постоянку файлы
         """
-        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        self.add_files_chosen = QFileDialog.getOpenFileNames(self, "Выбрать файлы", ".", "Image files (*.jpg *.png)")
         file_list = self.add_files_chosen[0]
         if not file_list:
             return
@@ -197,7 +197,7 @@ class MainWindow(QMainWindow):
         """
         Добавить в основной каталог на постоянку папку
         """
-        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, "Выбрать папку", ".")
         try:
             file_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
         except FileNotFoundError:
@@ -209,12 +209,12 @@ class MainWindow(QMainWindow):
         """
         Добавить в основной каталог папку, все файлы в ней и все файлы во всех подпапках
         """
-        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, "Выбрать папку", ".")
         file_list = []
         for root, dirs, files in os.walk(add_dir_chosen):
             for file in files:
                 if file.endswith(".jpg") or file.endswith(".JPG"):
-                    file_list.append(root.replace('\\', '/') + '/' + file)
+                    file_list.append(root.replace("\\", "/") + "/" + file)
 
         self.func_add_const(file_list)
 
@@ -247,7 +247,7 @@ class MainWindow(QMainWindow):
         """
         Добавить в дополнительный каталог папку на постоянку
         """
-        add_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        add_dir_chosen = QFileDialog.getExistingDirectory(self, "Выбрать папку", ".")
 
         try:
             photo_files_list = FilesDirs.make_files_list_from_dir(add_dir_chosen)
@@ -263,7 +263,7 @@ class MainWindow(QMainWindow):
         self.taskbar_button.setWindow(self.windowHandle())
 
         self.add_files_progress = AloneMaker(photo_directory=add_dir_chosen, photo_files_list=photo_files_list,
-                                             mode="dir", exists_dir='')
+                                             mode="dir", exists_dir="")
         self.add_files_progress.preprogress.connect(lambda x: self.progressbar.progressbar_set_max(x))
         self.add_files_progress.progress.connect(lambda y: self.progressbar.progressbar_set_value(y))
 
@@ -280,14 +280,14 @@ class MainWindow(QMainWindow):
         Добавить в доп.каталог файлы
         :param dir_to_add: папка доп.каталога, в которую добавлять файлы
         """
-        self.add_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        self.add_files_chosen = QFileDialog.getOpenFileNames(self, "Выбрать файлы", ".", "Image files (*.jpg *.png)")
         file_list = self.add_files_chosen[0]
         if not file_list:
             return
         path_splitted = file_list[0].split("/")
-        photo_directory_buf = ''
+        photo_directory_buf = ""
         for i in range(len(path_splitted) - 1):
-            photo_directory_buf += path_splitted[i] + '/'
+            photo_directory_buf += path_splitted[i] + "/"
         photo_directory = photo_directory_buf[:-1]
 
         self.progressbar = ProgressBar()
@@ -315,7 +315,7 @@ class MainWindow(QMainWindow):
         """
         Одноразовый просмотр папки
         """
-        self.view_dir_chosen = QFileDialog.getExistingDirectory(self, 'Выбрать папку', '.')
+        self.view_dir_chosen = QFileDialog.getExistingDirectory(self, "Выбрать папку", ".")
 
         try:
             self.photo_files_list_view = FilesDirs.make_files_list_from_dir(self.view_dir_chosen)
@@ -346,7 +346,7 @@ class MainWindow(QMainWindow):
         """
         Одноразовый просмотр файлов
         """
-        self.view_files_chosen = QFileDialog.getOpenFileNames(self, 'Выбрать файлы', '.', "Image files (*.jpg *.png)")
+        self.view_files_chosen = QFileDialog.getOpenFileNames(self, "Выбрать файлы", ".", "Image files (*.jpg *.png)")
         self.photo_files_list_view = self.view_files_chosen[0]
 
         if not self.photo_files_list_view:
@@ -389,13 +389,13 @@ class MainWindow(QMainWindow):
         self.show_main_const_widget()
         self.add_files_progress = None
 
-    def finish_thread_add_alone(self, files: str) -> None:
+    def finish_thread_add_alone(self, files: list[str]) -> None:
         """
         # По окончании добавления файлов в дополнительный каталог, запустить виджет его показа
         :param files: список уже существовавших файлов
         """
         self.taskbar_progress.reset()
-        if files[0] == 'finish':
+        if files[0] == "finish":
             self.show_main_alone_widget()
             self.centralWidget().directory_choose.setCurrentText(files[1])
         elif files[0] == "error":
@@ -470,8 +470,8 @@ class MainWindow(QMainWindow):
         """
         Открыть дату с последней открытой фотографией
         """
-        file_splitted = photofile.split('/')
-        if 'const' in file_splitted:
+        file_splitted = photofile.split("/")
+        if "const" in file_splitted:
             self.show_main_const_widget()
             self.centralWidget().date_year.setCurrentText(file_splitted[-4])
             self.centralWidget().date_month.setCurrentText(file_splitted[-3])
@@ -581,13 +581,13 @@ class MainWindow(QMainWindow):
             self.centralWidget().directory_choose.setCurrentText(chosen_dir)
         elif type(self.centralWidget()) == ShowConstWindowWidget.ConstWidgetWindow:  # Const
             chosen_mode = self.centralWidget().group_type.currentText()
-            if chosen_mode == 'Оборудование':
+            if chosen_mode == "Оборудование":
                 chosen_camera = self.centralWidget().camera_choose.currentText()
                 chosen_lens = self.centralWidget().lens_choose.currentText()
-            elif chosen_mode == 'Соцсети':
+            elif chosen_mode == "Соцсети":
                 chosen_network = self.centralWidget().socnet_choose.currentText()
                 chosen_status = self.centralWidget().sn_status.currentText()
-            else:  # 'Дата'
+            else:  # "Дата"
                 chosen_year = self.centralWidget().date_year.currentText()
                 chosen_month = self.centralWidget().date_month.currentText()
                 chosen_day = self.centralWidget().date_day.currentText()
@@ -595,13 +595,13 @@ class MainWindow(QMainWindow):
             self.show_main_const_widget()
             self.centralWidget().group_type.setCurrentText(chosen_mode)
 
-            if chosen_mode == 'Оборудование':
+            if chosen_mode == "Оборудование":
                 self.centralWidget().camera_choose.setCurrentText(chosen_camera)
                 self.centralWidget().lens_choose.setCurrentText(chosen_lens)
-            elif chosen_mode == 'Соцсети' and Settings.get_socnet_status():
+            elif chosen_mode == "Соцсети" and Settings.get_socnet_status():
                 self.centralWidget().socnet_choose.setCurrentText(chosen_network)
                 self.centralWidget().sn_status.setCurrentText(chosen_status)
-            elif chosen_mode == 'Дата':
+            elif chosen_mode == "Дата":
                 self.centralWidget().date_year.setCurrentText(chosen_year)
                 self.centralWidget().date_month.setCurrentText(chosen_month)
                 self.centralWidget().date_day.setCurrentText(chosen_day)
@@ -615,26 +615,26 @@ class MainWindow(QMainWindow):
             self.start_show()
         elif type(self.centralWidget()) == GlobalMap.GlobalMapWidget:
             chosen_mode = self.centralWidget().group_type.currentText()
-            if chosen_mode == 'Оборудование':
+            if chosen_mode == "Оборудование":
                 chosen_camera = self.centralWidget().camera_choose.currentText()
                 chosen_lens = self.centralWidget().lens_choose.currentText()
-            elif chosen_mode == 'Соцсети':
+            elif chosen_mode == "Соцсети":
                 chosen_network = self.centralWidget().socnet_choose.currentText()
                 chosen_status = self.centralWidget().sn_status.currentText()
-            else:  # 'Дата'
+            else:  # "Дата"
                 chosen_year = self.centralWidget().date_year.currentText()
                 chosen_month = self.centralWidget().date_month.currentText()
                 chosen_day = self.centralWidget().date_day.currentText()
 
             self.centralWidget().stylesheet_color()
 
-            if chosen_mode == 'Оборудование':
+            if chosen_mode == "Оборудование":
                 self.centralWidget().camera_choose.setCurrentText(chosen_camera)
                 self.centralWidget().lens_choose.setCurrentText(chosen_lens)
-            elif chosen_mode == 'Соцсети' and Settings.get_socnet_status():
+            elif chosen_mode == "Соцсети" and Settings.get_socnet_status():
                 self.centralWidget().socnet_choose.setCurrentText(chosen_network)
                 self.centralWidget().sn_status.setCurrentText(chosen_status)
-            elif chosen_mode == 'Дата':
+            elif chosen_mode == "Дата":
                 self.centralWidget().date_year.setCurrentText(chosen_year)
                 self.centralWidget().date_month.setCurrentText(chosen_month)
                 self.centralWidget().date_day.setCurrentText(chosen_day)
@@ -678,7 +678,7 @@ class MainWindow(QMainWindow):
             if self.centralWidget().socnet_group.isVisible():
                 self.centralWidget().show_social_networks(self.centralWidget().last_clicked_name,
                                                           self.centralWidget().last_clicked_dir)
-            if self.centralWidget().group_type.currentText() == 'Соцсети':
+            if self.centralWidget().group_type.currentText() == "Соцсети":
                 self.centralWidget().fill_sort_socnets()
         else:
             pass
@@ -712,7 +712,7 @@ class ProgressBar(QWidget):
         self.layout.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignHCenter)
 
         self.title_text = QLabel(self)
-        self.title_text.setText('Процесс обработки файлов')
+        self.title_text.setText("Процесс обработки файлов")
         self.title_text.setFont(font16)
         self.title_text.setAlignment(QtCore.Qt.AlignCenter)
         self.layout.addWidget(self.title_text, 1, 1, 1, 1)
@@ -777,27 +777,27 @@ class StartShow(QWidget):
         self.layout_outside.addWidget(self.empty4, 3, 3, 1, 1)
 
         self.btn_const_cat = QPushButton(self)
-        self.btn_const_cat.setText('Основной каталог')
+        self.btn_const_cat.setText("Основной каталог")
         self.btn_const_cat.setFont(font16)
         self.layout_buttons.addWidget(self.btn_const_cat, 0, 0, 1, 2)
 
         self.btn_alone_cat = QPushButton(self)
-        self.btn_alone_cat.setText('Дополнительный каталог')
+        self.btn_alone_cat.setText("Дополнительный каталог")
         self.btn_alone_cat.setFont(font14)
         self.layout_buttons.addWidget(self.btn_alone_cat, 0, 2, 1, 1)
 
         self.btn_const_add_dir = QPushButton(self)
-        self.btn_const_add_dir.setText('Добавить папку')
+        self.btn_const_add_dir.setText("Добавить папку")
         self.btn_const_add_dir.setFont(font12)
         self.layout_buttons.addWidget(self.btn_const_add_dir, 1, 0, 1, 1)
 
         self.btn_const_add_files = QPushButton(self)
-        self.btn_const_add_files.setText('Добавить файлы')
+        self.btn_const_add_files.setText("Добавить файлы")
         self.btn_const_add_files.setFont(font12)
         self.layout_buttons.addWidget(self.btn_const_add_files, 1, 1, 1, 1)
 
         self.btn_alone_add_dir = QPushButton(self)
-        self.btn_alone_add_dir.setText('Добавить отдельную папку')
+        self.btn_alone_add_dir.setText("Добавить отдельную папку")
         self.btn_alone_add_dir.setFont(font10)
 
         self.layout_buttons.addWidget(self.btn_alone_add_dir, 1, 2, 1, 1)
@@ -830,7 +830,7 @@ class StartShow(QWidget):
         self.last_photo = QToolButton(self)
         self.layout_last.addWidget(self.last_photo, 1, 0, 1, 1)
         self.last_text = QLabel()
-        self.last_text.setText('Последнее просмотренное фото:\n')
+        self.last_text.setText("Последнее просмотренное фото:\n")
         self.last_text.setFont(font12)
         self.last_text.setFixedHeight(20)
         self.last_text.setAlignment(QtCore.Qt.AlignHCenter)
@@ -842,8 +842,8 @@ class StartShow(QWidget):
         self.group_last.setStyleSheet(stylesheet2)
         self.layout_outside.addWidget(self.group_last, 1, 2, 1, 1)
 
-        with open('last_opened.json', 'r') as json_file:
-            photofile = json.load(json_file)['last_opened_photo']
+        with open("last_opened.json", "r") as json_file:
+            photofile = json.load(json_file)["last_opened_photo"]
         if os.path.exists(photofile):
             pixmap = QtGui.QIcon(photofile)
             self.last_photo.setIconSize(QtCore.QSize(400, 400))
@@ -865,17 +865,17 @@ class StartShow(QWidget):
         """
         Собрать и вывести статистику основного каталога
         """
-        str_to_show = ''
+        str_to_show = ""
         try:
-            size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/const/')
+            size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + "/Media/Photo/const/")
         except:
             self.const_stats.setText(str_to_show)
             return
 
-        str_size = f'Объём основного каталога: {self.get_size_str(size)}\n'
+        str_size = f"Объём основного каталога: {self.get_size_str(size)}\n"
 
         str_to_show += str_size
-        str_numfiles = f'Фотографий в основном каталоге: {numfiles}\n'
+        str_numfiles = f"Фотографий в основном каталоге: {numfiles}\n"
         str_to_show += str_numfiles
 
         self.const_stats.setText(str_to_show)
@@ -885,22 +885,22 @@ class StartShow(QWidget):
         """
         Собрать и вывести статистику дополнительного каталога
         """
-        str_to_show = ''
+        str_to_show = ""
         try:
-            size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + '/Media/Photo/alone/')
+            size, numfiles, fullnum = self.fill_dir_stats(Settings.get_destination_media() + "/Media/Photo/alone/")
         except Exception:
             self.alone_stats.setText(str_to_show)
             return
 
         numdir = fullnum - numfiles
 
-        str_size = f'Объём дополнительного каталога: {self.get_size_str(size)}\n'
+        str_size = f"Объём дополнительного каталога: {self.get_size_str(size)}\n"
 
         str_to_show += str_size
 
-        str_numfiles = f'Фотографий в дополнительном каталоге: {numfiles}\n'
+        str_numfiles = f"Фотографий в дополнительном каталоге: {numfiles}\n"
         str_to_show += str_numfiles
-        str_numdirs = f'Папок в дополнительном каталоге: {numdir}\n'
+        str_numdirs = f"Папок в дополнительном каталоге: {numdir}\n"
         str_to_show += str_numdirs
         self.alone_stats.setText(str_to_show)
         self.alone_stats.setFont(font10)
@@ -912,13 +912,13 @@ class StartShow(QWidget):
         :return: строка с текстом объёма
         """
         if size < 1024:
-            str_size = f'{round(size, 3)} байт'
+            str_size = f"{round(size, 3)} байт"
         elif size < 1024 ** 2:
-            str_size = f'{round(size / 1024, 3)} килобайт'
+            str_size = f"{round(size / 1024, 3)} килобайт"
         elif size < 1024 ** 3:
-            str_size = f'{round(size / (1024 ** 2), 3)} мегабайт'
+            str_size = f"{round(size / (1024 ** 2), 3)} мегабайт"
         else:
-            str_size = f'{round(size / (1024 ** 3), 3)} гигабайт'
+            str_size = f"{round(size / (1024 ** 3), 3)} гигабайт"
         return str_size
 
     def fill_dir_stats(self, path: str) -> tuple[int, int, int]:
@@ -930,7 +930,7 @@ class StartShow(QWidget):
         fsize = 0
         numfile = 0
         iteration = 0
-        for file in Path(path).rglob('*'):
+        for file in Path(path).rglob("*"):
             if os.path.isfile(file):
                 fsize += os.path.getsize(file)
                 numfile += 1
@@ -1050,10 +1050,10 @@ class ConstMaker(QtCore.QThread):
 
         if Settings.get_photo_transfer_mode() == "cut":
             self.info_text.emit(f"Определение статуса папки")
-            file_dir = ''
-            file_full = self.files_list[0].split(r'/')
+            file_dir = ""
+            file_full = self.files_list[0].split(r"/")
             for i in range(len(file_full) - 1):
-                file_dir += file_full[i] + '/'
+                file_dir += file_full[i] + "/"
             if not os.listdir(file_dir):
                 try:
                     os.rmdir(file_dir)
@@ -1096,10 +1096,10 @@ class AloneMaker(QtCore.QThread):
     def run(self):
         files_errors = []
         logging.info(f"MainWindow - File list sent for adding in additional catalog: {self.files_list}")
-        if not os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
+        if not os.path.isdir(Settings.get_destination_media() + "/Media/Photo/alone/" + self.photo_directory.split("/")[-1]) and self.mode == "dir":
             self.info_text.emit(f"Создание директории {self.photo_directory.split('/')[-1]} в программе")
             logging.info(f"MainWindow - Creating directory {self.photo_directory.split('/')[-1]} in programm")
-            os.mkdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1])
+            os.mkdir(Settings.get_destination_media() + "/Media/Photo/alone/" + self.photo_directory.split("/")[-1])
 
             j = 0
             self.progress.emit(0)
@@ -1131,27 +1131,26 @@ class AloneMaker(QtCore.QThread):
                     logging.info(f"MainWindow - Directory {self.photo_directory}  was not removed, because not empty")
                     self.info_text.emit(f"Directory {self.photo_directory} не была удалена")
 
-            self.finished.emit(['finish', self.photo_directory.split('/')[-1]])
+            self.finished.emit(["finish", self.photo_directory.split("/")[-1]])
 
-        elif os.path.isdir(Settings.get_destination_media() + '/Media/Photo/alone/' + self.photo_directory.split('/')[-1]) and self.mode == "dir":
+        elif os.path.isdir(Settings.get_destination_media() + "/Media/Photo/alone/" + self.photo_directory.split("/")[-1]) and self.mode == "dir":
             logging.info(
                 f"MainWindow - Directory {self.photo_directory.split('/')[-1]} have been already exist in program")
-            self.finished.emit(['error'])
+            self.finished.emit(["error"])
         else:  # self.mode == "files"
             j = 0
             file_exists = []
             for file in self.files_list:
                 self.info_text.emit(f"Начата обработка файла {file}")
                 logging.info(f"MainWindow - Start processing {file}")
-                desination_dir = Settings.get_destination_media() + '/Media/Photo/alone/' + self.exists_dir.split('/')[
-                    -1]
-                file_name = file.split('/')[-1]
-                if os.path.exists(desination_dir + '/' + file_name):
+                desination_dir = Settings.get_destination_media() + "/Media/Photo/alone/" + self.exists_dir.split("/")[-1]
+                file_name = file.split("/")[-1]
+                if os.path.exists(desination_dir + "/" + file_name):
                     file_exists.append(file)
                 else:
                     try:
                         FilesDirs.transfer_alone_photos(self.photo_directory, file, exists_dir_name=self.exists_dir,
-                                                        type_add='files')
+                                                        type_add="files")
                     except ErrorsAndWarnings.FilesPermissionMoveError:
                         files_errors.append(file)
                 j += 1
@@ -1165,7 +1164,7 @@ class AloneMaker(QtCore.QThread):
                 logging.info(f"MainWindow - Files have been already exist in program: {file_exists}")
                 self.finished.emit(file_exists)
             else:
-                self.finished.emit(['finish'])
+                self.finished.emit(["finish"])
 
 
 class TimeMaker(QtCore.QThread):
@@ -1203,14 +1202,14 @@ class TimeMaker(QtCore.QThread):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
 
-    with open('settings.json', 'r') as json_file:
+    with open("settings.json", "r") as json_file:
         settings = json.load(json_file)
 
-        if os.path.isdir(settings['files']["destination_dir"]) and os.path.isdir(settings['files']["thumbs_dir"]):
+        if os.path.isdir(settings["files"]["destination_dir"]) and os.path.isdir(settings["files"]["thumbs_dir"]):
             pass
         else:
-            with open('settings.json', 'w') as json_file:
-                bsl = '\\'
+            with open("settings.json", "w") as json_file:
+                bsl = "\\"
                 new_set = {
                     "files":
                         {

@@ -8,7 +8,7 @@ from PIL import Image, ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
-conn = sqlite3.connect('ErrorNames.db', check_same_thread=False)
+conn = sqlite3.connect("ErrorNames.db", check_same_thread=False)
 
 cur = conn.cursor()
 
@@ -54,7 +54,7 @@ def date_from_exif(data: dict) -> tuple[int, str, str, str]:
     """
 
     try:  # если дата считывается
-        date = data['EXIF:DateTimeOriginal']
+        date = data["EXIF:DateTimeOriginal"]
         day = date[8:10]
         month = date[5:7]
         year = date[0:4]
@@ -65,9 +65,9 @@ def date_from_exif(data: dict) -> tuple[int, str, str, str]:
 
     except (KeyError, ValueError):  # если дата не считывается - No_Date_Info
         error = 1
-        day = '0'
-        month = '0'
-        year = '0'
+        day = "0"
+        month = "0"
+        year = "0"
 
     else:
         error = 0
@@ -86,106 +86,106 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
     metadata = dict()
 
     try:
-        width = str(data['0th'][256])
-        height = str(data['0th'][257])
-        metadata['Разрешение'] = width + 'x' + height
+        width = str(data["0th"][256])
+        height = str(data["0th"][257])
+        metadata["Разрешение"] = width + "x" + height
     except KeyError:
-        im = Image.open(photo_directory + '/' + photofile)
+        im = Image.open(photo_directory + "/" + photofile)
         width, height = im.size
-        metadata['Разрешение'] = str(width) + 'x' + str(height)
+        metadata["Разрешение"] = str(width) + "x" + str(height)
         im.close()
 
     if int(width) > int(height):  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
-        metadata['Rotation'] = 'gor'
+        metadata["Rotation"] = "gor"
     else:
-        metadata['Rotation'] = 'ver'
+        metadata["Rotation"] = "ver"
 
     try:
-        date = data['Exif'][36867].decode('utf-8')  # делаем дату русской, а не пиндосской
-        date_show = date[11:] + ' ' + date[8:10] + '.' + date[5:7] + '.' + date[0:4]
-        metadata['Дата съёмки'] = date_show
+        date = data["Exif"][36867].decode("utf-8")  # делаем дату русской, а не пиндосской
+        date_show = date[11:] + " " + date[8:10] + "." + date[5:7] + "." + date[0:4]
+        metadata["Дата съёмки"] = date_show
     except KeyError:
-        metadata['Дата съёмки'] = ''
+        metadata["Дата съёмки"] = ""
 
     try:
-        maker = data['0th'][271].decode('utf-8')
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
+        maker = data["0th"][271].decode("utf-8")
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\'"
         cur.execute(sql_str)
         try:
             maker = cur.fetchone()[0]
         except TypeError:
             pass
 
-        metadata['Производитель'] = maker
+        metadata["Производитель"] = maker
     except KeyError:
-        metadata['Производитель'] = ''
+        metadata["Производитель"] = ""
 
     try:
-        camera = data['0th'][272].decode('utf-8')
+        camera = data["0th"][272].decode("utf-8")
 
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\'"
         cur.execute(sql_str)
         try:
             camera = cur.fetchone()[0]
         except TypeError:
             pass
 
-        metadata['Камера'] = camera
+        metadata["Камера"] = camera
     except KeyError:
-        metadata['Камера'] = ''
+        metadata["Камера"] = ""
 
     try:
-        lens = data['Exif'][42036].decode('utf-8')
+        lens = data["Exif"][42036].decode("utf-8")
 
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\'"
         cur.execute(sql_str)
         try:
             lens = cur.fetchone()[0]
         except TypeError:
             pass
 
-        metadata['Объектив'] = lens
+        metadata["Объектив"] = lens
     except KeyError:
-        metadata['Объектив'] = ''
+        metadata["Объектив"] = ""
 
     try:
-        focal_length_float = data['Exif'][37386][0]/data['Exif'][37386][1]
-        metadata['Фокусное расстояние'] = str(int(focal_length_float))
+        focal_length_float = data["Exif"][37386][0]/data["Exif"][37386][1]
+        metadata["Фокусное расстояние"] = str(int(focal_length_float))
     except KeyError:
-        metadata['Фокусное расстояние'] = ''
+        metadata["Фокусное расстояние"] = ""
 
     try:
-        f_number_float = data['Exif'][33437][0]/data['Exif'][33437][1]
-        metadata['Диафрагма'] = str(f_number_float)
+        f_number_float = data["Exif"][33437][0]/data["Exif"][33437][1]
+        metadata["Диафрагма"] = str(f_number_float)
     except KeyError:
-        metadata['Диафрагма'] = ''
+        metadata["Диафрагма"] = ""
 
     try:
-        expo_time = data['Exif'][33434][0]/data['Exif'][33434][1]
+        expo_time = data["Exif"][33434][0]/data["Exif"][33434][1]
         if expo_time >= 0.1:
             expo_time_str = str(expo_time)
-            metadata['Выдержка'] = expo_time_str
+            metadata["Выдержка"] = expo_time_str
         else:
             try:
                 denominator = 1 / expo_time
                 expo_time_fraction = f"1/{int(denominator)}"
             except ZeroDivisionError:
                 expo_time_fraction = 0
-            metadata['Выдержка'] = expo_time_fraction
+            metadata["Выдержка"] = expo_time_fraction
     except KeyError:
-        metadata['Выдержка'] = ''
+        metadata["Выдержка"] = ""
 
     try:
-        iso = data['Exif'][34855]
-        metadata['ISO'] = str(iso)
+        iso = data["Exif"][34855]
+        metadata["ISO"] = str(iso)
     except KeyError:
-        metadata['ISO'] = ''
+        metadata["ISO"] = ""
 
     try:
-        gps_latitude_ref = data['GPS'][1].decode('utf-8')  # Считывание GPS из метаданных
-        gps_latitude = data['GPS'][2]
-        gps_longitude_ref = data['GPS'][3].decode('utf-8')
-        gps_longitude = data['GPS'][4]
+        gps_latitude_ref = data["GPS"][1].decode("utf-8")  # Считывание GPS из метаданных
+        gps_latitude = data["GPS"][2]
+        gps_longitude_ref = data["GPS"][3].decode("utf-8")
+        gps_longitude = data["GPS"][4]
 
         if gps_longitude_ref and gps_latitude_ref and gps_longitude and gps_latitude:
 
@@ -195,21 +195,21 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
             gps_longitude_value = round(gps_longitude_float, 4)
             gps_latitude_value = round(gps_latitude_float, 4)
 
-            if gps_longitude_ref == 'E':
+            if gps_longitude_ref == "E":
                 pass
             else:
                 gps_longitude_value = gps_longitude_value * (-1)
 
-            if gps_latitude_ref == 'N':
+            if gps_latitude_ref == "N":
                 pass
             else:
                 gps_latitude_value = gps_latitude_value * (-1)
 
-            metadata['GPS'] = str(gps_latitude_value) + ', ' + str(gps_longitude_value)
+            metadata["GPS"] = str(gps_latitude_value) + ", " + str(gps_longitude_value)
         else:
-            metadata['GPS'] = ''
+            metadata["GPS"] = ""
     except KeyError:
-        metadata['GPS'] = ''
+        metadata["GPS"] = ""
 
     return metadata
 
@@ -226,105 +226,105 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     metadata = dict()
 
     try:
-        width = str(data['File:ImageWidth'])
-        height = str(data['File:ImageHeight'])
-        metadata['Разрешение'] = width + 'x' + height
+        width = str(data["File:ImageWidth"])
+        height = str(data["File:ImageHeight"])
+        metadata["Разрешение"] = width + "x" + height
     except KeyError:
-        im = Image.open(photo_directory + '/' + photofile)
+        im = Image.open(photo_directory + "/" + photofile)
         width, height = im.size
-        metadata['Разрешение'] = str(width) + 'x' + str(height)
+        metadata["Разрешение"] = str(width) + "x" + str(height)
         im.close()
 
     if int(width) > int(height):  # Eсли ширина фотографии больше -> она горизонтальная, иначе - вертикальная. Нужно для размещения элементов GUI на экране
-        metadata['Rotation'] = 'gor'
+        metadata["Rotation"] = "gor"
     else:
-        metadata['Rotation'] = 'ver'
+        metadata["Rotation"] = "ver"
 
     try:
-        date = data['EXIF:DateTimeOriginal']  # делаем дату русской, а не пиндосской
-        date_show = date[11:] + ' ' + date[8:10] + '.' + date[5:7] + '.' + date[0:4]
-        metadata['Дата съёмки'] = date_show
+        date = data["EXIF:DateTimeOriginal"]  # делаем дату русской, а не пиндосской
+        date_show = date[11:] + " " + date[8:10] + "." + date[5:7] + "." + date[0:4]
+        metadata["Дата съёмки"] = date_show
     except KeyError:
-        metadata['Дата съёмки'] = ''
+        metadata["Дата съёмки"] = ""
 
     try:
-        maker = data['EXIF:Make']
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\''
+        maker = data["EXIF:Make"]
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\'"
         cur.execute(sql_str)
         try:
             maker = cur.fetchone()[0]
         except TypeError:
             pass
-        metadata['Производитель'] = maker
+        metadata["Производитель"] = maker
     except KeyError:
-        metadata['Производитель'] = ''
+        metadata["Производитель"] = ""
 
     try:
-        camera = data['EXIF:Model']
+        camera = data["EXIF:Model"]
 
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\''
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\'"
         cur.execute(sql_str)
         try:
             camera = cur.fetchone()[0]
         except TypeError:
             pass
 
-        metadata['Камера'] = camera
+        metadata["Камера"] = camera
     except KeyError:
-        metadata['Камера'] = ''
+        metadata["Камера"] = ""
 
     try:
-        lens = data['EXIF:LensModel']
+        lens = data["EXIF:LensModel"]
 
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\''
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\'"
         cur.execute(sql_str)
         try:
             lens = cur.fetchone()[0]
         except TypeError:
             pass
 
-        metadata['Объектив'] = lens
+        metadata["Объектив"] = lens
     except KeyError:
-        metadata['Объектив'] = ''
+        metadata["Объектив"] = ""
 
     try:
-        focal_length_float = data['FocalLength']
-        metadata['Фокусное расстояние'] = str(int(focal_length_float))
+        focal_length_float = data["FocalLength"]
+        metadata["Фокусное расстояние"] = str(int(focal_length_float))
     except KeyError:
-        metadata['Фокусное расстояние'] = ''
+        metadata["Фокусное расстояние"] = ""
 
     try:
-        f_number_float = data['EXIF:FNumber']
-        metadata['Диафрагма'] = str(f_number_float)
+        f_number_float = data["EXIF:FNumber"]
+        metadata["Диафрагма"] = str(f_number_float)
     except KeyError:
-        metadata['Диафрагма'] = ''
+        metadata["Диафрагма"] = ""
 
     try:
-        expo_time = float(data['EXIF:ExposureTime'])
+        expo_time = float(data["EXIF:ExposureTime"])
         if expo_time >= 0.1:
             expo_time_str = str(expo_time)
-            metadata['Выдержка'] = expo_time_str
+            metadata["Выдержка"] = expo_time_str
         else:
             try:
                 denominator = 1 / expo_time
                 expo_time_fraction = f"1/{int(denominator)}"
             except ZeroDivisionError:
                 expo_time_fraction = 0
-            metadata['Выдержка'] = expo_time_fraction
+            metadata["Выдержка"] = expo_time_fraction
     except KeyError:
-        metadata['Выдержка'] = ''
+        metadata["Выдержка"] = ""
 
     try:
-        iso = data['EXIF:ISO']
-        metadata['ISO'] = str(iso)
+        iso = data["EXIF:ISO"]
+        metadata["ISO"] = str(iso)
     except KeyError:
-        metadata['ISO'] = ''
+        metadata["ISO"] = ""
 
     try:
-        gps_latitude_ref = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        gps_latitude = data['EXIF:GPSLatitude']
-        gps_longitude_ref = data['EXIF:GPSLongitudeRef']
-        gps_longitude = data['EXIF:GPSLongitude']
+        gps_latitude_ref = data["EXIF:GPSLatitudeRef"]  # Считывание GPS из метаданных
+        gps_latitude = data["EXIF:GPSLatitude"]
+        gps_longitude_ref = data["EXIF:GPSLongitudeRef"]
+        gps_longitude = data["EXIF:GPSLongitude"]
 
         if gps_longitude_ref and gps_latitude_ref and gps_longitude and gps_latitude:
             GPSLatitude_float = float(gps_latitude)  # Приведение координат к десятичным числам, как на Я.Картах
@@ -333,21 +333,21 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
             GPSLongitude_value = round(GPSLongitude_float, 4)
             GPSLatitude_value = round(GPSLatitude_float, 4)
 
-            if gps_longitude_ref == 'E':
+            if gps_longitude_ref == "E":
                 pass
             else:
                 GPSLongitude_value = GPSLongitude_value * (-1)
 
-            if gps_latitude_ref == 'N':
+            if gps_latitude_ref == "N":
                 pass
             else:
                 GPSLatitude_value = GPSLatitude_value * (-1)
 
-            metadata['GPS'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
+            metadata["GPS"] = str(GPSLatitude_value) + ", " + str(GPSLongitude_value)
         else:
-            metadata['GPS'] = ''
+            metadata["GPS"] = ""
     except KeyError:
-        metadata['GPS'] = ''
+        metadata["GPS"] = ""
 
     return metadata
 
@@ -359,44 +359,44 @@ def exif_for_db(data: dict) -> tuple[str, str, str, str, str]:
     :return: камера, объектив, дата, GPS.
     """
     try:
-        camera = data['EXIF:Model']
+        camera = data["EXIF:Model"]
     except KeyError:
         camera = ""
 
     try:
-        lens = data['EXIF:LensModel']
+        lens = data["EXIF:LensModel"]
     except KeyError:
         lens = ""
 
     try:
-        date = data['EXIF:DateTimeOriginal']  # делаем дату русской, а не пиндосской
-        date = date[0:4] + '.' + date[5:7] + '.' + date[8:10] + ' ' + date[11:]
+        date = data["EXIF:DateTimeOriginal"]  # делаем дату русской, а не пиндосской
+        date = date[0:4] + "." + date[5:7] + "." + date[8:10] + " " + date[11:]
     except KeyError:
         date = ""
 
     try:
-        gps_latitude_ref = data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        gps_latitude = round(float(data['EXIF:GPSLatitude']), 4)
-        gps_longitude_ref = data['EXIF:GPSLongitudeRef']
-        gps_longitude = round(float(data['EXIF:GPSLongitude']), 4)
+        gps_latitude_ref = data["EXIF:GPSLatitudeRef"]  # Считывание GPS из метаданных
+        gps_latitude = round(float(data["EXIF:GPSLatitude"]), 4)
+        gps_longitude_ref = data["EXIF:GPSLongitudeRef"]
+        gps_longitude = round(float(data["EXIF:GPSLongitude"]), 4)
 
-        if gps_longitude_ref == 'E':
+        if gps_longitude_ref == "E":
             pass
         else:
             gps_longitude = gps_longitude * (-1)
 
-        if gps_latitude_ref == 'N':
+        if gps_latitude_ref == "N":
             pass
         else:
             gps_latitude = gps_latitude * (-1)
-        gps = str(gps_latitude) + ', ' + str(gps_longitude)
+        gps = str(gps_latitude) + ", " + str(gps_longitude)
     except KeyError:
         gps = ""
 
     try:
-        usercomment = data['EXIF:UserComment']
+        usercomment = data["EXIF:UserComment"]
     except KeyError:
-        usercomment = ''
+        usercomment = ""
 
     return camera, lens, date, gps, usercomment
 
@@ -414,78 +414,78 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
     useful_data = dict()
 
     try:
-        useful_data['Производитель'] = all_data['EXIF:Make']
+        useful_data["Производитель"] = all_data["EXIF:Make"]
     except KeyError:
-        useful_data['Производитель'] = ''
+        useful_data["Производитель"] = ""
 
     try:
-        useful_data['Камера'] = all_data['EXIF:Model']
+        useful_data["Камера"] = all_data["EXIF:Model"]
     except KeyError:
-        useful_data['Камера'] = ''
+        useful_data["Камера"] = ""
 
     try:
-        useful_data['Объектив'] = all_data['EXIF:LensModel']
+        useful_data["Объектив"] = all_data["EXIF:LensModel"]
     except KeyError:
-        useful_data['Объектив'] = ''
+        useful_data["Объектив"] = ""
 
     try:
-        if float(all_data['EXIF:ExposureTime']) < 0.1:
+        if float(all_data["EXIF:ExposureTime"]) < 0.1:
             try:
-                denominator = 1 / float(all_data['EXIF:ExposureTime'])
+                denominator = 1 / float(all_data["EXIF:ExposureTime"])
                 expo_time_show = f"1/{int(denominator)}"
             except ZeroDivisionError:
-                expo_time_show = '0'
-            useful_data['Выдержка'] = expo_time_show
+                expo_time_show = "0"
+            useful_data["Выдержка"] = expo_time_show
         else:
-            useful_data['Выдержка'] = str(all_data['EXIF:ExposureTime'])
+            useful_data["Выдержка"] = str(all_data["EXIF:ExposureTime"])
     except KeyError:
-        useful_data['Выдержка'] = ''
+        useful_data["Выдержка"] = ""
 
     try:
-        useful_data['ISO'] = all_data['EXIF:ISO']
+        useful_data["ISO"] = all_data["EXIF:ISO"]
     except KeyError:
-        useful_data['ISO'] = ''
+        useful_data["ISO"] = ""
 
     try:
-        useful_data['Диафрагма'] = str(all_data['EXIF:FNumber'])
+        useful_data["Диафрагма"] = str(all_data["EXIF:FNumber"])
     except KeyError:
-        useful_data['Диафрагма'] = ''
+        useful_data["Диафрагма"] = ""
 
     try:
-        useful_data['Фокусное расстояние'] = str(int(all_data['EXIF:FocalLength']))
+        useful_data["Фокусное расстояние"] = str(int(all_data["EXIF:FocalLength"]))
     except KeyError:
-        useful_data['Фокусное расстояние'] = ''
+        useful_data["Фокусное расстояние"] = ""
 
     try:
-        useful_data['Время съёмки'] = all_data['EXIF:DateTimeOriginal']
+        useful_data["Время съёмки"] = all_data["EXIF:DateTimeOriginal"]
     except KeyError:
-        useful_data['Время съёмки'] = ''
+        useful_data["Время съёмки"] = ""
 
     try:
-        useful_data['Часовой пояс'] = all_data['EXIF:OffsetTime']
+        useful_data["Часовой пояс"] = all_data["EXIF:OffsetTime"]
     except KeyError:
-        useful_data['Часовой пояс'] = ''
+        useful_data["Часовой пояс"] = ""
 
     try:
-        useful_data['Серийный номер камеры'] = all_data['EXIF:SerialNumber']
+        useful_data["Серийный номер камеры"] = all_data["EXIF:SerialNumber"]
     except KeyError:
-        useful_data['Серийный номер камеры'] = ''
+        useful_data["Серийный номер камеры"] = ""
 
     try:
-        useful_data['Серийный номер объектива'] = all_data['EXIF:LensSerialNumber']
+        useful_data["Серийный номер объектива"] = all_data["EXIF:LensSerialNumber"]
     except KeyError:
-        useful_data['Серийный номер объектива'] = ''
+        useful_data["Серийный номер объектива"] = ""
 
     try:
-        useful_data['Комментарий'] = all_data['EXIF:UserComment']
+        useful_data["Комментарий"] = all_data["EXIF:UserComment"]
     except KeyError:
-        useful_data['Комментарий'] = ''
+        useful_data["Комментарий"] = ""
 
     try:
-        gps_latitude_ref = all_data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        gps_latitude = all_data['EXIF:GPSLatitude']
-        gps_longitude_ref = all_data['EXIF:GPSLongitudeRef']
-        gps_longitude = all_data['EXIF:GPSLongitude']
+        gps_latitude_ref = all_data["EXIF:GPSLatitudeRef"]  # Считывание GPS из метаданных
+        gps_latitude = all_data["EXIF:GPSLatitude"]
+        gps_longitude_ref = all_data["EXIF:GPSLongitudeRef"]
+        gps_longitude = all_data["EXIF:GPSLongitude"]
 
         gps_latitude_float = float(gps_latitude)  # Приведение координат к десятичным числам, как на Я.Картах
         gps_longitude_float = float(gps_longitude)
@@ -493,19 +493,19 @@ def exif_show_edit(photoname: str) -> dict[str, str]:
         gps_longitude_value = round(gps_longitude_float, 4)
         gps_latitude_value = round(gps_latitude_float, 4)
 
-        if gps_longitude_ref == 'E':
+        if gps_longitude_ref == "E":
             pass
         else:
             gps_longitude_value = gps_longitude_value * (-1)
 
-        if gps_latitude_ref == 'N':
+        if gps_latitude_ref == "N":
             pass
         else:
             gps_latitude_value = gps_latitude_value * (-1)
 
-        useful_data['Координаты'] = str(gps_latitude_value) + ', ' + str(gps_longitude_value)
+        useful_data["Координаты"] = str(gps_latitude_value) + ", " + str(gps_longitude_value)
     except KeyError:
-        useful_data['Координаты'] = ''
+        useful_data["Координаты"] = ""
 
     return useful_data
 
@@ -518,7 +518,7 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict: dict)
     :param new_value_dict:
     :return:
     """
-    photofile = photodirectory + '/' + photoname
+    photofile = photodirectory + "/" + photoname
 
     modify_dict = dict()
 
@@ -527,64 +527,64 @@ def exif_rewrite_edit(photoname: str, photodirectory: str, new_value_dict: dict)
     for edit_type in editing_types:
         match edit_type:
             case 0:
-                modify_dict['EXIF:Make'] = new_value_dict[0]
+                modify_dict["EXIF:Make"] = new_value_dict[0]
 
             case 1:
-                modify_dict['EXIF:Model'] = new_value_dict[1]
+                modify_dict["EXIF:Model"] = new_value_dict[1]
 
             case 2:
-                modify_dict['EXIF:LensModel'] = new_value_dict[2]
+                modify_dict["EXIF:LensModel"] = new_value_dict[2]
 
             case 3:
-                if '/' in new_value_dict[3]:
-                    float_value = 1 / float(new_value_dict[3].split('/')[1])
+                if "/" in new_value_dict[3]:
+                    float_value = 1 / float(new_value_dict[3].split("/")[1])
                 else:
                     float_value = float(new_value_dict[3])
-                modify_dict['EXIF:ExposureTime'] = float_value
+                modify_dict["EXIF:ExposureTime"] = float_value
 
             case 4:
-                modify_dict['EXIF:ISO'] = new_value_dict[4]
+                modify_dict["EXIF:ISO"] = new_value_dict[4]
 
             case 5:
-                modify_dict['EXIF:FNumber'] = new_value_dict[5]
+                modify_dict["EXIF:FNumber"] = new_value_dict[5]
 
             case 6:
-                modify_dict['EXIF:FocalLength'] = new_value_dict[6]
+                modify_dict["EXIF:FocalLength"] = new_value_dict[6]
 
             case 11:
-                modify_dict['EXIF:DateTimeOriginal'] = new_value_dict[11]
+                modify_dict["EXIF:DateTimeOriginal"] = new_value_dict[11]
 
             case 8:
-                modify_dict['EXIF:OffsetTime'] = new_value_dict[8]
+                modify_dict["EXIF:OffsetTime"] = new_value_dict[8]
 
             case 9:
-                modify_dict['EXIF:SerialNumber'] = new_value_dict[9]
+                modify_dict["EXIF:SerialNumber"] = new_value_dict[9]
 
             case 10:
-                modify_dict['EXIF:LensSerialNumber'] = new_value_dict[10]
+                modify_dict["EXIF:LensSerialNumber"] = new_value_dict[10]
 
             case 7:
-                new_value_splitted = new_value_dict[7].split(', ')
+                new_value_splitted = new_value_dict[7].split(", ")
                 float_value_lat = float(new_value_splitted[0])
                 float_value_long = float(new_value_splitted[1])
 
                 if float_value_lat > 0:
-                    lat_ref = 'N'
+                    lat_ref = "N"
                 else:
-                    lat_ref = 'S'
+                    lat_ref = "S"
 
                 if float_value_long > 0:
-                    long_ref = 'E'
+                    long_ref = "E"
                 else:
-                    long_ref = 'W'
+                    long_ref = "W"
 
-                modify_dict['EXIF:GPSLatitudeRef'] = lat_ref
-                modify_dict['EXIF:GPSLatitude'] = float_value_lat
-                modify_dict['EXIF:GPSLongitudeRef'] = long_ref
-                modify_dict['EXIF:GPSLongitude'] = float_value_long
+                modify_dict["EXIF:GPSLatitudeRef"] = lat_ref
+                modify_dict["EXIF:GPSLatitude"] = float_value_lat
+                modify_dict["EXIF:GPSLongitudeRef"] = long_ref
+                modify_dict["EXIF:GPSLongitude"] = float_value_long
 
             case 12:
-                modify_dict['EXIF:UserComment'] = new_value_dict[12]
+                modify_dict["EXIF:UserComment"] = new_value_dict[12]
 
     try:
         # Сделать саму перезапись
@@ -616,9 +616,9 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
     match editing_type:
         # выдержка
         case 3:
-            if '/' in new_value:
+            if "/" in new_value:
                 try:
-                    if int(new_value.split('/')[0]) < 0 or int(new_value.split('/')[1]) < 0:
+                    if int(new_value.split("/")[0]) < 0 or int(new_value.split("/")[1]) < 0:
                         make_error()
                 except (IndexError, ValueError):
                     make_error()
@@ -656,7 +656,7 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
 
         # GPS
         case 7:
-            new_value_splitted = new_value.split(', ')
+            new_value_splitted = new_value.split(", ")
             try:
                 float(new_value_splitted[0])
                 float(new_value_splitted[1])
@@ -668,11 +668,11 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
             try:
                 int(new_value[1])
                 int(new_value[2])
-                if new_value[0] == '+' or new_value[0] == '-':
+                if new_value[0] == "+" or new_value[0] == "-":
                     pass
                 else:
                     make_error()
-                if new_value[3] == ':' and new_value[4] == '0' and new_value[5] == '0':
+                if new_value[3] == ":" and new_value[4] == "0" and new_value[5] == "0":
                     pass
                 else:
                     make_error()
@@ -709,8 +709,8 @@ def exif_check_edit(editing_type: int, new_value: str) -> None:
                 else:
                     make_error()
 
-                if new_value[4] == ':' and new_value[7] == ':' and new_value[13] == ':' and new_value[16] == ':' and \
-                        new_value[10] == ' ':
+                if new_value[4] == ":" and new_value[7] == ":" and new_value[13] == ":" and new_value[16] == ":" and \
+                        new_value[10] == " ":
                     pass
                 else:
                     make_error()
@@ -738,7 +738,7 @@ def equip_name_check(equip_list: list[str], equip_type: str) -> list[str]:
     :return: список уникальных исправленных названий оборудования.
     """
     for i in range(len(equip_list)):
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{equip_list[i]}\''
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{equip_list[i]}\'"
         cur.execute(sql_str)
         try:
             right_equip = cur.fetchone()[0]
@@ -763,15 +763,15 @@ def equip_name_check_with_counter(equip_dict: dict[str, int], equip_type: str) -
     equip_list = list(equip_dict.keys())
 
     for i in range(len(equip_list)):
-        sql_str = f'SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{equip_list[i]}\''
+        sql_str = f"SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{equip_list[i]}\'"
         cur.execute(sql_str)
         try:
             right_equip = cur.fetchone()[0]
             try:
-                equip_dict[f'{right_equip}'] += equip_dict[f'{equip_list[i]}']
+                equip_dict[f"{right_equip}"] += equip_dict[f"{equip_list[i]}"]
             except KeyError:
-                equip_dict[f'{right_equip}'] = equip_dict[f'{equip_list[i]}']
-            equip_dict.pop(f'{equip_list[i]}')
+                equip_dict[f"{right_equip}"] = equip_dict[f"{equip_list[i]}"]
+            equip_dict.pop(f"{equip_list[i]}")
         except TypeError:
             pass
 
@@ -789,7 +789,7 @@ def equip_solo_name_check(exif_name: str, equip_type: str) -> str:
     :param equip_type: тип устройства.
     :return: как оборудование автоматически пишется в exif.
     """
-    sql_str = f'SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{exif_name}\''
+    sql_str = f"SELECT normname FROM ernames WHERE type = \'{equip_type}\' AND exifname = \'{exif_name}\'"
     try:
         cur.execute(sql_str)
     except ValueError:
@@ -811,7 +811,7 @@ def equip_name_check_reverse(normname: str, equip_type: str) -> str:
     :param equip_type: тип устройства.
     :return: как оборудование автоматически пишется в exif.
     """
-    sql_str = f'SELECT exifname FROM ernames WHERE type = \'{equip_type}\' AND normname = \'{normname}\''
+    sql_str = f"SELECT exifname FROM ernames WHERE type = \'{equip_type}\' AND normname = \'{normname}\'"
     cur.execute(sql_str)
     try:
         exifname = cur.fetchone()[0]
@@ -828,7 +828,7 @@ def clear_exif(photoname: str, photodirectory: str) -> None:
     :param photodirectory: директория хранения.
     :return: в отличие от перезаписи или добавления метаданных, не требуется создание нового файла.
     """
-    photofile = photodirectory + '/' + photoname
+    photofile = photodirectory + "/" + photoname
 
     piexif.remove(photofile)
 
@@ -843,11 +843,11 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
     :return: фотография нормально повёрнута
     """
     try:
-        meta_orientation = data['EXIF:Orientation']
+        meta_orientation = data["EXIF:Orientation"]
         im = Image.open(photo_file)
         file_exif = data
         for key in list(file_exif.keys()):
-            if 'EXIF' in key or 'Composite' in key:
+            if "EXIF" in key or "Composite" in key:
                 pass
             else:
                 file_exif.pop(key)
@@ -878,8 +878,8 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
             case _:
                 im_flipped = im
 
-        # im_flipped.save(photo_file, 'jpeg', exif=exif_bytes, quality=95, subsampling=0)
-        im_flipped.save(photo_file, 'jpeg', quality=95, subsampling=0)
+        # im_flipped.save(photo_file, "jpeg", exif=exif_bytes, quality=95, subsampling=0)
+        im_flipped.save(photo_file, "jpeg", quality=95, subsampling=0)
         im.close()
         im_flipped.close()
 
@@ -890,10 +890,10 @@ def check_photo_rotation(photo_file: str, data: dict) -> None:
 
         modify_dict = {}
         try:
-            modify_dict['EXIF:GPSLatitudeRef'] = file_exif['EXIF:GPSLatitudeRef']
-            modify_dict['EXIF:GPSLatitude'] = file_exif['EXIF:GPSLatitude']
-            modify_dict['EXIF:GPSLongitudeRef'] = file_exif['EXIF:GPSLongitudeRef']
-            modify_dict['EXIF:GPSLongitude'] = file_exif['EXIF:GPSLongitude']
+            modify_dict["EXIF:GPSLatitudeRef"] = file_exif["EXIF:GPSLatitudeRef"]
+            modify_dict["EXIF:GPSLatitude"] = file_exif["EXIF:GPSLatitude"]
+            modify_dict["EXIF:GPSLongitudeRef"] = file_exif["EXIF:GPSLongitudeRef"]
+            modify_dict["EXIF:GPSLongitude"] = file_exif["EXIF:GPSLongitude"]
 
             with exiftool.ExifToolHelper() as et:
                 et.set_tags(photo_file,
@@ -924,7 +924,7 @@ def write_normal_photo_size(photo_file: str, width: int, height: int) -> None:
 
     with exiftool.ExifToolHelper() as et:
         et.set_tags(photo_file,
-                    tags={'EXIF:ImageWidth': width, 'EXIF:ImageHeight': height, 'EXIF:Orientation': 1},
+                    tags={"EXIF:ImageWidth": width, "EXIF:ImageHeight": height, "EXIF:Orientation": 1},
                     params=["-P", "-overwrite_original"])
 
     logging.info(f"Metadata - In file {photo_file} were written width -{width} and height-{height}")
@@ -940,7 +940,7 @@ def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
     data = read_exif(photo_file)
     im = Image.open(photo_file)
     try:
-        meta_orientation = data['EXIF:Orientation']
+        meta_orientation = data["EXIF:Orientation"]
     except KeyError:
         meta_orientation = 1
 
@@ -950,40 +950,40 @@ def onlyshow_rotation(photo_file: str) -> tuple[str, int]:
             orientation = 1
         case 2:
             im_flipped = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 1
         case 3:
             im_flipped = im.transpose(method=Image.Transpose.ROTATE_180)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 1
         case 4:
             im_flipped = im.transpose(method=Image.Transpose.FLIP_TOP_BOTTOM)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 1
         case 5:
             im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
             im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_90)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 0
         case 6:
             im_flipped = im.transpose(method=Image.Transpose.ROTATE_270)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 0
         case 7:
             im_flipped_temp = im.transpose(method=Image.Transpose.FLIP_LEFT_RIGHT)
             im_flipped = im_flipped_temp.transpose(method=Image.Transpose.ROTATE_270)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 0
         case 8:
             im_flipped = im.transpose(method=Image.Transpose.ROTATE_90)
-            im_flipped.save(photo_file + '_temp', 'jpeg', quality=95, subsampling=0)
-            photo_show = photo_file + '_temp'
+            im_flipped.save(photo_file + "_temp", "jpeg", quality=95, subsampling=0)
+            photo_show = photo_file + "_temp"
             orientation = 0
         case _:
             photo_show = photo_file
@@ -1002,7 +1002,7 @@ def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None
     try:
         data = read_exif(photo_file)
         thum = Image.open(thumbnail_file)
-        meta_orientation = data['EXIF:Orientation']
+        meta_orientation = data["EXIF:Orientation"]
         match meta_orientation:
             case 1:
                 thum_flipped = thum
@@ -1025,7 +1025,7 @@ def onlyshow_thumbnail_orientation(photo_file: str, thumbnail_file: str) -> None
             case _:
                 thum_flipped = thum
 
-        thum_flipped.save(thumbnail_file, 'jpeg', quality=95, subsampling=0)
+        thum_flipped.save(thumbnail_file, "jpeg", quality=95, subsampling=0)
     except KeyError:
         pass
 
@@ -1043,45 +1043,45 @@ def massive_table_data(file: str) -> dict[str, str]:
     useful_data = dict()
 
     try:
-        useful_data['Производитель'] = all_data['EXIF:Make']
+        useful_data["Производитель"] = all_data["EXIF:Make"]
     except KeyError:
-        useful_data['Производитель'] = ''
+        useful_data["Производитель"] = ""
 
     try:
-        useful_data['Камера'] = all_data['EXIF:Model']
+        useful_data["Камера"] = all_data["EXIF:Model"]
     except KeyError:
-        useful_data['Камера'] = ''
+        useful_data["Камера"] = ""
 
     try:
-        useful_data['Объектив'] = all_data['EXIF:LensModel']
+        useful_data["Объектив"] = all_data["EXIF:LensModel"]
     except KeyError:
-        useful_data['Объектив'] = ''
+        useful_data["Объектив"] = ""
 
     try:
-        useful_data['Время съёмки'] = all_data['EXIF:DateTimeOriginal']
+        useful_data["Время съёмки"] = all_data["EXIF:DateTimeOriginal"]
     except KeyError:
-        useful_data['Время съёмки'] = ''
+        useful_data["Время съёмки"] = ""
 
     try:
-        useful_data['Часовой пояс'] = all_data['EXIF:OffsetTime']
+        useful_data["Часовой пояс"] = all_data["EXIF:OffsetTime"]
     except KeyError:
-        useful_data['Часовой пояс'] = ''
+        useful_data["Часовой пояс"] = ""
 
     try:
-        useful_data['Серийный номер камеры'] = all_data['EXIF:SerialNumber']
+        useful_data["Серийный номер камеры"] = all_data["EXIF:SerialNumber"]
     except KeyError:
-        useful_data['Серийный номер камеры'] = ''
+        useful_data["Серийный номер камеры"] = ""
 
     try:
-        useful_data['Серийный номер объектива'] = all_data['EXIF:LensSerialNumber']
+        useful_data["Серийный номер объектива"] = all_data["EXIF:LensSerialNumber"]
     except KeyError:
-        useful_data['Серийный номер объектива'] = ''
+        useful_data["Серийный номер объектива"] = ""
 
     try:
-        GPSLatitudeRef = all_data['EXIF:GPSLatitudeRef']  # Считывание GPS из метаданных
-        GPSLatitude = all_data['EXIF:GPSLatitude']
-        GPSLongitudeRef = all_data['EXIF:GPSLongitudeRef']
-        GPSLongitude = all_data['EXIF:GPSLongitude']
+        GPSLatitudeRef = all_data["EXIF:GPSLatitudeRef"]  # Считывание GPS из метаданных
+        GPSLatitude = all_data["EXIF:GPSLatitude"]
+        GPSLongitudeRef = all_data["EXIF:GPSLongitudeRef"]
+        GPSLongitude = all_data["EXIF:GPSLongitude"]
 
         GPSLatitude_float = float(GPSLatitude)  # Приведение координат к десятичным числам, как на Я.Картах
         GPSLongitude_float = float(GPSLongitude)
@@ -1089,23 +1089,23 @@ def massive_table_data(file: str) -> dict[str, str]:
         GPSLongitude_value = round(GPSLongitude_float, 4)
         GPSLatitude_value = round(GPSLatitude_float, 4)
 
-        if GPSLongitudeRef == 'E':
+        if GPSLongitudeRef == "E":
             pass
         else:
             GPSLongitude_value = GPSLongitude_value * (-1)
 
-        if GPSLatitudeRef == 'N':
+        if GPSLatitudeRef == "N":
             pass
         else:
             GPSLatitude_value = GPSLatitude_value * (-1)
 
-        useful_data['Координаты'] = str(GPSLatitude_value) + ', ' + str(GPSLongitude_value)
+        useful_data["Координаты"] = str(GPSLatitude_value) + ", " + str(GPSLongitude_value)
     except KeyError:
-        useful_data['Координаты'] = ''
+        useful_data["Координаты"] = ""
 
     try:
-        useful_data['Комментарий'] = all_data['EXIF:UserComment']
+        useful_data["Комментарий"] = all_data["EXIF:UserComment"]
     except KeyError:
-        useful_data['Комментарий'] = ''
+        useful_data["Комментарий"] = ""
 
     return useful_data
