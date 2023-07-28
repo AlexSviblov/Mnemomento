@@ -91,30 +91,18 @@ class SettingWidget(QWidget):
         self.setMinimumSize(1000, 300)
 
         self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
-        self.layout.setSpacing(5)
 
         self.tabs = QTabWidget(self)
-        self.tabs.setStyleSheet(stylesheet7)
-
-        self.make_gui()
-
-        self.tabs.setFont(font14)
-        self.layout.addWidget(self.tabs, 0, 0, 1, 3)
 
         self.btn_ok = QPushButton(self)
-        self.btn_ok.setText("Сохранить")
-        self.btn_ok.setFont(font14)
-        self.btn_ok.setStyleSheet(stylesheet8)
-        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
-        self.btn_ok.clicked.connect(self.check_changes)
-
         self.btn_cancel = QPushButton(self)
-        self.btn_cancel.setText("Отмена")
-        self.btn_cancel.setFont(font14)
-        self.btn_cancel.setStyleSheet(stylesheet8)
-        self.layout.addWidget(self.btn_cancel, 1, 2, 1, 1)
-        self.btn_cancel.clicked.connect(self.cancel_signal.emit)
+
+        self.tab_files = QWidget(self)
+        self.tab_view = QWidget(self)
+        self.tab_hotkeys = QWidget(self)
+
+
+        self.make_gui()
 
         self.show_settings()
 
@@ -124,9 +112,25 @@ class SettingWidget(QWidget):
         """
         Создание интерфейса
         """
-        self.tab_files = QWidget(self)
-        self.tab_view = QWidget(self)
-        self.tab_hotkeys = QWidget(self)
+        self.setLayout(self.layout)
+        self.layout.setSpacing(5)
+
+        self.tabs.setStyleSheet(stylesheet7)
+
+        self.tabs.setFont(font14)
+        self.layout.addWidget(self.tabs, 0, 0, 1, 3)
+
+        self.btn_ok.setText("Сохранить")
+        self.btn_ok.setFont(font14)
+        self.btn_ok.setStyleSheet(stylesheet8)
+        self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
+        self.btn_ok.clicked.connect(self.check_changes)
+
+        self.btn_cancel.setText("Отмена")
+        self.btn_cancel.setFont(font14)
+        self.btn_cancel.setStyleSheet(stylesheet8)
+        self.layout.addWidget(self.btn_cancel, 1, 2, 1, 1)
+        self.btn_cancel.clicked.connect(self.cancel_signal.emit)
 
         def make_files() -> None:
             self.layout_files = QGridLayout(self)
@@ -375,8 +379,8 @@ class SettingWidget(QWidget):
             with open("settings.json", "r") as json_file:
                 settings = json.load(json_file)
         except FileNotFoundError:
-            win = ErrorsAndWarnings.SettingsReadError(self)
-            win.show()
+            error_win = ErrorsAndWarnings.SettingsReadError(self)
+            error_win.show()
             return
 
         self.old_media_dir = settings["files"]["destination_dir"]
@@ -403,8 +407,8 @@ class SettingWidget(QWidget):
             with open("hotkeys.json", "r") as json_file:
                 hotkeys = json.load(json_file)
         except FileNotFoundError:
-            win = ErrorsAndWarnings.SettingsReadError(self)
-            win.show()
+            error_win = ErrorsAndWarnings.SettingsReadError(self)
+            error_win.show()
             return
 
         self.open_file_enter.setText(hotkeys["open_file"])
@@ -565,11 +569,19 @@ class TransferFiles(QDialog):
 
         self.setWindowTitle("Необходим перенос файлов")
         self.layout_win = QGridLayout(self)
-        self.setLayout(self.layout_win)
         self.text_info = QLabel(self)
-        self.text_info.setFont(font14)
 
-        match code:
+        self.accept_btn = QPushButton(self)
+        self.reject_btn = QPushButton(self)
+
+        self.label = QLabel(self)
+        self.text = QLabel(self)
+        self.movie = QMovie(loading_icon)
+
+        self.make_gui()
+
+    def make_gui(self):
+        match self.code:
             case 1:
                 self.text_info.setText("Была изменена директория хранения фотографий")
             case 2:
@@ -577,13 +589,15 @@ class TransferFiles(QDialog):
             case 3:
                 self.text_info.setText("Были изменены директории хранения фотографий и  миниатюр")
 
-        self.accept_btn = QPushButton(self)
+        self.setLayout(self.layout_win)
+
+        self.text_info.setFont(font14)
+
         self.accept_btn.setText("Начать")
         self.accept_btn.setFont(font14)
         self.accept_btn.setStyleSheet(stylesheet8)
         self.accept_btn.clicked.connect(self.func_accept)
 
-        self.reject_btn = QPushButton(self)
         self.reject_btn.setText("Отмена")
         self.reject_btn.setFont(font14)
         self.reject_btn.setStyleSheet(stylesheet8)
@@ -597,13 +611,10 @@ class TransferFiles(QDialog):
         self.text_info.hide()
         self.accept_btn.hide()
         self.reject_btn.hide()
-
-        self.label = QLabel(self)
-        self.text = QLabel(self)
         self.text.setText("Загрузка, подождите")
         self.text.setStyleSheet(stylesheet2)
         self.text.setFont(font14)
-        self.movie = QMovie(loading_icon)
+
         self.label.setMovie(self.movie)
         self.label.setStyleSheet(stylesheet2)
         self.movie.start()

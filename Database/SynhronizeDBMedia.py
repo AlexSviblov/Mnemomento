@@ -117,8 +117,8 @@ def add_flaw_to_db(filelist: list[list[str]]) -> None:
                 shootingdate = shootingdatetime
 
             if not answer_photo:
-                sql_str1 = f"INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
-                           f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{gps}\', \'{usercomment}\')"
+                sql_str1 = f"INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\'," \
+                           f"\'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{gps}\', \'{usercomment}\')"
 
                 cur.execute(sql_str1)
 

@@ -28,8 +28,8 @@ def add_to_database(photoname: str, photodirectory: str, metadata: dict) -> None
     else:
         shootingdate = shootingdatetime
 
-    sql_str1 = f"INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\',' \
-               f' \'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{GPS}\', \'{usercomment}\')"
+    sql_str1 = f"INSERT INTO photos VALUES (\'{photoname}\', \'{photodirectory}\', \'{camera}\', \'{lens}\'," \
+               f"\'{shootingdate}\', \'{shootingdatetime}\', \'{additiontime}\', \'{GPS}\', \'{usercomment}\')"
     sql_str_get_nets = "PRAGMA table_info(socialnetworks)"
     cur.execute(sql_str_get_nets)
     all_column_names = cur.fetchall()
@@ -177,7 +177,7 @@ def filename_after_transfer(prewname: str, rename: str, newcatalog: str, oldcata
     logging.info(f"PhotoDataDB - File {newcatalog}/{prewname} transfered to {oldcatalog}/{rename}")
 
 
-def get_social_tags(photoname: str, photodirectory: str) -> tuple[list[str], dict]:
+def get_social_tags(photoname: str, photodirectory: str) -> [list[str], dict]:
     """
     Для фотографии достать выбранные статусы выкладывания в БД.
     :param photoname: имя файла.
@@ -325,7 +325,7 @@ def get_sn_photo_list(network: str, status: str, comment_status: bool, comment_t
         sql_str = f"SELECT filename, catalog FROM socialnetworks WHERE {network} = \'{status_bd}\' {db_order_settings()}"
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
-    except:     # поймать ошибку с тем, что нет столбца network, так как у столбца начало "numnumnum"
+    except sqlite3.OperationalError:     # поймать ошибку с тем, что нет столбца network, так как у столбца начало "numnumnum"
         sql_str = f"SELECT filename, catalog FROM socialnetworks WHERE numnumnum{network} = \'{status_bd}\' {db_order_settings()}"
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
@@ -372,7 +372,7 @@ def get_sn_alone_list(photo_directory: str, network: str, status: str) -> list[s
         sql_str = f"SELECT filename FROM socialnetworks WHERE {network} = \'{status}\' AND catalog = \'{photo_directory}\'"
         cur.execute(sql_str)
         photodb_data = cur.fetchall()
-    except:     # поймать ошибку с тем, что нет столбца network, так как у столбца начало "numnumnum"
+    except sqlite3.OperationalError:     # поймать ошибку с тем, что нет столбца network, так как у столбца начало "numnumnum"
         sql_str = f"SELECT filename FROM socialnetworks WHERE numnumnum{network} = \'{status}\' AND catalog = \'{photo_directory}\'"
         cur.execute(sql_str)
         photodb_data = cur.fetchall()

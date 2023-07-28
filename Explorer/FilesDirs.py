@@ -181,7 +181,6 @@ def del_alone_dir(photo_directory: str) -> None:
     photo_list = Thumbnail.get_images_list(photo_directory)
     for file in photo_list:
         os.remove(f"{photo_directory}/{file}")
-        print(f"{photo_directory}/{file}")
     os.rmdir(photo_directory)
 
 

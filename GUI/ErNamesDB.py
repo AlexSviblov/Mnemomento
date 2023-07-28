@@ -18,7 +18,8 @@ stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 
-conn = sqlite3.connect("ErrorNames.db", check_same_thread=False)  # соединение с БД
+# соединение с БД
+conn = sqlite3.connect("ErrorNames.db", check_same_thread=False)
 
 cur = conn.cursor()
 
@@ -47,6 +48,10 @@ class ViewBDDialog(QWidget):
         self.del_btn = QPushButton(self)
         self.edit_btn = QPushButton(self)
         self.edit_mode = QLabel(self)
+
+        self.new_element = ""
+        self.old_element = ""
+        self.old_element_col = 0
 
         self.make_gui()
 
@@ -161,7 +166,7 @@ class ViewBDDialog(QWidget):
         if self.indicator == 1:
             # изменение в БД
             self.new_element = self.table.currentItem().text()
-            match self.new_element:
+            match self.old_element_col:
                 case 0:
                     col_name = "type"
                 case 1:
@@ -169,7 +174,7 @@ class ViewBDDialog(QWidget):
                 case 2:
                     col_name = "normname"
                 case _:
-                    raise ValueError
+                    return
 
             sql_red_str = f"UPDATE ernames SET {col_name} = '{self.new_element}' WHERE {col_name} = '{self.old_element}'"
             cur.execute(sql_red_str)
@@ -200,8 +205,8 @@ class ViewBDDialog(QWidget):
         """
         cur.execute("SELECT * FROM ernames")
         all_results = cur.fetchall()
-        self.row_num = len(all_results)
-        self.table.setRowCount(self.row_num)
+        row_num = len(all_results)
+        self.table.setRowCount(row_num)
         self.table.setHorizontalHeaderLabels(["Тип", "Ошибочное отображение", "Верное название"])
         for i in range(0, len(all_results)):
             if all_results[i][0] == "maker":
@@ -289,6 +294,15 @@ class AddBDDialog(QDialog):
         self.error_text = QtWidgets.QLineEdit()
         self.norm_text = QtWidgets.QLineEdit()
 
+        self.confirm_label = QtWidgets.QLabel()
+        self.entered_info = QtWidgets.QLabel()
+        self.btn_ok_c = QPushButton(self)
+        self.btn_cancel_c = QPushButton(self)
+
+        self.norm_entered = str()
+        self.error_entered = str()
+        self.type_index = int()
+
         self.make_gui()
 
     def make_gui(self) -> None:
@@ -304,7 +318,7 @@ class AddBDDialog(QDialog):
         self.btn_cancel.setFixedHeight(int(30*system_scale)+1)
         self.layout_win.addWidget(self.btn_cancel, 3, 1, 1, 1)
 
-        self.btn_ok.clicked.connect(self.check_empty)
+        self.btn_ok.clicked.connect(self.confirm_window)
         self.btn_cancel.clicked.connect(self.reject)
 
         self.type_lbl.setText("Тип неправильно отображаемого названия:")
@@ -337,32 +351,25 @@ class AddBDDialog(QDialog):
         self.norm_text.setStyleSheet(stylesheet1)
         self.layout_win.addWidget(self.norm_text, 2, 1, 1, 1)
 
-    def check_empty(self) -> None:
+    def confirm_window(self) -> None:
         """
-        Проверка заполнения полей ввода
+        Подтверждение добавления записи
         """
+
+        # Проверка заполнения полей ввода
         if self.error_text.text() == "":
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=1)
             warning.show()
             return
-        else:
-            pass
 
         if self.norm_text.text() == "":
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=2)
             warning.show()
             return
-        else:
-            pass
-        self.confirm_window()
 
-    def confirm_window(self) -> None:
-        """
-        Подтверждение добавления записи
-        """
         self.norm_entered = self.norm_text.text()
         self.error_entered = self.error_text.text()
-        self.type_entered = self.type_combobox.currentText()
+        type_entered = self.type_combobox.currentText()
         self.type_index = self.type_combobox.currentIndex()
 
         self.type_lbl.hide()
@@ -374,22 +381,19 @@ class AddBDDialog(QDialog):
         self.error_text.hide()
         self.norm_text.hide()
 
-        self.confirm_label = QtWidgets.QLabel()
         self.confirm_label.setText("Правильно ли введены данные?\n")
         self.confirm_label.setFont(font12)
         self.layout_win.addWidget(self.confirm_label, 0, 0, 1, 2)
 
-        self.entered_info = QtWidgets.QLabel()
         self.entered_info.setFont(font12)
         self.entered_info.setText(
-            f"Тип: {self.type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n")
+            f"Тип: {type_entered}\nНеверное отображение: {self.error_entered}\nПравильное отображение: {self.norm_entered}\n")
         self.layout_win.addWidget(self.entered_info, 1, 0, 1, 2)
 
-        self.btn_ok_c = QPushButton(self)
         self.btn_ok_c.setText("Ввод")
         self.btn_ok_c.setFont(font12)
         self.btn_ok_c.setStyleSheet(stylesheet8)
-        self.btn_cancel_c = QPushButton(self)
+
         self.btn_cancel_c.setText("Отмена")
         self.btn_cancel_c.setFont(font12)
         self.btn_cancel_c.setStyleSheet(stylesheet8)
@@ -442,7 +446,7 @@ class AddBDDialog(QDialog):
 
         try:
             cur.execute(enter_1, enter_2)
-        except Exception:
+        except sqlite3.OperationalError :
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=3)
             warning.show()
             return

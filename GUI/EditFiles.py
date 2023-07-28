@@ -250,20 +250,20 @@ class EditExifData(QDialog):
 
         # если координаты ненулевые - центруем карту по координатам фотографии
         if coordinates[0] != 0 and coordinates[1] != 0:
-            self.map_gps = folium.Map(location=coordinates, zoom_start=14)
-            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color="red")).add_to(self.map_gps)
+            map_gps = folium.Map(location=coordinates, zoom_start=14)
+            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color="red")).add_to(map_gps)
         else:
-            self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
+            map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
         # если нажать на карту - появится окошко с координатами
         # в folium изменён текст внутри класса LatLngPopup для отображения русским языком
-        self.popup = LatLngPopup()
-        self.map_gps.add_child(self.popup)
+        popup = LatLngPopup()
+        map_gps.add_child(popup)
 
         # добавить невидимую штуку, которая при нажатии на карту будет плевать в консоль JS (код folium изменён) координаты
         # координаты будут сигналом в переопределённом классе вызывать функцию write_coords_to_lines
         # self.map_gps.add_child(folium.features.ClickForLatLng(format_str='lat + "," + lng'))
-        self.map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
+        map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
 
         page = WebEnginePage(self.map_gps_widget)
 
@@ -276,7 +276,7 @@ class EditExifData(QDialog):
 
         self.map_gps_widget.setPage(page)
 
-        self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+        self.map_gps_widget.setHtml(map_gps.get_root().render())
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
@@ -617,28 +617,28 @@ class EditExifData(QDialog):
             self.file_size_line.setDisabled(True)
 
             self.photo_rotate_right = QPushButton(self)
-            self.photo_rotate_right.setText("Повернуть на 90° по часовой")
+            self.photo_rotate_right.setText("Повернуть на 90°\nпо часовой")
             self.photo_rotate_right.setFont(font14)
             self.photo_rotate_right.setStyleSheet(stylesheet1)
 
             self.photo_rotate_left = QPushButton(self)
-            self.photo_rotate_left.setText("Повернуть на 90° против часовой")
+            self.photo_rotate_left.setText("Повернуть на 90°\nпротив часовой")
             self.photo_rotate_left.setFont(font14)
             self.photo_rotate_left.setStyleSheet(stylesheet1)
 
             self.photo_flip_hor = QPushButton(self)
-            self.photo_flip_hor.setText("Отразить по горизонтали")
+            self.photo_flip_hor.setText("Отразить\nпо горизонтали")
             self.photo_flip_hor.setFont(font14)
             self.photo_flip_hor.setStyleSheet(stylesheet1)
 
             self.photo_flip_ver = QPushButton(self)
-            self.photo_flip_ver.setText("Отразить по вертикали")
+            self.photo_flip_ver.setText("Отразить\nпо вертикали")
             self.photo_flip_ver.setFont(font14)
             self.photo_flip_ver.setStyleSheet(stylesheet1)
 
             self.thumbnail = QLabel(self)
-            self.pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300, QtCore.Qt.KeepAspectRatio)
-            self.thumbnail.setPixmap(self.pixmap)
+            pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300, QtCore.Qt.KeepAspectRatio)
+            self.thumbnail.setPixmap(pixmap)
 
             self.tab_file_layout.addWidget(self.filename_lbl, 0, 0, 1, 1)
             self.tab_file_layout.addWidget(self.filename_line, 0, 1, 1, 2)
@@ -651,10 +651,10 @@ class EditExifData(QDialog):
             self.tab_file_layout.addWidget(self.thumbnail, 2, 1, 2, 1)
             self.tab_file.setLayout(self.tab_file_layout)
 
-            self.photo_flip_ver.setFixedWidth(300)
-            self.photo_flip_hor.setFixedWidth(300)
-            self.photo_rotate_left.setFixedWidth(300)
-            self.photo_rotate_right.setFixedWidth(300)
+            self.photo_flip_ver.setFixedWidth(200)
+            self.photo_flip_hor.setFixedWidth(200)
+            self.photo_rotate_left.setFixedWidth(200)
+            self.photo_rotate_right.setFixedWidth(200)
 
         def make_tab_usercomment():
             self.usercomment_lbl.setText("Комментарий")
@@ -1048,7 +1048,7 @@ class EditExifData(QDialog):
         """
         Процесс записи exif в файл, в обёртке управления "индикатором" и учитывая, было ли изменение даты (для GUI)
         """
-        self.new_filename = self.filename_line.text()
+        new_filename = self.filename_line.text()
         all_new_data = self.read_enter()
         changes_meta_dict = {}
         for i in range(len(all_new_data)):
@@ -1073,10 +1073,10 @@ class EditExifData(QDialog):
 
         self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-        if self.new_filename == self.old_filename:
+        if new_filename == self.old_filename:
             pass
         else:
-            new_file_name = self.new_filename + "." + self.picture_file_format
+            new_file_name = new_filename + "." + self.picture_file_format
             if os.path.exists(f"{self.photodirectory}/{new_file_name}"):
                 win_err = ErrorsAndWarnings.ExistFileRenameError2(self)
                 win_err.show()
@@ -1086,7 +1086,7 @@ class EditExifData(QDialog):
                 self.renamed_signal.emit(new_file_name)
                 self.close()
 
-    def write_changes(self, photoname: str, photodirectory: str, new_value_dict) -> None:
+    def write_changes(self, photoname: str, photodirectory: str, new_value_dict: dict) -> None:
         """
         Записать новые метаданные
         :param photoname:
@@ -1094,7 +1094,7 @@ class EditExifData(QDialog):
         :param new_value_dict:
         """
         # Перезаписать в exif и БД новые метаданные
-        def rewriting(photo_name: str, photo_directory: str, modify_dict) -> None:
+        def rewriting(photo_name: str, photo_directory: str, modify_dict: dict) -> None:
             MetadataPhoto.exif_rewrite_edit(photo_name, photo_directory, modify_dict)
             PhotoDataDB.edit_in_database(photo_name, photo_directory, modify_dict)
 
@@ -1117,15 +1117,14 @@ class EditExifData(QDialog):
                 return
 
         if 11 in list(new_value_dict.keys()) and type(self.parent()) == ShowConstWindowWidget.ConstWidgetWindow:
-            date_dict = {}
-            date_dict[11] = new_value_dict[11]
+            date_dict = {11: new_value_dict[11]}
             new_value_dict.pop(11)
         # Если меняется дата -> проверка на перенос файла в новую папку
             if photodirectory[-12:] == "No_Date_Info":
                 new_date = photodirectory[-38:]
             else:
                 new_date = photodirectory[-10:]
-            old_date = new_text[:10]
+            old_date = date_dict[11][:10]
             new_date_splitted = new_date.split("/")
             old_date_splitted = old_date.split(":")
             if new_date_splitted == old_date_splitted:  # если дата та же, переноса не требуется
@@ -1179,7 +1178,7 @@ class EditExifData(QDialog):
                         self.close()
 
                     else:
-                        window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, new_text)
+                        window_equal = EqualNames(self, photoname, old_date_splitted, new_date_splitted, date_dict[11])
                         window_equal.show()
                         if self.chosen_group_type == "Дата":
                             window_equal.file_rename_transfer_signal.connect(lambda: self.movement_signal.emit(year_old, month_old, day_old))
@@ -1314,9 +1313,9 @@ class EditExifData(QDialog):
         except KeyError:
             pass
 
-        self.pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300,
+        pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300,
                                                                                       QtCore.Qt.KeepAspectRatio)
-        self.thumbnail.setPixmap(self.pixmap)
+        self.thumbnail.setPixmap(pixmap)
 
         if "const" in self.photodirectory.split("/"):
             Thumbnail.delete_thumbnail_const(self.photoname, self.photodirectory)
@@ -1352,57 +1351,64 @@ class EqualNames(QDialog):
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
+
+        self.old_photo_dir = Settings.get_destination_media() + "/Media/Photo/const/" + f"{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/"
+        self.new_photo_dir = Settings.get_destination_media() + "/Media/Photo/const/" + f"{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/"
+
+        self.text_lbl = QLabel(self)
+        self.old_top_lbl = QLabel(self)
+        self.new_top_lbl = QLabel(self)
+        self.pic_old = QLabel(self)
+        self.pic_new = QLabel(self)
+        self.old_checkbox = QCheckBox(self)
+        self.old_name = QLineEdit(self)
+        self.new_checkbox = QCheckBox(self)
+        self.new_name = QLineEdit(self)
+        self.btn_ok = QPushButton(self)
+        self.btn_cnl = QPushButton(self)
 
         self.make_gui()
 
         self.show_photos()
 
     def make_gui(self) -> None:
-        self.text_lbl = QLabel(self)
+        self.setLayout(self.layout)
+
         self.text_lbl.setText("В каталоге уже есть файл с такими же датой съёмки и именем. Что делать?")
         self.text_lbl.setAlignment(Qt.AlignCenter)
         self.text_lbl.setFont(font12)
         self.text_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.text_lbl, 0, 0, 1, 4)
 
-        self.old_top_lbl = QLabel(self)
         self.old_top_lbl.setText("Фото уже существующее в папке")
         self.old_top_lbl.setFont(font12)
         self.old_top_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.old_top_lbl, 1, 0, 1, 2)
 
-        self.new_top_lbl = QLabel(self)
         self.new_top_lbl.setText("Фото перемещаемое из-за изменения даты")
         self.new_top_lbl.setFont(font12)
         self.new_top_lbl.setStyleSheet(stylesheet2)
         self.layout.addWidget(self.new_top_lbl, 1, 2, 1, 2)
 
-        self.pic_old = QLabel(self)
         self.pic_old.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.pic_old, 2, 0, 1, 2)
 
-        self.pic_new = QLabel(self)
         self.pic_new.setAlignment(Qt.AlignCenter)
         self.layout.addWidget(self.pic_new, 2, 2, 1, 2)
 
-        self.old_checkbox = QCheckBox(self)
         self.old_checkbox.setObjectName("old_checkbox")
         self.layout.addWidget(self.old_checkbox, 3, 0, 1, 1)
 
-        self.old_name = QLineEdit(self)
         self.old_name.setText(self.filename)
         self.old_name.setStyleSheet(stylesheet1)
         self.old_name.setFont(font12)
         self.layout.addWidget(self.old_name, 3, 1, 1, 1)
         self.old_name.setDisabled(True)
 
-        self.new_checkbox = QCheckBox(self)
         self.new_checkbox.setObjectName("new_checkbox")
         self.layout.addWidget(self.new_checkbox, 3, 2, 1, 1)
         self.new_checkbox.setCheckState(QtCore.Qt.Checked)
 
-        self.new_name = QLineEdit(self)
         self.new_name.setText(self.filename)
         self.new_name.setStyleSheet(stylesheet1)
         self.new_name.setFont(font12)
@@ -1411,14 +1417,12 @@ class EqualNames(QDialog):
         self.old_checkbox.stateChanged.connect(self.check_disable)
         self.new_checkbox.stateChanged.connect(self.check_disable)
 
-        self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Переименовать")
         self.btn_ok.setFont(font12)
         self.btn_ok.setStyleSheet(stylesheet8)
         self.layout.addWidget(self.btn_ok, 4, 0, 1, 2)
         self.btn_ok.clicked.connect(lambda: self.ok_check(self.new_name.text(), self.old_name.text()))
 
-        self.btn_cnl = QPushButton(self)
         self.btn_cnl.setText("Не переносить (отменить изменение даты)")
         self.btn_cnl.setFont(font12)
         self.btn_cnl.setStyleSheet(stylesheet8)
@@ -1429,8 +1433,6 @@ class EqualNames(QDialog):
         """
         Показать в уменьшенном виде 2 фото, у которых совпали названия
         """
-        self.old_photo_dir = Settings.get_destination_media() + "/Media/Photo/const/" + f"{self.old_date[0]}/{self.old_date[1]}/{self.old_date[2]}/"
-        self.new_photo_dir = Settings.get_destination_media() + "/Media/Photo/const/" + f"{self.new_date[0]}/{self.new_date[1]}/{self.new_date[2]}/"
         pixmap_old = QtGui.QPixmap(self.old_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
         pixmap_new = QtGui.QPixmap(self.new_photo_dir + self.file_full_name).scaled(300, 300, QtCore.Qt.KeepAspectRatio)
         self.pic_old.setPixmap(pixmap_old)

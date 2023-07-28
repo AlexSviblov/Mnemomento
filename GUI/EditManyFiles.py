@@ -46,80 +46,55 @@ class ManyPhotoEdit(QWidget):
         self.setWindowTitle("Редактирование метаданных")
 
         self.layout_outside = QGridLayout(self)
-        self.setLayout(self.layout_outside)
-        self.layout_outside.setSpacing(10)
-
         self.layout_type = QGridLayout(self)
-        self.layout_type.setAlignment(Qt.AlignLeft)
-
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
-        self.groupbox_sort.setStyleSheet(stylesheet2)
-        self.layout_outside.addWidget(self.groupbox_sort, 0, 1, 1, 4)
-
-        self.groupbox_sort.setLayout(self.layout_type)
-
         self.groupbox_choose = QGroupBox(self)
         self.layout_choose = QGridLayout(self)
-        self.groupbox_choose.setLayout(self.layout_choose)
-        self.layout_outside.addWidget(self.groupbox_choose, 1, 0, 4, 2)
-
         self.filtered_photo_table = QTableWidget(self)
-        self.filtered_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.filtered_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.filtered_photo_table.horizontalHeader().setVisible(False)
-        self.filtered_photo_table.verticalHeader().setVisible(False)
-        self.filtered_photo_table.setFixedWidth(264)
-        self.filtered_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.filtered_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-
-        self.scroll_filtered_area = QScrollArea(self)  # создание подвижной области
-        self.scroll_filtered_area.setWidgetResizable(True)
-        self.scroll_filtered_area.setWidget(self.filtered_photo_table)
-        self.scroll_filtered_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_filtered_area.setFixedWidth(264)
-        self.scroll_filtered_area.setStyleSheet(stylesheet1)
-
-        self.layout_choose.addWidget(self.scroll_filtered_area, 0, 0, 4, 1)
-
+        # создание подвижной области
+        self.scroll_filtered_area = QScrollArea(self)
         self.edit_photo_table = QTableWidget(self)
-        self.edit_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.edit_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.edit_photo_table.horizontalHeader().setVisible(False)
-        self.edit_photo_table.verticalHeader().setVisible(False)
-        self.edit_photo_table.setFixedWidth(132)
-        self.edit_photo_table.setColumnCount(1)
-        self.edit_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.edit_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-
-        self.scroll_edit_area = QScrollArea(self)  # создание подвижной области
-        self.scroll_edit_area.setWidgetResizable(True)
-        self.scroll_edit_area.setWidget(self.edit_photo_table)
-        self.scroll_edit_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_edit_area.setFixedWidth(132)
-        self.scroll_edit_area.setStyleSheet(stylesheet1)
-
-        self.layout_choose.addWidget(self.scroll_edit_area, 0, 2, 4, 1)
-
+        # создание подвижной области
+        self.scroll_edit_area = QScrollArea(self)
         self.new_data_groupbox = QGroupBox(self)
         self.layout_new_data = QGridLayout(self)
-        self.new_data_groupbox.setLayout(self.layout_new_data)
-        self.layout_outside.addWidget(self.new_data_groupbox, 1, 2, 1, 1)
-        self.new_data_groupbox.setStyleSheet(stylesheet1)
-
         self.empty2 = QLabel(self)
-        self.layout_outside.addWidget(self.empty2, 2, 2, 1, 2)
-        
         self.write_buttons_groupbox = QGroupBox(self)
-        self.layout_btns = QGridLayout(self)
-        self.write_buttons_groupbox.setLayout(self.layout_btns)
-        self.layout_outside.addWidget(self.write_buttons_groupbox, 4, 2, 1, 2)
-        self.write_buttons_groupbox.setFixedHeight(80)
-
         self.table_compare = QTableWidget(self)
-        self.table_compare.setFixedHeight(280)
-        self.layout_outside.addWidget(self.table_compare, 3, 2, 1, 2)
-        self.make_compare_table()
+        self.layout_btns = QGridLayout(self)
+
+        self.new_make_check = QCheckBox(self)
+        self.new_make_line = QLineEdit(self)
+        self.new_model_check = QCheckBox(self)
+        self.new_model_line = QLineEdit(self)
+        self.new_lens_check = QCheckBox(self)
+        self.new_lens_line = QLineEdit(self)
+        self.new_bodynum_check = QCheckBox(self)
+        self.new_bodynum_line = QLineEdit(self)
+        self.new_lensnum_check = QCheckBox(self)
+        self.new_lensnum_line = QLineEdit(self)
+        self.new_datetime_check = QCheckBox(self)
+        self.new_datetime_line = QDateTimeEdit(self)
+        self.new_offset_check = QCheckBox(self)
+        self.new_offset_pm_line = QComboBox(self)
+        self.new_offset_line = QTimeEdit(self)
+        self.new_gps_check = QCheckBox(self)
+        self.new_gps_lat_line = QLineEdit(self)     # широта
+        self.new_gps_lon_line = QLineEdit(self)     # долгота
+        self.new_usercomment_check = QCheckBox(self)
+        self.new_usercomment_line = QLineEdit(self)
+
+        self.btn_move_all_right = QPushButton(self)
+        self.btn_move_all_left = QPushButton(self)
+        self.btn_clear_all = QPushButton(self)
+        self.btn_write = QPushButton(self)
+        self.empty1 = QLabel(self)
+        self.loading_lbl = QLabel()
+        self.movie = QtGui.QMovie(loading_icon)
+
+        self.group_type = QComboBox(self)
+
+        self.make_gui()
 
         self.fill_sort_groupbox()
         self.fill_sort_date()
@@ -157,114 +132,154 @@ class ManyPhotoEdit(QWidget):
         except AttributeError:
             pass
 
+    def make_gui(self) -> None:
+        self.setLayout(self.layout_outside)
+        self.layout_outside.setSpacing(10)
+
+        self.layout_type.setAlignment(Qt.AlignLeft)
+
+        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
+        self.groupbox_sort.setStyleSheet(stylesheet2)
+        self.layout_outside.addWidget(self.groupbox_sort, 0, 1, 1, 4)
+
+        self.groupbox_sort.setLayout(self.layout_type)
+
+        self.groupbox_choose.setLayout(self.layout_choose)
+        self.layout_outside.addWidget(self.groupbox_choose, 1, 0, 4, 2)
+
+        self.filtered_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.filtered_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.filtered_photo_table.horizontalHeader().setVisible(False)
+        self.filtered_photo_table.verticalHeader().setVisible(False)
+        self.filtered_photo_table.setFixedWidth(264)
+        self.filtered_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.filtered_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.scroll_filtered_area.setWidgetResizable(True)
+        self.scroll_filtered_area.setWidget(self.filtered_photo_table)
+        self.scroll_filtered_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_filtered_area.setFixedWidth(264)
+        self.scroll_filtered_area.setStyleSheet(stylesheet1)
+        self.layout_choose.addWidget(self.scroll_filtered_area, 0, 0, 4, 1)
+
+        self.edit_photo_table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.edit_photo_table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.edit_photo_table.horizontalHeader().setVisible(False)
+        self.edit_photo_table.verticalHeader().setVisible(False)
+        self.edit_photo_table.setFixedWidth(132)
+        self.edit_photo_table.setColumnCount(1)
+        self.edit_photo_table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.edit_photo_table.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.scroll_edit_area.setWidgetResizable(True)
+        self.scroll_edit_area.setWidget(self.edit_photo_table)
+        self.scroll_edit_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_edit_area.setFixedWidth(132)
+        self.scroll_edit_area.setStyleSheet(stylesheet1)
+        self.layout_choose.addWidget(self.scroll_edit_area, 0, 2, 4, 1)
+
+        self.new_data_groupbox.setLayout(self.layout_new_data)
+        self.layout_outside.addWidget(self.new_data_groupbox, 1, 2, 1, 1)
+        self.new_data_groupbox.setStyleSheet(stylesheet1)
+
+        self.layout_outside.addWidget(self.empty2, 2, 2, 1, 2)
+
+        self.write_buttons_groupbox.setLayout(self.layout_btns)
+        self.layout_outside.addWidget(self.write_buttons_groupbox, 4, 2, 1, 2)
+        self.write_buttons_groupbox.setFixedHeight(80)
+
+        self.table_compare.setFixedHeight(280)
+        self.layout_outside.addWidget(self.table_compare, 3, 2, 1, 2)
+        self.make_compare_table()
+
     def make_new_data_enter(self) -> None:
         """
         Создание элементов ввода новых данных
         """
-        self.new_make_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_make_check, 0, 0, 1, 1)
         self.new_make_check.setStyleSheet(stylesheet2)
         self.new_make_check.setFont(font12)
 
-        self.new_make_line = QLineEdit(self)
         self.layout_new_data.addWidget(self.new_make_line, 0, 1, 1, 2)
         self.new_make_line.setStyleSheet(stylesheet1)
         self.new_make_line.setFont(font12)
 
-        self.new_model_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_model_check, 1, 0, 1, 1)
         self.new_model_check.setStyleSheet(stylesheet2)
         self.new_model_check.setFont(font12)
 
-        self.new_model_line = QLineEdit(self)
         self.layout_new_data.addWidget(self.new_model_line, 1, 1, 1, 2)
         self.new_model_line.setStyleSheet(stylesheet1)
         self.new_model_line.setFont(font12)
 
-        self.new_lens_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_lens_check, 2, 0, 1, 1)
         self.new_lens_check.setStyleSheet(stylesheet2)
         self.new_lens_check.setFont(font12)
 
-        self.new_lens_line = QLineEdit(self)
         self.layout_new_data.addWidget(self.new_lens_line, 2, 1, 1, 2)
         self.new_lens_line.setStyleSheet(stylesheet1)
         self.new_lens_line.setFont(font12)
 
-        self.new_bodynum_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_bodynum_check, 3, 0, 1, 1)
         self.new_bodynum_check.setStyleSheet(stylesheet2)
         self.new_bodynum_check.setFont(font12)
 
-        self.new_bodynum_line = QLineEdit(self)
         self.layout_new_data.addWidget(self.new_bodynum_line, 3, 1, 1, 2)
         self.new_bodynum_line.setStyleSheet(stylesheet1)
         self.new_bodynum_line.setFont(font12)
 
-        self.new_lensnum_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_lensnum_check, 4, 0, 1, 1)
         self.new_lensnum_check.setStyleSheet(stylesheet2)
         self.new_lensnum_check.setFont(font12)
 
-        self.new_lensnum_line = QLineEdit(self)
         self.layout_new_data.addWidget(self.new_lensnum_line, 4, 1, 1, 2)
         self.new_lensnum_line.setStyleSheet(stylesheet1)
         self.new_lensnum_line.setFont(font12)
 
-        self.new_datetime_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_datetime_check, 5, 0, 1, 1)
         self.new_datetime_check.setStyleSheet(stylesheet2)
         self.new_datetime_check.setFont(font12)
 
-        self.new_datetime_line = QDateTimeEdit(self)
         self.layout_new_data.addWidget(self.new_datetime_line, 5, 1, 1, 2)
         self.new_datetime_line.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
         self.new_datetime_line.setStyleSheet(stylesheet1)
         self.new_datetime_line.setFont(font12)
 
-        self.new_offset_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_offset_check, 6, 0, 1, 1)
         self.new_offset_check.setStyleSheet(stylesheet2)
         self.new_offset_check.setFont(font12)
 
-        self.new_offset_pm_line = QComboBox(self)
         self.layout_new_data.addWidget(self.new_offset_pm_line, 6, 1, 1, 1, alignment=Qt.AlignRight)
         self.new_offset_pm_line.setStyleSheet(stylesheet9)
         self.new_offset_pm_line.setFont(font12)
         self.new_offset_pm_line.addItem("+")
         self.new_offset_pm_line.addItem("-")
         self.new_offset_pm_line.setFixedWidth(80)
-        self.new_offset_line = QTimeEdit(self)
-        self.layout_new_data.addWidget(self.new_offset_line, 6, 2, 1, 1)
         self.new_offset_line.setStyleSheet(stylesheet1)
         self.new_offset_line.setFont(font12)
         self.new_offset_line.setDisplayFormat("HH:mm")
+        self.layout_new_data.addWidget(self.new_offset_line, 6, 2, 1, 1)
 
-        self.new_gps_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_gps_check, 7, 0, 1, 1)
         self.new_gps_check.setStyleSheet(stylesheet2)
         self.new_gps_check.setFont(font12)
 
-        self.new_gps_lat_line = QLineEdit(self)     # широта
         self.layout_new_data.addWidget(self.new_gps_lat_line, 7, 1, 1, 1)
         self.new_gps_lat_line.setValidator(QtGui.QRegExpValidator(
                 QtCore.QRegExp("^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,4})?))$")))
         self.new_gps_lat_line.setStyleSheet(stylesheet1)
         self.new_gps_lat_line.setFont(font12)
 
-        self.new_gps_lon_line = QLineEdit(self)     # долгота
         self.layout_new_data.addWidget(self.new_gps_lon_line, 7, 2, 1, 1)
         self.new_gps_lon_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp(
                 "^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,4})?))$")))
         self.new_gps_lon_line.setStyleSheet(stylesheet1)
         self.new_gps_lon_line.setFont(font12)
 
-        self.new_usercomment_check = QCheckBox(self)
         self.layout_new_data.addWidget(self.new_usercomment_check, 8, 0, 1, 1)
         self.new_usercomment_check.setFont(font12)
         self.new_usercomment_check.setStyleSheet(stylesheet2)
 
-        self.new_usercomment_line = QLineEdit(self)
         self.layout_new_data.addWidget(self.new_usercomment_line, 8, 1, 1, 2)
         self.new_usercomment_line.setFont(font12)
         self.new_usercomment_line.setStyleSheet(stylesheet1)
@@ -347,19 +362,19 @@ class ManyPhotoEdit(QWidget):
         """
         if not status:
             try:
-                self.map_gps_widget.deleteLater()
+                map_gps_widget.deleteLater()
             except (RuntimeError, AttributeError):
                 pass
         else:
-            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+            map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
-            self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
+            map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
             # добавить невидимую штуку, которая при нажатии на карту будет плевать в консоль JS (код folium изменён) координаты
             # координаты будут сигналом в переопределённом классе вызывать функцию write_coords_to_lines
-            self.map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
+            map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
 
-            page = WebEnginePage(self.map_gps_widget)
+            page = WebEnginePage(map_gps_widget)
 
             # записать выплюнутые в логи координаты в нужные поля
             def write_coords_to_lines(msg: str):
@@ -367,19 +382,18 @@ class ManyPhotoEdit(QWidget):
                 self.new_gps_lon_line.setText(msg.split(",")[1])
 
             page.coordinates_transfer.connect(lambda msg: write_coords_to_lines(msg))
-            self.map_gps_widget.setPage(page)
+            map_gps_widget.setPage(page)
 
             popup = LatLngPopup()
-            self.map_gps.add_child(popup)
-            self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+            map_gps.add_child(popup)
+            map_gps_widget.setHtml(map_gps.get_root().render())
 
-            self.layout_outside.addWidget(self.map_gps_widget, 1, 3, 1, 1)
+            self.layout_outside.addWidget(map_gps_widget, 1, 3, 1, 1)
 
     def make_buttons(self) -> None:
         """
         Кнопки переноса всех фото между таблицами
         """
-        self.btn_move_all_right = QPushButton(self)
         self.btn_move_all_right.setText(">>")
         self.btn_move_all_right.setFixedSize(40, 20)
         self.layout_choose.addWidget(self.btn_move_all_right, 1, 1, 1, 1)
@@ -387,15 +401,13 @@ class ManyPhotoEdit(QWidget):
         self.btn_move_all_right.setStyleSheet(stylesheet8)
         self.btn_move_all_right.setFont(font12)
 
-        self.btn_move_all_left = QPushButton(self)
         self.btn_move_all_left.setText("<<")
         self.btn_move_all_left.setFixedSize(40, 20)
         self.layout_choose.addWidget(self.btn_move_all_left, 2, 1, 1, 1)
         self.btn_move_all_left.clicked.connect(self.transfer_all_to_filtered)
         self.btn_move_all_left.setStyleSheet(stylesheet8)
         self.btn_move_all_left.setFont(font12)
-        
-        self.btn_clear_all = QPushButton(self)
+
         self.btn_clear_all.setText("Очистить")
         self.layout_btns.addWidget(self.btn_clear_all, 0, 2, 1, 1)
         self.btn_clear_all.clicked.connect(self.func_clear)
@@ -403,7 +415,6 @@ class ManyPhotoEdit(QWidget):
         self.btn_clear_all.setFont(font12)
         self.btn_clear_all.setFixedHeight(50)
 
-        self.btn_write = QPushButton(self)
         self.btn_write.setText("Записать")
         self.layout_btns.addWidget(self.btn_write, 0, 0, 1, 1)
         self.btn_write.clicked.connect(self.write_data)
@@ -411,11 +422,8 @@ class ManyPhotoEdit(QWidget):
         self.btn_write.setFont(font12)
         self.btn_write.setFixedHeight(50)
 
-        self.empty1 = QLabel(self)
         self.layout_btns.addWidget(self.empty1, 0, 1, 1, 1)
 
-        self.loading_lbl = QLabel()
-        self.movie = QtGui.QMovie(loading_icon)
         self.loading_lbl.setMovie(self.movie)
         self.loading_lbl.setStyleSheet(stylesheet2)
         self.movie.start()
@@ -425,7 +433,6 @@ class ManyPhotoEdit(QWidget):
         """
         Выбор способа группировки
         """
-        self.group_type = QComboBox(self)
         self.group_type.addItem("Дата")
         self.group_type.addItem("Оборудование")
         self.group_type.currentTextChanged.connect(self.set_sort_layout)
@@ -440,10 +447,10 @@ class ManyPhotoEdit(QWidget):
         """
         Заполнить поле группировки по дате
         """
-        self.year_lbl = QLabel(self)
-        self.year_lbl.setFont(font14)
-        self.year_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
+        year_lbl = QLabel(self)
+        year_lbl.setFont(font14)
+        year_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(year_lbl, 0, 1, 1, 1)
 
         self.date_year = QComboBox(self)
         self.date_year.setStyleSheet(stylesheet9)
@@ -452,10 +459,10 @@ class ManyPhotoEdit(QWidget):
         self.date_year.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
-        self.month_lbl = QLabel(self)
-        self.month_lbl.setFont(font14)
-        self.month_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
+        month_lbl = QLabel(self)
+        month_lbl.setFont(font14)
+        month_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(month_lbl, 0, 3, 1, 1)
 
         self.date_month = QComboBox(self)
         self.date_month.setFont(font14)
@@ -464,10 +471,10 @@ class ManyPhotoEdit(QWidget):
         self.date_month.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
-        self.day_lbl = QLabel(self)
-        self.day_lbl.setFont(font14)
-        self.day_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
+        day_lbl = QLabel(self)
+        day_lbl.setFont(font14)
+        day_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(day_lbl, 0, 5, 1, 1)
 
         self.date_day = QComboBox(self)
         self.date_day.setFont(font14)
@@ -476,17 +483,17 @@ class ManyPhotoEdit(QWidget):
         self.date_day.setFixedWidth(int(140*system_scale)+1)
         self.layout_type.addWidget(self.date_day, 0, 6, 1, 1)
 
-        if not self.year_lbl.text():
-            self.year_lbl.setText("Год:")
-            self.month_lbl.setText("    Месяц:")
-            self.day_lbl.setText("    День:")
+        if not year_lbl.text():
+            year_lbl.setText("Год:")
+            month_lbl.setText("    Месяц:")
+            day_lbl.setText("    День:")
 
         self.date_day.setFixedHeight(int(30*system_scale)+1)
         self.date_month.setFixedHeight(int(30*system_scale)+1)
         self.date_year.setFixedHeight(int(30*system_scale)+1)
-        self.day_lbl.setFixedHeight(30)
-        self.month_lbl.setFixedHeight(30)
-        self.year_lbl.setFixedHeight(30)
+        day_lbl.setFixedHeight(30)
+        month_lbl.setFixedHeight(30)
+        year_lbl.setFixedHeight(30)
 
         self.date_year.currentTextChanged.connect(lambda: self.fill_date("month"))
         self.date_month.currentTextChanged.connect(lambda: self.fill_date("day"))
@@ -627,10 +634,7 @@ class ManyPhotoEdit(QWidget):
         self.lens_choose.addItem("All")
 
         self.camera_choose.setFixedWidth(int(camera_max_len*12*system_scale)+1)
-        self.lens_choose.setFixedWidth(int(camera_max_len*12*system_scale)+1)
-
-        print(self.camera_choose.isEnabled())
-        print(self.lens_choose.isEnabled())
+        self.lens_choose.setFixedWidth(int(lens_max_len*12*system_scale)+1)
 
         self.camera_choose.currentTextChanged.connect(self.show_filtered_thumbs)
         self.lens_choose.currentTextChanged.connect(self.show_filtered_thumbs)
@@ -764,35 +768,35 @@ class ManyPhotoEdit(QWidget):
         for j in range(0, rows):
             if j == rows - 1:
                 for i in range(0, len(thumbnails_list) - columns*(rows-1)):
-                    self.item = QToolButton()
-                    self.item.setFixedSize(130, 130)
-                    self.item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    item = QToolButton()
+                    item.setFixedSize(130, 130)
+                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f"{thumbnails_list[j * columns + i]}")  # создание объекта картинки
                     iqon.pixmap(100, 100)
-                    self.item.setIcon(iqon)
-                    self.item.setIconSize(QtCore.QSize(100, 100))
+                    item.setIcon(iqon)
+                    item.setIconSize(QtCore.QSize(100, 100))
                     filename_show = thumbnails_list[j * columns + i].split("/")[-1][10:]
-                    self.item.setText(f"{filename_show}")
-                    self.item.setObjectName(f"{photo_list[j * columns + i]}")
-                    self.filtered_photo_table.setCellWidget(j, i, self.item)
-                    # self.item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
-                    self.item.clicked.connect(self.transfer_one_to_edit)
+                    item.setText(f"{filename_show}")
+                    item.setObjectName(f"{photo_list[j * columns + i]}")
+                    self.filtered_photo_table.setCellWidget(j, i, item)
+                    # item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
+                    item.clicked.connect(self.transfer_one_to_edit)
                     QtCore.QCoreApplication.processEvents()
             else:
                 for i in range(0, columns):
-                    self.item = QToolButton()
-                    self.item.setFixedSize(130, 130)
-                    self.item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    item = QToolButton()
+                    item.setFixedSize(130, 130)
+                    item.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f"{thumbnails_list[j * columns + i]}")  # создание объекта картинки
                     iqon.pixmap(100, 100)
-                    self.item.setIcon(iqon)
-                    self.item.setIconSize(QtCore.QSize(100, 100))
+                    item.setIcon(iqon)
+                    item.setIconSize(QtCore.QSize(100, 100))
                     filename_show = thumbnails_list[j * columns + i].split("/")[-1][10:]
-                    self.item.setText(f"{filename_show}")
-                    self.item.setObjectName(f"{photo_list[j * columns + i]}")
-                    self.filtered_photo_table.setCellWidget(j, i, self.item)
-                    # self.item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
-                    self.item.clicked.connect(self.transfer_one_to_edit)
+                    item.setText(f"{filename_show}")
+                    item.setObjectName(f"{photo_list[j * columns + i]}")
+                    self.filtered_photo_table.setCellWidget(j, i, item)
+                    # item.clicked.connect(lambda: self.filtered_photo_table.setCurrentCell(j, i))
+                    item.clicked.connect(self.transfer_one_to_edit)
                     QtCore.QCoreApplication.processEvents()
 
         try:

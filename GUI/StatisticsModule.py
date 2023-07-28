@@ -98,6 +98,14 @@ class StatisticsWidget(QWidget):
         self.setMinimumSize(1366, 720)
         self.setStyleSheet(stylesheet2)
 
+        self.counter_hours = 0
+        self.counter_camera = 0
+        self.counter_lens = 0
+        self.counter_iso = 0
+        self.counter_fnumber = 0
+        self.counter_fl = 0
+        self.counter_expotime = 0
+
         self.layout = QGridLayout(self)
         self.setLayout(self.layout)
         self.layout.setSpacing(5)
@@ -834,10 +842,10 @@ class StatisticsWidget(QWidget):
         """
         Заполнить поле группировки по дате
         """
-        self.year_lbl = QLabel(self)
-        self.year_lbl.setFont(font14)
-        self.year_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.year_lbl, 0, 1, 1, 1)
+        year_lbl = QLabel(self)
+        year_lbl.setFont(font14)
+        year_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(year_lbl, 0, 1, 1, 1)
 
         self.date_year = QComboBox(self)
         self.date_year.setStyleSheet(stylesheet9)
@@ -846,10 +854,10 @@ class StatisticsWidget(QWidget):
         self.date_year.setFixedWidth(int(140 * system_scale) + 1)
         self.layout_type.addWidget(self.date_year, 0, 2, 1, 1)
 
-        self.month_lbl = QLabel(self)
-        self.month_lbl.setFont(font14)
-        self.month_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.month_lbl, 0, 3, 1, 1)
+        month_lbl = QLabel(self)
+        month_lbl.setFont(font14)
+        month_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(month_lbl, 0, 3, 1, 1)
 
         self.date_month = QComboBox(self)
         self.date_month.setFont(font14)
@@ -858,10 +866,10 @@ class StatisticsWidget(QWidget):
         self.date_month.setFixedWidth(int(140 * system_scale) + 1)
         self.layout_type.addWidget(self.date_month, 0, 4, 1, 1)
 
-        self.day_lbl = QLabel(self)
-        self.day_lbl.setFont(font14)
-        self.day_lbl.setStyleSheet(stylesheet2)
-        self.layout_type.addWidget(self.day_lbl, 0, 5, 1, 1)
+        day_lbl = QLabel(self)
+        day_lbl.setFont(font14)
+        day_lbl.setStyleSheet(stylesheet2)
+        self.layout_type.addWidget(day_lbl, 0, 5, 1, 1)
 
         self.date_day = QComboBox(self)
         self.date_day.setFont(font14)
@@ -872,17 +880,17 @@ class StatisticsWidget(QWidget):
 
         self.fill_date("date")
 
-        if not self.year_lbl.text():
-            self.year_lbl.setText("Год:")
-            self.month_lbl.setText("    Месяц:")
-            self.day_lbl.setText("    День:")
+        if not year_lbl.text():
+            year_lbl.setText("Год:")
+            month_lbl.setText("    Месяц:")
+            day_lbl.setText("    День:")
 
         self.date_day.setFixedHeight(int(30 * system_scale) + 1)
         self.date_month.setFixedHeight(int(30 * system_scale) + 1)
         self.date_year.setFixedHeight(int(30 * system_scale) + 1)
-        self.day_lbl.setFixedHeight(30)
-        self.month_lbl.setFixedHeight(30)
-        self.year_lbl.setFixedHeight(30)
+        day_lbl.setFixedHeight(30)
+        month_lbl.setFixedHeight(30)
+        year_lbl.setFixedHeight(30)
 
         self.date_year.currentTextChanged.connect(lambda: self.fill_date("month"))
         self.date_month.currentTextChanged.connect(lambda: self.fill_date("day"))

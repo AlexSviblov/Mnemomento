@@ -46,7 +46,6 @@ class WidgetWindow(QWidget):
         self.photo_directory = self.make_photo_dir(self.photo_list)
 
         self.layoutoutside = QGridLayout(self)
-        self.layoutoutside.setSpacing(10)
 
         self.thumb_row = Settings.get_thumbs_row()
 
@@ -55,62 +54,41 @@ class WidgetWindow(QWidget):
         self.pic.setAlignment(Qt.AlignCenter)
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
-
-        self.scroll_area_widget = QScrollArea(self)  # создание подвижной области
-        self.layoutoutside.addWidget(self.scroll_area_widget, 0, 0, 2, 1)  # помещение подвижной области на слой
-        self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
-        self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
-        self.groupbox_thumbs.setStyleSheet(stylesheet1)
-        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
-        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
-        self.groupbox_thumbs.setFixedWidth(
-            195 * self.thumb_row)  # задание размеров подвижной области и её внутренностей
-
-        self.scroll_area_widget.setFixedWidth(200 * self.thumb_row)
-        self.scroll_area_widget.setWidgetResizable(True)
-        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
-        self.scroll_area_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area_widget.setStyleSheet(stylesheet2)
+        # создание подвижной области
+        self.scroll_area_widget = QScrollArea(self)
+        # создание внутреннего слоя для подвижной области
+        self.layout_inside_thumbs = QGridLayout(self)
+        # создание группы объектов для помещения в него кнопок
+        self.groupbox_thumbs = QGroupBox(self)
 
         self.metadata_show = QtWidgets.QTableWidget()
-        self.metadata_show.setColumnCount(2)
-        self.metadata_show.setFont(font14)
-        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setDisabled(True)
-        self.metadata_show.horizontalHeader().setVisible(False)
-        self.metadata_show.verticalHeader().setVisible(False)
         self.metadata_header = self.metadata_show.horizontalHeader()
-        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_show.setStyleSheet(stylesheet6)
 
-        self.last_clicked = ""
+        self.last_clicked = str()
 
         self.layout_btns = QGridLayout(self)
-        self.layout_btns.setSpacing(0)
+        self.groupbox_btns = QGroupBox(self)
+        self.oldsize = QtCore.QSize(0, 0)
+
+        self.photo_show = QGroupBox(self)
+        self.layout_show = QGridLayout(self)
+
+        self.edit_btn = QToolButton(self)
+        self.explorer_btn = QToolButton(self)
+        self.open_file_btn = QToolButton(self)
+
+        hotkeys = Settings.get_hotkeys()
+        self.edit_shortcut = QShortcut(QKeySequence(hotkeys["edit_metadata"]), self)
+        self.explorer_shortcut = QShortcut(QKeySequence(hotkeys["open_explorer"]), self)
+        self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
+
+        self.make_gui()
 
         self.make_buttons()
-
-        self.groupbox_btns = QGroupBox(self)
-        self.groupbox_btns.setLayout(self.layout_btns)
-        self.groupbox_btns.setStyleSheet(stylesheet2)
-        self.groupbox_btns.setFixedSize(70, 160)
-        self.layoutoutside.addWidget(self.groupbox_btns, 0, 2, 1, 1)
 
         self.show_thumbnails()
 
         self.resized_signal.connect(self.resize_func)
-        self.oldsize = QtCore.QSize(0, 0)
-
-        self.photo_show = QGroupBox(self)
-        self.photo_show.setAlignment(Qt.AlignCenter)
-        self.layout_show = QGridLayout(self)
-        self.layout_show.setAlignment(Qt.AlignCenter)
-        self.layout_show.setHorizontalSpacing(10)
-        self.photo_show.setLayout(self.layout_show)
-        self.photo_show.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.photo_show, 0, 1, 1, 1)
 
     def stylesheet_color(self):
         """
@@ -153,6 +131,50 @@ class WidgetWindow(QWidget):
         except AttributeError:
             pass
 
+    def make_gui(self):
+        self.layoutoutside.setSpacing(10)
+        # помещение подвижной области на слой
+        self.layoutoutside.addWidget(self.scroll_area_widget, 0, 0, 2, 1)
+
+        self.groupbox_thumbs.setStyleSheet(stylesheet1)
+        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
+        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
+        # задание размеров подвижной области и её внутренностей
+        self.groupbox_thumbs.setFixedWidth(195 * self.thumb_row)
+
+        self.scroll_area_widget.setFixedWidth(200 * self.thumb_row)
+        self.scroll_area_widget.setWidgetResizable(True)
+        self.scroll_area_widget.setWidget(self.groupbox_thumbs)
+        self.scroll_area_widget.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area_widget.setStyleSheet(stylesheet2)
+
+        self.metadata_show.setColumnCount(2)
+        self.metadata_show.setFont(font14)
+        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setDisabled(True)
+        self.metadata_show.horizontalHeader().setVisible(False)
+        self.metadata_show.verticalHeader().setVisible(False)
+
+        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_show.setStyleSheet(stylesheet6)
+
+        self.layout_btns.setSpacing(0)
+
+        self.groupbox_btns.setLayout(self.layout_btns)
+        self.groupbox_btns.setStyleSheet(stylesheet2)
+        self.groupbox_btns.setFixedSize(70, 160)
+        self.layoutoutside.addWidget(self.groupbox_btns, 0, 2, 1, 1)
+
+        self.photo_show.setAlignment(Qt.AlignCenter)
+
+        self.layout_show.setAlignment(Qt.AlignCenter)
+        self.layout_show.setHorizontalSpacing(10)
+        self.photo_show.setLayout(self.layout_show)
+        self.photo_show.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.photo_show, 0, 1, 1, 1)
+
     def show_thumbnails(self) -> None:
         """
         Функция отображения кнопок с миниатюрами
@@ -160,46 +182,46 @@ class WidgetWindow(QWidget):
         for i in reversed(range(self.layout_inside_thumbs.count())):
             self.layout_inside_thumbs.itemAt(i).widget().deleteLater()
 
-        self.thumbnails_list = list()
+        thumbnails_list = list()
 
         for file in os.listdir(
                 Settings.get_destination_thumb() + "/thumbnail/view/"):  # получение списка созданных миниатюр
             if file.endswith(".jpg") or file.endswith(".JPG"):
-                self.thumbnails_list.append(file)
+                thumbnails_list.append(file)
 
-        num_of_j = ceil(len(self.thumbnails_list) / self.thumb_row)  # количество строк кнопок
+        num_of_j = ceil(len(thumbnails_list) / self.thumb_row)  # количество строк кнопок
         self.groupbox_thumbs.setMinimumHeight(200 * num_of_j)
 
         for j in range(0, num_of_j):  # создание кнопок
             if j == num_of_j - 1:  # последний ряд (может быть неполным)
-                for i in range(0, len(self.thumbnails_list) - self.thumb_row * (num_of_j - 1)):
-                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
+                for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
+                    button = QtWidgets.QToolButton(self)  # создание кнопки
+                    button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(
-                        Settings.get_destination_thumb() + f"/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}")  # создание объекта картинки
+                        Settings.get_destination_thumb() + f"/thumbnail/view/{thumbnails_list[j * self.thumb_row + i]}")  # создание объекта картинки
                     iqon.pixmap(150, 150)  # задание размера картинки
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)  # помещение картинки на кнопку
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(
-                        f"{self.thumbnails_list[j * self.thumb_row + i][10:]}")  # добавление названия фото
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.clicked.connect(self.showinfo)
+                    button.setMinimumHeight(180)
+                    button.setFixedWidth(160)
+                    button.setIcon(iqon)  # помещение картинки на кнопку
+                    button.setIconSize(QtCore.QSize(150, 150))
+                    button.setText(
+                        f"{thumbnails_list[j * self.thumb_row + i][10:]}")  # добавление названия фото
+                    self.layout_inside_thumbs.addWidget(button, j, i, 1, 1)
+                    button.clicked.connect(self.showinfo)
             else:
                 for i in range(0, self.thumb_row):
-                    self.button = QtWidgets.QToolButton(self)
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    button = QtWidgets.QToolButton(self)
+                    button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(
-                        Settings.get_destination_thumb() + f"/thumbnail/view/{self.thumbnails_list[j * self.thumb_row + i]}")
+                        Settings.get_destination_thumb() + f"/thumbnail/view/{thumbnails_list[j * self.thumb_row + i]}")
                     iqon.pixmap(150, 150)
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)
-                    self.button.setIconSize(QtCore.QSize(150, 150))
-                    self.button.setText(f"{self.thumbnails_list[j * self.thumb_row + i][10:]}")
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.clicked.connect(self.showinfo)
+                    button.setMinimumHeight(180)
+                    button.setFixedWidth(160)
+                    button.setIcon(iqon)
+                    button.setIconSize(QtCore.QSize(150, 150))
+                    button.setText(f"{thumbnails_list[j * self.thumb_row + i][10:]}")
+                    self.layout_inside_thumbs.addWidget(button, j, i, 1, 1)
+                    button.clicked.connect(self.showinfo)
 
     def make_map(self) -> None:
         """
@@ -215,9 +237,9 @@ class WidgetWindow(QWidget):
             gps_dict = self.gps_coordinates
             gps_coords = [float(gps_dict.split(",")[0]), float(gps_dict.split(",")[1])]
 
-            self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
-            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color="red")).add_to(self.map_gps)
-            self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+            map_gps = folium.Map(location=gps_coords, zoom_start=14)
+            folium.Marker(gps_coords, popup=self.button_text, icon=folium.Icon(color="red")).add_to(map_gps)
+            self.map_gps_widget.setHtml(map_gps.get_root().render())
             if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 self.map_gps_widget.setFixedWidth(self.pic.width() - self.metadata_show.width() - 40)
@@ -308,27 +330,27 @@ class WidgetWindow(QWidget):
             self.layout_show.addWidget(self.metadata_show, 1, 0, 1, 1)
             self.metadata_show.show()
 
-            self.pixmap2 = pixmap.scaled(
+            pixmap2 = pixmap.scaled(
                 self.size().width() - self.scroll_area_widget.width() - self.groupbox_btns.width(),
                 self.size().height() - self.metadata_show.height(),
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(self.pixmap2)
+            self.pic.setPixmap(pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 1, 2)
             self.pic.show()
             self.set_minimum_size.emit(
-                self.scroll_area_widget.width() + self.pixmap2.width() + self.groupbox_btns.width() + 60)
+                self.scroll_area_widget.width() + pixmap2.width() + self.groupbox_btns.width() + 60)
         else:  # self.photo_rotation == "ver"
             self.layout_show.addWidget(self.metadata_show, 0, 1, 1, 1)
             self.metadata_show.show()
-            self.pixmap2 = pixmap.scaled(
+            pixmap2 = pixmap.scaled(
                 self.size().width() - - self.scroll_area_widget.width() - self.groupbox_btns.width() -
                 self.metadata_show.width(), self.size().height() - 50,
                 QtCore.Qt.KeepAspectRatio)  # масштабируем большое фото под размер окна
-            self.pic.setPixmap(self.pixmap2)
+            self.pic.setPixmap(pixmap2)
             self.layout_show.addWidget(self.pic, 0, 0, 2, 1)
             self.pic.show()
             self.set_minimum_size.emit(
-                self.scroll_area_widget.width() + self.pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
+                self.scroll_area_widget.width() + pixmap2.width() + self.metadata_show.width() + self.groupbox_btns.width() + 60)
 
         QtCore.QCoreApplication.processEvents()
         self.make_map()
@@ -373,7 +395,6 @@ class WidgetWindow(QWidget):
         """
         Создание кнопки редактирования
         """
-        self.edit_btn = QToolButton(self)
         self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
         self.edit_btn.setIconSize(QtCore.QSize(50, 50))
         self.edit_btn.setToolTip("Редактирование метаданных")
@@ -382,7 +403,6 @@ class WidgetWindow(QWidget):
         self.layout_btns.addWidget(self.edit_btn, 0, 0, 1, 1)
         self.edit_btn.clicked.connect(self.edit_photo_func)
 
-        self.explorer_btn = QToolButton(self)
         self.explorer_btn.setStyleSheet(stylesheet1)
         self.explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
         self.explorer_btn.setIconSize(QtCore.QSize(50, 50))
@@ -391,7 +411,6 @@ class WidgetWindow(QWidget):
         self.layout_btns.addWidget(self.explorer_btn, 1, 0, 1, 1)
         self.explorer_btn.clicked.connect(self.call_explorer)
 
-        self.open_file_btn = QToolButton(self)
         self.open_file_btn.setStyleSheet(stylesheet1)
         self.open_file_btn.setIcon(QtGui.QIcon(icon_view))
         self.open_file_btn.setIconSize(QtCore.QSize(50, 50))
@@ -400,15 +419,10 @@ class WidgetWindow(QWidget):
         self.layout_btns.addWidget(self.open_file_btn, 2, 0, 1, 1)
         self.open_file_btn.clicked.connect(self.open_file_func)
 
-        hotkeys = Settings.get_hotkeys()
-
-        self.edit_shortcut = QShortcut(QKeySequence(hotkeys["edit_metadata"]), self)
         self.edit_shortcut.activated.connect(self.edit_photo_func)
 
-        self.explorer_shortcut = QShortcut(QKeySequence(hotkeys["open_explorer"]), self)
         self.explorer_shortcut.activated.connect(self.call_explorer)
 
-        self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
         self.open_shortcut.activated.connect(self.open_file_func)
 
     def edit_photo_func(self) -> None:
@@ -475,10 +489,84 @@ class EditExifData(QDialog):
         self.photodirectory = photodirectory
 
         self.layout = QGridLayout(self)
+        self.table = QTableWidget(self)
+
+        self.btn_ok = QPushButton(self)
+        self.btn_cancel = QPushButton(self)
+        self.btn_clear = QPushButton(self)
+
+        self.tabs = QTabWidget(self)
+
+        self.tab_date = QWidget(self)
+        self.tab_technic_settings = QWidget(self)
+        self.tab_GPS = QWidget(self)
+
+        self.tab_date_layout = QGridLayout(self)
+        self.date_choose = QDateTimeEdit(self)
+        self.timezone_lbl = QLabel(self)
+        self.timezone_pm_choose = QComboBox(self)
+        self.timezone_num_choose = QTimeEdit(self)
+
+        self.tab_tt_layout = QGridLayout(self)
+
+        self.maker_lbl = QLabel(self)
+        self.date_lbl = QLabel(self)
+        self.camera_lbl = QLabel(self)
+        self.lens_lbl = QLabel(self)
+        self.time_lbl = QLabel(self)
+        self.iso_lbl = QLabel(self)
+        self.fnumber_lbl = QLabel(self)
+        self.flength_lbl = QLabel(self)
+        self.serialbody_lbl = QLabel(self)
+        self.seriallens_lbl = QLabel(self)
+
+        self.maker_line = QLineEdit(self)
+        self.camera_line = QLineEdit(self)
+        self.lens_line = QLineEdit(self)
+        self.time_line = QLineEdit(self)
+        self.iso_line = QLineEdit(self)
+        self.fnumber_line = QLineEdit(self)
+        self.flength_line = QLineEdit(self)
+
+        self.serialbody_line = QLineEdit(self)
+        self.seriallens_line = QLineEdit(self)
+
+        self.tab_layout_gps = QGridLayout(self)
+        self.mode_check_dmc = QCheckBox(self)
+        self.mode_check_fn = QCheckBox(self)
+        self.latitude_fn_lbl = QLabel(self)  # широта
+        self.longitude_fn_lbl = QLabel(self)  # долгота
+        self.latitude_fn_line = QLineEdit(self)  # широта
+        self.longitude_fn_line = QLineEdit(self)  # долгота
+        self.latitude_dmc_lbl = QLabel(self)  # широта
+        self.longitude_dmc_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_choose = QComboBox(self)
+        self.longitude_dmc_choose = QComboBox(self)
+        self.latitude_dmc_deg_lbl = QLabel(self)  # широта
+        self.longitude_dmc_min_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_sec_lbl = QLabel(self)  # широта
+        self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_min_lbl = QLabel(self)  # широта
+        self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
+        self.latitude_dmc_deg_line = QLineEdit(self)  # широта
+        self.latitude_dmc_min_line = QLineEdit(self)  # широта
+        self.latitude_dmc_sec_line = QLineEdit(self)  # широта
+        self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
+        self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
+
+        self.make_tabs_gui()
+        self.make_gui()
+
+        self.get_metadata(photoname, photodirectory)
+        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    def make_gui(self):
         self.layout.setSpacing(20)
         self.setLayout(self.layout)
 
-        self.table = QTableWidget(self)
+        self.layout.addWidget(self.table, 0, 1, 1, 2)
+
         self.table.setFont(font12)
         self.table.setDisabled(True)
         self.table.verticalHeader().setVisible(False)
@@ -487,35 +575,23 @@ class EditExifData(QDialog):
         self.table.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.table.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
-        self.layout.addWidget(self.table, 0, 1, 1, 2)
-
-        self.btn_ok = QPushButton(self)
         self.btn_ok.setText("Записать")
         self.btn_ok.setStyleSheet(stylesheet8)
         self.btn_ok.setFont(font14)
         self.layout.addWidget(self.btn_ok, 1, 0, 1, 1)
         self.btn_ok.clicked.connect(self.pre_write_changes)
 
-        self.btn_cancel = QPushButton(self)
         self.btn_cancel.setText("Отмена")
         self.btn_cancel.setStyleSheet(stylesheet8)
         self.btn_cancel.setFont(font14)
         self.layout.addWidget(self.btn_cancel, 1, 1, 1, 1)
         self.btn_cancel.clicked.connect(self.close)
 
-        self.btn_clear = QPushButton(self)
         self.btn_clear.setText("Очистить")
         self.btn_clear.setStyleSheet(stylesheet8)
         self.btn_clear.setFont(font14)
         self.layout.addWidget(self.btn_clear, 1, 2, 1, 1)
         self.btn_clear.clicked.connect(self.clear_exif_func)
-
-        self.make_tabs_gui()
-
-        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
-
-        self.get_metadata(photoname, photodirectory)
-        self.indicator = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
     def make_map(self, coordinates: tuple[float, float], filename: str):
         """
@@ -532,14 +608,14 @@ class EditExifData(QDialog):
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
         if coordinates[0] != 0 and coordinates[1] != 0:
-            self.map_gps = folium.Map(location=coordinates, zoom_start=14)
-            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color="red")).add_to(self.map_gps)
+            map_gps = folium.Map(location=coordinates, zoom_start=14)
+            folium.Marker(coordinates, popup=filename, icon=folium.Icon(color="red")).add_to(map_gps)
         else:
-            self.map_gps = folium.Map(location=(0, 0), zoom_start=1)
+            map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
-        self.popup = folium.LatLngPopup()
-        self.map_gps.add_child(self.popup)
-        self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+        popup = folium.LatLngPopup()
+        map_gps.add_child(popup)
+        self.map_gps_widget.setHtml(map_gps.get_root().render())
 
         self.layout.addWidget(self.map_gps_widget, 0, 1, 1, 2)
 
@@ -563,13 +639,8 @@ class EditExifData(QDialog):
         """
         Создание всего GUI в разделе, где можно редактировать метаданные
         """
-        self.tabs = QTabWidget(self)
         self.tabs.setStyleSheet(stylesheet7)
         self.tabs.currentChanged.connect(self.change_tab_gps)
-
-        self.tab_date = QWidget(self)
-        self.tab_technic_settings = QWidget(self)
-        self.tab_GPS = QWidget(self)
 
         self.tabs.addTab(self.tab_date, "Дата")
         self.tabs.addTab(self.tab_technic_settings, "Оборудование и настройки")
@@ -577,29 +648,24 @@ class EditExifData(QDialog):
 
         self.tabs.setFont(font12)
 
-        self.tab_date_layout = QGridLayout(self)
-
-        self.date_lbl = QLabel(self)
+        self.layout.addWidget(self.tabs, 0, 0, 1, 1)
         self.date_lbl.setStyleSheet(stylesheet2)
         self.date_lbl.setText("Дата съёмки:")
         self.date_lbl.setFont(font14)
         self.date_lbl.setStyleSheet(stylesheet2)
         self.tab_date_layout.addWidget(self.date_lbl, 0, 0, 1, 1)
 
-        self.date_choose = QDateTimeEdit(self)
         self.date_choose.setDisplayFormat("yyyy.MM.dd HH:mm:ss")
         self.date_choose.setFont(font14)
         self.date_choose.setStyleSheet(stylesheet1)
         self.tab_date_layout.addWidget(self.date_choose, 0, 1, 1, 2)
 
-        self.timezone_lbl = QLabel(self)
         self.timezone_lbl.setStyleSheet(stylesheet2)
         self.timezone_lbl.setText("Часовой пояс:")
         self.timezone_lbl.setFont(font14)
         self.timezone_lbl.setStyleSheet(stylesheet2)
         self.tab_date_layout.addWidget(self.timezone_lbl, 1, 0, 1, 1)
 
-        self.timezone_pm_choose = QComboBox(self)
         self.timezone_pm_choose.setFont(font14)
         self.timezone_pm_choose.setStyleSheet(stylesheet9)
         self.timezone_pm_choose.addItem("+")
@@ -607,41 +673,28 @@ class EditExifData(QDialog):
         self.timezone_pm_choose.setFixedWidth(int(50 * system_scale))
         self.tab_date_layout.addWidget(self.timezone_pm_choose, 1, 1, 1, 1)
 
-        self.timezone_num_choose = QTimeEdit(self)
         self.timezone_num_choose.setFont(font14)
         self.timezone_num_choose.setStyleSheet(stylesheet1)
         self.timezone_num_choose.setDisplayFormat("HH:mm")
         self.tab_date_layout.addWidget(self.timezone_num_choose, 1, 2, 1, 1)
 
         self.tab_date.setLayout(self.tab_date_layout)
-
-        self.tab_tt_layout = QGridLayout(self)
-
-        self.maker_lbl = QLabel(self)
         self.maker_lbl.setText("Производитель:")
 
-        self.camera_lbl = QLabel(self)
         self.camera_lbl.setText("Камера:")
 
-        self.lens_lbl = QLabel(self)
         self.lens_lbl.setText("Объектив:")
 
-        self.time_lbl = QLabel(self)
         self.time_lbl.setText("Выдержка:")
 
-        self.iso_lbl = QLabel(self)
         self.iso_lbl.setText("ISO:")
 
-        self.fnumber_lbl = QLabel(self)
         self.fnumber_lbl.setText("Диафрагма:")
 
-        self.flength_lbl = QLabel(self)
         self.flength_lbl.setText("Фокусное расстояние:")
 
-        self.serialbody_lbl = QLabel(self)
         self.serialbody_lbl.setText("Серийный номер камеры:")
 
-        self.seriallens_lbl = QLabel(self)
         self.seriallens_lbl.setText("Серийный номер объектива:")
 
         self.maker_lbl.setStyleSheet(stylesheet2)
@@ -681,27 +734,13 @@ class EditExifData(QDialog):
         self.tab_tt_layout.addWidget(self.serialbody_lbl, 9, 0, 1, 1)
         self.tab_tt_layout.addWidget(self.seriallens_lbl, 10, 0, 1, 1)
 
-        self.maker_line = QLineEdit(self)
-
-        self.camera_line = QLineEdit(self)
-
-        self.lens_line = QLineEdit(self)
-
-        self.time_line = QLineEdit(self)
         self.time_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\d+[./]\d+")))
 
-        self.iso_line = QLineEdit(self)
         self.iso_line.setValidator(QtGui.QIntValidator(1, 10000000))
 
-        self.fnumber_line = QLineEdit(self)
         self.fnumber_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("\d+[.]\d+")))
 
-        self.flength_line = QLineEdit(self)
         self.flength_line.setValidator(QtGui.QIntValidator(1, 10000))
-
-        self.serialbody_line = QLineEdit(self)
-
-        self.seriallens_line = QLineEdit(self)
 
         self.maker_line.setStyleSheet(stylesheet1)
         self.maker_line.setFont(font12)
@@ -742,30 +781,22 @@ class EditExifData(QDialog):
 
         self.tab_technic_settings.setLayout(self.tab_tt_layout)
 
-        self.tab_layout_gps = QGridLayout(self)
-
-        self.mode_check_dmc = QCheckBox(self)
         self.mode_check_dmc.setText("ШД Г.м.с")
         self.mode_check_dmc.setFont(font12)
         self.mode_check_dmc.setStyleSheet(stylesheet2)
         self.mode_check_dmc.stateChanged.connect(self.block_check_gps)
 
-        self.mode_check_fn = QCheckBox(self)
         self.mode_check_fn.setText("Числом")
         self.mode_check_fn.setFont(font12)
         self.mode_check_fn.setStyleSheet(stylesheet2)
         self.mode_check_fn.stateChanged.connect(self.block_check_gps)
 
-        self.latitude_fn_lbl = QLabel(self)  # широта
         self.latitude_fn_lbl.setText("Широта:")
 
-        self.longitude_fn_lbl = QLabel(self)  # долгота
         self.longitude_fn_lbl.setText("Долгота:")
 
-        self.latitude_fn_line = QLineEdit(self)  # широта
         self.latitude_fn_line.setValidator(QtGui.QRegExpValidator(
             QtCore.QRegExp("^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$")))
-        self.longitude_fn_line = QLineEdit(self)  # долгота
         self.longitude_fn_line.setValidator(QtGui.QRegExpValidator(
             QtCore.QRegExp("^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$")))
 
@@ -788,60 +819,41 @@ class EditExifData(QDialog):
         self.longitude_fn_line.textChanged.connect(self.updating_other_gps)
         self.latitude_fn_line.textChanged.connect(self.updating_other_gps)
 
-        self.latitude_dmc_lbl = QLabel(self)  # широта
         self.latitude_dmc_lbl.setText("Широта:")
 
-        self.longitude_dmc_lbl = QLabel(self)  # долгота
         self.longitude_dmc_lbl.setText("Долгота:")
 
-        self.latitude_dmc_choose = QComboBox(self)
         self.latitude_dmc_choose.addItem("Север")
         self.latitude_dmc_choose.addItem("Юг")
         self.latitude_dmc_choose.setFixedWidth(int(80 * system_scale))
 
-        self.longitude_dmc_choose = QComboBox(self)
         self.longitude_dmc_choose.addItem("Восток")
         self.longitude_dmc_choose.addItem("Запад")
         self.longitude_dmc_choose.setFixedWidth(int(80 * system_scale))
 
-        self.latitude_dmc_deg_lbl = QLabel(self)  # широта
         self.latitude_dmc_deg_lbl.setText("Градусы:")
 
-        self.longitude_dmc_min_lbl = QLabel(self)  # долгота
         self.longitude_dmc_min_lbl.setText("Минуты:")
 
-        self.latitude_dmc_sec_lbl = QLabel(self)  # широта
         self.latitude_dmc_sec_lbl.setText("Секунды:")
 
-        self.longitude_dmc_deg_lbl = QLabel(self)  # долгота
         self.longitude_dmc_deg_lbl.setText("Градусы:")
 
-        self.latitude_dmc_min_lbl = QLabel(self)  # широта
         self.latitude_dmc_min_lbl.setText("Минуты:")
 
-        self.longitude_dmc_sec_lbl = QLabel(self)  # долгота
         self.longitude_dmc_sec_lbl.setText("Секунды:")
 
-        self.latitude_dmc_deg_line = QLineEdit(self)  # широта
         self.latitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:90|[0-9]|[1-8][0-9])")))
 
-        self.latitude_dmc_min_line = QLineEdit(self)  # широта
         self.latitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:60|[0-9]|[1-5][0-9])")))
 
-        self.latitude_dmc_sec_line = QLineEdit(self)  # широта
-        self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-            QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$")))
+        self.latitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$")))
 
-        self.longitude_dmc_deg_line = QLineEdit(self)  # долгота
-        self.longitude_dmc_deg_line.setValidator(
-            QtGui.QRegExpValidator(QtCore.QRegExp("(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])")))
+        self.longitude_dmc_deg_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:180|[0-9]|[1-9][0-9]|1[0-7][0-9])")))
 
-        self.longitude_dmc_min_line = QLineEdit(self)  # долгота
         self.longitude_dmc_min_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("(?:60|[0-9]|[1-5][0-9])")))
 
-        self.longitude_dmc_sec_line = QLineEdit(self)  # долгота
-        self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(
-            QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$")))
+        self.longitude_dmc_sec_line.setValidator(QtGui.QRegExpValidator(QtCore.QRegExp("^(?:60(?:(?:\.0{1,6})?)|(?:[0-9]|[1-5][0-9])(?:(?:\.[0-9]{1,6})?))$")))
 
         self.tab_layout_gps.addWidget(self.mode_check_dmc, 3, 0, 1, 1)
         self.tab_layout_gps.addWidget(self.latitude_dmc_lbl, 4, 0, 1, 1)

@@ -68,80 +68,88 @@ class RecoveryWidget(QWidget):
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.layout = QGridLayout(self)
-        self.setLayout(self.layout)
+
+        self.lbl_len_photos = QLabel(self)
+        self.lbl_len_socnets = QLabel(self)
+        self.lbl_err_photos = QLabel(self)
+        self.lbl_err_socnets = QLabel(self)
+        self.lbl_len_exists = QLabel(self)
+        self.lbl_len_thumbs = QLabel(self)
+        self.len_photos_value = QLineEdit(self)
+        self.len_socnets_value = QLineEdit(self)
+        self.err_photos_value = QLineEdit(self)
+        self.err_socnets_value = QLineEdit(self)
+        self.len_exists_value = QLineEdit(self)
+        self.len_thumbs_value = QLineEdit(self)
+        self.btn_recovery = QPushButton(self)
 
         self.make_gui()
 
         self.resize(800, 220)
 
     def make_gui(self) -> None:
-        self.lbl_len_photos = QLabel(self)
+        self.setLayout(self.layout)
+
         self.lbl_len_photos.setText("Записей в таблице данных о фотографиях:")
         self.lbl_len_photos.setFont(font14)
         self.lbl_len_photos.setStyleSheet(stylesheet2)
 
-        self.lbl_len_socnets = QLabel(self)
         self.lbl_len_socnets.setText("Записей в таблице о социальных сетях:")
         self.lbl_len_socnets.setFont(font14)
         self.lbl_len_socnets.setStyleSheet(stylesheet2)
 
-        self.lbl_err_photos = QLabel(self)
         self.lbl_err_photos.setText("Обнаружено ошибок в таблице данных о фотографиях:")
         self.lbl_err_photos.setFont(font14)
         self.lbl_err_photos.setStyleSheet(stylesheet2)
         self.lbl_err_photos.setAlignment(QtCore.Qt.AlignRight)
 
-        self.lbl_err_socnets = QLabel(self)
         self.lbl_err_socnets.setText("Обнаружено ошибок в таблице о социальных сетях:")
         self.lbl_err_socnets.setFont(font14)
         self.lbl_err_socnets.setStyleSheet(stylesheet2)
         self.lbl_err_socnets.setAlignment(QtCore.Qt.AlignRight)
 
-        self.lbl_len_exists = QLabel(self)
         self.lbl_len_exists.setText("Фотографий в папке хранения:")
         self.lbl_len_exists.setFont(font14)
         self.lbl_len_exists.setStyleSheet(stylesheet2)
 
-        self.lbl_len_thumbs = QLabel(self)
         self.lbl_len_thumbs.setText("Миниатюр в папке хранения:")
         self.lbl_len_thumbs.setFont(font14)
         self.lbl_len_thumbs.setStyleSheet(stylesheet2)
 
-        self.len_photos_value = QLineEdit(self)
         self.len_photos_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[0])))
         self.len_photos_value.setDisabled(True)
         self.len_photos_value.setFont(font14)
         self.len_photos_value.setStyleSheet(stylesheet1)
 
-        self.len_socnets_value = QLineEdit(self)
         self.len_socnets_value.setText(str(len(SynhronizeDBMedia.get_all_db_ways()[1])))
         self.len_socnets_value.setDisabled(True)
         self.len_socnets_value.setFont(font14)
         self.len_socnets_value.setStyleSheet(stylesheet1)
 
-        self.err_photos_value = QLineEdit(self)
         self.err_photos_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[0]))
         self.err_photos_value.setDisabled(True)
         self.err_photos_value.setFont(font14)
         self.err_photos_value.setStyleSheet(stylesheet1)
 
-        self.err_socnets_value = QLineEdit(self)
         self.err_socnets_value.setText(str(SynhronizeDBMedia.check_destination_corr_db()[1]))
         self.err_socnets_value.setDisabled(True)
         self.err_socnets_value.setFont(font14)
         self.err_socnets_value.setStyleSheet(stylesheet1)
 
-        self.len_exists_value = QLineEdit(self)
         self.len_exists_value.setText(str(len(SynhronizeDBMedia.research_all_media_photos())))
         self.len_exists_value.setDisabled(True)
         self.len_exists_value.setFont(font14)
         self.len_exists_value.setStyleSheet(stylesheet1)
 
-        self.len_thumbs_value = QLineEdit(self)
         self.len_thumbs_value.setText(str(len(SynhronizeDBMedia.research_all_thumbnails())))
         self.len_thumbs_value.setDisabled(True)
         self.len_thumbs_value.setFont(font14)
         self.len_thumbs_value.setStyleSheet(stylesheet1)
+
+        self.btn_recovery.setText("Запустить восстановление")
+        self.btn_recovery.setFont(font14)
+        self.btn_recovery.setStyleSheet(stylesheet8)
+        self.btn_recovery.clicked.connect(self.do_recovery_func)
 
         self.layout.addWidget(self.lbl_len_photos, 0, 0, 1, 1)
         self.layout.addWidget(self.len_photos_value, 0, 1, 1, 1)
@@ -155,24 +163,18 @@ class RecoveryWidget(QWidget):
         self.layout.addWidget(self.len_exists_value, 2, 1, 1, 1)
         self.layout.addWidget(self.lbl_len_thumbs, 3, 0, 1, 1)
         self.layout.addWidget(self.len_thumbs_value, 3, 1, 1, 1)
-
-        self.btn_recovery = QPushButton(self)
-        self.btn_recovery.setText("Запустить восстановление")
-        self.btn_recovery.setFont(font14)
-        self.btn_recovery.setStyleSheet(stylesheet8)
-        self.btn_recovery.clicked.connect(self.do_recovery_func)
         self.layout.addWidget(self.btn_recovery, 10, 0, 1, 1)
 
     def do_recovery_func(self) -> None:
         """
         Выполнение восстановления
         """
-        self.loading_win = RecoveryLoadingWin(self)
+        loading_win = RecoveryLoadingWin(self)
         self.proccess = DoRecovery()
-        self.proccess.finished.connect(self.loading_win.close)
-        self.proccess.loading_text_show.connect(lambda t: self.loading_win.set_process_lbl(t))
+        self.proccess.finished.connect(loading_win.close)
+        self.proccess.loading_text_show.connect(lambda t: loading_win.set_process_lbl(t))
         self.proccess.finished.connect(self.update_values)
-        self.loading_win.show()
+        loading_win.show()
         self.proccess.start()
 
     def update_values(self) -> None:

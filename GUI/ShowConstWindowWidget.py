@@ -459,37 +459,37 @@ class ConstWidgetWindow(QWidget):
         for j in range(0, num_of_j):  # создание кнопок
             if j == num_of_j - 1:  # последний ряд (может быть неполным)
                 for i in range(0, len(thumbnails_list) - self.thumb_row * (num_of_j - 1)):
-                    self.button = QtWidgets.QToolButton(self)  # создание кнопки
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
+                    button = QtWidgets.QToolButton(self)  # создание кнопки
+                    button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)  # задание, что картинка над текстом
                     iqon = QtGui.QIcon(f"{thumbnails_list[j * self.thumb_row + i]}")  # создание объекта картинки
                     iqon.pixmap(150, 150)  # задание размера картинки
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)  # помещение картинки на кнопку
-                    self.button.setIconSize(QtCore.QSize(150, 150))
+                    button.setMinimumHeight(180)
+                    button.setFixedWidth(160)
+                    button.setIcon(iqon)  # помещение картинки на кнопку
+                    button.setIconSize(QtCore.QSize(150, 150))
                     filename_show = thumbnails_list[j * self.thumb_row + i].split("/")[-1][10:]
-                    self.button.setText(f"{filename_show}")  # добавление названия фото
-                    self.button.setObjectName(f"{photo_list[j * self.thumb_row + i]}")
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
+                    button.setText(f"{filename_show}")  # добавление названия фото
+                    button.setObjectName(f"{photo_list[j * self.thumb_row + i]}")
+                    self.layout_inside_thumbs.addWidget(button, j, i, 1, 1)
+                    button.setStyleSheet(stylesheet1)
+                    button.clicked.connect(self.showinfo)
                     QtCore.QCoreApplication.processEvents()
             else:
                 for i in range(0, self.thumb_row):
-                    self.button = QtWidgets.QToolButton(self)
-                    self.button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
+                    button = QtWidgets.QToolButton(self)
+                    button.setToolButtonStyle(Qt.ToolButtonTextUnderIcon)
                     iqon = QtGui.QIcon(f"{thumbnails_list[j * self.thumb_row + i]}")
                     iqon.pixmap(150, 150)
-                    self.button.setMinimumHeight(180)
-                    self.button.setFixedWidth(160)
-                    self.button.setIcon(iqon)
-                    self.button.setIconSize(QtCore.QSize(150, 150))
+                    button.setMinimumHeight(180)
+                    button.setFixedWidth(160)
+                    button.setIcon(iqon)
+                    button.setIconSize(QtCore.QSize(150, 150))
                     filename_show = thumbnails_list[j * self.thumb_row + i].split("/")[-1][10:]
-                    self.button.setText(f"{filename_show}")  # добавление названия фото
-                    self.button.setObjectName(f"{photo_list[j * self.thumb_row + i]}")
-                    self.layout_inside_thumbs.addWidget(self.button, j, i, 1, 1)
-                    self.button.setStyleSheet(stylesheet1)
-                    self.button.clicked.connect(self.showinfo)
+                    button.setText(f"{filename_show}")  # добавление названия фото
+                    button.setObjectName(f"{photo_list[j * self.thumb_row + i]}")
+                    self.layout_inside_thumbs.addWidget(button, j, i, 1, 1)
+                    button.setStyleSheet(stylesheet1)
+                    button.clicked.connect(self.showinfo)
                     QtCore.QCoreApplication.processEvents()
 
     def make_map(self) -> None:
@@ -506,9 +506,9 @@ class ConstWidgetWindow(QWidget):
             gps_dict = self.gps_coordinates
             gps_coords = [float(gps_dict.split(",")[0]), float(gps_dict.split(",")[1])]
 
-            self.map_gps = folium.Map(location=gps_coords, zoom_start=14)
-            folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color="red")).add_to(self.map_gps)
-            self.map_gps_widget.setHtml(self.map_gps.get_root().render())
+            map_gps = folium.Map(location=gps_coords, zoom_start=14)
+            folium.Marker(gps_coords, popup=self.last_clicked_name, icon=folium.Icon(color="red")).add_to(map_gps)
+            self.map_gps_widget.setHtml(map_gps.get_root().render())
             if self.photo_rotation == "gor":
                 self.layout_show.addWidget(self.map_gps_widget, 1, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
                 if self.soc_net_setting:
@@ -564,19 +564,19 @@ class ConstWidgetWindow(QWidget):
         self.last_clicked_dir = self.photo_directory[:-1]
         # C:\Users\user\PycharmProjects\TestForPhotoPr/Media/Photo/const/2022/01/18/
 
-        self.photo_file = self.photo_path  # получение информации о нажатой кнопке
+        photo_file = self.photo_path  # получение информации о нажатой кнопке
 
-        jsondata_wr = {"last_opened_photo": self.photo_file}
+        jsondata_wr = {"last_opened_photo": photo_file}
         with open("last_opened.json", "w") as json_file:
             json.dump(jsondata_wr, json_file)
 
-        self.pixmap = QtGui.QPixmap(self.photo_file)  # размещение большой картинки
+        self.pixmap = QtGui.QPixmap(photo_file)  # размещение большой картинки
 
         try:
-            metadata = MetadataPhoto.fast_filter_exif(MetadataPhoto.fast_read_exif(self.photo_file), self.last_clicked_name,
+            metadata = MetadataPhoto.fast_filter_exif(MetadataPhoto.fast_read_exif(photo_file), self.last_clicked_name,
                                                  self.photo_directory)
         except (UnicodeDecodeError, UnicodeEncodeError, ValueError):
-            metadata = MetadataPhoto.filter_exif(MetadataPhoto.read_exif(self.photo_file), self.last_clicked_name,
+            metadata = MetadataPhoto.filter_exif(MetadataPhoto.read_exif(photo_file), self.last_clicked_name,
                                             self.photo_directory)
         except FileNotFoundError:
             win_err = ErrorsAndWarnings.ExistFileError(self)
@@ -807,55 +807,55 @@ class ConstWidgetWindow(QWidget):
         except (RuntimeError, AttributeError):
             pass
 
-        self.edit_btn = QToolButton(self)
-        self.edit_btn.setStyleSheet(stylesheet1)
-        self.edit_btn.setIcon(QtGui.QIcon(icon_edit))
-        self.edit_btn.setIconSize(QtCore.QSize(50, 50))
-        self.edit_btn.setToolTip("Редактирование метаданных")
-        self.edit_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.edit_btn, 0, 0, 1, 1)
-        self.edit_btn.clicked.connect(self.edit_exif_func)
+        edit_btn = QToolButton(self)
+        edit_btn.setStyleSheet(stylesheet1)
+        edit_btn.setIcon(QtGui.QIcon(icon_edit))
+        edit_btn.setIconSize(QtCore.QSize(50, 50))
+        edit_btn.setToolTip("Редактирование метаданных")
+        edit_btn.setFixedSize(50, 50)
+        self.layout_btns.addWidget(edit_btn, 0, 0, 1, 1)
+        edit_btn.clicked.connect(self.edit_exif_func)
 
-        self.del_btn = QToolButton(self)
-        self.del_btn.setStyleSheet(stylesheet1)
-        self.del_btn.setIcon(QtGui.QIcon(icon_delete))
-        self.del_btn.setIconSize(QtCore.QSize(50, 50))
-        self.del_btn.setToolTip("Удалить")
-        self.del_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.del_btn, 1, 0, 1, 1)
-        self.del_btn.clicked.connect(self.del_photo_func)
+        del_btn = QToolButton(self)
+        del_btn.setStyleSheet(stylesheet1)
+        del_btn.setIcon(QtGui.QIcon(icon_delete))
+        del_btn.setIconSize(QtCore.QSize(50, 50))
+        del_btn.setToolTip("Удалить")
+        del_btn.setFixedSize(50, 50)
+        self.layout_btns.addWidget(del_btn, 1, 0, 1, 1)
+        del_btn.clicked.connect(self.del_photo_func)
 
-        self.explorer_btn = QToolButton(self)
-        self.explorer_btn.setStyleSheet(stylesheet1)
-        self.explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
-        self.explorer_btn.setIconSize(QtCore.QSize(50, 50))
-        self.explorer_btn.setToolTip("Показать в проводнике")
-        self.explorer_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.explorer_btn, 2, 0, 1, 1)
-        self.explorer_btn.clicked.connect(self.call_explorer)
+        explorer_btn = QToolButton(self)
+        explorer_btn.setStyleSheet(stylesheet1)
+        explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
+        explorer_btn.setIconSize(QtCore.QSize(50, 50))
+        explorer_btn.setToolTip("Показать в проводнике")
+        explorer_btn.setFixedSize(50, 50)
+        self.layout_btns.addWidget(explorer_btn, 2, 0, 1, 1)
+        explorer_btn.clicked.connect(self.call_explorer)
 
-        self.open_file_btn = QToolButton(self)
-        self.open_file_btn.setStyleSheet(stylesheet1)
-        self.open_file_btn.setIcon(QtGui.QIcon(icon_view))
-        self.open_file_btn.setIconSize(QtCore.QSize(50, 50))
-        self.open_file_btn.setToolTip("Открыть")
-        self.open_file_btn.setFixedSize(50, 50)
-        self.layout_btns.addWidget(self.open_file_btn, 3, 0, 1, 1)
-        self.open_file_btn.clicked.connect(self.open_file_func)
+        open_file_btn = QToolButton(self)
+        open_file_btn.setStyleSheet(stylesheet1)
+        open_file_btn.setIcon(QtGui.QIcon(icon_view))
+        open_file_btn.setIconSize(QtCore.QSize(50, 50))
+        open_file_btn.setToolTip("Открыть")
+        open_file_btn.setFixedSize(50, 50)
+        self.layout_btns.addWidget(open_file_btn, 3, 0, 1, 1)
+        open_file_btn.clicked.connect(self.open_file_func)
 
         hotkeys = Settings.get_hotkeys()
 
-        self.edit_shortcut = QShortcut(QKeySequence(hotkeys["edit_metadata"]), self)
-        self.edit_shortcut.activated.connect(self.edit_exif_func)
+        edit_shortcut = QShortcut(QKeySequence(hotkeys["edit_metadata"]), self)
+        edit_shortcut.activated.connect(self.edit_exif_func)
 
-        self.del_shortcut = QShortcut(QKeySequence(hotkeys["delete_file"]), self)
-        self.del_shortcut.activated.connect(self.del_photo_func)
+        del_shortcut = QShortcut(QKeySequence(hotkeys["delete_file"]), self)
+        del_shortcut.activated.connect(self.del_photo_func)
 
-        self.explorer_shortcut = QShortcut(QKeySequence(hotkeys["open_explorer"]), self)
-        self.explorer_shortcut.activated.connect(self.call_explorer)
+        explorer_shortcut = QShortcut(QKeySequence(hotkeys["open_explorer"]), self)
+        explorer_shortcut.activated.connect(self.call_explorer)
 
-        self.open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
-        self.open_shortcut.activated.connect(self.open_file_func)
+        open_shortcut = QShortcut(QKeySequence(hotkeys["open_file"]), self)
+        open_shortcut.activated.connect(self.open_file_func)
 
     def open_file_func(self) -> None:
         """
@@ -1130,9 +1130,7 @@ class ConstWidgetWindow(QWidget):
             else:
                 pass
 
-        sn_names, sn_tags = PhotoDataDB.get_social_tags(photoname, photodirectory)
-
-        fill_sn_widgets(sn_names, sn_tags)
+        fill_sn_widgets(PhotoDataDB.get_social_tags(photoname, photodirectory))
 
     def fill_sort_groupbox(self) -> None:
         """
