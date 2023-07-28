@@ -5,7 +5,7 @@ from PyQt5 import QtGui, QtCore
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 
-from Database import PhotoDataDB
+from Database import PhotoDataDB, SocialNetworksDB
 from GUI import Screenconfig, Settings
 
 
@@ -256,14 +256,7 @@ class AddSN(QDialog):
         """
         После подтверждения добавления
         """
-        sql_str = f"ALTER TABLE socialnetworks ADD COLUMN {self.enter_name.text()} TEXT DEFAULT \'No value\'"
-        try:
-            cur.execute(sql_str)
-        except sqlite3.OperationalError:  # название колонны не может начинаться с цифр и некоторых потенциально служебных символов
-            textwithnum = "numnumnum" + self.enter_name.text()
-            sql_str = f"ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\'"
-            cur.execute(sql_str)
-        conn.commit()
+        SocialNetworksDB.add_network(self.enter_name.text())
         logging.info(f"New social network added {self.enter_name.text()}")
 
         self.social_network_changed.emit()
@@ -355,14 +348,7 @@ class RedSN(QDialog):
         """
         После проверки на пустоту - редактировать
         """
-        sql_str = f"ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {self.new_name.text()}"
-        try:
-            cur.execute(sql_str)
-        except sqlite3.OperationalError:  # название колонны не может начинаться с цифр и некоторых потенциально служебных символов
-            textwithnum = "numnumnum" + self.new_name.text()
-            sql_str = f"ALTER TABLE socialnetworks RENAME COLUMN {self.net_oldname} TO {textwithnum}"
-            cur.execute(sql_str)
-        conn.commit()
+        SocialNetworksDB.rename_network(self.net_oldname, self.new_name.text())
         logging.info(f"Social network {self.net_oldname} renamed into {self.new_name.text()}")
 
         self.social_network_changed.emit()
@@ -428,10 +414,7 @@ class DelSN(QDialog):
         """
         После подтверждения удаления. Само удаление
         """
-        sql_str = f"ALTER TABLE socialnetworks DROP COLUMN {self.net_name}"
-        cur.execute(sql_str)
-        conn.commit()
-
+        SocialNetworksDB.delete_network(self.net_name)
         logging.info(f"Social network {self.net_name} deleted")
 
         self.social_network_changed.emit()

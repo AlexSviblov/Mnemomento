@@ -3,6 +3,7 @@ import sqlite3
 import piexif
 import exiftool
 from GUI import ErrorsAndWarnings
+from Database import ErrorNamesDB
 from PIL import Image, ImageFile
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
@@ -109,12 +110,10 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
 
     try:
         maker = data["0th"][271].decode("utf-8")
-        sql_str = f"SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\'"
-        cur.execute(sql_str)
-        try:
-            maker = cur.fetchone()[0]
-        except TypeError:
-            pass
+
+        correction_name = ErrorNamesDB.get_norname_for_exifname("maker", maker)
+        if correction_name:
+            maker = correction_name
 
         metadata["Производитель"] = maker
     except KeyError:
@@ -123,12 +122,9 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
     try:
         camera = data["0th"][272].decode("utf-8")
 
-        sql_str = f"SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\'"
-        cur.execute(sql_str)
-        try:
-            camera = cur.fetchone()[0]
-        except TypeError:
-            pass
+        correction_name = ErrorNamesDB.get_norname_for_exifname("camera", camera)
+        if correction_name:
+            camera = correction_name
 
         metadata["Камера"] = camera
     except KeyError:
@@ -137,12 +133,9 @@ def fast_filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[s
     try:
         lens = data["Exif"][42036].decode("utf-8")
 
-        sql_str = f"SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\'"
-        cur.execute(sql_str)
-        try:
-            lens = cur.fetchone()[0]
-        except TypeError:
-            pass
+        correction_name = ErrorNamesDB.get_norname_for_exifname("lens", lens)
+        if correction_name:
+            lens = correction_name
 
         metadata["Объектив"] = lens
     except KeyError:
@@ -249,12 +242,11 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
 
     try:
         maker = data["EXIF:Make"]
-        sql_str = f"SELECT normname FROM ernames WHERE type = \'maker\' AND exifname = \'{maker}\'"
-        cur.execute(sql_str)
-        try:
-            maker = cur.fetchone()[0]
-        except TypeError:
-            pass
+
+        correction_name = ErrorNamesDB.get_norname_for_exifname("maker", maker)
+        if correction_name:
+            maker = correction_name
+
         metadata["Производитель"] = maker
     except KeyError:
         metadata["Производитель"] = ""
@@ -262,12 +254,9 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     try:
         camera = data["EXIF:Model"]
 
-        sql_str = f"SELECT normname FROM ernames WHERE type = \'camera\' AND exifname = \'{camera}\'"
-        cur.execute(sql_str)
-        try:
-            camera = cur.fetchone()[0]
-        except TypeError:
-            pass
+        correction_name = ErrorNamesDB.get_norname_for_exifname("camera", camera)
+        if correction_name:
+            camera = correction_name
 
         metadata["Камера"] = camera
     except KeyError:
@@ -276,12 +265,9 @@ def filter_exif(data: dict, photofile: str, photo_directory: str) -> dict[str, s
     try:
         lens = data["EXIF:LensModel"]
 
-        sql_str = f"SELECT normname FROM ernames WHERE type = \'lens\' AND exifname = \'{lens}\'"
-        cur.execute(sql_str)
-        try:
-            lens = cur.fetchone()[0]
-        except TypeError:
-            pass
+        correction_name = ErrorNamesDB.get_norname_for_exifname("lens", lens)
+        if correction_name:
+            lens = correction_name
 
         metadata["Объектив"] = lens
     except KeyError:
@@ -1109,3 +1095,26 @@ def massive_table_data(file: str) -> dict[str, str]:
         useful_data["Комментарий"] = ""
 
     return useful_data
+
+
+def recover_metadata_after_rotation(photofile: str, file_exif: dict) -> None:
+    for key in list(file_exif.keys()):
+        if "EXIF" in key or "Composite" in key:
+            pass
+        else:
+            file_exif.pop(key)
+
+    with exiftool.ExifToolHelper() as et:
+        et.set_tags(photofile, tags=file_exif, params=["-P", "-overwrite_original"])
+
+    modify_dict = {}
+    try:
+        modify_dict["EXIF:GPSLatitudeRef"] = file_exif["EXIF:GPSLatitudeRef"]
+        modify_dict["EXIF:GPSLatitude"] = file_exif["EXIF:GPSLatitude"]
+        modify_dict["EXIF:GPSLongitudeRef"] = file_exif["EXIF:GPSLongitudeRef"]
+        modify_dict["EXIF:GPSLongitude"] = file_exif["EXIF:GPSLongitude"]
+
+        with exiftool.ExifToolHelper() as et:
+            et.set_tags(photofile, tags=modify_dict, params=["-P", "-overwrite_original"])
+    except KeyError:
+        pass

@@ -1,5 +1,7 @@
 import logging
 import sys
+from traceback import format_exception
+import datetime
 from PyQt5.QtWidgets import *
 
 logging.basicConfig(filename=f"log.txt",
@@ -27,7 +29,7 @@ from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread, pyqtSignal
 from pathlib import Path
 
-from GUI import AboutSoft, Screenconfig, EditManyFiles, ErNamesDB, GlobalMap, OnlyShowWidget, ShowAloneWindowWidget, \
+from GUI import AboutSoft, Screenconfig, EditManyFiles, ErrorNamesWin, GlobalMap, OnlyShowWidget, ShowAloneWindowWidget, \
     ShowConstWindowWidget, SocialNetworks, ErrorsAndWarnings, StatisticsModule, RecoveryModule, Settings
 from Explorer import FilesDirs, Thumbnail
 
@@ -962,7 +964,7 @@ class ErrorNamesDBWindow(QMainWindow):
 
         self.setStyleSheet(stylesheet2)
         self.setWindowTitle("База исправлений")
-        self.widget_db = ErNamesDB.ViewBDDialog(self)
+        self.widget_db = ErrorNamesWin.ViewBDDialog(self)
         self.setCentralWidget(self.widget_db)
 
         self.resize(self.widget_db.size())

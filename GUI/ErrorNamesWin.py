@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import *
 
 from GUI import Screenconfig, Settings, ErrorsAndWarnings
+from Database import ErrorNamesDB
 
 
 stylesheet1 = str()
@@ -18,10 +19,6 @@ stylesheet7 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 
-# соединение с БД
-conn = sqlite3.connect("ErrorNames.db", check_same_thread=False)
-
-cur = conn.cursor()
 
 font12 = QtGui.QFont("Times", 12)
 
@@ -176,10 +173,7 @@ class ViewBDDialog(QWidget):
                 case _:
                     return
 
-            sql_red_str = f"UPDATE ernames SET {col_name} = '{self.new_element}' WHERE {col_name} = '{self.old_element}'"
-            cur.execute(sql_red_str)
-            conn.commit()
-
+            ErrorNamesDB.edit_error_name(col_name, self.new_element, self.old_element)
             logging.info(f"ErNamesDB - Edited value {col_name} from {self.old_element} to {self.new_element}")
 
             self.indicator = 0
@@ -203,8 +197,7 @@ class ViewBDDialog(QWidget):
         """
         Получение информации из БД
         """
-        cur.execute("SELECT * FROM ernames")
-        all_results = cur.fetchall()
+        all_results = ErrorNamesDB.get_all_ernames()
         row_num = len(all_results)
         self.table.setRowCount(row_num)
         self.table.setHorizontalHeaderLabels(["Тип", "Ошибочное отображение", "Верное название"])
@@ -441,17 +434,12 @@ class AddBDDialog(QDialog):
             case _:
                 raise ValueError
 
-        enter_1 = "INSERT INTO ernames(type,exifname,normname) VALUES(?,?,?)"
-        enter_2 = (equip_type, self.error_entered, self.norm_entered)
-
         try:
-            cur.execute(enter_1, enter_2)
+            ErrorNamesDB.add_ername(equip_type, self.error_entered, self.norm_entered)
         except sqlite3.OperationalError :
             warning = ErrorsAndWarnings.ErNamesDBWarn(self, code=3)
             warning.show()
             return
-
-        conn.commit()
 
         logging.info(f"ErNamesDB - Added correction {equip_type} - {self.error_entered} - {self.norm_entered}")
 
@@ -503,10 +491,7 @@ class DelBDDialog(QDialog):
         """
         Произвести удаление записи
         """
-        sql_del_str = f"DELETE FROM ernames WHERE exifname LIKE '{self.del_obj_ername}'"
-        cur.execute(sql_del_str)
-        conn.commit()
-
+        ErrorNamesDB.delete_ername(self.del_obj_ername)
         logging.info(f"ErNamesDB - Removed correction for {self.del_obj_ername}")
         self.accept()
 

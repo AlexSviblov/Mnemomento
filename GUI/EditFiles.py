@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import Qt
 from PIL import Image
 from PIL import ImageFile
-import exiftool
 
 from GUI.FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 from GUI.Screenconfig import font14, font12
@@ -1288,30 +1287,7 @@ class EditExifData(QDialog):
         im.close()
         im_flipped.close()
 
-        for key in list(file_exif.keys()):
-            if "EXIF" in key or "Composite" in key:
-                pass
-            else:
-                file_exif.pop(key)
-
-        with exiftool.ExifToolHelper() as et:
-            et.set_tags(f"{self.photodirectory}/{self.photoname}",
-                        tags=file_exif,
-                        params=["-P", "-overwrite_original"])
-
-        modify_dict = {}
-        try:
-            modify_dict["EXIF:GPSLatitudeRef"] = file_exif["EXIF:GPSLatitudeRef"]
-            modify_dict["EXIF:GPSLatitude"] = file_exif["EXIF:GPSLatitude"]
-            modify_dict["EXIF:GPSLongitudeRef"] = file_exif["EXIF:GPSLongitudeRef"]
-            modify_dict["EXIF:GPSLongitude"] = file_exif["EXIF:GPSLongitude"]
-
-            with exiftool.ExifToolHelper() as et:
-                et.set_tags(f"{self.photodirectory}/{self.photoname}",
-                            tags=modify_dict,
-                            params=["-P", "-overwrite_original"])
-        except KeyError:
-            pass
+        MetadataPhoto.recover_metadata_after_rotation(f"{self.photodirectory}/{self.photoname}", file_exif)
 
         pixmap = QtGui.QPixmap(f"{self.photodirectory}/{self.photoname}").scaled(200, 300,
                                                                                       QtCore.Qt.KeepAspectRatio)
