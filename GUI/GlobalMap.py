@@ -768,9 +768,13 @@ class LocationSearcherWidget(QWidget):
         make_map()
         make_scroll_area()
 
-    def get_photo_for_place(self, js_msg):
+    def get_photo_for_place(self, js_msg: str):
         # TODO: поиск фото в базе с близкиим координатами, отображение и т.д.
         row = 0
+        # широта (у Москвы - 55,...)
+        latitude = float(js_msg.split(",")[0])
+        # долгота - (у Москвы - 37,...)
+        longitude = float(js_msg.split(",")[1])
         for symbol in js_msg:
             lbl = QLabel(symbol)
             self.layout_group.addWidget(lbl, row, 0, 1, 1)
