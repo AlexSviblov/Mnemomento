@@ -1,3 +1,4 @@
+# coding: utf-8
 import ctypes
 import os
 from PyQt5 import QtGui

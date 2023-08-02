@@ -1,3 +1,4 @@
+# coding: utf-8
 import os
 import sqlite3
 
@@ -10,7 +11,7 @@ def add_network(name: str) -> None:
     sql_str = f"ALTER TABLE socialnetworks ADD COLUMN {name} TEXT DEFAULT \'No value\'"
     try:
         cur.execute(sql_str)
-    except sqlite3.OperationalError:  # название колонны не может начинаться с цифр и некоторых потенциально служебных символов
+    except sqlite3.OperationalError:  # РЅР°Р·РІР°РЅРёРµ РєРѕР»РѕРЅРЅС‹ РЅРµ РјРѕР¶РµС‚ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ С†РёС„СЂ Рё РЅРµРєРѕС‚РѕСЂС‹С… РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕ СЃР»СѓР¶РµР±РЅС‹С… СЃРёРјРІРѕР»РѕРІ
         textwithnum = "numnumnum" + name
         sql_str = f"ALTER TABLE socialnetworks ADD COLUMN {textwithnum} TEXT DEFAULT \'No value\'"
         cur.execute(sql_str)
@@ -21,7 +22,7 @@ def rename_network(old_name: str, new_name: str) -> None:
     sql_str = f"ALTER TABLE socialnetworks RENAME COLUMN {old_name} TO {new_name}"
     try:
         cur.execute(sql_str)
-    except sqlite3.OperationalError:  # название колонны не может начинаться с цифр и некоторых потенциально служебных символов
+    except sqlite3.OperationalError:  # РЅР°Р·РІР°РЅРёРµ РєРѕР»РѕРЅРЅС‹ РЅРµ РјРѕР¶РµС‚ РЅР°С‡РёРЅР°С‚СЊСЃСЏ СЃ С†РёС„СЂ Рё РЅРµРєРѕС‚РѕСЂС‹С… РїРѕС‚РµРЅС†РёР°Р»СЊРЅРѕ СЃР»СѓР¶РµР±РЅС‹С… СЃРёРјРІРѕР»РѕРІ
         textwithnum = "numnumnum" + new_name
         sql_str = f"ALTER TABLE socialnetworks RENAME COLUMN {old_name} TO {textwithnum}"
         cur.execute(sql_str)

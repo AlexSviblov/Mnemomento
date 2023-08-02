@@ -1,21 +1,21 @@
-import os
-import folium
+# coding: utf-8
 import json
-import math
 import logging
-from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
-from PyQt5.QtWidgets import *
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence
+import math
+import os
 from pathlib import Path
 
+import folium
+from PyQt5 import QtWidgets, QtGui, QtCore, QtWebEngineWidgets
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence
+from PyQt5.QtWidgets import *
+
 from Database import PhotoDataDB
-from GUI import Screenconfig, EditFiles, ErrorsAndWarnings, Settings
-from Metadata import MetadataPhoto
 from Explorer import Thumbnail
-
+from GUI import Screenconfig, EditFiles, ErrorsAndWarnings, Settings
 from GUI.Screenconfig import font14, font12
-
+from Metadata import MetadataPhoto
 
 stylesheet1 = str()
 stylesheet2 = str()
@@ -49,58 +49,22 @@ class ConstWidgetWindow(QWidget):
         self.setMaximumSize(Screenconfig.monitor_info()[0][0], Screenconfig.monitor_info()[0][1] - 63)
 
         self.layoutoutside = QGridLayout(self)
-        self.layoutoutside.setSpacing(10)
 
         self.layout_type = QGridLayout(self)
-        self.layout_type.setAlignment(Qt.AlignLeft)
         # создание объекта большой картинки
         self.pic = QtWidgets.QLabel()
-        self.pic.hide()
-        self.pic.setAlignment(Qt.AlignCenter)
         # создание внутреннего слоя для подвижной области
         self.layout_inside_thumbs = QGridLayout(self)
         # создание группы объектов для помещения в него кнопок
         self.groupbox_thumbs = QGroupBox(self)
-        self.groupbox_thumbs.setStyleSheet(stylesheet1)
-        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
         # создание подвижной области
         self.scroll_area = QScrollArea(self)
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setWidget(self.groupbox_thumbs)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area.setStyleSheet(stylesheet2)
-        # помещение подвижной области на слой
-        self.layoutoutside.addWidget(self.scroll_area, 1, 0, 2, 2)
-        # задание размеров подвижной области и её внутренностей
-        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)
-        self.scroll_area.setFixedWidth(200*self.thumb_row)
 
         self.groupbox_sort = QGroupBox(self)
-        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
-        self.groupbox_sort.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
-
-        self.fill_sort_comment("Дата")
-        self.fill_sort_groupbox()
-        self.fill_sort_date()
-        self.groupbox_sort.setLayout(self.layout_type)
 
         self.metadata_show = QtWidgets.QTableWidget()
-        self.metadata_show.setColumnCount(2)
-        self.metadata_show.setFont(font14)
-        self.metadata_show.setStyleSheet(stylesheet6)
-
-        self.metadata_show.horizontalHeader().setVisible(False)
-        self.metadata_show.verticalHeader().setVisible(False)
 
         self.metadata_header = self.metadata_show.horizontalHeader()
-        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-
-        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setDisabled(True)
-        self.metadata_show.hide()
 
         self.last_clicked = ""
 
@@ -108,36 +72,31 @@ class ConstWidgetWindow(QWidget):
         self.oldsize = QtCore.QSize(0, 0)
 
         self.layout_btns = QGridLayout(self)
-        self.layout_btns.setSpacing(0)
-        self.layout_btns.setAlignment(Qt.AlignRight)
 
         self.groupbox_btns = QGroupBox(self)
-        self.groupbox_btns.setLayout(self.layout_btns)
-        self.groupbox_btns.setStyleSheet(stylesheet2)
-        self.groupbox_btns.setFixedSize(120, 220)
-        self.groupbox_btns.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
-        self.make_buttons()
-        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
 
         self.socnet_group = QTableWidget(self)
-        self.socnet_group.setColumnCount(2)
-        self.socnet_group.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.socnet_group.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.socnet_group.horizontalHeader().setVisible(False)
-        self.socnet_group.verticalHeader().setVisible(False)
-        self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
-        self.socnet_group.setFocusPolicy(Qt.NoFocus)
-        self.socnet_group.setStyleSheet(stylesheet6)
-        self.socnet_group.hide()
+
+        self.layout_show = QGridLayout(self)
 
         self.photo_show = QGroupBox(self)
-        self.photo_show.setAlignment(Qt.AlignCenter)
-        self.layout_show = QGridLayout(self)
-        self.layout_show.setAlignment(Qt.AlignCenter)
-        self.layout_show.setHorizontalSpacing(10)
-        self.photo_show.setLayout(self.layout_show)
-        self.photo_show.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
+
+        self.group_type = QComboBox(self)
+
+        self.make_gui()
+
+        self.fill_sort_comment("Дата")
+        self.fill_sort_groupbox()
+        self.fill_sort_date()
+
+        self.make_buttons()
+
+        self.photo_path = str()
+        self.photo_directory = str()
+        self.last_clicked_name = str()
+        self.last_clicked_dir = str()
+        self.photo_rotation = str()
+        self.gps_coordinates = str()
 
     def stylesheet_color(self) -> None:
         """
@@ -185,6 +144,76 @@ class ConstWidgetWindow(QWidget):
             self.type_show_thumbnails()
         except AttributeError:
             pass
+
+    def make_gui(self) -> None:
+        self.layoutoutside.setSpacing(10)
+
+        self.layout_type.setAlignment(Qt.AlignLeft)
+
+        self.pic.hide()
+        self.pic.setAlignment(Qt.AlignCenter)
+
+        self.groupbox_thumbs.setStyleSheet(stylesheet1)
+        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
+
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setWidget(self.groupbox_thumbs)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setStyleSheet(stylesheet2)
+
+        # помещение подвижной области на слой
+        self.layoutoutside.addWidget(self.scroll_area, 1, 0, 2, 2)
+        # задание размеров подвижной области и её внутренностей
+        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)
+        self.scroll_area.setFixedWidth(200*self.thumb_row)
+
+        self.groupbox_sort.setFixedHeight(int(60*system_scale)+1)
+        self.groupbox_sort.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.groupbox_sort, 0, 1, 1, 3)
+
+        self.groupbox_sort.setLayout(self.layout_type)
+
+        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
+
+        self.metadata_show.setColumnCount(2)
+        self.metadata_show.setFont(font14)
+        self.metadata_show.setStyleSheet(stylesheet6)
+
+        self.metadata_show.horizontalHeader().setVisible(False)
+        self.metadata_show.verticalHeader().setVisible(False)
+
+        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+
+        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setDisabled(True)
+        self.metadata_show.hide()
+
+        self.layout_btns.setSpacing(0)
+        self.layout_btns.setAlignment(Qt.AlignRight)
+
+        self.groupbox_btns.setLayout(self.layout_btns)
+        self.groupbox_btns.setStyleSheet(stylesheet2)
+        self.groupbox_btns.setFixedSize(120, 220)
+        self.groupbox_btns.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding))
+
+        self.socnet_group.setColumnCount(2)
+        self.socnet_group.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.horizontalHeader().setVisible(False)
+        self.socnet_group.verticalHeader().setVisible(False)
+        self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
+        self.socnet_group.setFocusPolicy(Qt.NoFocus)
+        self.socnet_group.setStyleSheet(stylesheet6)
+        self.socnet_group.hide()
+
+        self.photo_show.setAlignment(Qt.AlignCenter)
+        self.layout_show.setAlignment(Qt.AlignCenter)
+        self.layout_show.setHorizontalSpacing(10)
+        self.photo_show.setLayout(self.layout_show)
+        self.photo_show.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.photo_show, 1, 2, 2, 2)
 
     def fill_date(self, mode: str) -> None:
         """
@@ -1136,7 +1165,6 @@ class ConstWidgetWindow(QWidget):
         """
         Выбор способа группировки
         """
-        self.group_type = QComboBox(self)
         self.group_type.addItem("Дата")
         if self.soc_net_setting:
             self.group_type.addItem("Соцсети")
@@ -1154,6 +1182,14 @@ class ConstWidgetWindow(QWidget):
 
         :param group_type:
         """
+        def comment_line_block():
+            if self.comment_check.checkState():
+                self.comment_line.setDisabled(False)
+            else:
+                self.comment_line.clear()
+                self.comment_line.setDisabled(True)
+                self.type_show_thumbnails()
+
         self.empty_sort = QLabel(self)
         self.empty_sort.setFixedHeight(int(30 * system_scale) + 1)
         self.empty_sort.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed))
@@ -1162,14 +1198,6 @@ class ConstWidgetWindow(QWidget):
         self.comment_check.setFont(font14)
         self.comment_check.setStyleSheet(stylesheet2)
         self.comment_check.setFixedHeight(int(30 * system_scale) + 1)
-
-        def comment_line_block():
-            if self.comment_check.checkState():
-                self.comment_line.setDisabled(False)
-            else:
-                self.comment_line.clear()
-                self.comment_line.setDisabled(True)
-                self.type_show_thumbnails()
 
         self.comment_check.stateChanged.connect(comment_line_block)
 

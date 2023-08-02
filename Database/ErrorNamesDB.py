@@ -1,18 +1,18 @@
+# coding: utf-8
 import os
 import sqlite3
 
 
-conn = sqlite3.connect(f"file:{os.getcwd()}\\PhotoDB.db", check_same_thread=False, uri=True)
+conn = sqlite3.connect(f"file:{os.getcwd()}\\ErrorNames.db", check_same_thread=False, uri=True)
 cur = conn.cursor()
 
 
 def edit_error_name(column: str, new_name: str, old_name: str) -> None:
     """
-    Редактирование записи
-    :param column: колонка (normname/exifname/type)
-    :param new_name: новое значение клетки
-    :param old_name: старое значение
-    :return:
+    Р РµРґР°РєС‚РёСЂРѕРІР°РЅРёРµ Р·Р°РїРёСЃРё
+    :param column: РєРѕР»РѕРЅРєР° (normname/exifname/type)
+    :param new_name: РЅРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ РєР»РµС‚РєРё
+    :param old_name: СЃС‚Р°СЂРѕРµ Р·РЅР°С‡РµРЅРёРµ
     """
     sql_red_str = f"UPDATE ernames SET {column} = '{new_name}' WHERE {column} = '{old_name}'"
     cur.execute(sql_red_str)
@@ -21,7 +21,7 @@ def edit_error_name(column: str, new_name: str, old_name: str) -> None:
 
 def get_all_ernames() -> list[tuple[str]]:
     """
-    Все данные из таблицы
+    Р’СЃРµ РґР°РЅРЅС‹Рµ РёР· С‚Р°Р±Р»РёС†С‹
     """
     cur.execute("SELECT * FROM ernames")
     all_results = cur.fetchall()
@@ -30,10 +30,10 @@ def get_all_ernames() -> list[tuple[str]]:
 
 def add_ername(equip_type: str, error_name: str, norm_name: str) -> None:
     """
-    Добавить новую запись в таблицу исправлений
-    :param equip_type: тип (объектив/камера/производитель)
-    :param error_name: неправильное название из метаданных
-    :param norm_name: корректное название для отображения
+    Р”РѕР±Р°РІРёС‚СЊ РЅРѕРІСѓСЋ Р·Р°РїРёСЃСЊ РІ С‚Р°Р±Р»РёС†Сѓ РёСЃРїСЂР°РІР»РµРЅРёР№
+    :param equip_type: С‚РёРї (РѕР±СЉРµРєС‚РёРІ/РєР°РјРµСЂР°/РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊ)
+    :param error_name: РЅРµРїСЂР°РІРёР»СЊРЅРѕРµ РЅР°Р·РІР°РЅРёРµ РёР· РјРµС‚Р°РґР°РЅРЅС‹С…
+    :param norm_name: РєРѕСЂСЂРµРєС‚РЅРѕРµ РЅР°Р·РІР°РЅРёРµ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ
     """
     enter_1 = "INSERT INTO ernames(type,exifname,normname) VALUES(?,?,?)"
     enter_2 = (equip_type, error_name, norm_name)
@@ -48,8 +48,8 @@ def add_ername(equip_type: str, error_name: str, norm_name: str) -> None:
 
 def delete_ername(exif_name: str) -> None:
     """
-    Удалить запись из таблицы
-    :param exif_name: заменяемое название
+    РЈРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ РёР· С‚Р°Р±Р»РёС†С‹
+    :param exif_name: Р·Р°РјРµРЅСЏРµРјРѕРµ РЅР°Р·РІР°РЅРёРµ
     """
     sql_del_str = f"DELETE FROM ernames WHERE exifname LIKE '{exif_name}'"
     cur.execute(sql_del_str)

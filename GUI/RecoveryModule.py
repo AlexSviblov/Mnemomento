@@ -1,3 +1,4 @@
+# coding: utf-8
 import logging
 import sys
 from PyQt5 import QtGui, QtCore

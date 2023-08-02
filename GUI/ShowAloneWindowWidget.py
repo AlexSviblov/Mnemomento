@@ -1,3 +1,4 @@
+# coding: utf-8
 import logging
 import os
 import folium
@@ -13,6 +14,8 @@ from Database import PhotoDataDB
 from Metadata import MetadataPhoto
 from GUI import Screenconfig, EditFiles, Settings
 
+from GUI.Screenconfig import font14, font12
+
 stylesheet1 = str()
 stylesheet2 = str()
 stylesheet3 = str()
@@ -24,10 +27,6 @@ icon_explorer = str()
 icon_view = str()
 icon_edit = str()
 icon_delete = str()
-
-
-font14 = QtGui.QFont("Times", 14)
-font12 = QtGui.QFont("Times", 12)
 
 
 system_scale = Screenconfig.monitor_info()[1]
@@ -50,7 +49,6 @@ class AloneWidgetWindow(QWidget):
         self.setStyleSheet(stylesheet2)
 
         self.layoutoutside = QGridLayout(self)
-        self.layoutoutside.setSpacing(10)
 
         self.thumb_row = Settings.get_thumbs_row()
         self.soc_net_setting = Settings.get_socnet_status()
@@ -159,7 +157,6 @@ class AloneWidgetWindow(QWidget):
         self.layout_btns = QGridLayout(self)
         self.layout_btns.setSpacing(0)
 
-        self.make_buttons()
         self.groupbox_btns = QGroupBox(self)
         self.groupbox_btns.setLayout(self.layout_btns)
         self.groupbox_btns.setStyleSheet(stylesheet2)
@@ -175,8 +172,6 @@ class AloneWidgetWindow(QWidget):
         self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
         self.socnet_group.setFocusPolicy(Qt.NoFocus)
         self.socnet_group.setStyleSheet(stylesheet6)
-
-        self.show_thumbnails()
 
         self.resized_signal.connect(self.resize_func)
         self.oldsize = QtCore.QSize(0, 0)
@@ -197,6 +192,10 @@ class AloneWidgetWindow(QWidget):
         self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
         self.btn_add_photos.clicked.connect(self.add_files_to_dir)
         self.btn_add_photos.setFixedWidth(int(200*system_scale)+1)
+
+        self.make_buttons()
+
+        self.show_thumbnails()
 
     def stylesheet_color(self) -> None:
         """
@@ -248,6 +247,10 @@ class AloneWidgetWindow(QWidget):
             self.show_thumbnails()
         except AttributeError:
             pass
+
+    def make_gui(self) -> None:
+        self.layoutoutside.setSpacing(10)
+
 
     def filter_on_off(self) -> None:
         """

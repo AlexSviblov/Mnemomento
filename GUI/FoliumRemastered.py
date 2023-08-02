@@ -1,3 +1,4 @@
+# coding: utf-8
 import PyQt5
 from PyQt5 import QtCore, QtWebEngineWidgets
 import folium
