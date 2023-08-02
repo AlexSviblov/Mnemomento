@@ -53,145 +53,55 @@ class AloneWidgetWindow(QWidget):
         self.thumb_row = Settings.get_thumbs_row()
         self.soc_net_setting = Settings.get_socnet_status()
 
-        self.pic = QtWidgets.QLabel()  # создание объекта большой картинки
-        self.pic.hide()
-        self.pic.setAlignment(Qt.AlignCenter)
+        self.pic = QtWidgets.QLabel()
 
         self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
-
-        self.scroll_area = QScrollArea(self)  # создание подвижной области
-        self.layoutoutside.addWidget(self.scroll_area, 1, 0, 2, 1)  # помещение подвижной области на слой
-        self.layout_inside_thumbs = QGridLayout(self)  # создание внутреннего слоя для подвижной области
-        self.groupbox_thumbs = QGroupBox(self)  # создание группы объектов для помещения в него кнопок
-        self.groupbox_thumbs.setStyleSheet(stylesheet1)
-        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
-        self.scroll_area.setWidget(self.groupbox_thumbs)
-        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)  # задание размеров подвижной области и её внутренностей
-
-        self.scroll_area.setFixedWidth(200*self.thumb_row)
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setWidget(self.groupbox_thumbs)
-        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.scroll_area.setStyleSheet(stylesheet2)
+        # создание подвижной области# создание объекта большой картинки
+        self.scroll_area = QScrollArea(self)
+        # создание внутреннего слоя для подвижной области
+        self.layout_inside_thumbs = QGridLayout(self)
+        # создание группы объектов для помещения в него кнопок
+        self.groupbox_thumbs = QGroupBox(self)
 
         self.layout_directory_choose = QGridLayout(self)
-        self.layout_directory_choose.setHorizontalSpacing(5)
-        self.layout_directory_choose.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         self.directory_lbl = QLabel(self)
-        self.directory_lbl.setText("Папка для просмотра:")
-        self.directory_lbl.setFixedWidth(int(200*system_scale)+1)
-        self.directory_lbl.setFont(font14)
-        self.directory_lbl.setStyleSheet(stylesheet2)
-        self.layout_directory_choose.addWidget(self.directory_lbl, 0, 0, 1, 1)
-
         self.directory_choose = QComboBox(self)
-        self.directory_choose.setFont(font14)
-        self.directory_choose.setStyleSheet(stylesheet9)
-        self.directory_choose.setSizeAdjustPolicy(QComboBox.AdjustToContents)
-        self.fill_directory_combobox()
-        self.directory_choose.setFixedHeight(int(30*system_scale)+1)
-        self.directory_choose.setFixedWidth(int((self.max_dir_name_len*12 + 40)*system_scale))
-        self.layout_directory_choose.addWidget(self.directory_choose, 0, 1, 1, 1)
 
         self.directory_delete = QPushButton(self)
-        self.directory_delete.setText("Удалить папку")
-        self.directory_delete.setFont(font14)
-        self.directory_delete.setStyleSheet(stylesheet8)
-        self.layout_directory_choose.addWidget(self.directory_delete, 0, 2, 1, 1)
-        self.directory_delete.clicked.connect(self.del_dir_func)
-        self.directory_delete.setFixedWidth(int(200*system_scale)+1)
 
         self.photo_filter = QCheckBox(self)
-        self.photo_filter.setText("Фильтр")
-        self.photo_filter.setFont(font14)
-        self.photo_filter.setStyleSheet(stylesheet2)
-        if self.soc_net_setting:
-            self.layout_directory_choose.addWidget(self.photo_filter, 0, 3, 1, 1)
-            self.photo_filter.stateChanged.connect(self.filter_on_off)
-        else:
-            self.photo_filter.hide()
 
         self.socnet_choose = QComboBox(self)
-        self.socnet_choose.setFont(font14)
-        self.socnet_choose.setStyleSheet(stylesheet9)
-        self.layout_directory_choose.addWidget(self.socnet_choose, 0, 4, 1, 1)
 
         self.sn_status = QComboBox(self)
-        self.sn_status.setFont(font14)
-        self.sn_status.setStyleSheet(stylesheet9)
-        self.sn_status.addItem("Не выбрано")
-        self.sn_status.addItem("Не публиковать")
-        self.sn_status.addItem("Опубликовать")
-        self.sn_status.addItem("Опубликовано")
-        self.sn_status.setFixedWidth(int(164*system_scale)+1)
-        self.layout_directory_choose.addWidget(self.sn_status, 0, 5, 1, 1)
-        self.socnet_choose.currentTextChanged.connect(self.show_thumbnails)
-        self.sn_status.currentTextChanged.connect(self.show_thumbnails)
-        self.socnet_choose.hide()
-        self.sn_status.hide()
 
         self.groupbox_directory_choose = QGroupBox(self)
-        self.groupbox_directory_choose.setLayout(self.layout_directory_choose)
-        self.groupbox_directory_choose.setMaximumHeight(int(50*system_scale)+1)
-        self.groupbox_directory_choose.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.groupbox_directory_choose, 0, 0, 1, 4)
 
         self.metadata_show = QtWidgets.QTableWidget()
-        self.metadata_show.setColumnCount(2)
-        self.metadata_show.setFont(font14)
-        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.metadata_show.setDisabled(True)
-        self.metadata_show.horizontalHeader().setVisible(False)
-        self.metadata_show.verticalHeader().setVisible(False)
         self.metadata_header = self.metadata_show.horizontalHeader()
-        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
-        self.metadata_show.setStyleSheet(stylesheet6)
 
         self.directory_choose.currentTextChanged.connect(self.show_thumbnails)
 
         self.last_clicked = ""
 
         self.layout_btns = QGridLayout(self)
-        self.layout_btns.setSpacing(0)
 
         self.groupbox_btns = QGroupBox(self)
-        self.groupbox_btns.setLayout(self.layout_btns)
-        self.groupbox_btns.setStyleSheet(stylesheet2)
-        self.groupbox_btns.setFixedSize(70, 220)
-        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
 
         self.socnet_group = QTableWidget(self)
-        self.socnet_group.setColumnCount(2)
-        self.socnet_group.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.socnet_group.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.socnet_group.horizontalHeader().setVisible(False)
-        self.socnet_group.verticalHeader().setVisible(False)
-        self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
-        self.socnet_group.setFocusPolicy(Qt.NoFocus)
-        self.socnet_group.setStyleSheet(stylesheet6)
 
         self.resized_signal.connect(self.resize_func)
         self.oldsize = QtCore.QSize(0, 0)
 
         self.photo_show = QGroupBox(self)
-        self.photo_show.setAlignment(Qt.AlignCenter)
         self.layout_show = QGridLayout(self)
-        self.layout_show.setAlignment(Qt.AlignCenter)
-        self.layout_show.setHorizontalSpacing(10)
-        self.photo_show.setLayout(self.layout_show)
-        self.photo_show.setStyleSheet(stylesheet2)
-        self.layoutoutside.addWidget(self.photo_show, 1, 1, 2, 3)
 
         self.btn_add_photos = QPushButton(self)
-        self.btn_add_photos.setText("Добавить файлы")
-        self.btn_add_photos.setFont(font14)
-        self.btn_add_photos.setStyleSheet(stylesheet8)
-        self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
-        self.btn_add_photos.clicked.connect(self.add_files_to_dir)
-        self.btn_add_photos.setFixedWidth(int(200*system_scale)+1)
+
+        self.fill_directory_combobox()
+
+        self.make_gui()
 
         self.make_buttons()
 
@@ -251,6 +161,122 @@ class AloneWidgetWindow(QWidget):
     def make_gui(self) -> None:
         self.layoutoutside.setSpacing(10)
 
+        self.pic.hide()
+        self.pic.setAlignment(Qt.AlignCenter)
+
+        # помещение подвижной области на слой
+        self.layoutoutside.addWidget(self.scroll_area, 1, 0, 2, 1)
+
+        self.groupbox_thumbs.setStyleSheet(stylesheet1)
+        self.groupbox_thumbs.setLayout(self.layout_inside_thumbs)
+        self.scroll_area.setWidget(self.groupbox_thumbs)
+
+        self.scroll_area.setFixedWidth(200*self.thumb_row)
+        self.scroll_area.setWidgetResizable(True)
+        self.scroll_area.setWidget(self.groupbox_thumbs)
+        self.scroll_area.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.scroll_area.setStyleSheet(stylesheet2)
+        # задание размеров подвижной области и её внутренностей
+        self.groupbox_thumbs.setFixedWidth(195*self.thumb_row)
+
+        self.layout_directory_choose.setHorizontalSpacing(5)
+        self.layout_directory_choose.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        self.directory_lbl.setText("Папка для просмотра:")
+        self.directory_lbl.setFixedWidth(int(200*system_scale)+1)
+        self.directory_lbl.setFont(font14)
+        self.directory_lbl.setStyleSheet(stylesheet2)
+        self.layout_directory_choose.addWidget(self.directory_lbl, 0, 0, 1, 1)
+
+        self.directory_choose.setFont(font14)
+        self.directory_choose.setStyleSheet(stylesheet9)
+        self.directory_choose.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+
+        self.directory_choose.setFixedHeight(int(30*system_scale)+1)
+        self.directory_choose.setFixedWidth(int((self.max_dir_name_len*12 + 40)*system_scale))
+        self.layout_directory_choose.addWidget(self.directory_choose, 0, 1, 1, 1)
+
+        self.directory_delete.setText("Удалить папку")
+        self.directory_delete.setFont(font14)
+        self.directory_delete.setStyleSheet(stylesheet8)
+        self.layout_directory_choose.addWidget(self.directory_delete, 0, 2, 1, 1)
+        self.directory_delete.clicked.connect(self.del_dir_func)
+        self.directory_delete.setFixedWidth(int(200*system_scale)+1)
+
+        self.photo_filter.setText("Фильтр")
+        self.photo_filter.setFont(font14)
+        self.photo_filter.setStyleSheet(stylesheet2)
+
+        if self.soc_net_setting:
+            self.layout_directory_choose.addWidget(self.photo_filter, 0, 3, 1, 1)
+            self.photo_filter.stateChanged.connect(self.filter_on_off)
+        else:
+            self.photo_filter.hide()
+
+        self.socnet_choose.setFont(font14)
+        self.socnet_choose.setStyleSheet(stylesheet9)
+        self.layout_directory_choose.addWidget(self.socnet_choose, 0, 4, 1, 1)
+
+        self.sn_status.setFont(font14)
+        self.sn_status.setStyleSheet(stylesheet9)
+        self.sn_status.addItem("Не выбрано")
+        self.sn_status.addItem("Не публиковать")
+        self.sn_status.addItem("Опубликовать")
+        self.sn_status.addItem("Опубликовано")
+        self.sn_status.setFixedWidth(int(164*system_scale)+1)
+        self.layout_directory_choose.addWidget(self.sn_status, 0, 5, 1, 1)
+        self.socnet_choose.currentTextChanged.connect(self.show_thumbnails)
+        self.sn_status.currentTextChanged.connect(self.show_thumbnails)
+        self.socnet_choose.hide()
+        self.sn_status.hide()
+
+        self.groupbox_directory_choose.setLayout(self.layout_directory_choose)
+        self.groupbox_directory_choose.setMaximumHeight(int(50*system_scale)+1)
+        self.groupbox_directory_choose.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.groupbox_directory_choose, 0, 0, 1, 4)
+
+        self.metadata_show.setColumnCount(2)
+        self.metadata_show.setFont(font14)
+        self.metadata_show.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.metadata_show.setDisabled(True)
+        self.metadata_show.horizontalHeader().setVisible(False)
+        self.metadata_show.verticalHeader().setVisible(False)
+
+        self.metadata_header.setSectionResizeMode(0, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_header.setSectionResizeMode(1, QtWidgets.QHeaderView.ResizeToContents)
+        self.metadata_show.setStyleSheet(stylesheet6)
+
+        self.layout_btns.setSpacing(0)
+
+        self.groupbox_btns.setLayout(self.layout_btns)
+        self.groupbox_btns.setStyleSheet(stylesheet2)
+        self.groupbox_btns.setFixedSize(70, 220)
+        self.layoutoutside.addWidget(self.groupbox_btns, 0, 4, 3, 1)
+
+        self.socnet_group.setColumnCount(2)
+        self.socnet_group.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.socnet_group.horizontalHeader().setVisible(False)
+        self.socnet_group.verticalHeader().setVisible(False)
+        self.socnet_group.setSelectionMode(QAbstractItemView.NoSelection)
+        self.socnet_group.setFocusPolicy(Qt.NoFocus)
+        self.socnet_group.setStyleSheet(stylesheet6)
+
+        self.photo_show.setAlignment(Qt.AlignCenter)
+
+        self.layout_show.setAlignment(Qt.AlignCenter)
+        self.layout_show.setHorizontalSpacing(10)
+        self.photo_show.setLayout(self.layout_show)
+        self.photo_show.setStyleSheet(stylesheet2)
+        self.layoutoutside.addWidget(self.photo_show, 1, 1, 2, 3)
+
+        self.btn_add_photos.setText("Добавить файлы")
+        self.btn_add_photos.setFont(font14)
+        self.btn_add_photos.setStyleSheet(stylesheet8)
+        self.layout_directory_choose.addWidget(self.btn_add_photos, 0, 6, 1, 1)
+        self.btn_add_photos.clicked.connect(self.add_files_to_dir)
+        self.btn_add_photos.setFixedWidth(int(200*system_scale)+1)
 
     def filter_on_off(self) -> None:
         """
