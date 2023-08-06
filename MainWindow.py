@@ -8,6 +8,7 @@ logging.basicConfig(filename=f"log.txt",
                     format="%(asctime)s - %(levelname)s - %(message)s",
                     datefmt="%d-%b-%y %H:%M:%S", level=logging.WARNING)
 
+
 def my_excepthook(e_type, value, traceback):
     print("EXCEPTHOOK")
     show_str = ""
@@ -19,7 +20,9 @@ def my_excepthook(e_type, value, traceback):
     error.setText(show_str)
     error.exec_()
 
+
 sys.excepthook = my_excepthook
+
 
 import os
 import json

@@ -3,6 +3,8 @@ import datetime
 import logging
 import os
 import sqlite3
+import math
+import decimal
 from typing import Tuple, List, Any
 
 from Metadata import MetadataPhoto
@@ -534,11 +536,11 @@ def get_date_photo_list(year: str, month: str, day: str, comment_status: bool, c
     return fullpaths
 
 
-def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[float, float] | bool | Any]], int, tuple[float | Any, ...] | tuple[float, float]]:
+def get_global_map_info(full_paths: list[str]) -> tuple[list[list[str | tuple[float, float] | bool | Any]], int, tuple[float | Any, ...] | tuple[float, float]]:
     """
     Достать из БД координаты фотографий. Это очень сильно намного пиздец как намного быстрее, чем доставать их из
     метаданных каждый раз. Заодно здесь же вычисляется, как центрировать и отдалять карту OSM.
-    :param fullpaths: абсолютные пути к фото
+    :param full_paths: абсолютные пути к фото
     :return: сочетание имени файла, его координат, даты съёмки, камеры, пути к миниатюре и группировки, отдаление карты,
     центральные координаты карты.
     """
@@ -550,7 +552,7 @@ def get_global_map_info(fullpaths: list[str]) -> tuple[list[list[str | tuple[flo
     most_west_point = 200.0
     most_east_point = -200.0
 
-    for photofile in fullpaths:
+    for photofile in full_paths:
         filename = photofile.split("/")[-1]
         catalog = photofile[:(-1)*len(filename)-1]
 
@@ -679,3 +681,39 @@ def db_order_settings() -> str:
             sort_str = "ORDER BY filename"
 
     return sort_str
+
+
+def search_nearly_photos(coordinates: list[float, float], distance: int = 1000):
+    # TODO: МЕНЯТЬ В БД КООРДИНАТЫ НА 3 КОЛОНКИ (ЕСТЬ-НЕТ INT 0-1, ДОЛГОТА REAL, ШИРОТА REAL)
+    #  чтобы можно было делать between для координат
+
+    # 1 градус = 111.3 км
+    # 0,00898 = 1 км
+    # 0,00000898 = 1 м
+
+    search_radius = distance * 0.00000898
+
+    search_radius = round(search_radius, 3)
+
+    if search_radius == 0:
+        search_radius = 0.001
+
+    latitude = coordinates[0]
+    longitude = coordinates[1]
+
+    latitude_approximately = round(latitude, 3)
+    latitude_max = latitude_approximately + search_radius
+    latitude_min = latitude_approximately - search_radius
+
+
+
+    sql_str = "SELECT filename, catalog, GPSdata from photos WHERE GPSdata != ''"
+    cur.execute(sql_str)
+    res = cur.fetchall()
+
+# WHERE CONTAINS(t.something, '"bla*" OR "foo*" OR "batz*"')
+
+# 55.823072, 37.642765
+# 55.829095, 37.647871
+# примерно 1 км - **.**+-6....
+
