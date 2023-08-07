@@ -769,13 +769,57 @@ class LocationSearcherWidget(QWidget):
         make_scroll_area()
 
     def get_photo_for_place(self, js_msg: str):
-        # TODO: поиск фото в базе с близкиим координатами, отображение и т.д.
-        row = 0
-        # широта (у Москвы - 55,...)
-        latitude = float(js_msg.split(",")[0])
-        # долгота - (у Москвы - 37,...)
-        longitude = float(js_msg.split(",")[1])
-        for symbol in js_msg:
-            lbl = QLabel(symbol)
-            self.layout_group.addWidget(lbl, row, 0, 1, 1)
-            row += 1
+        coordinates = [float(js_msg.split(",")[0]), float(js_msg.split(",")[1])]
+        nearly_photos_list = PhotoDataDB.search_nearly_photos(coordinates)
+        for photo in nearly_photos_list:
+            catalog_splitted = photo[1].split("/")
+            day = catalog_splitted[-1]
+            month = catalog_splitted[-2]
+            year = catalog_splitted[-3]
+            thumbnail_way = f"{Settings.get_destination_thumb()}/thumbnail/const/{year}/{month}/{day}/thumbnail_{photo[0]}"
+            photo.append(thumbnail_way)
+
+        self.fill_scroll_thumbs(nearly_photos_list)
+
+    def fill_scroll_thumbs(self, photo_data_list: list[str]):
+        i = 0
+        for photo in photo_data_list:
+            photo_group = QGroupBox()
+            photo_layout = QGridLayout()
+            photo_group.setLayout(photo_layout)
+
+            button = QToolButton()
+            button.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
+            print(photo[6])
+            iqon = QtGui.QIcon(photo[6])
+            iqon.pixmap(250, 250)
+            button.setMinimumHeight(280)
+            button.setFixedWidth(260)
+            button.setIcon(iqon)
+            button.setIconSize(QtCore.QSize(250, 250))
+            button.setText(photo[0])
+            button.setObjectName(f"{photo[1]}/{photo[0]}")
+            button.setStyleSheet(stylesheet1)
+
+            photo_layout.addWidget(button, 0, 0, 3, 1)
+
+            camera_lbl = QLabel()
+            camera_lbl.setText(f"Камера: {photo[3]}")
+            photo_layout.addWidget(camera_lbl, 0, 1, 1, 1)
+
+            lens_lbl = QLabel()
+            lens_lbl.setText(f"Объектив: {photo[4]}")
+            photo_layout.addWidget(lens_lbl, 1, 1, 1, 1)
+
+            date_lbl = QLabel()
+            date_lbl.setText(f"{photo[5][8:]}.{photo[5][5:7]}.{photo[5][:4]}")
+            photo_layout.addWidget(date_lbl, 2, 1, 1, 1)
+
+            self.layout_group.addWidget(photo_group, i, 0, 1, 1)
+            i += 1
+
+            # TODO: функциональные кнопки
+            # TODO: Stylesheet, fonts
+            # TODO: динамическая загрузка
+            # TODO: метки на карте
+            # TODO: задавать расстояние

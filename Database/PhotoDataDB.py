@@ -683,37 +683,38 @@ def db_order_settings() -> str:
     return sort_str
 
 
-def search_nearly_photos(coordinates: list[float, float], distance: int = 1000):
+def search_nearly_photos(coordinates: list[float, float], distance: int = 1000) -> list[list[str]]:
     # TODO: МЕНЯТЬ В БД КООРДИНАТЫ НА 3 КОЛОНКИ (ЕСТЬ-НЕТ INT 0-1, ДОЛГОТА REAL, ШИРОТА REAL)
     #  чтобы можно было делать between для координат
 
     # 1 градус = 111.3 км
-    # 0,00898 = 1 км
-    # 0,00000898 = 1 м
+    # 0.00898 = 1 км
+    # 0.00000898 = 1 м
+
+    # 55.823072, 37.642765
+    # 55.829095, 37.647871
+    # примерно 1 км - **.**+-6....
 
     search_radius = distance * 0.00000898
-
-    search_radius = round(search_radius, 3)
 
     if search_radius == 0:
         search_radius = 0.001
 
-    latitude = coordinates[0]
-    longitude = coordinates[1]
+    point_latitude = coordinates[0]
+    point_longitude = coordinates[1]
 
-    latitude_approximately = round(latitude, 3)
-    latitude_max = latitude_approximately + search_radius
-    latitude_min = latitude_approximately - search_radius
-
-
-
-    sql_str = "SELECT filename, catalog, GPSdata from photos WHERE GPSdata != ''"
+    sql_str = ("SELECT filename, catalog, GPSdata, camera, lens, shootingdate from photos WHERE GPSdata != '' AND "
+               "catalog LIKE '%/Photo/const/%'")
     cur.execute(sql_str)
     res = cur.fetchall()
 
-# WHERE CONTAINS(t.something, '"bla*" OR "foo*" OR "batz*"')
+    photos_in_radius = []
 
-# 55.823072, 37.642765
-# 55.829095, 37.647871
-# примерно 1 км - **.**+-6....
+    for photo_data in res:
+        latitude = float(photo_data[2].split(", ")[0])
+        longitude = float(photo_data[2].split(", ")[1])
 
+        if abs(point_latitude - latitude) <= search_radius and abs(point_longitude - longitude) <= search_radius:
+            photos_in_radius.append(list(photo_data))
+
+    return photos_in_radius
