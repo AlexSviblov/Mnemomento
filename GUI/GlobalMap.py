@@ -873,7 +873,6 @@ class LocationSearcherWidget(QWidget):
             i += 1
             QtCore.QCoreApplication.processEvents()
 
-            # TODO: функциональные кнопки: открыть в осн.каталоге, открыть сам файл, открыть в проводнике
             # TODO: метки на карте
             # TODO: поиск по координатам
 
