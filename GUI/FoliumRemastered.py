@@ -6,7 +6,6 @@ import jinja2
 import logging
 
 
-#
 class WebEnginePage(QtWebEngineWidgets.QWebEnginePage):
     """
     Переделанный класс для работы с вебом, который генерируется JS'ом, который генерируется шаблонами

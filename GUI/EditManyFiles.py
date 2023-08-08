@@ -363,11 +363,11 @@ class ManyPhotoEdit(QWidget):
         """
         if not status:
             try:
-                map_gps_widget.deleteLater()
-            except (RuntimeError, AttributeError):
+                self.map_gps_widget.deleteLater()
+            except (RuntimeError, AttributeError, UnboundLocalError):
                 pass
         else:
-            map_gps_widget = QtWebEngineWidgets.QWebEngineView()
+            self.map_gps_widget = QtWebEngineWidgets.QWebEngineView()
 
             map_gps = folium.Map(location=(0, 0), zoom_start=1)
 
@@ -375,7 +375,7 @@ class ManyPhotoEdit(QWidget):
             # координаты будут сигналом в переопределённом классе вызывать функцию write_coords_to_lines
             map_gps.add_child(ClickForLatLng(format_str='lat + "," + lng'))
 
-            page = WebEnginePage(map_gps_widget)
+            page = WebEnginePage(self.map_gps_widget)
 
             # записать выплюнутые в логи координаты в нужные поля
             def write_coords_to_lines(msg: str):
@@ -383,13 +383,13 @@ class ManyPhotoEdit(QWidget):
                 self.new_gps_lon_line.setText(msg.split(",")[1])
 
             page.coordinates_transfer.connect(lambda msg: write_coords_to_lines(msg))
-            map_gps_widget.setPage(page)
+            self.map_gps_widget.setPage(page)
 
             popup = LatLngPopup()
             map_gps.add_child(popup)
-            map_gps_widget.setHtml(map_gps.get_root().render())
+            self.map_gps_widget.setHtml(map_gps.get_root().render())
 
-            self.layout_outside.addWidget(map_gps_widget, 1, 3, 1, 1)
+            self.layout_outside.addWidget(self.map_gps_widget, 1, 3, 1, 1)
 
     def make_buttons(self) -> None:
         """

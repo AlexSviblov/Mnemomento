@@ -452,6 +452,7 @@ class MainWindow(QMainWindow):
         """
         def search_map():
             chosen_widget = GlobalMap.LocationSearcherWidget()
+            chosen_widget.open_main_catalog_by_map.connect(open_main_catalog)
             self.stylesheet_color()
             self.setCentralWidget(chosen_widget)
 
@@ -460,6 +461,18 @@ class MainWindow(QMainWindow):
             self.stylesheet_color()
             self.setCentralWidget(chosen_widget)
 
+        def open_main_catalog(photo_path):
+            file_splitted = photo_path.split("/")
+            self.show_main_const_widget()
+            self.centralWidget().date_year.setCurrentText(file_splitted[-4])
+            self.centralWidget().date_month.setCurrentText(file_splitted[-3])
+            self.centralWidget().date_day.setCurrentText(file_splitted[-2])
+
+            for i in range(self.centralWidget().layout_inside_thumbs.count()):
+                if self.centralWidget().layout_inside_thumbs.itemAt(i).widget().objectName() == photo_path:
+                    self.centralWidget().layout_inside_thumbs.itemAt(i).widget().click()
+                    break
+        
         widget = GlobalMap.MapStartChooseWidget()
         widget.global_signal.connect(global_map)
         widget.search_signal.connect(search_map)

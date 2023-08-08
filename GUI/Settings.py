@@ -541,13 +541,11 @@ class SettingWidget(QWidget):
         """
         Очистка папки логов, лог сегодняшнего дня не очищается, так как используется самой программой во время работы
         """
-        path = os.getcwd() + r"\logs"
-        files = os.listdir(path)
-        for file in files:
-            try:
-                os.remove(path + "\\" + file)
-            except PermissionError:
-                pass
+        path = os.getcwd()
+        try:
+            os.remove(path + "\\" + "log.txt")
+        except PermissionError:
+            pass
         logging.info(f"Settings - Logs cleared")
 
 

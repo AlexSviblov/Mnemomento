@@ -4,20 +4,18 @@ import folium
 import base64
 from Database import PhotoDataDB
 from Metadata import MetadataPhoto
-from GUI import Screenconfig, Settings
+from GUI import Settings
 
 from PyQt5 import QtWebEngineWidgets, QtGui, QtCore
 from PyQt5.QtWidgets import *
-from PyQt5.QtCore import pyqtSignal
 from pathlib import Path
 from folium.plugins import MousePosition
-from PIL import Image
-from PIL import ImageFile
 from folium import IFrame
+from PIL import Image, ImageFile
 
 from GUI.FoliumRemastered import WebEnginePage, ClickForLatLng, LatLngPopup
 
-from GUI.Screenconfig import font16, font14
+from GUI.Screenconfig import *
 
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
@@ -28,9 +26,11 @@ stylesheet5 = str()
 stylesheet8 = str()
 stylesheet9 = str()
 map_tiles = str()
+icon_explorer = str()
+icon_view = str()
 
 
-system_scale = Screenconfig.monitor_info()[1]
+system_scale = monitor_info()[1]
 
 
 class MapStartChooseWidget(QWidget):
@@ -60,7 +60,7 @@ class MapStartChooseWidget(QWidget):
         global stylesheet9
 
         theme = Settings.get_theme_color()
-        style = Screenconfig.style_dict
+        style = style_dict
         stylesheet2 = style[f"{theme}"]["stylesheet2"]
         stylesheet8 = style[f"{theme}"]["stylesheet8"]
 
@@ -114,8 +114,8 @@ class GlobalMapWidget(QWidget):
     """
 
     """
-    update_main_widget = pyqtSignal()
-    cancel_signal = pyqtSignal()
+    update_main_widget = QtCore.pyqtSignal()
+    cancel_signal = QtCore.pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -171,7 +171,7 @@ class GlobalMapWidget(QWidget):
         global map_tiles
 
         theme = Settings.get_theme_color()
-        style = Screenconfig.style_dict
+        style = style_dict
         stylesheet2 = style[f"{theme}"]["stylesheet2"]
         stylesheet8 = style[f"{theme}"]["stylesheet8"]
         stylesheet9 = style[f"{theme}"]["stylesheet9"]
@@ -256,7 +256,6 @@ class GlobalMapWidget(QWidget):
         if map_points_combo:
             if len(map_points_combo) > 100:
                 self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
-                self.marker_cluster = folium.plugins.MarkerCluster().add_to(self.map_gps)
                 for photo in map_points_combo:
                     QtCore.QCoreApplication.processEvents()
                     locations.append(photo[1])
@@ -280,11 +279,11 @@ class GlobalMapWidget(QWidget):
                 QtCore.QCoreApplication.processEvents()
             else:
                 self.map_gps = folium.Map(location=map_center, zoom_start=zoom_level, tiles=map_tiles)
-                self.marker_cluster = folium.plugins.MarkerCluster().add_to(self.map_gps)
+                marker_cluster = folium.plugins.MarkerCluster().add_to(self.map_gps)
                 for photo in map_points_combo:
                     iframe = self.popup_html(photo[0], photo[2], photo[3], photo[4])
                     popup = folium.Popup(iframe)
-                    folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color="red", icon="glyphicon glyphicon-camera")).add_to(self.marker_cluster)
+                    folium.Marker(location=photo[1], popup=popup, icon=folium.Icon(color="red", icon="glyphicon glyphicon-camera")).add_to(marker_cluster)
 
                     self.progressbar.setValue(int((progress / len(map_points_combo)) * 99 + 1))
                     self.progressbar.update()
@@ -710,6 +709,8 @@ class PathsLooter(QtCore.QThread):
 
 
 class LocationSearcherWidget(QWidget):
+    open_main_catalog_by_map = QtCore.pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.layout_main = QGridLayout(self)
@@ -720,21 +721,32 @@ class LocationSearcherWidget(QWidget):
         self.scroll_area = QScrollArea(self)
         self.layout_group = QGridLayout(self)
 
+        self.top_box_group = QGroupBox(self)
+        self.layout_top_box = QGridLayout(self)
+
+        self.distance_lbl = QLabel(self)
+        self.distance_edit = QLineEdit(self)
+
         self.stylesheet_color()
         self.make_gui()
 
     def stylesheet_color(self) -> None:
         global stylesheet1
         global stylesheet2
+        global icon_explorer
+        global icon_view
 
         theme = Settings.get_theme_color()
-        style = Screenconfig.style_dict
+        style = style_dict
         stylesheet1 = style[f"{theme}"]["stylesheet1"]
         stylesheet2 = style[f"{theme}"]["stylesheet2"]
+        icon_explorer = style[f"{theme}"]["icon_explorer"]
+        icon_view = style[f"{theme}"]["icon_view"]
 
         try:
             self.setStyleSheet(stylesheet2)
             self.groupbox_photos.setStyleSheet(stylesheet1)
+            self.top_box_group.setStyleSheet(stylesheet1)
             self.scroll_area.setStyleSheet(stylesheet2)
         except AttributeError:
             pass
@@ -754,7 +766,8 @@ class LocationSearcherWidget(QWidget):
             self.map_gps_widget.setPage(page)
 
             self.map_gps_widget.setHtml(map_gps.get_root().render())
-            self.layout_main.addWidget(self.map_gps_widget, 0, 0, 1, 1)
+            self.map_gps_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.layout_main.addWidget(self.map_gps_widget, 1, 0, 1, 1)
 
         def make_scroll_area() -> None:
             self.groupbox_photos.setLayout(self.layout_group)
@@ -762,15 +775,37 @@ class LocationSearcherWidget(QWidget):
             self.scroll_area.setWidgetResizable(True)
             self.scroll_area.setWidget(self.groupbox_photos)
 
-            self.layout_main.addWidget(self.scroll_area, 0, 1, 1, 1)
+            self.layout_main.addWidget(self.scroll_area, 1, 1, 1, 1)
+
+        def make_top_box() -> None:
+            self.top_box_group.setLayout(self.layout_top_box)
+            self.layout_main.addWidget(self.top_box_group, 0, 0, 1, 2)
+
+            self.distance_lbl.setText("Расстояние поиска [м]:")
+            self.distance_lbl.setFont(font10)
+            self.distance_lbl.setStyleSheet(stylesheet2)
+
+            self.distance_edit.setValidator(QtGui.QIntValidator(1, 1000000))
+            self.distance_edit.setText("1000")
+            self.distance_edit.setFont(font10)
+            self.distance_edit.setStyleSheet(stylesheet1)
+
+            self.layout_top_box.addWidget(self.distance_lbl, 0, 0, 1, 1)
+            self.layout_top_box.addWidget(self.distance_edit, 0, 1, 1, 1)
 
         self.setLayout(self.layout_main)
         make_map()
         make_scroll_area()
+        make_top_box()
 
     def get_photo_for_place(self, js_msg: str):
+        for i in reversed(range(self.layout_group.count())):
+            self.layout_group.itemAt(i).widget().hide()
+            self.layout_group.itemAt(i).widget().deleteLater()
+            QtCore.QCoreApplication.processEvents()
+
         coordinates = [float(js_msg.split(",")[0]), float(js_msg.split(",")[1])]
-        nearly_photos_list = PhotoDataDB.search_nearly_photos(coordinates)
+        nearly_photos_list = PhotoDataDB.search_nearly_photos(coordinates, distance=int(self.distance_edit.text()))
         for photo in nearly_photos_list:
             catalog_splitted = photo[1].split("/")
             day = catalog_splitted[-1]
@@ -787,10 +822,10 @@ class LocationSearcherWidget(QWidget):
             photo_group = QGroupBox()
             photo_layout = QGridLayout()
             photo_group.setLayout(photo_layout)
+            photo_group.setMaximumHeight(300)
 
             button = QToolButton()
             button.setToolButtonStyle(QtCore.Qt.ToolButtonTextUnderIcon)
-            print(photo[6])
             iqon = QtGui.QIcon(photo[6])
             iqon.pixmap(250, 250)
             button.setMinimumHeight(280)
@@ -799,27 +834,57 @@ class LocationSearcherWidget(QWidget):
             button.setIconSize(QtCore.QSize(250, 250))
             button.setText(photo[0])
             button.setObjectName(f"{photo[1]}/{photo[0]}")
+            button.setFont(font10)
             button.setStyleSheet(stylesheet1)
+            button.clicked.connect(self.open_main_catalog)
 
-            photo_layout.addWidget(button, 0, 0, 3, 1)
+            photo_layout.addWidget(button, 0, 0, 3, 1, alignment=QtCore.Qt.AlignVCenter)
 
-            camera_lbl = QLabel()
-            camera_lbl.setText(f"Камера: {photo[3]}")
-            photo_layout.addWidget(camera_lbl, 0, 1, 1, 1)
+            description_lbl = QLabel()
+            description_lbl.setText(f"Камера: {photo[3]}\n\n"
+                                    f"Объектив: {photo[4]}\n\n"
+                                    f"{photo[5][8:]}.{photo[5][5:7]}.{photo[5][:4]}")
+            description_lbl.setFont(font10)
+            description_lbl.setStyleSheet(stylesheet2)
+            photo_layout.addWidget(description_lbl, 0, 1, 3, 1)
 
-            lens_lbl = QLabel()
-            lens_lbl.setText(f"Объектив: {photo[4]}")
-            photo_layout.addWidget(lens_lbl, 1, 1, 1, 1)
+            explorer_btn = QToolButton()
+            explorer_btn.setStyleSheet(stylesheet1)
+            explorer_btn.setIcon(QtGui.QIcon(icon_explorer))
+            explorer_btn.setIconSize(QtCore.QSize(30, 30))
+            explorer_btn.setToolTip("Показать в проводнике")
+            explorer_btn.setFixedSize(30, 30)
+            explorer_btn.setObjectName(f"{photo[1]}/{photo[0]}")
+            explorer_btn.clicked.connect(self.call_explorer)
 
-            date_lbl = QLabel()
-            date_lbl.setText(f"{photo[5][8:]}.{photo[5][5:7]}.{photo[5][:4]}")
-            photo_layout.addWidget(date_lbl, 2, 1, 1, 1)
+            open_file_btn = QToolButton(self)
+            open_file_btn.setStyleSheet(stylesheet1)
+            open_file_btn.setIcon(QtGui.QIcon(icon_view))
+            open_file_btn.setIconSize(QtCore.QSize(30, 30))
+            open_file_btn.setToolTip("Открыть")
+            open_file_btn.setFixedSize(30, 30)
+            open_file_btn.setObjectName(f"{photo[1]}/{photo[0]}")
+            open_file_btn.clicked.connect(self.open_file_func)
+
+            photo_layout.addWidget(explorer_btn, 0, 2, 1, 1)
+            photo_layout.addWidget(open_file_btn, 2, 2, 1, 1)
 
             self.layout_group.addWidget(photo_group, i, 0, 1, 1)
             i += 1
+            QtCore.QCoreApplication.processEvents()
 
-            # TODO: функциональные кнопки
-            # TODO: Stylesheet, fonts
-            # TODO: динамическая загрузка
+            # TODO: функциональные кнопки: открыть в осн.каталоге, открыть сам файл, открыть в проводнике
             # TODO: метки на карте
-            # TODO: задавать расстояние
+            # TODO: поиск по координатам
+
+    def call_explorer(self):
+        open_path = self.sender().objectName().replace("/", "\\")
+        os.system(f'explorer /select,\"{open_path}\"')
+
+    def open_file_func(self):
+        open_path = self.sender().objectName().replace("/", "\\")
+        os.startfile(open_path)
+
+    def open_main_catalog(self):
+        photo_path = self.sender().objectName()
+        self.open_main_catalog_by_map.emit(photo_path)
