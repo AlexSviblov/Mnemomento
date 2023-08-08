@@ -727,6 +727,11 @@ class LocationSearcherWidget(QWidget):
         self.distance_lbl = QLabel(self)
         self.distance_edit = QLineEdit(self)
 
+        self.check_date_filter = QCheckBox(self)
+        self.date_start_edit = QDateEdit(self)
+        self.date_finish_edit = QDateEdit(self)
+        self.date_dash_lbl = QLabel(self)
+
         self.stylesheet_color()
         self.make_gui()
 
@@ -745,9 +750,7 @@ class LocationSearcherWidget(QWidget):
 
         try:
             self.setStyleSheet(stylesheet2)
-            self.groupbox_photos.setStyleSheet(stylesheet1)
-            self.top_box_group.setStyleSheet(stylesheet1)
-            self.scroll_area.setStyleSheet(stylesheet2)
+            self.make_gui()
         except AttributeError:
             pass
 
@@ -779,16 +782,57 @@ class LocationSearcherWidget(QWidget):
 
         def make_top_box() -> None:
             self.top_box_group.setLayout(self.layout_top_box)
+            self.layout_top_box.setAlignment(QtCore.Qt.AlignLeft)
             self.layout_main.addWidget(self.top_box_group, 0, 0, 1, 2)
 
             self.distance_lbl.setText("Расстояние поиска [м]:")
-            self.distance_lbl.setFont(font10)
+            self.distance_lbl.setFont(font12)
             self.distance_lbl.setStyleSheet(stylesheet2)
+            self.distance_lbl.setFixedWidth(170)
 
             self.distance_edit.setValidator(QtGui.QIntValidator(1, 1000000))
             self.distance_edit.setText("1000")
-            self.distance_edit.setFont(font10)
+            self.distance_edit.setFont(font12)
             self.distance_edit.setStyleSheet(stylesheet1)
+            self.distance_edit.setMaximumWidth(300)
+
+            self.date_dash_lbl.setText("-")
+            self.date_dash_lbl.setMaximumWidth(10)
+            self.date_dash_lbl.setFont(font12)
+            self.date_dash_lbl.setStyleSheet(stylesheet2)
+
+            self.date_start_edit.setFont(font12)
+            self.date_start_edit.setStyleSheet(stylesheet1)
+            self.date_start_edit.setFixedWidth(150)
+
+            self.date_finish_edit.setFont(font12)
+            self.date_finish_edit.setStyleSheet(stylesheet1)
+            self.date_finish_edit.setFixedWidth(150)
+
+            self.check_date_filter.setFont(font12)
+            self.check_date_filter.setText("Фильтр по дате")
+            self.check_date_filter.setStyleSheet(stylesheet2)
+            self.check_date_filter.setFixedWidth(160)
+
+            self.check_date_filter.setCheckState(QtCore.Qt.Unchecked)
+            self.check_date_filter.stateChanged.connect(self.show_hide_date_filter)
+
+            self.show_hide_date_filter()
+
+            min_date, max_date = PhotoDataDB.get_min_max_dates()
+            self.date_start_edit.setMinimumDate(min_date)
+            self.date_finish_edit.setMinimumDate(min_date)
+
+            self.date_start_edit.setMaximumDate(max_date)
+            self.date_finish_edit.setMaximumDate(max_date)
+
+            self.date_start_edit.setDate(min_date)
+            self.date_finish_edit.setDate(max_date)
+
+            self.layout_top_box.addWidget(self.check_date_filter, 0, 2, 1, 1)
+            self.layout_top_box.addWidget(self.date_start_edit, 0, 3, 1, 1)
+            self.layout_top_box.addWidget(self.date_dash_lbl, 0, 4, 1, 1)
+            self.layout_top_box.addWidget(self.date_finish_edit, 0, 5, 1, 1)
 
             self.layout_top_box.addWidget(self.distance_lbl, 0, 0, 1, 1)
             self.layout_top_box.addWidget(self.distance_edit, 0, 1, 1, 1)
@@ -798,7 +842,12 @@ class LocationSearcherWidget(QWidget):
         make_scroll_area()
         make_top_box()
 
-    def get_photo_for_place(self, js_msg: str):
+    def get_photo_for_place(self, js_msg: str) -> None:
+        """
+        Получить коррдинаты, выбранные на карте. Запрос в БД. Добавить путь к миниатюре. Вызвать отрисовку элементов
+        справа
+        :param js_msg: координаты, получаемые в виде строки от веб-страницы карты
+        """
         for i in reversed(range(self.layout_group.count())):
             self.layout_group.itemAt(i).widget().hide()
             self.layout_group.itemAt(i).widget().deleteLater()
@@ -816,7 +865,12 @@ class LocationSearcherWidget(QWidget):
 
         self.fill_scroll_thumbs(nearly_photos_list)
 
-    def fill_scroll_thumbs(self, photo_data_list: list[str]):
+    def fill_scroll_thumbs(self, photo_data_list: list[list[str]]) -> None:
+        """
+        Создание элементов для всех фотографий, удовлитворяющих поиску
+        :param photo_data_list: список списков формата - название файла-каталог-коррдинаты-камера-объектив-дата съёмки-
+        -путь к миниатюре
+        """
         i = 0
         for photo in photo_data_list:
             photo_group = QGroupBox()
@@ -840,10 +894,14 @@ class LocationSearcherWidget(QWidget):
 
             photo_layout.addWidget(button, 0, 0, 3, 1, alignment=QtCore.Qt.AlignVCenter)
 
+            if photo[5]:
+                date_str = f"{photo[5][8:]}.{photo[5][5:7]}.{photo[5][:4]}"
+            else:
+                date_str = ""
             description_lbl = QLabel()
             description_lbl.setText(f"Камера: {photo[3]}\n\n"
                                     f"Объектив: {photo[4]}\n\n"
-                                    f"{photo[5][8:]}.{photo[5][5:7]}.{photo[5][:4]}")
+                                    f"{date_str}")
             description_lbl.setFont(font10)
             description_lbl.setStyleSheet(stylesheet2)
             photo_layout.addWidget(description_lbl, 0, 1, 3, 1)
@@ -875,6 +933,7 @@ class LocationSearcherWidget(QWidget):
 
             # TODO: метки на карте
             # TODO: поиск по координатам
+            # TODO: поиск по датам
 
     def call_explorer(self):
         open_path = self.sender().objectName().replace("/", "\\")
@@ -887,3 +946,13 @@ class LocationSearcherWidget(QWidget):
     def open_main_catalog(self):
         photo_path = self.sender().objectName()
         self.open_main_catalog_by_map.emit(photo_path)
+
+    def show_hide_date_filter(self):
+        if self.check_date_filter.checkState():
+            self.date_start_edit.show()
+            self.date_dash_lbl.show()
+            self.date_finish_edit.show()
+        else:
+            self.date_start_edit.hide()
+            self.date_dash_lbl.hide()
+            self.date_finish_edit.hide()

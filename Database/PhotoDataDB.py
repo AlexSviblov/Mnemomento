@@ -684,9 +684,6 @@ def db_order_settings() -> str:
 
 
 def search_nearly_photos(coordinates: list[float, float], distance: int = 1000) -> list[list[str]]:
-    # TODO: МЕНЯТЬ В БД КООРДИНАТЫ НА 3 КОЛОНКИ (ЕСТЬ-НЕТ INT 0-1, ДОЛГОТА REAL, ШИРОТА REAL)
-    #  чтобы можно было делать between для координат
-
     # 1 градус = 111.3 км
     # 0.00898 = 1 км
     # 0.00000898 = 1 м
@@ -703,8 +700,8 @@ def search_nearly_photos(coordinates: list[float, float], distance: int = 1000) 
     point_latitude = coordinates[0]
     point_longitude = coordinates[1]
 
-    sql_str = ("SELECT filename, catalog, GPSdata, camera, lens, shootingdate from photos WHERE GPSdata != '' AND "
-               "catalog LIKE '%/Photo/const/%'")
+    sql_str = (f"SELECT filename, catalog, GPSdata, camera, lens, shootingdate from photos WHERE GPSdata != '' AND "
+               f"catalog LIKE '%/Photo/const/%' {db_order_settings()}")
     cur.execute(sql_str)
     res = cur.fetchall()
 
@@ -718,3 +715,16 @@ def search_nearly_photos(coordinates: list[float, float], distance: int = 1000) 
             photos_in_radius.append(list(photo_data))
 
     return photos_in_radius
+
+
+def get_min_max_dates() -> tuple[datetime.date, datetime.date]:
+    sql_str = "SELECT shootingdate FROM photos WHERE shootingdate != '' GROUP BY shootingdate"
+    cur.execute(sql_str)
+    res = cur.fetchall()
+    dates_str_list = [date[0] for date in res]
+    dates_list = [datetime.datetime.strptime(date_str, "%Y.%m.%d").date() for date_str in dates_str_list]
+
+    min_date = min(dates_list)
+    max_date = max(dates_list)
+
+    return min_date, max_date
