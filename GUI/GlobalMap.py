@@ -854,6 +854,7 @@ class LocationSearcherWidget(QWidget):
             QtCore.QCoreApplication.processEvents()
 
         coordinates = [float(js_msg.split(",")[0]), float(js_msg.split(",")[1])]
+        # TODO: передача даты в поиск
         nearly_photos_list = PhotoDataDB.search_nearly_photos(coordinates, distance=int(self.distance_edit.text()))
         for photo in nearly_photos_list:
             catalog_splitted = photo[1].split("/")

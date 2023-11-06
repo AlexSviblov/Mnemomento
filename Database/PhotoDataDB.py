@@ -691,7 +691,8 @@ def search_nearly_photos(coordinates: list[float, float], distance: int = 1000) 
     # 55.823072, 37.642765
     # 55.829095, 37.647871
     # примерно 1 км - **.**+-6....
-
+    # TODO: добавить фильтр по дате
+    # strptime(date_str, "%Y.%m.%d")
     search_radius = distance * 0.00000898
 
     if search_radius == 0:

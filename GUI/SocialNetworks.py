@@ -147,7 +147,7 @@ class SocialNetworks(QWidget):
             soc_net_lbl.setFixedWidth(int((max_sn_name*15) * system_scale) + 1)
             self.networks_group.setFixedWidth(soc_net_lbl.width() + btn_del.width() + btn_red.width() + self.group_layout.spacing() * 4 + 10)
             self.networks_group.setFixedHeight(self.add_btn.height() + len(networks) * 60)
-        except (AttributeError, RuntimeError):
+        except (AttributeError, RuntimeError, UnboundLocalError):
             pass
         self.resize(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
         self.resize_signal.emit(self.networks_group.width(), self.add_btn.height() + self.networks_group.height() + 10)
